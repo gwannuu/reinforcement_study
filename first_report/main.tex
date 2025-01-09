@@ -6,12 +6,21 @@
 
 \usepackage{hyperref} % Activate index and hyperlink
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
-\usepackage{}
+\usepackage{amsmath} % Automatically numbers and align the equations
+\usepackage{amsfonts} % To use mathematical fonts like mathbb
+\usepackage{cleveref} % clearly reference equation in text
+\usepackage{braket} % braket
+\usepackage{eulervm} %font for equation
 %----------------------------------------------------------------------------------------
 %	Def
 %----------------------------------------------------------------------------------------
 \def\tcr{\textcolor{red}}
 \def\tcb{\textcolor{blue}}
+\def\n{\newline}
+\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
 
 %----------------------------------------------------------------------------------------
 %	SELECT FONT THEME & FONTS
@@ -92,8 +101,45 @@
 \author{Gwanwoo Choi}
 \date{\today}
 \tableofcontents
+\newpage
 \section{Markov Process}
-Markov Process is one of stochastic processs that satisfies under equation.
-\subsection{Markov Random Process}
+In probability theory and statistics, a markov process is a stochastic process describing a sequence of possible events in which the probability of each event depends only on the state attained in the previous event. If stochastic process satisfies \cref{eq:eq1}, then that is \tb{markov process} and state $S_t$ is \tb{markov}.
+\begin{equation} \label{eq:eq1}
+    \mb{P}[S_{t+1}|S_t] = \mb{P}[S_{t+1}|S_t,S_{t-1},\dots,S_{1}]
+\end{equation}
+For a markov state $s$ and successor state $s'$, the state transition probability is defined by \cref{eq:eq2}.
+\begin{equation} \label{eq:eq2}
+    \mc{P}_{ss'} = \mb{P}[S_{t+1} = s' | S_t = s]
+\end{equation}
+Let $\mc{S}$ be a set of all states and $\mc{P}_{ss'}$ be a set of all state-transition probability. \ti{markov process} is uniquely defined as a tuple $\braket{\mc{S}, \mc{P}}$. 
+\subsection{Markov Reward Process}
+$R_t$ is called \tb{reward} for corresponding state $S_t$. \tb{Return} $G_t$ is defined by \cref{eq:eq3}.   
+\begin{equation} \label{eq:eq3}
+    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum^{\inf}_{k=0}\gamma^k R_{t+k+1}
+\end{equation}
+where $\gamma \ \in [0,1] $ is called \tb{discount factor}.
+$\mc{R}_s$ is defined by \cref{eq:eq4}
+\begin{equation} \label{eq:eq4}
+    \mc{R}_s = \mb{E}[R_{t+1}|S_t=s]
+\end{equation}
+And let denote $\mc{R}$ as set of all $\mc{R}_s$ for all $s \in \mc{S}$. Then \tb{markov reward process} is uniquely defined as a tuple $\braket{\mc{S}, \mc{P}, \mc{R}, \gamma}$.
+\n\n
+The \tb{value funtion} $v(s)$ represents long-term value of state s. \ti{value function} is defined by \cref{eq:eq5}.
+\begin{equation} \label{eq:eq5}
+    v(s) = \mb{E}[G_t|S_t=s]
+\end{equation}
+\cref{eq:eq6} represents \tb{Bellman equation} \ti{for MRPs}.
+
+\begin{equation} \label{eq:eq6}
+\begin{aligned}
+    v(s) &= \mb{E}[G_{t+1}|S_t = s] \\
+    &= \mb{E}[R_{t+1} + \gamma v(S_{t+1})|S_t = s] \\
+    &= \mc{R}_s + \gamma \sum_{s' \in \mc{S}} \mc{P}_{ss'}v(s')
+\end{aligned}
+\end{equation}
+
+
 \subsection{Markov Decision Process}
+
+
 \end{document}
