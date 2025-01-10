@@ -10,9 +10,10 @@
 \usepackage{cleveref} % clearly reference equation in text
 \usepackage{braket} % braket
 \usepackage{lmodern} %font for equation
-%----------------------------------------------------------------------------------------
-%	Def
-%----------------------------------------------------------------------------------------
+\usepackage[default]{opensans} % Use the Open Sans font for sans serif 
+
+
+
 \def\tcr{\textcolor{red}}
 \def\tcb{\textcolor{blue}}
 \def\n{\newline}
@@ -21,84 +22,10 @@
 \newcommand{\tb}[1]{\textbf{#1}}
 \newcommand{\ti}[1]{\textit{#1}}
 
-%----------------------------------------------------------------------------------------
-%	SELECT FONT THEME & FONTS
-%----------------------------------------------------------------------------------------
-
-% Beamer comes with several font themes to easily change the fonts used in various parts of the presentation. Review the comments beside each one to decide if you would like to use it. Note that additional options can be specified for several of these font themes, consult the beamer documentation for more information.
-
-% \usefonttheme{default} % Typeset using the default sans serif font
-%\usefonttheme{serif} % Typeset using the default serif font (make sure a sans font isn't being set as the default font if you use this option!)
-%\usefonttheme{structurebold} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in bold
-%\usefonttheme{structureitalicserif} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in italic serif
-%\usefonttheme{structuresmallcapsserif} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in small caps serif
-
-%------------------------------------------------
-
-%\usepackage{mathptmx} % Use the Times font for serif text
-% \usepackage{palatino} % Use the Palatino font for serif text
-
-%\usepackage{helvet} % Use the Helvetica font for sans serif text
-\usepackage[default]{opensans} % Use the Open Sans font for sans serif text
-%\usepackage[default]{FiraSans} % Use the Fira Sans font for sans serif text
-%\usepackage[default]{lato} % Use the Lato font for sans serif text
-
-%----------------------------------------------------------------------------------------
-%	SELECT INNER THEME
-%----------------------------------------------------------------------------------------
-
-% Inner themes change the styling of internal slide elements, for example: bullet points, blocks, bibliography entries, title pages, theorems, etc. Uncomment each theme in turn to see what changes it makes to your presentation.
-
-%\useinnertheme{default}
-% \useinnertheme{circles}
-%\useinnertheme{rectangles}
-%\useinnertheme{rounded}
-%\useinnertheme{inmargin}
-
-%----------------------------------------------------------------------------------------
-%	SELECT OUTER THEME
-%----------------------------------------------------------------------------------------
-
-% Outer themes change the overall layout of slides, such as: header and footer lines, sidebars and slide titles. Uncomment each theme in turn to see what changes it makes to your presentation.
-
-%\useoutertheme{default}
-%\useoutertheme{infolines}
-%\useoutertheme{miniframes}
-%\useoutertheme{smoothbars}
-%\useoutertheme{sidebar}
-%\useoutertheme{split}
-%\useoutertheme{shadow}
-%\useoutertheme{tree}
-%\useoutertheme{smoothtree}
-
-%\setbeamertemplate{footline} % Uncomment this line to remove the footer line in all slides
-%\setbeamertemplate{footline}[page number] % Uncomment this line to replace the footer line in all slides with a simple slide count
-
-%\setbeamertemplate{navigation symbols}{} % Uncomment this line to remove the navigation symbols from the bottom of all slides
-
-%----------------------------------------------------------------------------------------
-%	PRESENTATION INFORMATION
-%----------------------------------------------------------------------------------------
-
-% \title[Study Report]{Study Report} % The short title in the optional parameter appears at the bottom of every slide, the full title in the main parameter is only on the title page
-
-% \subtitle{Optional Subtitle} % Presentation subtitle, remove this command if a subtitle isn't required
-
-% \author[Bae Sang Jun]{Bae Sang Jun} % Presenter name(s), the optional parameter can contain a shortened version to appear on the bottom of every slide, while the main parameter will appear on the title slide
-
-% \institute[Unist]{UNIST \\ \smallskip \textit{bsjuntiger@unist.ac.kr}} % Your institution, the optional parameter can be used for the institution shorthand and will appear on the bottom of every slide after author names, while the required parameter is used on the title slide and can include your email address or additional information on separate lines
-
-% \date[\today]{ \\ \today} % Presentation date or conference/meeting name, the optional parameter can contain a shortened version to appear on the bottom of every slide, while the required parameter value is output to the title slide
-
-%----------------------------------------------------------------------------------------
+\numberwithin{equation}{subsection} % command in amsmath package
 
 \begin{document}
-% \use
-% \graphicspath{{images/}} % Specifies where to look for included images (trailing slash required)
 
-\title{Study Report1}
-\author{Gwanwoo Choi}
-\date{\today}
 \tableofcontents
 \newpage
 \section{Markov Process}
@@ -223,7 +150,5 @@ Optimal action-value function is defined bt \cref{eq:eq18}
 \section{Dynamic Programming}
 \subsection{Iterative Policy Evaluation}
 Suppose there exists a MDP $\braket{\mc{S,A,P,R}, \gamma}$ and a given policy $\pi$. How much is policy $\pi$ good? How can evaluate given policy $\pi$? \tb{Iterative policy evaluation} can evaluate policy.
-
-
 
 \end{document}
