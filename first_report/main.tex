@@ -3,21 +3,20 @@
 	%t, % Uncomment to vertically align all slide content to the top of the slide, rather than the default centered
 	%aspectratio=169, % Uncomment to set the aspect ratio to a 16:9 ratio which matches the aspect ratio of 1080p and 4K screens and projectors
 ]{article}
-
-\usepackage{hyperref} % Activate index and hyperlink
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
 \usepackage{amsmath} % Automatically numbers and align the equations
 \usepackage{amsfonts} % To use mathematical fonts like mathbb
+\usepackage[hidelinks]{hyperref} % hide red rectangle on reference. hyperref is used packaged as default.
 \usepackage{cleveref} % clearly reference equation in text
 \usepackage{braket} % braket
-\usepackage{eulervm} %font for equation
+\usepackage{lmodern} %font for equation
 %----------------------------------------------------------------------------------------
 %	Def
 %----------------------------------------------------------------------------------------
 \def\tcr{\textcolor{red}}
 \def\tcb{\textcolor{blue}}
 \def\n{\newline}
-\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
 \newcommand{\ti}[1]{\textit{#1}}
@@ -103,43 +102,128 @@
 \tableofcontents
 \newpage
 \section{Markov Process}
-In probability theory and statistics, a markov process is a stochastic process describing a sequence of possible events in which the probability of each event depends only on the state attained in the previous event. If stochastic process satisfies \cref{eq:eq1}, then that is \tb{markov process} and state $S_t$ is \tb{markov}.
+In probability theory and statistics, a markov process is a stochastic process describing a sequence of possible events in which the probability of each event depends only on the state attained in the previous event.
+If stochastic process satisfies \cref{eq:eq1}, then that is \tb{markov process} and state $S_t$ is \tb{markov}.
 \begin{equation} \label{eq:eq1}
-    \mb{P}[S_{t+1}|S_t] = \mb{P}[S_{t+1}|S_t,S_{t-1},\dots,S_{1}]
+    \mbb{P}[S_{t+1}|S_t] = \mbb{P}[S_{t+1}|S_t,S_{t-1},\dots,S_{1}]
 \end{equation}
 For a markov state $s$ and successor state $s'$, the state transition probability is defined by \cref{eq:eq2}.
 \begin{equation} \label{eq:eq2}
-    \mc{P}_{ss'} = \mb{P}[S_{t+1} = s' | S_t = s]
+    \mc{P}_{ss'} = \mbb{P}[S_{t+1} = s' | S_t = s]
 \end{equation}
-Let $\mc{S}$ be a set of all states and $\mc{P}_{ss'}$ be a set of all state-transition probability. \ti{markov process} is uniquely defined as a tuple $\braket{\mc{S}, \mc{P}}$. 
+Let $\mc{S}$ be a set of all states and $\mc{P}_{ss'}$ be a set of all state-transition probability.
+ \ti{markov process} is uniquely determined by a tuple $\braket{\mc{S}, \mc{P}}$. 
+
+
 \subsection{Markov Reward Process}
+
+
 $R_t$ is called \tb{reward} for corresponding state $S_t$. \tb{Return} $G_t$ is defined by \cref{eq:eq3}.   
 \begin{equation} \label{eq:eq3}
-    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum^{\inf}_{k=0}\gamma^k R_{t+k+1}
+    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum^{\infty}_{k=0}\gamma^k R_{t+k+1}
 \end{equation}
 where $\gamma \ \in [0,1] $ is called \tb{discount factor}.
 $\mc{R}_s$ is defined by \cref{eq:eq4}
 \begin{equation} \label{eq:eq4}
-    \mc{R}_s = \mb{E}[R_{t+1}|S_t=s]
+    \mc{R}_s = \mbb{E}[R_{t+1}|S_t=s]
 \end{equation}
-And let denote $\mc{R}$ as set of all $\mc{R}_s$ for all $s \in \mc{S}$. Then \tb{markov reward process} is uniquely defined as a tuple $\braket{\mc{S}, \mc{P}, \mc{R}, \gamma}$.
-\n\n
+And let denote $\mc{R}$ as set of all $\mc{R}_s$ for all $s \in \mc{S}$. Then \tb{markov reward process} is uniquely determined by a tuple $\braket{\mc{S}, \mc{P}, \mc{R}, \gamma}$.
+
 The \tb{value funtion} $v(s)$ represents long-term value of state s. \ti{value function} is defined by \cref{eq:eq5}.
 \begin{equation} \label{eq:eq5}
-    v(s) = \mb{E}[G_t|S_t=s]
+    v(s) = \mbb{E}[G_t|S_t=s]
 \end{equation}
 \cref{eq:eq6} represents \tb{Bellman equation} \ti{for MRPs}.
-
 \begin{equation} \label{eq:eq6}
 \begin{aligned}
-    v(s) &= \mb{E}[G_{t+1}|S_t = s] \\
-    &= \mb{E}[R_{t+1} + \gamma v(S_{t+1})|S_t = s] \\
+    v(s) &= \mbb{E}[G_{t+1}|S_t = s] \\
+    &= \mbb{E}[R_{t+1} + \gamma v(S_{t+1})|S_t = s] \\
     &= \mc{R}_s + \gamma \sum_{s' \in \mc{S}} \mc{P}_{ss'}v(s')
 \end{aligned}
 \end{equation}
+value function can be calculated by utilizing $\gamma, \mc{P}, \mc{R}$. 
+In vector formulation, value funtion can be obtained by \cref{eq:eq7}.
+\begin{equation} \label{eq:eq7}
+    v = (I - \gamma \mc{P})^{-1}\mc{R}
+\end{equation}
+
+The time complexity is $\mc{O}(n^3)$ for calculation value function where $n$ is $|\mc{S}|$.
+So direct solution is suitable for small MRPs.
+There are indirect iterative methods such as \ti{DP}, \ti{MC} and \ti{TD} which is suitable for larger MRPs.
 
 
 \subsection{Markov Decision Process}
+$A_t$ is called \tb{action}. For each time step $t$, action $A_t$ is elements of the set $\mc{A}$ ($A_t \in \mc{A},\ \forall t$). This action set can be both finite and infinite set. Unlike transition probability in \ti{markov process}, \tb{transition probability} is newly deefined in markov decision process as \cref{eq:eq8}. Also \tb{reward function} is newly defined as \cref{eq:eq9}.
+\begin{equation} \label{eq:eq8}
+    \mc{P}_{ss'}^a = \mbb{P}[S_{t+1}=s'|S_t=s, A_t=a]
+\end{equation}
+\begin{equation} \label{eq:eq9}
+    \mc{R}_{s}^a = \mbb{E}[R_{t+1}|s_{t}=s,A_t=a]
+\end{equation}
+similarly with markov process and markov reward process, markov decision process is uniquely determined by a tuple $\braket{\mc{S}, \mc{A}, \mc{P}, \mc{R}, \gamma}$
+
+Now we can define the probability distribution over actions given states, named \tb{policy} $\pi$ as \cref{eq:eq10}.
+\begin{equation} \label{eq:eq10}
+    \pi(a|s) = \mbb{P}[A_t=a|S_t=s]
+\end{equation}
+A policy fully defines the behaviour of agent.
+\n
+
+Gieven an MDP $\mc{M}=\braket{\mc{S, A, P, R}, \gamma}$ and a policy $\pi$, $\braket{\mc{S}, \mc{P}^\pi}$ is \ti{MP} and $\braket{\mc{S},\mc{P}^\pi, \mc{R}^\pi, \gamma}$ is \ti{MRP}. $\mc{P}^\pi$ is set of all $\mc{P}^\pi_{s,s'}$ which is defined by \cref{eq:eq11}.
+\begin{equation} \label{eq:eq11}
+    \mc{P}^\pi_{s,s'} = \sum_{a \in \mc{A}}\pi(a|s)\mc{P}^a_{ss'}
+\end{equation}
+And $R^\pi$ is set of all $R^pi_s$ which is defined by \cref{eq:eq12}
+\begin{equation} \label{eq:eq12}
+    \mc{R}^\pi_s = \sum_{a \in \mc{A}}\pi(a|s)\mc{R}^a_s
+\end{equation}
+\n
+
+In MDP, we can define \tb{value function} as new manner by \cref{eq:eq13}.
+\begin{equation} \label{eq:eq13}
+    v_\pi(s) = \mbb{E}_\pi[G_t|S_t=s]
+\end{equation}
+Also,\tb{action-value function} $q_\pi(s,a)$, which is the expected return starting from state s, taking action a, and then following policy $\pi$, is defined by \cref{eq:eq14}.
+\begin{equation} \label{eq:eq14}
+    q_\pi(s,a) = \mbb{E}_\pi[G_t|S_t=s, A_t=a]
+\end{equation}
+
+The bellman equation, which tells returns can be decomposed into immediate reward and discounted (action) value of successor state, is described as below for \ti{MDP}.
+\begin{equation} \label{eq:eq15}
+\begin{aligned} 
+    v_\pi(s)&=\mbb{E}_\pi[R_{t+1}+\gamma v_\pi(S_{t+1})|s_t=s]\\
+    &=\sum_{a \in \mc{A}}\pi(a|s)\left(\mc{R}^a_{s}+\gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_\pi(s')\right)\\
+    q_\pi(s,a)&=\mbb{E}_\pi[R_{t+1}+\gamma q_\pi(S_{t+1},A_{t+1})|S_t=s,A_t=a]\\
+    &=\mc{R}^a_s+\gamma \sum_{s' \in \mc{S}}\mc{P}_{ss'}^a \sum_{a' \in \mc{A}} \pi(a'|s')q_\pi(s',a')
+\end{aligned}
+\end{equation}
+this value function and action value function can be expressed mixedly.
+\begin{equation} \label{eq:eq16}
+    \begin{aligned}
+        v_\pi(s) = \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a)\\
+        q_\pi(s,a) = \mc{R}^a_s + \gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_\pi(s')
+    \end{aligned}
+\end{equation}
+\n
+
+\subsection{Optimal Policies and Optimal Value Functions}
+Value functions define a partial ordering over policies. A policy $\pi$ is defined to be better than or equal to a policy $\pi'$ (i.e. $\pi \geq \pi'$) if and only if $v_\pi(s) \geq v_{\pi'}(s)$.
+Optimal state-value function is defined by \cref{eq:eq17}.
+\begin{equation} \label{eq:eq17}
+    v_*(s) = \max_{\pi} v_\pi(s)
+\end{equation}
+Optimal action-value function is defined bt \cref{eq:eq18}
+\begin{equation} \label{eq:eq18}
+    q_*(s,a) = \max_\pi q_\pi(s,a)
+\end{equation}
+\newpage
+
+
+
+\section{Dynamic Programming}
+\subsection{Iterative Policy Evaluation}
+Suppose there exists a MDP $\braket{\mc{S,A,P,R}, \gamma}$ and a given policy $\pi$. How much is policy $\pi$ good? How can evaluate given policy $\pi$? \tb{Iterative policy evaluation} can evaluate policy.
+
 
 
 \end{document}
