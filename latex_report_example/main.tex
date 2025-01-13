@@ -1,0 +1,309 @@
+\documentclass[
+	10pt, % Set the default font size, options include: 8pt, 9pt, 10pt, 11pt, 12pt, 14pt, 17pt, 20pt
+	%t, % Uncomment to vertically align all slide content to the top of the slide, rather than the default centered
+	%aspectratio=169, % Uncomment to set the aspect ratio to a 16:9 ratio which matches the aspect ratio of 1080p and 4K screens and projectors
+]{beamer}
+
+
+\graphicspath{{Images/}{./}} % Specifies where to look for included images (trailing slash required)
+
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
+
+%----------------------------------------------------------------------------------------
+%	SELECT LAYOUT THEME
+%----------------------------------------------------------------------------------------
+
+% Beamer comes with a number of default layout themes which change the colors and layouts of slides. Below is a list of all themes available, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+\usefonttheme{structurebold}
+\usefonttheme[onlymath]{serif}
+\def\tcr{\textcolor{red}}
+\def\tcb{\textcolor{blue}}
+
+%----------------------------------------------------------------------------------------
+%	SELECT COLOR THEME
+%----------------------------------------------------------------------------------------
+
+% Beamer comes with a number of color themes that can be applied to any layout theme to change its colors. Uncomment each of these in turn to see how they change the colors of your selected layout theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{monarca}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{spruce}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%----------------------------------------------------------------------------------------
+%	SELECT FONT THEME & FONTS
+%----------------------------------------------------------------------------------------
+
+% Beamer comes with several font themes to easily change the fonts used in various parts of the presentation. Review the comments beside each one to decide if you would like to use it. Note that additional options can be specified for several of these font themes, consult the beamer documentation for more information.
+
+\usefonttheme{default} % Typeset using the default sans serif font
+%\usefonttheme{serif} % Typeset using the default serif font (make sure a sans font isn't being set as the default font if you use this option!)
+%\usefonttheme{structurebold} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in bold
+%\usefonttheme{structureitalicserif} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in italic serif
+%\usefonttheme{structuresmallcapsserif} % Typeset important structure text (titles, headlines, footlines, sidebar, etc) in small caps serif
+
+%------------------------------------------------
+
+%\usepackage{mathptmx} % Use the Times font for serif text
+\usepackage{palatino} % Use the Palatino font for serif text
+
+%\usepackage{helvet} % Use the Helvetica font for sans serif text
+\usepackage[default]{opensans} % Use the Open Sans font for sans serif text
+%\usepackage[default]{FiraSans} % Use the Fira Sans font for sans serif text
+%\usepackage[default]{lato} % Use the Lato font for sans serif text
+
+%----------------------------------------------------------------------------------------
+%	SELECT INNER THEME
+%----------------------------------------------------------------------------------------
+
+% Inner themes change the styling of internal slide elements, for example: bullet points, blocks, bibliography entries, title pages, theorems, etc. Uncomment each theme in turn to see what changes it makes to your presentation.
+
+%\useinnertheme{default}
+\useinnertheme{circles}
+%\useinnertheme{rectangles}
+%\useinnertheme{rounded}
+%\useinnertheme{inmargin}
+
+%----------------------------------------------------------------------------------------
+%	SELECT OUTER THEME
+%----------------------------------------------------------------------------------------
+
+% Outer themes change the overall layout of slides, such as: header and footer lines, sidebars and slide titles. Uncomment each theme in turn to see what changes it makes to your presentation.
+
+%\useoutertheme{default}
+%\useoutertheme{infolines}
+%\useoutertheme{miniframes}
+%\useoutertheme{smoothbars}
+%\useoutertheme{sidebar}
+%\useoutertheme{split}
+%\useoutertheme{shadow}
+%\useoutertheme{tree}
+%\useoutertheme{smoothtree}
+
+%\setbeamertemplate{footline} % Uncomment this line to remove the footer line in all slides
+%\setbeamertemplate{footline}[page number] % Uncomment this line to replace the footer line in all slides with a simple slide count
+
+%\setbeamertemplate{navigation symbols}{} % Uncomment this line to remove the navigation symbols from the bottom of all slides
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title[Study Report]{Study Report} % The short title in the optional parameter appears at the bottom of every slide, the full title in the main parameter is only on the title page
+
+%\subtitle{Optional Subtitle} % Presentation subtitle, remove this command if a subtitle isn't required
+
+\author[Bae Sang Jun]{Bae Sang Jun} % Presenter name(s), the optional parameter can contain a shortened version to appear on the bottom of every slide, while the main parameter will appear on the title slide
+
+\institute[Unist]{UNIST \\ \smallskip \textit{bsjuntiger@unist.ac.kr}} % Your institution, the optional parameter can be used for the institution shorthand and will appear on the bottom of every slide after author names, while the required parameter is used on the title slide and can include your email address or additional information on separate lines
+
+\date[\today]{ \\ \today} % Presentation date or conference/meeting name, the optional parameter can contain a shortened version to appear on the bottom of every slide, while the required parameter value is output to the title slide
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SLIDE
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+	\titlepage % Output the title slide, automatically created using the text entered in the PRESENTATION INFORMATION block above
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS SLIDE
+%----------------------------------------------------------------------------------------
+
+% The table of contents outputs the sections and subsections that appear in your presentation, specified with the standard \section and \subsection commands. You may either display all sections and subsections on one slide with \tableofcontents, or display each section at a time on subsequent slides with \tableofcontents[pausesections]. The latter is useful if you want to step through each section and mention what you will discuss.
+
+\begin{frame}
+	\frametitle{Presentation Overview} % Slide title, remove this command for no title
+	
+	\tableofcontents % Output the table of contents (all sections on one slide)
+	%\tableofcontents[pausesections] % Output the table of contents (break sections up across separate slides)
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION BODY SLIDES
+%----------------------------------------------------------------------------------------
+
+\section{Law of Large Numbers}
+
+\begin{frame}
+	Law of Large Numbers
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+    \frametitle{Law of Large Numbers}
+    The statement suggests that by conducting an experiment numerous times and averaging the outcomes independently, the obtained results should closely align with the expected value.\\
+    There are two main versions of the law of large numbers.\\
+    \bigskip
+    \begin{enumerate}
+        \item Weak LLN : As the number of experiments increases, the average approaches the expected value, but doesn't necessarily converge to it with certainty. 
+        \item Strong LLN :  As the number of experiments tends to infinity, the average converges almost surely to the expected value.
+    \end{enumerate}
+    
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}
+    \frametitle{Law of Large Numbers}
+\textbf{Weak LLN}
+    \begin{definition}
+        Let $X_1, X_2, ... $ a sequence of independent and identically distributed (i.i.d.) random variables. Then, the sample mean $\bar{X}_n:=\frac{1}{n} \sum_{i=1}^n X_i$ converges to the true mean $E[X_1]$ in probability, i.e.,
+    \begin{equation*}
+    \lim _{n \rightarrow \infty} \operatorname{Pr}\left(\left|\frac{1}{n} \sum_{i=1}^n X_i-\mathbb{E}\left[X_1\right]\right| \geq \epsilon\right)=0
+    \end{equation*}
+    \end{definition}
+
+    The proof of the weak law of large number is easier if we assume $Var(X) = \sigma^2 $ is finite. In this case we can use Chebyshev's inequality to write
+    \begin{equation*}
+    \begin{aligned}
+    & P(|\bar{X}-\mu| \geq \epsilon) \leq \frac{\operatorname{Var}(\bar{X})}{\epsilon^2} \\
+    & =\frac{\operatorname{Var}(X)}{n \epsilon^2}
+    \end{aligned}
+    \end{equation*}
+ 
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}
+    \frametitle{Law of Large Numbers}
+\textbf{Strong LLN}
+    \begin{definition}
+    Let $X_n$ be a sequence of i.i.d. random variables. Then, the sample mean  $\bar{X}_n:=\frac{1}{n} \sum_{i=1}^n X_i$ converges to the true mean $E[X_1]$ \tcb{almost surely} (a.s).
+
+    \end{definition}
+
+ 
+\end{frame}
+
+%------------------------------------------------
+\section{Mutual Information}
+\begin{frame}
+	Mutual Information
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+\begin{definition}
+     \textbf{Theorem 2.5.1 (Chain rule for entropy):} Let $X_1, X_2, \dots, X_n$ be drawn according to $p(x_1, x_2, \dots, x_n)$. Then
+    \[ H(X_1, X_2, \dots, X_n) = \sum_{i=1}^{n} H(X_i | X_{i-1}, \dots, X_1). \]
+\end{definition}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+\textbf{Proof.}
+By repeated application of the two-variable expansion rule for entropies, we have
+    \begin{align*}
+        H(X_1, X_2) &= H(X_1) + H(X_2 | X_1) \quad \\
+        H(X_1, X_2, X_3) &= H(X_1) + H(X_2, X_3 | X_1) \\
+        &= H(X_1) + H(X_2 | X_1) + H(X_3 | X_2, X_1) \quad \\
+        &\vdots \\
+        H(X_1, X_2, \dots, X_n) &= H(X_1) + H(X_2 | X_1) + \dots + H(X_n | X_{n-1}, \dots, X_1) \\
+        &= \sum_{i=1}^{n} H(X_i | X_{i-1}, \dots, X_1) \quad
+    \end{align*}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+ \begin{definition}
+    The conditional mutual information of random variables $X$ and $Y$ given $Z$ is defined by
+    \begin{align*}
+        I(X; Y | Z) &= H(X|Z) - H(X|Y, Z) \\
+        &= E_{p(x,y,z)} \log \frac{p(X, Y | Z)}{p(X|Z)p(Y |Z)}.
+    \end{align*}
+    \end{definition}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+ \begin{definition}
+ Define a conditional version of the relative entropy
+    \[ I(X_1,X_2,\dots,X_n; Y) = \sum_{i=1}^{n} I(X_i; Y | X_{i-1}, X_{i-2}, \dots, X_1). \]
+
+     \textbf{Proof:}
+    \begin{align*}
+        I(X_1,X_2,\dots,X_n; Y) &= H(X_1,X_2,\dots,X_n) - H(X_1,X_2,\dots,X_n | Y) \\
+        &= \sum_{i=1}^{n} H(X_i | X_{i-1}, \dots, X_1) - \sum_{i=1}^{n} H(X_i | X_{i-1}, \dots, X_1, Y) \\
+        &= \sum_{i=1}^{n} I(X_i; Y | X_1, X_2, \dots, X_{i-1}).  
+    \end{align*}
+    \end{definition}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+ \begin{definition}
+    For joint probability mass functions $p(x, y)$ and $q(x, y)$, the conditional relative entropy $D(p(y|x)||q(y|x))$ is the average of the relative entropies between the conditional probability mass functions $p(y|x)$ and $q(y|x)$ averaged over the probability mass function $p(x)$. More precisely,
+    \begin{align*}
+        D(p(y|x)||q(y|x)) &= \sum_x p(x) \sum_y p(y|x) \log \frac{p(y|x)}{q(y|x)}  \\
+        &= E_{p(x,y)} \log \frac{p(Y|X)}{q(Y|X)}. 
+    \end{align*}
+    \end{definition}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+ \begin{definition}
+    Chain rule for relative entropy
+    \[ D(p(x, y)||q(x, y)) = D(p(x)||q(x)) + D(p(y|x)||q(y|x)). \]
+    \end{definition}
+ \textbf{Proof:}
+    \begin{align*}
+        D(p(x, y)||q(x, y)) &= \sum_x \sum_y p(x, y) \log \frac{p(x, y)}{q(x, y)} \\
+        &= \sum_x \sum_y p(x, y) \log \frac{p(x)p(y|x)}{q(x)q(y|x)} \\
+        &= \sum_x \sum_y p(x, y) \left( \log \frac{p(x)}{q(x)} + \log \frac{p(y|x)}{q(y|x)} \right) \\
+        &= D(p(x)||q(x)) + D(p(y|x)||q(y|x)). \qedhere
+    \end{align*}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Mutual Information}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{20240317/inf.png}
+\end{figure}
+The mutual information I(X; Y) corresponds to the intersection of the information in X with the information in Y
+\end{frame}
+\end{document} 

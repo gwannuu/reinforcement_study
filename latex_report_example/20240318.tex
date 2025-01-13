@@ -1,0 +1,523 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                    Slide                        %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[landscape]{article}
+
+\def\HOME{texmacros}
+\usepackage{epsf,epsfig,verbatim,psfrag,amssymb,amsfonts,latexsym,color}
+\usepackage{amsmath,amssymb,mathrsfs, amsthm, enumerate}
+\DeclareMathOperator*{\argmax}{argmax}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{soul}
+\usepackage[font=large]{subfig}
+\usepackage[font=large]{caption}
+\input \HOME/macros
+\input \HOME/viewgr
+
+\newthe
+orem{prof}{Proof}
+\newtheorem{problem}{Problem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{defn}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{thrm}{Theorem}
+\def\tcr{\textcolor{red}}
+\def\tcb{\textcolor{blue}}
+\def\Cbb{\mathbb{C}}
+\def\Fbb{{\mathbb{F}}}
+\def\Pbb{{\mathbb{P}}}
+
+\def\mc{\mathcal{}}
+\horizfmt
+
+\pagestyle{myheadings} \setlength{\topmargin}{-0.4in}
+\setlength{\headsep}{0.3in} \markright{\tcb{\protect\normalsize
+Machine Learning \& Intelligent Control Lab. UNIST}}
+
+
+\begin{document}
+
+\sf
+
+\newvgempty \bigskip \begin{center} \mbox{}
+
+\vspace{1.2in} \Large
+
+%{\bfseries \tcr{ \Huge Seminar}\\ [1em]
+%Cardinality of the Set of Real Numbers }
+%\vspace{2.5cm}
+ 
+\vspace{2cm} \begin{tabular}{c}
+\huge  \tcr{Remind Reinforcement Learning}\\
+[1em] \huge  Dept. of Artificial Intelligence  \\
+[1em] \huge  SangJun Bae \\
+[3em] \LARGE \tcb{2024.1.26.}
+\end{tabular}
+
+\end{center}
+
+\renewcommand{\baselinestretch}{1.2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Lecture Outline}}
+\LARGE
+\vspace{-.5em}
+\begin{itemize}
+    \item  \tcr{Introduction to RL}
+    \item  \tcr{Markov Decision Processes}
+    \item  Planning by Dynamic Programming
+    \item  Model-Free Prediction
+    \item  Model-Free Control
+    \item  Value Function Approximation
+    \item  Policy Gradient Methods
+    \item  Integrating Learning and Planning
+    \item  Exploration and Exploitation
+    \item  Case study - RL in games
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{The Reinforcement Learning Problem}}
+\LARGE
+\vspace{-.5em}
+Reinforcement learning problems involve learning what to do—how to
+map situations to actions—so as to maximize a numerical reward signal.\\
+In short, Reinforcement learning is based on the \tcr{reward hypothesis}.\\
+\tcr {reward hypothesis} : All goals can be described by the maximisation of expected
+cumulative reward.\\
+\vspace{0.5cm}
+Some distinguishing features of reinforcement learning(RL) problems.
+\begin{itemize}
+    \item There is no supervisor, only a reward signal.
+    \item Feedback is delayed, not instantaneous.
+    \item Agent’s actions affect the subsequent data it receives.
+    \item Trade-off between exploration and exploitation.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Terminology}}
+\LARGE
+\vspace{-.5em}
+Define some words generally used in Reinforcement Learning.
+\begin{itemize}
+    \item Agent : Who act and choose in a given problem situation.
+    \item State : The information used to determine what happens next.
+    \item Action : Move to next states or get rewards.
+    \item Environment : Interaction with an agent.
+    \item Model : predicts what the environment will do next.
+    \item Policy : agent’s behaviour function(map from state to action).
+    \item Value function : prediction of future reward.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Learning and Planning}}
+\LARGE
+\vspace{-.5em}
+Two fundamental problems in sequential decision making.
+\vspace{0.5cm}
+\begin{itemize}
+    \item \huge \tcb{Planning}
+    \LARGE
+    \begin{itemize}
+        \item A model of the environment is known
+        \item The agent performs computations with its model (without any external interaction)
+        \item The agent improves its policy
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \huge \tcb{Reinforcement Learning}
+    \LARGE
+    \begin{itemize}
+        \item The environment is initially unknown
+        \item The agent interacts with the environment
+        \item The agent improves its policy
+    \end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Exploration and Exploitation}}
+\LARGE
+\vspace{-.5em}
+Reinforcement learning is like trial-and-error learning.\\
+The agent should discover a good policy from its experiences of the environment without losing too much reward along the way.
+\vspace{0.5cm}
+\begin{itemize}
+    \item \huge \tcb{Exploration}
+    \LARGE
+    \begin{itemize}
+        \item Finds more information about the environment
+        \item It may occur learning(convergence) speed too late
+    \end{itemize}
+    \vspace{0.5cm}
+    \item \huge \tcb{Exploitation}
+    \LARGE
+    \begin{itemize}
+        \item Exploits known information to maximise reward
+        \item It may occur disturbing find optimal solution
+    \end{itemize}
+\end{itemize}
+\vspace{0.5cm}
+It is usually important to explore as well as exploit.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Markov Processes}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+\huge
+\begin{itemize}
+    \item {Markov Processes}
+    \vspace{1cm}
+    \item {Markov Reward Processes}
+    \vspace{1cm}
+    \item {Markov Decision Processes}
+    \vspace{1cm}
+    \item {Extensions to MDPs}
+    \vspace{1cm}
+\end{itemize}
+\LARGE
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Introduction to MDPs \& Markov Property}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+Markov decision processes formally describe an environment for reinforcement learning where the environment is fully observable(i.e. The current state completely characterises the process).\\
+\vspace{1.5cm}
+\huge \tcb{Markov Property}
+\LARGE
+: The future is independent of the past given the present
+\begin{equation}\notag
+    \mathbb{P}[S_{t+1} \;|\; S_t]\;=\; \mathbb{P}[S_{t+1} \;|\; S_1, ... ,S_t]
+\end{equation}
+\begin{itemize}
+    \item The state captures all relevant information from the history
+    \item Once the state is known, the history may be thrown away
+    \item i.e. The state is a sufficient statistic of the future
+\end{itemize}
+\huge \tcb{State Transition Property}
+\LARGE
+\\A Markov Process (or Markov Chain) is a tuple $<\mathcal{S}, \mathcal{P}>$.\\
+\begin{itemize}
+    \item $\mathcal{S}$ is a (finite) set of states.\\
+    \item $\mathcal{P}$ is a state transition probability matrix,
+\end{itemize}
+\begin{equation}\notag
+    \mathcal{P}_{ss'}\;=\; \mathbb{P}[S_{t+1}\,=\,s' \;|\; S_{t}\,=\,s]
+\end{equation}
+
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Markov Reward Process}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+A Markov reward process is a Markov chain with values.\\
+\vspace{0.5cm}
+A Markov Reward Process is a tuple $<\mathcal{S}, \mathcal{P}, \tcr{\mathcal{R}}, \tcr{\gamma} >$.\\
+\begin{itemize}
+    \item $\mathcal{S}$ is a (finite) set of states.\\
+    \item $\mathcal{P}$ is a state transition probability matrix,\\
+    $\mathcal{P}_{ss'}\;=\; \mathbb{P}[S_{t+1}\,=\,s' \;|\; S_{t}\,=\,s]$
+    \tcr{
+    \item $\mathcal{R}$ is a reward function, \\ $\mathcal{R}_s \;=\; \mathbb{E}[R_{t+1}\;|\; S_t = s]$\\
+    \item ${\gamma}$ is a discount factor, ${\gamma}\; \in [0,1]$
+    }
+\end{itemize}
+The \tcb{return $G_t$} is the total discounted reward from time-step $t$.
+\begin{equation}\notag
+    G_t\; =\; R_{t+1}+{\gamma}R_{t+2}+ .. \;=\; \sum\limits_{k=0}^\infty {\gamma}^k R_{t+k+1}
+\end{equation}
+The \tcb{state value function v(s)} of an MRP is the expected return starting from state s
+\begin{equation}\notag
+    v(s)\;=\;\mathbb{E}[G_t \;|\; S_t\,=\,s]
+\end{equation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Bellman Equation for MRPs}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+The value function can be decomposed into two parts:\\
+\begin{itemize}
+    \item immediate reward $R_{t+1}$
+    \item discounted value of successor state ${\gamma}v(S_{t+1})$
+\end{itemize}
+
+\begin{multline}\notag
+    \begin{aligned}
+    v(s)&\;=\;\mathbb{E}[G_t \;|\; S_t\,=\,s]\\
+    &\;=\;\mathbb{E}[R_{t+1}+{\gamma}R_{t+2}+{\gamma}^2 R_{t+3} + ... \;|\; S_t\,=\,s]\\
+    &\;=\;\mathbb{E}[R_{t+1}+{\gamma}(R_{t+2}+{\gamma} R_{t+3}) + ... \;|\; S_t\,=\,s]\\
+    &\;=\;\mathbb{E}[R_{t+1}+{\gamma}G_{t+1} \;|\; S_t\,=\,s]\\
+    &\;=\;\mathbb{E}[R_{t+1}+{\gamma}v(S_{t+1}) \;|\; S_t\,=\,s]
+    \end{aligned}
+\end{multline}\\
+\vspace{0.5cm}
+It can be expressed as
+\begin{equation}\notag
+v(s) \;=\;\mathcal{R}_s +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'} v(s')
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Solving the Bellman Equation}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+The Bellman equation is a linear equation.\\
+It can be solved directly:
+\begin{multline}\notag
+    \begin{aligned}
+    &v= \mathcal{R}+{\gamma}\mathcal{P}v\\
+    (I-{\gamma}\mathcal{P})&v = \mathcal{R}\\
+    &v =  (I-{\gamma}\mathcal{P})^{-1} \mathcal{R}
+    \end{aligned}
+\end{multline}\\
+\vspace{0.5cm}
+Computational complexity is $O(n^3)$ for n states\\
+\vspace{0.5cm}
+Direct solution only possible for small MRPs
+There are many iterative methods for large MRPs, e.g.
+\begin{itemize}
+    \item Dynamic programming
+    \item Monte-Carlo evaluation
+    \item Temporal-Difference learning
+\end{itemize}
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Markov Decision Process}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+A Markov decision process (MDP) is a Markov reward process with
+decisions. It is an \textit{environment} in which all states are Markov.\\
+A Markov Reward Process is a tuple $<\mathcal{S},\tcr{\mathcal{A}}, \mathcal{P}, \mathcal{R}, \gamma >$.\\
+\begin{itemize}
+    \item $\mathcal{S}$ is a (finite) set of states.\\
+    \item \tcr{$\mathcal{S}$ A is a finite set of actions.}\\
+    \item $\mathcal{P}$ is a state transition probability matrix,\\
+    $\mathcal{P}_{ss'}^{\tcr{\,a}}\; =\; \mathbb{P}[S_{t+1}\,=\,s' \;|\; S_{t}\,=\,s , \tcr{A_t\,=\,a} ]$
+    \item $\mathcal{R}$ is a reward function, \\ $\mathcal{R}_s \;=\; \mathbb{E}[R_{t+1}\;|\; S_t = s]$\\
+    \item ${\gamma}$ is a discount factor, ${\gamma}\; \in [0,1]$
+    
+\end{itemize}
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Policies}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+A policy $\pi$ is a distribution over actions given states,
+\begin{equation}\notag
+    \pi(a\;|\;s)\;=\;\mathbb{P}[A_t \,=\,a \;|\;S_t\,=\,s]
+\end{equation}
+\begin{itemize}
+    \item A policy fully defines the behaviour of an agent
+    \item MDP policies depend on the current state (not the history, time-independent)
+\end{itemize}
+Given an MDP $\mathcal{M} = <\mathcal{S},\mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma >$ and a policy $\pi$
+\begin{itemize}
+    \item The state sequence $S_1, S_2, ...$ is a Markov process $<\mathcal{S},\mathcal{P^\pi}>$
+    \item The state and reward sequence $S_1, R_1, S_2, R_2 ...$ is a MRP $<\mathcal{S},\mathcal{P^\pi},
+    \mathcal{R^\pi}, \gamma>$, where
+\end{itemize}
+\begin{align}\notag
+   & \mathcal{P}_{s,s'}^\pi \;=\; \sum\limits_{a \in A} \pi(a\;|\;s)  \mathcal{P}_{s,s'}^a\\
+   \notag
+   & \mathcal{R}_s^\pi \;\;\,=\; \sum\limits_{a \in A} \pi(a\;|\;s)  \mathcal{R}_{s}^a
+\end{align}
+
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Value Function \& Bellman Expectation Equation}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+\begin{itemize}
+    \huge
+    \item \tcb{State Value Function} ($V_\pi(s)$)\\
+    \LARGE
+    The state-value function of an MDP is the expected return starting from state $s$, and then following policy $\pi$\\
+    $v_\pi (s)&\;=\;\mathbb{E}_\pi [G_t \;|\; S_t\,=\,s]$\\
+    \vspace{0.5cm}
+    in Bellman expectation equation form,
+    \begin{multiline}\notag
+        \begin{align}
+         v_\pi (s)& \;=\;\mathbb{E}_\pi [R_{t+1}+{\gamma}v_\pi (S_{t+1}) \;|\; S_t\,=\,s]\\
+         \vspace{0.5cm}
+         & \;=\;\sum\limits_{a \in A} \pi(a\;|\;s) q_\pi (s,a)\\
+         \vspace{0.5cm}
+         & \;=\;\sum\limits_{a \in A} \pi(a\;|\;s)(\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a v_\pi (s'))
+        \end{align}
+    \end{multiline}
+\end{itemize}
+
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Value Function \& Bellman Expectation Equation}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+\begin{itemize}
+    \huge
+    \item \tcb{Action Value Function} ($q_\pi(s,a)$)\\
+    \LARGE
+    The action-value function is the expected return starting from state $s$, taking action $a$, and then following policy $\pi$\\
+    $q_\pi (s,a)&\;=\;\mathbb{E}_\pi [G_t \;|\; S_t\,=\,s, A_t\,=\,a]$\\
+    \vspace{0.5cm}
+    in Bellman expectation equation form,
+    \begin{multiline}\notag
+        \begin{align}
+            q_\pi (s,a)&\;=\;\mathbb{E}_\pi [R_{t+1}+{\gamma}q_\pi (S_{t+1}\,,\,A_{t+1}) \;|\; S_t\,=\,s, A_t\,=\,a]\\
+            & \;=\;\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a v_\pi (s')\\
+            & \;=\;\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a \sum\limits_{a' \in \mathcal{A}} \pi(a'\;|\;s) q_\pi (s',a')\\
+        \end{align}
+     \end{multiline}
+\end{itemize}
+
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Optimal Value Function}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+\begin{itemize}
+    \huge
+    \item \tcb{State Value Function} ($q_\pi(s,a)$)\\
+    \LARGE
+    The optimal state-value function is the maximum value function over all policies
+    \begin{equation}\notag
+    v_* (s)\;=\; \max\limits_{\pi} v_\pi (s)
+    \end{equation}
+    
+    \huge
+    \item \tcb{Action Value Function} ($q_\pi(s,a)$)\\
+    \LARGE
+    The optimal action-value function is the maximum action-value function over all policies 
+    \begin{equation}\notag
+    q_* (s,a)\;=\; \max\limits_{\pi} q_\pi (s,a)
+    \end{equation}
+\end{itemize}
+\vspace{1.5cm}
+The optimal value function specifies the best possible
+performance in the MDP.\\
+\vspace{1cm}
+An MDP is “solved” when we know the optimal value function.
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Optimal Policy}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+Define a partial ordering over policies
+\begin{equation}\notag
+    \pi\ge\pi'\;\text{if} \;v_\pi (s) \ge v_\pi '(s)\,,\, \forall s
+\end{equation}\\
+\vspace{0.5cm}
+\Huge
+\tcb{Theorem}
+\LARGE \\
+For any Markov Decision Process
+\begin{itemize}
+    \item There exists an optimal policy $\pi_*$ that is better than or equal
+to all other policies, $\pi_* \ge \pi, \forall \pi $\\
+    \item All optimal policies achieve the optimal value function, $v_{\pi_*} (s) \, = \, v_*(s)$ \\
+    \item All optimal policies achieve the optimal action-value function,
+    $q_{\pi_*} (s,a) \, = \, q_*(s,a)$ \\
+\end{itemize}
+\vspace{0.5cm}
+An optimal policy can be found by maximising over $ q_*(s,a)$,
+\begin{equation}\notag
+    \pi_* (a\,|\,s) = \begin{cases} 1 & \text{if a = } \argmax\limits_{a \in A} q_* (s,a)\\
+    0  & \text{otherwise}
+    \end{cases}
+\end{equation}
+There is always a deterministic optimal policy for any MDP.\\
+If we know $q_* (s, a)$, we immediately have the optimal policy.
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Bellman Optimality Equation}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+The optimal value functions are recursively related by the Bellman
+optimality equations:
+
+\begin{itemize}
+    \huge
+    \item \tcb{Optimal State Value Function}\\
+    \LARGE
+    \begin{multiline}\notag
+        \begin{align}
+             v_* (s)&\;=\; \max\limits_{a} q_* (s,a)\\
+             & \;=\; \max\limits_{a}\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a v_* (s'))
+         \end{align}
+    \end{multiline}
+
+    \huge
+    \item \tcb{Optimal Action Value Function}\\
+    \LARGE
+    \begin{multiline}\notag
+        \begin{align}
+            q_\pi (s,a)&\;=\;\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a v_* (s')\\
+            & \;=\;\mathcal{R}_s^a +{\gamma}\sum\limits_{s' \in \mathcal{S}} \mathcal{P}_{ss'}^a \max\limits_{a'} q_* (s',a')\\
+        \end{align}
+     \end{multiline}
+\end{itemize}
+
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\newvgtitle{\tcb{Solving the Bellman Optimality Equation}}
+\LARGE
+\vspace{-.5em}
+\vspace{0.5cm}
+\begin{itemize}
+    \item Bellman Optimality Equation is non-linear
+\vspace{1.5cm}
+    \item No closed form solution (in general)
+\vspace{1.5cm}
+    \item Many iterative solution methods
+    \begin{itemize}
+        \item Value Iteration
+\vspace{0.5cm}
+        \item Policy Iteration
+\vspace{0.5cm}
+        \item Q-learning
+\vspace{0.5cm}
+        \item Sarsa
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
