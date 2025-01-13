@@ -11,6 +11,7 @@
 \usepackage{braket} % braket
 \usepackage{lmodern} %font for equation
 \usepackage[default]{opensans} % Use the Open Sans font for sans serif 
+\usepackage{bm} %access bold symbols in math modes
 
 
 
@@ -23,9 +24,20 @@
 \newcommand{\ti}[1]{\textit{#1}}
 
 \numberwithin{equation}{subsection} % command in amsmath package
+% define argmax argmin (https://tex.stackexchange.com/questions/5223/command-for-argmin-or-argmax)
+% \DeclareMathOperator*{\argmax}{arg\,max} % not good
+\newcommand{\argmax}{\mathop{\mathrm{arg\,max}}\limits}
+\newcommand{\argmin}{\mathop{\mathrm{arg\,min}}\limits}
+
+
+
+
+\title{Reinforcement Learning basic study}
+\author{Gwanwoo Choi}
 
 \begin{document}
-
+\maketitle
+\newpage
 \tableofcontents
 \newpage
 \section{Markov Process}
@@ -60,23 +72,6 @@ The \tb{value funtion} $v(s)$ represents long-term value of state s. \ti{value f
 \begin{equation} \label{eq:eq5}
     v(s) = \mbb{E}[G_t|S_t=s]
 \end{equation}
-\cref{eq:eq6} represents \tb{Bellman equation} \ti{for MRPs}.
-\begin{equation} \label{eq:eq6}
-\begin{aligned}
-    v(s) &= \mbb{E}[G_{t+1}|S_t = s] \\
-    &= \mbb{E}[R_{t+1} + \gamma v(S_{t+1})|S_t = s] \\
-    &= \mc{R}_s + \gamma \sum_{s' \in \mc{S}} \mc{P}_{ss'}v(s')
-\end{aligned}
-\end{equation}
-value function can be calculated by utilizing $\gamma, \mc{P}, \mc{R}$. 
-In vector formulation, value funtion can be obtained by \cref{eq:eq7}.
-\begin{equation} \label{eq:eq7}
-    v = (I - \gamma \mc{P})^{-1}\mc{R}
-\end{equation}
-
-The time complexity is $\mc{O}(n^3)$ for calculation value function where $n$ is $|\mc{S}|$.
-So direct solution is suitable for small MRPs.
-There are indirect iterative methods such as \ti{DP}, \ti{MC} and \ti{TD} which is suitable for larger MRPs.
 
 
 \subsection{Markov Decision Process}
@@ -110,39 +105,86 @@ In MDP, we can define \tb{value function} as new manner by \cref{eq:eq13}.
 \begin{equation} \label{eq:eq13}
     v_\pi(s) = \mbb{E}_\pi[G_t|S_t=s]
 \end{equation}
-Also,\tb{action-value function} $q_\pi(s,a)$, which is the expected return starting from state s, taking action a, and then following policy $\pi$, is defined by \cref{eq:eq14}.
+Also, \tb{action-value function} $q_\pi(s,a)$, which is the expected return starting from state s, taking action a, and then following policy $\pi$, is defined by \cref{eq:eq14}.
 \begin{equation} \label{eq:eq14}
     q_\pi(s,a) = \mbb{E}_\pi[G_t|S_t=s, A_t=a]
 \end{equation}
+\n
 
-The bellman equation, which tells returns can be decomposed into immediate reward and discounted (action) value of successor state, is described as below for \ti{MDP}.
+\section{Bellman Equation}
+\subsection{Bellman Equation for MRP and MDP}
+The \tb{bellman equation}, which tells returns can be decomposed into immediate reward and discounted (action) value of successor state, is described as below.
+\cref{eq:eq6} represents \ti{Bellman equation for MRPs}.
+\begin{equation} \label{eq:eq6}
+    \begin{aligned}
+        v(s) &= \mbb{E}[G_{t+1}|S_t = s] \\
+        &= \mbb{E}[R_{t+1} + \gamma v(S_{t+1})|S_t = s] \\
+        &= \mc{R}_s + \gamma \sum_{s' \in \mc{S}} \mc{P}_{ss'}v(s')
+    \end{aligned}
+\end{equation}
+value function can be calculated by utilizing $\gamma, \mc{P} \text{ and } \mc{R}$. 
+In vector formulation, value funtion can be obtained by \cref{eq:eq7}.
+\begin{equation} \label{eq:eq7}
+    v = (I - \gamma \mc{P})^{-1}\mc{R}
+\end{equation}
+
+\cref{eq:eq15} represents \ti{Bellman equation} for \ti{MDP}.
 \begin{equation} \label{eq:eq15}
-\begin{aligned} 
-    v_\pi(s)&=\mbb{E}_\pi[R_{t+1}+\gamma v_\pi(S_{t+1})|s_t=s]\\
-    &=\sum_{a \in \mc{A}}\pi(a|s)\left(\mc{R}^a_{s}+\gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_\pi(s')\right)\\
-    q_\pi(s,a)&=\mbb{E}_\pi[R_{t+1}+\gamma q_\pi(S_{t+1},A_{t+1})|S_t=s,A_t=a]\\
-    &=\mc{R}^a_s+\gamma \sum_{s' \in \mc{S}}\mc{P}_{ss'}^a \sum_{a' \in \mc{A}} \pi(a'|s')q_\pi(s',a')
-\end{aligned}
+    \begin{aligned} 
+        v_\pi(s)&=\mbb{E}_\pi[R_{t+1}+\gamma v_\pi(S_{t+1})|s_t=s]\\
+        &=\sum_{a \in \mc{A}}\pi(a|s)\left(\mc{R}^a_{s}+\gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_\pi(s')\right)\\
+        q_\pi(s,a)&=\mbb{E}_\pi[R_{t+1}+\gamma q_\pi(S_{t+1},A_{t+1})|S_t=s,A_t=a]\\
+        &=\mc{R}^a_s+\gamma \sum_{s' \in \mc{S}}\mc{P}_{ss'}^a \sum_{a' \in \mc{A}} \pi(a'|s')q_\pi(s',a')
+    \end{aligned}
 \end{equation}
 this value function and action value function can be expressed mixedly.
 \begin{equation} \label{eq:eq16}
-    \begin{aligned}
+    \begin{gathered}
         v_\pi(s) = \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a)\\
         q_\pi(s,a) = \mc{R}^a_s + \gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_\pi(s')
-    \end{aligned}
+    \end{gathered}
 \end{equation}
-\n
+
+Similarly with \cref{eq:eq7}, bellman equation related with a specific policy can be expressed by \cref{eq:eq19}
+\begin{equation} \label{eq:eq19}
+    v_\pi = \mc{R}^\pi + \gamma \mc{P}^\pi v_\pi\\
+\end{equation}
+And we can get direct solution with process such as \cref{eq:eq20}
+\begin{equation} \label{eq:eq20}
+    v_\pi = (I - \gamma \mc{P}^\pi)^{-1} \mc{R}^\pi
+\end{equation}
+
+The time complexity is $\mc{O}(n^3)$ for calculating direct solution where $n$ is $|\mc{S}|$.
+So direct solution is suitable for small MRPs (where $n$ is small).
+There exists indirect iterative methods such as \ti{DP}, \ti{MC} and \ti{TD} which is suitable for calculating solution larger MRPs.
 
 \subsection{Optimal Policies and Optimal Value Functions}
-Value functions define a partial ordering over policies. A policy $\pi$ is defined to be better than or equal to a policy $\pi'$ (i.e. $\pi \geq \pi'$) if and only if $v_\pi(s) \geq v_{\pi'}(s)$.
-Optimal state-value function is defined by \cref{eq:eq17}.
+Value functions define a partial ordering over policies. A policy $\pi$ is said to be better than or equal to a policy $\pi'$ (i.e. $\pi \geq \pi'$) if and only if $v_\pi(s) \geq v_{\pi'}(s)$.
+\tb{Optimal state-value function} for all state $s$ is defined by \cref{eq:eq17}.
 \begin{equation} \label{eq:eq17}
     v_*(s) = \max_{\pi} v_\pi(s)
 \end{equation}
-Optimal action-value function is defined bt \cref{eq:eq18}
+\tb{Optimal action-value function} for all state and action pair $(s, a)$ is defined bt \cref{eq:eq18}
 \begin{equation} \label{eq:eq18}
+    % \begin{aligned}
     q_*(s,a) = \max_\pi q_\pi(s,a)
+    % &=\mbb{E}[R_{t+1} + \gamma v_*(S_{t+1})|S_t=s,A_t=a]
+    % \end{aligned}
 \end{equation}
+
+There is always at least one policy that is better than or equal to all other policies. This is an \tb{optimal policy}. All optimal policies achieve the optimal state value function, $\bm{v_{\pi_*}(s) = v_*(s)}$ for all state $s$ and the optimal action value function $\bm{q_{\pi_*}(s,a) = q_*(s,a)}$ for all state and action pair $(s,a)$. In other words, \ti{any policy that is greedy} with respect to the optimal value function $v_*$ is an \ti{optimal policy}.
+
+\subsection{Finding Optimal Policy}
+An \ti{optimal policy} $\pi_*$ can be found by maximising over $q_*(s,a)$,
+\begin{equation}
+    \pi_*(a|s) = 
+    \begin{cases}
+        1 & \text{if } a = \argmax_{a \in \mc{A}}q_*(s,a) \\
+        0 & \ti{otherwise}
+    \end{cases}
+\end{equation}
+if we know $q_*(s,a)$ we immediate have the optimal policy.
+
 \newpage
 
 
