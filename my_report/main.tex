@@ -26,8 +26,10 @@
 \numberwithin{equation}{subsection} % command in amsmath package
 % define argmax argmin (https://tex.stackexchange.com/questions/5223/command-for-argmin-or-argmax)
 % \DeclareMathOperator*{\argmax}{arg\,max} % not good
-\newcommand{\argmax}{\mathop{\mathrm{arg\,max}}\limits}
-\newcommand{\argmin}{\mathop{\mathrm{arg\,min}}\limits}
+% \newcommand{\argmax}{\mathop{\mathrm{arg\,max}}\limits}
+% \newcommand{\argmin}{\mathop{\mathrm{arg\,min}}\limits}
+\newcommand{\argmax}{\mathop{\mathrm{argmax}}\limits}
+\newcommand{\argmin}{\mathop{\mathrm{argmin}}\limits}
 
 
 
@@ -75,7 +77,7 @@ The \tb{value funtion} $v(s)$ represents long-term value of state s. \ti{value f
 
 
 \subsection{Markov Decision Process}
-$A_t$ is called \tb{action}. For each time step $t$, action $A_t$ is elements of the set $\mc{A}$ ($A_t \in \mc{A},\ \forall t$). This action set can be both finite and infinite set. Unlike transition probability in \ti{markov process}, \tb{transition probability} is newly deefined in markov decision process as \cref{eq:eq8}. Also \tb{reward function} is newly defined as \cref{eq:eq9}.
+$A_t$ is called \tb{action}. For each time step $t$, action $A_t$ is elements of the set $\mc{A}$ ($\forall t, A_t \in \mc{A}(s) \text{ where } s \in \mc{S}$). This action set can be both finite and infinite set. Unlike transition probability in \ti{markov process}, \tb{transition probability} is newly deefined in markov decision process as \cref{eq:eq8}. Also \tb{reward function} is newly defined as \cref{eq:eq9}.
 \begin{equation} \label{eq:eq8}
     \mc{P}_{ss'}^a = \mbb{P}[S_{t+1}=s'|S_t=s, A_t=a]
 \end{equation}
@@ -158,7 +160,7 @@ The time complexity is $\mc{O}(n^3)$ for calculating direct solution where $n$ i
 So direct solution is suitable for small MRPs (where $n$ is small).
 There exists indirect iterative methods such as \ti{DP}, \ti{MC} and \ti{TD} which is suitable for calculating solution larger MRPs.
 
-\subsection{Optimal Policies and Optimal Value Functions}
+\subsection{Optimal Value Functions}
 Value functions define a partial ordering over policies. A policy $\pi$ is said to be better than or equal to a policy $\pi'$ (i.e. $\pi \geq \pi'$) if and only if $v_\pi(s) \geq v_{\pi'}(s)$.
 \tb{Optimal state-value function} for all state $s$ is defined by \cref{eq:eq17}.
 \begin{equation} \label{eq:eq17}
@@ -172,9 +174,29 @@ Value functions define a partial ordering over policies. A policy $\pi$ is said 
     % \end{aligned}
 \end{equation}
 
+\subsection{Bellman Optimality Equation}
+The \tb{bellman optimality equation} are special consistency conditions that the optimal value functions must satisfy and that can, in principle, be solved for the optimal value functions, from which an optimal policy can be determined with relative ease. Bellman optimality equation for state value function can be expressed like \cref{eq:eq21}
+\begin{equation} \label{eq:eq21}
+    \begin{aligned}
+        v_*(s) &= \max_{a}q_{\pi_*}(s,a)\\
+        &=\max_a \mc{R}^a_{s} + \gamma \sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_*(s')
+    \end{aligned}
+\end{equation}
+And bellman optimality equation for action value function can be expressed like \label{eq:eq22}
+\begin{equation} \label{eq:eq22}
+    \begin{aligned}
+        q_*(s,a) &= \mc{R}^a_{s} + \gamma \sum_{s' \in \mc{S}} \mc{P}^a_{ss'}v_*(s') \\
+        &= \mc{R}^a_{s} + \gamma \sum_{s' \in \mc{S}} \mc{P}^a_{ss'} \max_{a'} q_*(s',a')
+    \end{aligned}
+\end{equation}
+
+
+
+Whereas the \ti{optimal value functions} for states and state-action pairs are \ti{unique} for states and state-action pairs are unique, there can be \ti{many optimal policies}.
+
+\subsection{Optimal Policy}
 There is always at least one policy that is better than or equal to all other policies. This is an \tb{optimal policy}. All optimal policies achieve the optimal state value function, $\bm{v_{\pi_*}(s) = v_*(s)}$ for all state $s$ and the optimal action value function $\bm{q_{\pi_*}(s,a) = q_*(s,a)}$ for all state and action pair $(s,a)$. In other words, \ti{any policy that is greedy} with respect to the optimal value function $v_*$ is an \ti{optimal policy}.
 
-\subsection{Finding Optimal Policy}
 An \ti{optimal policy} $\pi_*$ can be found by maximising over $q_*(s,a)$,
 \begin{equation}
     \pi_*(a|s) = 
@@ -184,7 +206,6 @@ An \ti{optimal policy} $\pi_*$ can be found by maximising over $q_*(s,a)$,
     \end{cases}
 \end{equation}
 if we know $q_*(s,a)$ we immediate have the optimal policy.
-
 \newpage
 
 
@@ -192,5 +213,12 @@ if we know $q_*(s,a)$ we immediate have the optimal policy.
 \section{Dynamic Programming}
 \subsection{Iterative Policy Evaluation}
 Suppose there exists a MDP $\braket{\mc{S,A,P,R}, \gamma}$ and a given policy $\pi$. How much is policy $\pi$ good? How can evaluate given policy $\pi$? \tb{Iterative policy evaluation} can evaluate policy.
+This is also called as \tb{prediction problem}. If we know the environment's dynamics, then we can see \cref{eq:eq6} as a system of $|\mc{S}|$ linear equations of $|S|$ unknowns. However solving that tremendous linear system involves tedious calculations. For our purpose, iterative solution methods are most suitable. \tb{Iterative update process (Jacobi's method)} for state value function can be expressed by \cref{eq:eq23}.
+\begin{equation} \label{eq:eq23}
+    \begin{aligned}
+        v_{k+1}(s) &= \mbb{E}_\pi [R_{t+1} + \gamma v_k(S_{t+1} | S_t = s] \\
+        &= \sum_{a \in \mc{A}(s)} \pi(a|s)\left(\mc{R}^a_s + \gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_{k}(s') \right)
+    \end{aligned}
+\end{equation}
 
 \end{document}
