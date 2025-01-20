@@ -18,6 +18,8 @@
 \def\tcr{\textcolor{red}}
 \def\tcb{\textcolor{blue}}
 \def\n{\newline}
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
 \newcommand{\mbb}[1]{\mathbb{#1}}
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
@@ -33,7 +35,7 @@
 
 
 
-
+% \setlength{\parindent}{15pt} % set indent length
 \title{Reinforcement Learning basic study}
 \author{Gwanwoo Choi}
 
@@ -211,14 +213,58 @@ if we know $q_*(s,a)$ we immediate have the optimal policy.
 
 
 \section{Dynamic Programming}
-\subsection{Iterative Policy Evaluation}
-Suppose there exists a MDP $\braket{\mc{S,A,P,R}, \gamma}$ and a given policy $\pi$. How much is policy $\pi$ good? How can evaluate given policy $\pi$? \tb{Iterative policy evaluation} can evaluate policy.
-This is also called as \tb{prediction problem}. If we know the environment's dynamics, then we can see \cref{eq:eq6} as a system of $|\mc{S}|$ linear equations of $|S|$ unknowns. However solving that tremendous linear system involves tedious calculations. For our purpose, iterative solution methods are most suitable. \tb{Iterative update process (Jacobi's method)} for state value function can be expressed by \cref{eq:eq23}.
+In this chapter, we only consider about deterministic policies, although all properties and equations can also be able to applied for stochastic policy $\pi(a|s)$.
+\subsection{Policy Evaluation}
+Suppose there exists a MDP $\braket{\mc{S,A,P,R}, \gamma}$ and a given policy $\pi$. How we can get value function for specific policy? Throught \tb{Policy evaluation}, also called as \tb{prediction problem}, we can evaluate policy.
+
+If we know the environment's dynamics, then we can consider \cref{eq:eq6} as a system of $|\mc{S}|$ linear equations of $|S|$ unknowns. In other words, by solving that $|\mc{S}|$ number of linear equations we can get value function for a policy $\pi$. However solving such tremendous linear system involves tedious calculations and can lead to lack of computation resources. For our purpose, iterative solution methods are most suitable. \tb{Iterative update process (Jacobi's method)} for state value function can be expressed by \cref{eq:eq23}.
 \begin{equation} \label{eq:eq23}
     \begin{aligned}
-        v_{k+1}(s) &= \mbb{E}_\pi [R_{t+1} + \gamma v_k(S_{t+1} | S_t = s] \\
+        v_{k+1}(s) &= \mbb{E}_\pi [R_{t+1} + \gamma v_k(S_{t+1}) | S_t = s] \\
         &= \sum_{a \in \mc{A}(s)} \pi(a|s)\left(\mc{R}^a_s + \gamma\sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_{k}(s') \right)
     \end{aligned}
+\end{equation}
+
+Note that not only Jacobi's method, but also Gauss-Seidal, SOR(Successive over relaxation) and other iterative methods can be used for policy evaluation (prediction problem).
+
+\subsection{Policy Improvement}
+Suppose we have determined the value function $v_\pi$ for a policy for an arbitrary policy $\pi$. Assume another policy $\pi'$ satisfies inequation $q_\pi(s, \pi'(s)) \geq v_\pi(s)$, for all $s \in \mc{S}$. Then following inequation \cref{eq:eq24} is satisfied.
+\begin{equation} \label{eq:eq24}
+    \begin{aligned}
+        v_\pi(s) &\leq q_\pi(s, \pi'(s))\\
+        &=\mbb{E}[R_{t+1} + \gamma v_\pi(S_{t+1}) | S_t=s, A_t=\pi'(s)]\\
+        &=\mbb{E}_{\pi'}[R_{t+1} + \gamma v_\pi (S_{t+1}) | S_{t}=s]\\
+        &\leq \mbb{E}_\pi'[R_{t+1} + \gamma q_\pi(S_{t+1}, \pi'(S_{t+1}))|S_t=s]\\
+        &= \mbb{E}_{\pi'}[R_{t+1} + \gamma\mbb{E}_{\pi'}[R_{t+2} + \gamma v_\pi(S_{t+1})|S_{t+1}]|S_t=s]\\
+        &= \mbb{E}_{\pi'}[R_{t+1}+\gamma R_{t+2} + \gamma^2 v_\pi (S_{t+2}) |S_t=s] \quad \text{(by law of iterated expectation)}\\
+        &\vdots\\
+        &\leq \mbb{E}_{\pi'}[G_{t+1}|S_t=s]\\
+        &= v_{\pi'}(s)
+    \end{aligned}
+\end{equation}
+
+And for every policy $\pi$, we can always find better or equal policy $\pi'$. Once we get value function $v_\pi$ for $\pi$, $\pi'$ defined by \cref{eq:eq25} is always better than $\pi$.
+\begin{equation} \label{eq:eq25}
+    \pi'(s) = \argmax_a q_\pi(s,a)
+\end{equation}
+This implies new greedy policy for value function of original policy is always better than original policy and The process of deriving a new policy using the aforementioned method is called \tb{policy improvement}.
+
+If new policy $\pi'$ derived from original policy $\pi$ satisfies bellman optimality equation (\cref{eq:eq26}), then both $\pi'$ and $\pi$ are optimal policy.
+\begin{equation} \label{eq:eq26}
+    v_{\pi'}(s) = \max_a \mbb{E}[R_{t+1} + \gamma v_{\pi'}(S_{t+1}) | S_t=s, A_t=a]
+\end{equation}
+
+\subsection{Policy Iteration}
+We can recursively update the value function and policy in sequence manner like \cref{eq:eq27}.
+\begin{equation} \label{eq:eq27}
+    \pi_0 \xrightarrow{\mrm{E}} v_{\pi_0} \xrightarrow{\mrm{I}} \pi_1 \xrightarrow{\mrm{E}} v_{\pi_1} \xrightarrow{\mrm{I}} \dots \xrightarrow{\mrm{E}} \pi_*
+\end{equation}
+Terminate when newly updated policy $\pi_{k+1}$ is eqaul to $\pi_k$ and this policy $\pi_{k+1}$ becomes optimal policy $\pi_*$. This process used to obtain optimal policy $\pi_*$ is called \tb{policy iteration}.
+
+\subsection{Value Iteration}
+Waiting to complete policy evaluation at each step of policy iteration can lead to wasted time. In fact, the policy evaluation step in policy iteration can be truncated in several ways without losing the convergence guarantees of policy iteration. \tb{Value iteration} truncates the policy evaluation step to just \ti{one step}, ensuring fast convergence. The update equation for value iteration can be written as a simple one-line equation (\cref{eq:eq28}) that combines policy improvement and the one-step truncated policy evaluation step.
+\begin{equation} \label{eq:eq28}
+    v_{k+1}(s) = \max_a \mbb{E} [R_{t+1} + \gamma v_k(S_{t+1}) | S_t=s, A_t=a]
 \end{equation}
 
 \end{document}
