@@ -6,12 +6,23 @@
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
 \usepackage{amsmath} % Automatically numbers and align the equations
 \usepackage{amsfonts} % To use mathematical fonts like mathbb
+\usepackage[usenames,dvipsnames]{color} % to use textcolor
+\usepackage{algorithm2e} % use algorithm
+\usepackage{float} %to use, in \begin{algorithm}[H], [H] option
 \usepackage[hidelinks]{hyperref} % hide red rectangle on reference. hyperref is used packaged as default.
 \usepackage{cleveref} % clearly reference equation in text
 \usepackage{braket} % braket
 \usepackage{lmodern} %font for equation
 \usepackage[default]{opensans} % Use the Open Sans font for sans serif 
-\usepackage{bm} %access bold symbols in math modes
+\usepackage{bm} %access bold symbols in math modes, can be replaced by boldmath
+\RestyleAlgo{ruled} % caption style for algorithm2e
+% cleveref 설정: algorithm 환경을 인식하도록 설정
+% \crefname{algorithm}{Algorithm}{Algorithms}
+% \Crefname{algorithm}{Algorithm}{Algorithms}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\SetKwInOut{Init}{Initialize}
+
 
 
 
@@ -184,7 +195,7 @@ The \tb{bellman optimality equation} are special consistency conditions that the
         &=\max_a \mc{R}^a_{s} + \gamma \sum_{s' \in \mc{S}}\mc{P}^a_{ss'}v_*(s')
     \end{aligned}
 \end{equation}
-And bellman optimality equation for action value function can be expressed like \label{eq:eq22}
+And bellman optimality equation for action value function can be expressed like \cref{eq:eq22}
 \begin{equation} \label{eq:eq22}
     \begin{aligned}
         q_*(s,a) &= \mc{R}^a_{s} + \gamma \sum_{s' \in \mc{S}} \mc{P}^a_{ss'}v_*(s') \\
@@ -266,5 +277,149 @@ Waiting to complete policy evaluation at each step of policy iteration can lead 
 \begin{equation} \label{eq:eq28}
     v_{k+1}(s) = \max_a \mbb{E} [R_{t+1} + \gamma v_k(S_{t+1}) | S_t=s, A_t=a]
 \end{equation}
+\newpage
+
+
+
+\section{Model-free Prediction}
+\subsection{Monte Carlo Prediction}
+Suppose we don't know about environments. Can we evaluate policy although environments transition probability and following rewards are unknown? In this case, \ti{sampling} sequences of states, actions, and rewards from actual or simulated interaction with an environment can be used to estimate actual value function.
+
+\tb{Monte carlo} methods utilizes averaging sample returns under the episodic tasks, that well-defined returns are available, to estimate value functions. In monte carlo prediction, each occurrence of state $s$ in an episode is called a \ti{visit} to $s$. \tb{First-visit MC method} estimates $v_\pi(s)$ as the average of the returns following first visit to s. \cref{alg:alg1} describes whole process of First visit MC prediction.
+
+\begin{algorithm}
+\SetAlgoLined  % default
+% \SetAlgoNoLine % no line
+\Input{a policy $\pi$ to be evaulated}
+\Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S} \n Returns(s) \gets \text{an empty list, for all } s \in \mc{S}$
+}
+\
+
+\While{forever}{
+    Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
+
+    $G \gets 0$\
+
+    \For{$t = T-1, \dots, 0$}{
+        $G \gets \gamma G + R_{t+1}$\
+
+        \If{$S_t$ has not been visited in $S_0, S_1, \dots, S_{t-1}$}{
+            $\text{Returns}(S_t) \gets \text{Returns}(S_t) \cup \{G\}$\
+            
+            $V(S_t) \gets \text{average}(\text{Returns}(S_t))$\
+            
+        }
+    }
+}\
+
+\Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
+
+\caption{On-policy first-visit MC value function prediction}
+\label{alg:alg1}
+\end{algorithm}
+
+First visit MC converges to $v_\pi(s)$ as the number of visits to $s$ goes infinity. In MC methods, each estimate for each state are independent. In other words, estimate for one state is not derived by the estimate of any other state (not \ti{bootstrap}). Each return is considered as an independent, identically distributed estimate of $v_\pi(s)$ with finite variance.
+
+We can express this algorithm in incremental manner. Both \cref{alg:alg1} and \cref{alg:alg2} are essentially same algorithm.
+\begin{algorithm}
+\Input{a policy $\pi$ to be evaluated}
+\Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n
+$N(s) \in \mbb{N} \cup {0}, N(s) \gets 0$, for all $s \in \mc{S}$
+}\
+
+\While{forever}{
+    Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
+
+    $G \gets 0$\
+
+    \For{$t = T-1, \dots, 0$}{
+        $G \gets \gamma G + R_{t+1}$\
+
+        \If{$S_t$ has not been visited in $S_0, S_1, \dots, S_{t-1}$}{
+            $N(S_t) \gets N(S_t) + 1$\
+
+            $V(S_t) \gets V(S_t) + \frac{1}{N(S_t)}(G-V(S_t))$
+        }
+    }
+}\
+
+\Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
+
+\caption{On-Policy first-visit incremental MC value function prediction}
+\label{alg:alg2}
+\end{algorithm}
+ 
+Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:alg3} is slightly different from \cref{alg:alg2}. In non-stationary environment, true underlying value function changes over time. So, it is important to forget too previous estimated values in non-stationary problem and weights recent estimated values. \cref{alg:alg3} uses \ti{constant-$\alpha$} as a constant step-size parameter to forget too old stored values. In \cref{alg:alg2} estimated values in each states are ordinal averaged, other side, in \cref{alg:alg3}, estimaved values in each states are \tb{exponential recency-weighted averaged}.
+
+\begin{algorithm}[H]
+    \Input{a policy $\pi$ to be evaluated\n$\alpha \in \mbb{R}^+$, constant stepsize parameter}
+    \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$
+    }\
+    
+    \While{forever}{
+        Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
+    
+        $G \gets 0$\
+    
+        \For{$t = T-1, \dots, 0$}{
+            $G \gets \gamma G + R_{t+1}$\
+    
+            \If{$S_t$ has not been visited in $S_0, S_1, \dots, S_{t-1}$}{
+                $V(S_t) \gets V(S_t) + \alpha(G-V(S_t))$
+            }
+        }
+    }\
+
+    \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
+
+\caption{On-policy first-visit incremental constant-$\alpha$ MC value function prediction}
+\label{alg:alg3}
+\end{algorithm}
+
+\tb{\textcolor{red}{need to fill importance sampling MC in here.}}
+
+\subsection{Temporal Difference Prediction}
+Monte Carlo methods help estimate value function even in situations where there is no knowledge about the environment (model-free). But drawback of monte carlo methods is that must wait until the episode is finished.
+
+By combining the property of dynamic programming with monte carlo method, we can adress the shortcomings of monte carlo methods, which require waiting for end of an episode.
+
+In simple manner, we can express non-stationary monte carlo update by \cref{eq:eq29}.
+\begin{equation} \label{eq:eq29}
+    V(S_t) \gets V(S_t) + \alpha (G_t - V(S_t))
+\end{equation}
+we need to wait for the episode to be finished in order to update value function in \cref{eq:eq29}. However, in \cref{eq:eq30}, we only need to wait for a single step to finish.
+\begin{equation} \label{eq:eq30}
+    V(S_t) \gets V(S_t) + \alpha (R_{t+1} + \gamma V(S_{t+1}) - V(S_t))
+\end{equation}
+\cref{eq:eq30} updates estimated value function using the observed reward $R_{t+1}$ and the estimate $V(S_{t+1})$. This method is called \tb{TD(0)} or \tb{one-step TD} because it only requires one step further estimated values. $R_{t+1} + \gamma V(S_{t+1})$ means one step further estimated values and TD(0) algorithm updates toward one step further estimated values by adding $R_{t+1}+\gamma V(S_{t+1})$ with multiplied by $\alpha$. Because TD(0) bases its update in part on an existing estimate, we say that it is a \tb{bootstrapping} method, like DP. $\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$ is called \tb{TD(0) error}. \cref{alg:alg4} shows whole process of TD(0) algorithm.
+
+\begin{algorithm}
+
+\Input{a policy $\pi$ to be evaluated}
+\Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n $\alpha \in \mbb{R}^+$, constant stepsize parameter
+}\
+
+\While{forever}{
+    Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
+
+    $G \gets 0$\
+
+    \For{$t = T-1, \dots, 0$}{
+        $G \gets \gamma G + R_{t+1}$\
+
+        \If{$S_t$ has not been visited in $S_0, S_1, \dots, S_{t-1}$}{
+            $V(S_t) \gets V(S_t) + \alpha(R_{t+1} + \gamma V(S_{t+1}) -V(S_t))$
+        }
+    }
+}\
+
+\Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
+
+\caption{TD(0)}
+\label{alg:alg4}
+\end{algorithm}
+
+In monte carlo methods, target $G_t=R_{t+1}+\gamma R_{t+2}+ \dots + \gamma^{T-t-1}R_T$ is \tb{unbiased estimates} of $v_\pi(S_t)$. However, in TD(0), target $R_{t+1}+\gamma V(S_{t+1})$ is biased estimated of $v_\pi(S_t)$, in that sense \bm{$\mbb{E}[R_{t+1} + \gamma V(S_{t+1})|S_t] \neq \mbb{E}[G_{t+1}|S_t] = v_\pi(S_t)$}. MC has high \ti{variance} because return $R_{t+1}$ depends on \ti{many} random choices, transitions, rewards but TD(0) has \ti{lower bias} than MC because TD(0) target only depends on \ti{one} random action, transition, rewards. MC is \ti{robust} to initial value, however TD(0) is \ti{sensitive} to initial value.
+
 
 \end{document}
