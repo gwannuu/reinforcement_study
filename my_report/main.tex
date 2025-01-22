@@ -295,7 +295,7 @@ Suppose we don't know about environments. Can we evaluate policy although enviro
 }
 \
 
-\While{forever}{
+\While{sample episode}{
     Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
 
     $G \gets 0$\
@@ -327,7 +327,7 @@ We can express this algorithm in incremental manner. Both \cref{alg:alg1} and \c
 $N(s) \in \mbb{N} \cup {0}, N(s) \gets 0$, for all $s \in \mc{S}$
 }\
 
-\While{forever}{
+\While{sample episode}{
     Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
 
     $G \gets 0$\
@@ -356,7 +356,7 @@ Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:
     \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$
     }\
     
-    \While{forever}{
+    \While{sample episode}{
         Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
     
         $G \gets 0$\
@@ -399,17 +399,15 @@ we need to wait for the episode to be finished in order to update value function
 \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n $\alpha \in \mbb{R}^+$, constant stepsize parameter
 }\
 
-\While{forever}{
-    Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
+\While{sample episode}{
+    \ForEach{timestep}{
+        $A \gets \text{ action given by } \pi \text{ for } S$\
 
-    $G \gets 0$\
+        Take action $A$, observe $R, S'$\
 
-    \For{$t = T-1, \dots, 0$}{
-        $G \gets \gamma G + R_{t+1}$\
+        $V(S) \gets V(S) + \alpha [R + \gamma V(S') - V(S)]$\
 
-        \If{$S_t$ has not been visited in $S_0, S_1, \dots, S_{t-1}$}{
-            $V(S_t) \gets V(S_t) + \alpha(R_{t+1} + \gamma V(S_{t+1}) -V(S_t))$
-        }
+        $S \gets S'$
     }
 }\
 
@@ -419,7 +417,64 @@ we need to wait for the episode to be finished in order to update value function
 \label{alg:alg4}
 \end{algorithm}
 
-In monte carlo methods, target $G_t=R_{t+1}+\gamma R_{t+2}+ \dots + \gamma^{T-t-1}R_T$ is \tb{unbiased estimates} of $v_\pi(S_t)$. However, in TD(0), target $R_{t+1}+\gamma V(S_{t+1})$ is biased estimated of $v_\pi(S_t)$, in that sense \bm{$\mbb{E}[R_{t+1} + \gamma V(S_{t+1})|S_t] \neq \mbb{E}[G_{t+1}|S_t] = v_\pi(S_t)$}. MC has high \ti{variance} because return $R_{t+1}$ depends on \ti{many} random choices, transitions, rewards but TD(0) has \ti{lower bias} than MC because TD(0) target only depends on \ti{one} random action, transition, rewards. MC is \ti{robust} to initial value, however TD(0) is \ti{sensitive} to initial value.
+In monte carlo methods, target $G_t=R_{t+1}+\gamma R_{t+2}+ \dots + \gamma^{T-t-1}R_T$ is \tb{unbiased estimates} of $v_\pi(S_t)$. However, in TD(0), target $R_{t+1}+\gamma V(S_{t+1})$ is biased estimated of $v_\pi(S_t)$, in that sense \bm{$\mbb{E}[R_{t+1} + \gamma V(S_{t+1})|S_t] \neq \mbb{E}[G_{t+1}|S_t] = v_\pi(S_t)$}. MC has high \ti{variance} because return $R_{t+1}$ depends on \ti{many} random choices, transitions, rewards but TD(0) has \ti{lower bias} than MC because TD(0) target only depends on \ti{one} random action, transition, rewards. MC is \ti{robust} to initial value, whereas TD(0) is \ti{sensitive} to initial value.
+
+
+\subsection{Batch MC, TD(0)}
+Suppose there is available only a finite episode or timestep. In this case, there is lack of experience to converge $v_\pi$. To handle this situation, one method is repeatedly updating using finite experiences.
+
+Given an approximation value functoin $V$, for every time step $t$, increments are computed and $V$ is updated once by the sum of the increments. And with new value function $V'$ we repeat this update process again until value function converges. This is called \tb{batch updating}. 
+
+Batch monte carlo methods always find the estimates that minimize \ti{mean square error} on the training set, whereas batch TD(0) always finds the estimates that would be exactly correct for the \ti{maximum likelihood} model of the markov process.
+
+Batch monte carlo methods tries to minimize equation \cref{eq:eq31} whereas batch TD(0) methods tries to match with solution of maximum likelihood of markov model by \cref{eq:eq32}. In other words, TD(0) converges to solution of maximum likelihood MDP $\braket{\mc{S,A,\hat{P}, \hat{R}},\gamma}$ which best fits the training data.
+
+\begin{equation} \label{eq:eq31}
+    \sum^K_{k=1} \sum^{T_k}_{t=1} \left(G^k_t - V(S^k_t)\right)^2
+\end{equation}
+
+\begin{equation} \label{eq:eq32}
+    \begin{aligned}
+        \hat{\mc{P}}^a_{s,s'} &= \frac{1}{N(s,a)} \sum^K_{k=1} \sum^{T_k}_{t=1}\mathbf{1}(s^k_t,a^k_t,s^k_{t+1} = s, a, s')\\
+        \hat{\mc{R}^a_s} &= \frac{1}{N(s,a)} \sum^K_{k=1} \sum^{T_k}_{t=1}\mathbf{1}(s^t_k,a^t_k = s,a)r^k_t
+    \end{aligned}
+\end{equation}
+
+\subsection{Generalized Temporal Difference: N-step Bootstrapping}
+In monte carlo methods, \tb{target of the update} $G_t$ is defined by \cref{eq:eq33}, which is unbiased sample of truth return value. Whereas TD(0) uses $G_{t:t+1}$ (\cref{eq:eq34}) as target of the update, which is one-step further estimates for true return, combined with on one-step forward rewards $R_{t+1}$ and estimated value function $V(\cdot)$. Recall that update value of TD(0) is defined by $G_{t:t+1} - V(S_t)$.
+\begin{equation} \label{eq:eq33}
+    G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots + \gamma^{T-t-1} R_T
+\end{equation}
+\begin{equation} \label{eq:eq34}
+    G_{t:t+1} = R_{t+1} + \gamma V(S_{t+1})
+\end{equation}
+
+% In n-step boot strapping, where $n = \lambda$, TD($\lambda$) generally means that update with $\delta^\lambda_t = G^\lambda_t - V(S_t)$. $G^\lambda_t$ is defined by \cref{eq:eq35}
+% \begin{equation} \label{eq:eq35}
+%     G^\lambda_t = R_{t+1} + \gamma R_{t+2} + \dots \gamma^\lambda R_{t+\lambda+1} + \gamma^{\lambda + 1} V(S_{t+\lambda+1})
+% \end{equation}
+
+In n-step bootstrapping, target of update is \tb{n-step return} $G_{t:t+n}$ (\cref{eq:eq35}) and $V(\cdot)$ is updated with $G_{t:t+n} - \gamma^n V(S_{t+n})$. Update formula for \tb{n-step bootstrapping} (\tb{n-step TD}) is defined by \cref{eq:eq36}. Note that n-step returns for $n > 1$ involve future rewards and states that are not available at the time of transition from $t$ to $t+1$.
+\begin{equation} \label{eq:eq35}
+    G_{t:t+n} = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \gamma^{n-1} R_{n} + \gamma^n V(S_{t+n})
+\end{equation}
+
+\begin{equation} \label{eq:eq36}
+    V(S_t) \gets V(S_t) + \alpha\left(G_{t:t+n} - V(S_t)\right)
+\end{equation}
+
+In n-step return, following \cref{eq:eq38} is satisfied. This is called the \ti{error reduction property} of n-step returns. Because of the reduction property, one can show formally that all n-step TD methods converge to the correct predictions under appropriate technical conditions.
+\begin{equation} \label{eq:eq38}
+    \max_s\left|\mbb{E}_\pi [G_{t:t+n}|S_t=s]-v_\pi(s)\right| \leq \gamma^n \max_s\left|V_{t+n-1}(s) - v_\pi(s)\right|
+\end{equation}
+
+
+\subsection{TD($\lambda$)}
+To leverage both benefits of MC and TD(0), intermediate bootstrapping steps between MC and TD(0) can be combined, named as \tb{TD($\lambda$)}. $\lambda$ return $G^\lambda_t$ combines all n-step returns $G_{t:t+n}$ by \cref{eq:eq37}, where lower step return is more considered. If $\lambda = 0$, then return is same with of TD(0) and if $\lambda = 1$, then return is same with of MC.
+\begin{equation} \label{eq:eq37}
+    G^\lambda_t = (1-\lambda) \sum_{n=1}^\infty \lambda^{n-1}G_{t:t+n}, \quad 0 \leq \lambda \leq 1
+\end{equation}
+
 
 
 \end{document}
