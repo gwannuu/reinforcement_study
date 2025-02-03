@@ -476,5 +476,60 @@ To leverage both benefits of MC and TD(0), intermediate bootstrapping steps betw
 \end{equation}
 
 
+\section{Model-free Control}
+\tb{On-policy} methods attempt to evaluate or improve the policy that is used to make decisions, whereas \tb{off-policy} methods evaluate or improve a policy different from that used to generate the data. We can find both on-policy and off-policy control methods on both MC and TD.
+\subsection{On-policy MC Control}
+% On-policy MC control methods can be divided by two different algorithms. One is exploring starts, which is usually used where agent can start in random initial state. 
+% Another is without exploring starts, which is start with fixed initial state $S_0$.
+
+In on-policy control methods, the policy is generally \ti{soft}, meaning that $\pi(a|s) > 0$ for all $s \in \mc{S}$, but gradually shifted closer and closer to a deterministic optimal policy. 
+\tb{$\epsilon$-greedy} policy is method that choose an action that has maximal estimated action value but with probability $\epsilon$ they instead select an action at random. 
+Algorithm \ref{alg:alg5} improves policy as $\epsilon$-greedy.
+\begin{algorithm} 
+\Init{$\pi(s) \in \mc{A}(s)$, arbitrarily, for all $s \in \mc{S}$ \n $Q(s,a) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}, a \in \mc{A}(s)$
+\n
+$N(s, a) = 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
+}\
+
+
+\While{True}{
+    Sample $k$th episode using $\pi$ : $S_0, A_0, R_0, S_1, A_1, ..., S_{T_1}, A_{T-1}, R_T$ \ 
+    $G \gets 0$
+
+    \For{$t = T-1, \dots, 0$}{
+        $G \gets \gamma G + R_{t+1}$
+    
+        \If{$(S_t, A_t)$ pair has not been visited in $(S_0, A_0), (S_1, A_1), \dots, (S_{t-1}, A_{t-1})$}{
+            $N(S_t, A_t) \gets N(S_t, A_t) + 1$\
+
+            $Q(S_t, A_t) \gets Q(S_t, A_t) + \frac{1}{N(S_t, A_t)}(G - Q(S_t, A_t))$
+
+            $\pi \gets \epsilon\text{-greedy}(Q)$
+        }
+    }
+}\
+
+\caption{On-policy Monte Carlo control(first-visit method)}
+\label{alg:alg5}
+\end{algorithm}
+
+In algorithm \ref{alg:alg5}, policy improvement and policy evaluation occur alternately, one after the other. 
+But does the $\epsilon$-greedy update really satisfy the policy improvement theorem? 
+According to \ti{Generalized Policy Iteration (GPI)}, the improved policy $\pi'$ should satisfy $\pi' \geq \pi$, where $\pi$ is the policy before the update. 
+In this case, improved $\epsilon$-greedy policy $\pi'$ is greater than original policy $\pi$.
+\cref{eq:eq39} shows the fact that $v_{\pi'}(s) \geq v_\pi(s)$.
+In the inequality, the general fact that "the maximum value in a probability distribution function is always greater than or equal to any probability-weighted average" is used.
+
+\begin{equation} \label{eq:eq39}
+    \begin{aligned}
+        v(\pi') &= q_\pi(s, \pi') \\
+        &= \sum_{a \in \mc{A}} \pi'(a|s)q_\pi(s,a) \\
+        &= \epsilon/m \sum_{a \in \mc{A}} q_\pi(s,a) + (1-\epsilon) \max_{a \in \mc{A}}q_\pi(s,a) \quad (m=|\mc{A}(s)|) \\
+        &\geq \epsilon / m \sum_{a \in \mc{A}}q_\pi(s,a) + (1-\epsilon)\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon / m}{1 - \epsilon}q_\pi(s,a) \quad \left(\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon /m}{1-\epsilon} =1\right)\\
+        &= \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a) \\
+        &= v_\pi(s)
+    \end{aligned}
+\end{equation}
+
 
 \end{document}
