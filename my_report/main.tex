@@ -6,8 +6,9 @@
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
 \usepackage{amsmath} % Automatically numbers and align the equations
 \usepackage{amsfonts} % To use mathematical fonts like mathbb
+\usepackage{amsthm} % To use theorem
+\usepackage[linesnumbered]{algorithm2e} % use algorithm
 \usepackage[usenames,dvipsnames]{color} % to use textcolor
-\usepackage{algorithm2e} % use algorithm
 \usepackage{float} %to use, in \begin{algorithm}[H], [H] option
 \usepackage[hidelinks]{hyperref} % hide red rectangle on reference. hyperref is used packaged as default.
 \usepackage{cleveref} % clearly reference equation in text
@@ -23,6 +24,23 @@
 \SetKwInOut{Output}{Output}
 \SetKwInOut{Init}{Initialize}
 
+
+% setting about amsthm
+% \newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{theorem}{Theorem}[section]
+% \newtheorem{definition}{Definition}[subsection]
+\newtheorem{definition}{Definition}[section]
+% \newtheorem{lemma}{Lemma}[section]
+% \newtheorem{corollary}{Corollary}[theorem]
+\crefname{algorithm}{Algorithm}{Algorithms}
+\Crefname{algorithm}{Algorithm}{Algorithms}
+\crefname{theorem}{Theorem}{Theorems}
+\Crefname{theorem}{Theorem}{Theorems}
+\crefname{definition}{Definition}{Definitions}
+\Crefname{definition}{Definition}{Definitions}
+% \crefname{lemma}{Lemma}{Lemmas}
+% \Crefname{lemma}{Lemma}{Lemmas}
+\theoremstyle{plain}
 
 
 
@@ -282,7 +300,8 @@ Waiting to complete policy evaluation at each step of policy iteration can lead 
 
 
 \section{Model-free Prediction}
-\subsection{Monte Carlo Prediction}
+\tb{On-policy} methods attempt to evaluate or improve the policy that is used to make decisions, whereas \tb{off-policy} methods evaluate or improve a policy different from that used to generate the data.
+\subsection{On-policy Monte Carlo Prediction}
 Suppose we don't know about environments. Can we evaluate policy although environments transition probability and following rewards are unknown? In this case, \ti{sampling} sequences of states, actions, and rewards from actual or simulated interaction with an environment can be used to estimate actual value function.
 
 \tb{Monte carlo} methods utilizes averaging sample returns under the episodic tasks, that well-defined returns are available, to estimate value functions. In monte carlo prediction, each occurrence of state $s$ in an episode is called a \ti{visit} to $s$. \tb{First-visit MC method} estimates $v_\pi(s)$ as the average of the returns following first visit to s. \cref{alg:alg1} describes whole process of First visit MC prediction.
@@ -293,7 +312,7 @@ Suppose we don't know about environments. Can we evaluate policy although enviro
 \Input{a policy $\pi$ to be evaulated}
 \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S} \n Returns(s) \gets \text{an empty list, for all } s \in \mc{S}$
 }
-\
+
 
 \While{sample episode}{
     Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
@@ -310,7 +329,7 @@ Suppose we don't know about environments. Can we evaluate policy although enviro
             
         }
     }
-}\
+}
 
 \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
 
@@ -325,7 +344,7 @@ We can express this algorithm in incremental manner. Both \cref{alg:alg1} and \c
 \Input{a policy $\pi$ to be evaluated}
 \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n
 $N(s) \in \mbb{N} \cup {0}, N(s) \gets 0$, for all $s \in \mc{S}$
-}\
+}
 
 \While{sample episode}{
     Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
@@ -341,7 +360,7 @@ $N(s) \in \mbb{N} \cup {0}, N(s) \gets 0$, for all $s \in \mc{S}$
             $V(S_t) \gets V(S_t) + \frac{1}{N(S_t)}(G-V(S_t))$
         }
     }
-}\
+}
 
 \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
 
@@ -354,7 +373,7 @@ Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:
 \begin{algorithm}[H]
     \Input{a policy $\pi$ to be evaluated\n$\alpha \in \mbb{R}^+$, constant stepsize parameter}
     \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$
-    }\
+    }
     
     \While{sample episode}{
         Generate an episode following $\pi$: $S_0, A_0, R_1, S_1, A_1, R_2, \dots, S_{T-1}, A_{T-1}, R_{T}$
@@ -368,7 +387,7 @@ Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:
                 $V(S_t) \gets V(S_t) + \alpha(G-V(S_t))$
             }
         }
-    }\
+    }
 
     \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
 
@@ -376,7 +395,76 @@ Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:
 \label{alg:alg3}
 \end{algorithm}
 
-\tb{\textcolor{red}{need to fill importance sampling MC in here.}}
+\subsection{Off-policy Monte Carlo Prediction}
+We also consider about off-policy monte carlo estimation, in which behavior policy is different from target policy.
+
+\begin{algorithm}[H]
+    \Input{an arbitrary target policy $\pi$}
+    \Init{$Q(s,a) \in \mbb{R}$ (arbitrary)\n
+    $N(s,a) \gets 0$
+    }
+
+    \While{each episode}{
+        $\mu \gets$ any policy with coverage of $\pi$\
+
+        Generate an episode following $\mu: S_0, A_0, R_1, \dots , S_{T-1},A_{T-1},R_T$\
+
+        $G \gets 0; W \gets 1;$\
+
+        \For{each time step of episode, $t=T-1, T-2,\dots, 0$}{
+            \If{$W = 0$}{
+                \tb{Break}
+            }
+            \If{$(S_t, A_t)$ pair has not been visited in $(S_0, A_0), (S_1, A_1), \dots, (S_{t-1}, A_{t-1})$}{
+                $N(S_t, A_t) \gets N(S_t, A_t) + 1$\
+
+                $Q(S_t, A_t) \gets Q(S_t,A_t) + \frac{1}{N(S_t,A_t)}[WG - Q(S_t,A_t)]$
+            }
+            $W \gets W \frac{\pi(A_t|S_t)}{\mu(A_t|S_t)}$
+        }
+    }
+\caption{Off-policy first-visit MC prediction (Ordinal importance sampling)}
+\label{alg:alg7}
+\end{algorithm}
+
+\cref{alg:alg7} shows the procedure that policy is evaluated by off-policy manner with ordinal importance sampling.
+
+\begin{algorithm}[H]
+    \Input{an arbitrary target policy $\pi$}
+    \Init{$Q(s,a) \in \mbb{R}$ (arbitrary)\n
+    $C(s,a) \gets 0$
+    }
+
+    \While{each episode}{
+        $\mu \gets$ any policy with coverage of $\pi$\
+
+        Generate an episode following $\mu: S_0, A_0, R_1, \dots , S_{T-1},A_{T-1},R_T$\
+
+        $G \gets 0; W \gets 1;$\
+
+        \For{each time step of episode, $t=T-1, T-2,\dots, 0$}{
+            \If{$W = 0$}{
+                \tb{Break}
+            }{}
+            $G \gets \gamma G + R_{t+1}$\
+
+            $C(S_t, A_t) \gets C(S_t,A_t)+W$\
+
+            $Q(S_t,A_t) \gets Q(S_t,A_t) + \frac{W}{C(S_t,A_t)}[G - Q(S_t,A_t)]$\
+
+            $W \gets W \frac{\pi(A_t|S_t)}{\mu(A_t|S_t)}$
+        }
+    }
+\caption{Off-policy every-visit MC prediction (weighted important sampling)}
+\label{alg:alg8}
+\end{algorithm}
+
+Whereas \cref{alg:alg8} shows the procedure by every-visit manner with weighted important sampling. 
+
+Both of these dimensions—namely, every-visit vs. first-visit and ordinary vs. weighted importance sampling—correspond to existing algorithm variants. 
+Therefore, an appropriate combination can be chosen depending on the situation and objectives.
+
+% \tb{\textcolor{red}{need to fill importance sampling MC in here.}}
 
 \subsection{Temporal Difference Prediction}
 Monte Carlo methods help estimate value function even in situations where there is no knowledge about the environment (model-free). But drawback of monte carlo methods is that must wait until the episode is finished.
@@ -397,7 +485,7 @@ we need to wait for the episode to be finished in order to update value function
 
 \Input{a policy $\pi$ to be evaluated}
 \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n $\alpha \in \mbb{R}^+$, constant stepsize parameter
-}\
+}
 
 \While{sample episode}{
     \ForEach{timestep}{
@@ -409,7 +497,7 @@ we need to wait for the episode to be finished in order to update value function
 
         $S \gets S'$
     }
-}\
+}
 
 \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
 
@@ -477,21 +565,18 @@ To leverage both benefits of MC and TD(0), intermediate bootstrapping steps betw
 
 
 \section{Model-free Control}
-\tb{On-policy} methods attempt to evaluate or improve the policy that is used to make decisions, whereas \tb{off-policy} methods evaluate or improve a policy different from that used to generate the data. We can find both on-policy and off-policy control methods on both MC and TD.
 \subsection{On-policy MC Control}
 % On-policy MC control methods can be divided by two different algorithms. One is exploring starts, which is usually used where agent can start in random initial state. 
 % Another is without exploring starts, which is start with fixed initial state $S_0$.
-
+We can find both on-policy and off-policy control methods on both MC and TD. First we deal with on-policy MC control methods.
 In on-policy control methods, the policy is generally \ti{soft}, meaning that $\pi(a|s) > 0$ for all $s \in \mc{S}$, but gradually shifted closer and closer to a deterministic optimal policy. 
 \tb{$\epsilon$-greedy} policy is method that choose an action that has maximal estimated action value but with probability $\epsilon$ they instead select an action at random. 
-Algorithm \ref{alg:alg5} improves policy as $\epsilon$-greedy.
+Algorithm \cref{alg:alg5} improves policy as $\epsilon$-greedy.
 \begin{algorithm} 
 \Init{$\pi(s) \in \mc{A}(s)$, arbitrarily, for all $s \in \mc{S}$ \n $Q(s,a) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}, a \in \mc{A}(s)$
 \n
 $N(s, a) = 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
 }\
-
-
 \While{True}{
     Sample $k$th episode using $\pi$ : $S_0, A_0, R_0, S_1, A_1, ..., S_{T_1}, A_{T-1}, R_T$ \ 
     $G \gets 0$
@@ -507,13 +592,12 @@ $N(s, a) = 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
             $\pi \gets \epsilon\text{-greedy}(Q)$
         }
     }
-}\
-
+}
 \caption{On-policy Monte Carlo control(first-visit method)}
 \label{alg:alg5}
 \end{algorithm}
 
-In algorithm \ref{alg:alg5}, policy improvement and policy evaluation occur alternately, one after the other. 
+In algorithm \cref{alg:alg5}, policy improvement and policy evaluation occur alternately, one after the other. 
 But does the $\epsilon$-greedy update really satisfy the policy improvement theorem? 
 According to \ti{Generalized Policy Iteration (GPI)}, the improved policy $\pi'$ should satisfy $\pi' \geq \pi$, where $\pi$ is the policy before the update. 
 In this case, improved $\epsilon$-greedy policy $\pi'$ is greater than original policy $\pi$.
@@ -530,6 +614,138 @@ In the inequality, the general fact that "the maximum value in a probability dis
         &= v_\pi(s)
     \end{aligned}
 \end{equation}
+
+
+\subsection{Off-policy MC Control}
+In off-policy control, the \tb{target policy}, which is being learned, is different from the \tb{behavior policy}, which is used to generate behavior. 
+In this case we say that learning is from data \ti{off} the target policy, and the overall process is termed \tb{off-policy learning}.
+In off-policy learning, we should weight the return $G_t$ while considering the difference between the sample distributions of the target policy and the behavior policy, called \tb{importance sampling}.
+Let denote target policy as $\pi$ and behavior policy as $\mu$, then weighted return can be expressed by \cref{eq:eq40}
+\begin{equation} \label{eq:eq40}
+    G^{\pi / \mu}_{t} = \frac{\pi(A_t|S_t)\pi(A_{t+1}|S_{t+1})}{\mu(A_t|S_t)\mu(A_{t+1}|S_{t+1})}\dots\frac{\pi(A_T|S_T)}{\mu(A_{T-1}|S_{T-1})}G_t
+\end{equation}
+And updating value function is progressed by \cref{eq:eq41}.
+\begin{equation} \label{eq:eq41}
+    V(S_t) \gets V(S_t) + \alpha (G^{\pi / \mu}_t - V(S_t))
+\end{equation}
+This equation can not be used when $\mu$ is zero although $\pi$ is non-zero.
+Importance sampling can dramatically increase variance.
+
+% In this example, we can simply adopt $\epsilon$-greedy of target policy $\pi$ as behavior policy $\mu$. \cref{alg:alg7}.
+
+
+\subsection{On-policy TD control: Sarsa}
+In on-policy TD control, we learn action value function by \cref{eq:eq42}.
+\begin{equation} \label{eq:eq42}
+    Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))
+\end{equation}
+In this equation, we only need $(S_t,A_t,R_{t+1}, S_{t+1}, A_{t+1})$, so this technique is called \tb{sarsa}.
+
+\begin{algorithm}
+    \Input{
+        step size $\alpha \in (0,1]$, small $\epsilon > 0$
+    }
+    \Init{$Q(s,a)$, for all $s \in \mc{S}, a \in \mc{A}(s)$, arbitrarily except that $Q(\text{terminal}, \cdot) = 0$}
+
+\For{each episode}{
+    Initialize $S \in \mc{S}$
+    Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+    \While{$S$ is non-terminal state}{
+        Take action $A$, observe $R, S'$\
+
+        Choose $A'$ from $S'$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+        $Q(S,A) \gets Q(S,A) + \alpha [R + \gamma Q(S',A') - Q(S,A)]$\ \label{eq:eq43}
+
+        $S\gets S';A\gets A';$
+    }
+}
+
+\caption{On-policy TD(0) control (sarsa)}
+\label{alg:alg6}
+\end{algorithm}
+This sarsa algorithm converges under conditions in \cref{thm:thm1}.
+
+\begin{theorem} \label{thm:thm1}
+    Sarsa converges to the optimal action-value function,
+    \[ Q(s,a) \to q_*(s,a), \]
+    under the following conditions:
+    \begin{itemize}
+        \item {\bf GLIE sequence of policies} \(\pi_t(a|s)\). 
+        \item {\bf Robbins-Monro sequence of step sizes} \(\alpha_t\) such that
+        \[
+            \sum_{t=1}^{\infty} \alpha_t = \infty
+            \quad \text{and} \quad
+            \sum_{t=1}^{\infty} \alpha_t^2 < \infty.
+        \]
+    \end{itemize}
+\end{theorem}
+
+\begin{definition} \label{def:def1}
+    We say a sequence of policies $(\pi_k)$ is \emph{Greedy in the Limit with Infinite Exploration (GLIE)} if it satisfies the following conditions:
+
+\begin{itemize}
+    \item \tb{All state-action pairs are explored infinitely many times.} 
+    \[
+        \lim_{k \to \infty} N_k(s, a) = \infty
+    \]
+
+    \item \tb{The policy converges to a greedy policy.}
+    \[
+        \lim_{k \to \infty} \pi_k(a|s)
+        = 1\Bigl(a = \argmax_{a' \in \mathcal{A}} Q_k(s, a')\Bigr).
+    \]
+\end{itemize}
+\end{definition}
+
+We can also discuss the \tb{n-step sarsa} algorithm.  By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq44}, We can simply get n-step sarsa control.
+\begin{equation} \label{eq:eq44}
+    \begin{gathered}
+    q^n_t = R_{t+1} + \gamma R_{t+2}+ \gamma^2 R_{t+3} + \dots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n}, A_{t+n})\\
+    Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (q^n_t - Q(S_t,A_t))
+    \end{gathered}
+\end{equation}
+In \cref{eq:eq44}, $q^n_t$ is the n-step Q-return.
+
+% We can also define \tb{Sarsa($\lambda$)}, which combines all n-step Q-returns $q^n_t$. By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq45}, we can get sarsa($\lambda$).
+% \begin{equation} \label{eq:eq45}
+%     \begin{gathered}
+%     q^\lambda_t = (1-\lambda)\sum_{n=1}^\infty \lambda^{n-1}q^n_t \\
+%     Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (q^\lambda_t - Q(S_t, A_t))
+%     \end{gathered}
+% \end{equation}
+
+\subsection{Off-policy TD control: Q-learning}
+Like off-policy mc control, off-policy TD control needs importance sampling.
+
+\begin{algorithm}
+    \Input{
+        step size $\alpha \in (0,1]$, small $\epsilon > 0$
+    }
+    \Init{$Q(s,a)$, for all $s \in \mc{S}, a \in \mc{A}(s)$, arbitrarily except that $Q(\text{terminal}, \cdot) = 0$}
+
+\For{each episode}{
+    Initialize $S \in \mc{S}$
+    Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+    \While{$S$ is non-terminal state}{
+        Take action $A$, observe $R, S'$\
+
+        Choose $A'$ from $S'$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+        $Q(S,A) \gets Q(S,A) + \alpha [R + \gamma Q(S',A') - Q(S,A)]$\ \label{eq:eq43}
+
+        $S\gets S';A\gets A';$
+    }
+}
+
+\caption{On-policy TD(0) control (sarsa)}
+\label{alg:alg6}
+\end{algorithm}
+Q-learning is a representative off-policy TD algorithm, and in this subsection, we will examine it. In Q-learning control, target policy $\pi$ is \ti{greedy} and behavior policy $\mu$ is \ti{$\epsilon$-greedy}.
+
+
 
 
 \end{document}
