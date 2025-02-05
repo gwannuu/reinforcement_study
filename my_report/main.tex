@@ -396,7 +396,19 @@ Incremental monte carlo algorithm for the \tb{non-stationary problem} \cref{alg:
 \end{algorithm}
 
 \subsection{Off-policy Monte Carlo Prediction}
-We also consider about off-policy monte carlo estimation, in which behavior policy is different from target policy.
+In off-policy control, the \tb{target policy}, which is being learned, is different from the \tb{behavior policy}, which is used to generate behavior. 
+In this case we say that learning is from data \ti{off} the target policy, and the overall process is termed \tb{off-policy learning}.
+In off-policy learning, we should weight the return $G_t$ while considering the difference between the sample distributions of the target policy and the behavior policy, called \tb{importance sampling}.
+Let denote target policy as $\pi$ and behavior policy as $\mu$, then weighted return can be expressed by \cref{eq:eq40}
+\begin{equation} \label{eq:eq40}
+    G^{\pi / \mu}_{t} = \frac{\pi(A_t|S_t)\pi(A_{t+1}|S_{t+1})}{\mu(A_t|S_t)\mu(A_{t+1}|S_{t+1})}\dots\frac{\pi(A_T|S_T)}{\mu(A_{T-1}|S_{T-1})}G_t
+\end{equation}
+And updating value function is progressed by \cref{eq:eq41}.
+\begin{equation} \label{eq:eq41}
+    V(S_t) \gets V(S_t) + \alpha (G^{\pi / \mu}_t - V(S_t))
+\end{equation}
+This equation can not be used when $\mu$ is zero although $\pi$ is non-zero.
+Importance sampling can dramatically increase variance.
 
 \begin{algorithm}[H]
     \Input{an arbitrary target policy $\pi$}
@@ -427,8 +439,8 @@ We also consider about off-policy monte carlo estimation, in which behavior poli
 \label{alg:alg7}
 \end{algorithm}
 
-\cref{alg:alg7} shows the procedure that policy is evaluated by off-policy with ordinal importance sampling manner.
-Whereas \cref{alg:alg8} shows the procedure by every-visit manner with weighted important sampling. 
+\cref{alg:alg7} shows the procedure that action value function is evaluated by off-policy with ordinal importance sampling manner.
+Whereas \cref{alg:alg8} shows the procedure by every-visit with weighted important sampling manner. 
 
 \begin{algorithm}[H]
     \Input{an arbitrary target policy $\pi$}
@@ -575,10 +587,11 @@ We can find both on-policy and off-policy control methods on both MC and TD. Fir
 In on-policy control methods, the policy is generally \ti{soft}, meaning that $\pi(a|s) > 0$ for all $s \in \mc{S}$, but gradually shifted closer and closer to a deterministic optimal policy. 
 \tb{$\epsilon$-greedy} policy is method that choose an action that has maximal estimated action value but with probability $\epsilon$ they instead select an action at random. 
 Algorithm \cref{alg:alg5} improves policy as $\epsilon$-greedy.
+
 \begin{algorithm} 
 \Init{$\pi(s) \in \mc{A}(s)$, arbitrarily, for all $s \in \mc{S}$ \n $Q(s,a) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}, a \in \mc{A}(s)$
 \n
-$N(s, a) = 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
+$N(s, a) \gets 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
 }\
 \While{True}{
     Sample $k$th episode using $\pi$ : $S_0, A_0, R_0, S_1, A_1, ..., S_{T_1}, A_{T-1}, R_T$ \ 
@@ -621,22 +634,52 @@ In the inequality, the general fact that "the maximum value in a probability dis
 
 
 \subsection{Off-policy MC Control}
-In off-policy control, the \tb{target policy}, which is being learned, is different from the \tb{behavior policy}, which is used to generate behavior. 
-In this case we say that learning is from data \ti{off} the target policy, and the overall process is termed \tb{off-policy learning}.
-In off-policy learning, we should weight the return $G_t$ while considering the difference between the sample distributions of the target policy and the behavior policy, called \tb{importance sampling}.
-Let denote target policy as $\pi$ and behavior policy as $\mu$, then weighted return can be expressed by \cref{eq:eq40}
-\begin{equation} \label{eq:eq40}
-    G^{\pi / \mu}_{t} = \frac{\pi(A_t|S_t)\pi(A_{t+1}|S_{t+1})}{\mu(A_t|S_t)\mu(A_{t+1}|S_{t+1})}\dots\frac{\pi(A_T|S_T)}{\mu(A_{T-1}|S_{T-1})}G_t
-\end{equation}
-And updating value function is progressed by \cref{eq:eq41}.
-\begin{equation} \label{eq:eq41}
-    V(S_t) \gets V(S_t) + \alpha (G^{\pi / \mu}_t - V(S_t))
-\end{equation}
-This equation can not be used when $\mu$ is zero although $\pi$ is non-zero.
-Importance sampling can dramatically increase variance.
+In off-policy MC control, TD target $R + \gamma V(S')$ is weighted by importance sampling. 
+Let denote $\pi$ as target policy and $\mu$ as behavior policy. 
+Only need is a single importance sampling correction, expressed by \cref{eq:eq48}.
+This leads much lower variance than MC importance sampling because step length is much more less than MC. And behavior policy $\mu$ only needs to be similar with target policy $\pi$ over a single step, which is convenient. 
 
-% In this example, we can simply adopt $\epsilon$-greedy of target policy $\pi$ as behavior policy $\mu$. \cref{alg:alg7}.
+\begin{equation} \label{eq:eq48}
+    V(S_t) \gets V(S_t) + \alpha \left(\frac{\pi(A_t|S_t)}{\mu(A_t|S_t)}(R_{t+1}+\gamma V(S_{t+1}))-V(s_t)\right)
+\end{equation}
 
+\begin{algorithm}[H]
+    \Input{$\alpha \in (0,1]$}
+    \Init{$Q(s,a) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}, a \in \mc{A}(s)$
+    \n
+    $C(s, a) \gets 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$\n
+    $\pi(s) \gets \argmax_a Q(s,a)$, for all $s \in \mc{S}, a \in \mc{A}(s)$ (with ties broken consistently for maintaining deterministic)\n
+    }\
+    \ForEach{episode}{
+        $\mu \gets$ any soft policy (e.g. $\epsilon$-greedy)\
+
+        generate an episode using $\mu:S_0, A_0, R_0, S_1, A_1, ..., S_{T_1}, A_{T-1}, R_T$ \
+
+        $G \gets 0; W \gets 1;$
+    
+        \For{$t = T-1, \dots, 0$}{
+            $G \gets \gamma G + R_{t+1}$\
+
+            $C(S_t,A_t) \gets C(S_t,A_t) + W$
+
+            $Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha\frac{W}{C(S_t,A_t)}[G - Q(S_t,A_t)]$\
+
+            $\pi(S_t) \gets \argmax_a Q(S_t,a)$ (with ties broken consistently)\
+
+            \If{$A_t \neq \pi(S_t)$}{
+                \tb{Break}
+            }
+            $W \gets W\frac{1}{\mu(A_t|S_t)}$ ($\pi(A_t|S_t) = 1$)
+        }
+    }
+    \Output{$\pi(\cdot)$ (with ties broken consistently)}
+\caption{Off-policy Monte Carlo control (every-visit method)}
+\label{alg:alg9}
+\end{algorithm}
+
+\cref{alg:alg9} describes off-policy control algorithm \ti{in terms of action value function}. 
+In \cref{alg:alg9}, target policy is greedy, so that importance sampling ratio is $\frac{1}{\mu(A_t|S_t)}$.
+It uses weighted importance sampling methods and one can replace it to ordinal importance sampling. 
 
 \subsection{On-policy TD control: Sarsa}
 In on-policy TD control, we learn action value function by \cref{eq:eq42}.
