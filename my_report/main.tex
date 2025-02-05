@@ -427,7 +427,8 @@ We also consider about off-policy monte carlo estimation, in which behavior poli
 \label{alg:alg7}
 \end{algorithm}
 
-\cref{alg:alg7} shows the procedure that policy is evaluated by off-policy manner with ordinal importance sampling.
+\cref{alg:alg7} shows the procedure that policy is evaluated by off-policy with ordinal importance sampling manner.
+Whereas \cref{alg:alg8} shows the procedure by every-visit manner with weighted important sampling. 
 
 \begin{algorithm}[H]
     \Input{an arbitrary target policy $\pi$}
@@ -459,8 +460,6 @@ We also consider about off-policy monte carlo estimation, in which behavior poli
 \label{alg:alg8}
 \end{algorithm}
 
-Whereas \cref{alg:alg8} shows the procedure by every-visit manner with weighted important sampling. 
-
 Both of these dimensions—namely, every-visit vs. first-visit and ordinary vs. weighted importance sampling—correspond to existing algorithm variants. 
 Therefore, an appropriate combination can be chosen depending on the situation and objectives.
 
@@ -481,14 +480,15 @@ we need to wait for the episode to be finished in order to update value function
 \end{equation}
 \cref{eq:eq30} updates estimated value function using the observed reward $R_{t+1}$ and the estimate $V(S_{t+1})$. This method is called \tb{TD(0)} or \tb{one-step TD} because it only requires one step further estimated values. $R_{t+1} + \gamma V(S_{t+1})$ means one step further estimated values and TD(0) algorithm updates toward one step further estimated values by adding $R_{t+1}+\gamma V(S_{t+1})$ with multiplied by $\alpha$. Because TD(0) bases its update in part on an existing estimate, we say that it is a \tb{bootstrapping} method, like DP. $\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$ is called \tb{TD(0) error}. \cref{alg:alg4} shows whole process of TD(0) algorithm.
 
-\begin{algorithm}
-
+\begin{algorithm}[H]
 \Input{a policy $\pi$ to be evaluated}
 \Init{$V(s) \in \mbb{R}$, arbitrarily, for all $s \in \mc{S}$ \n $\alpha \in \mbb{R}^+$, constant stepsize parameter
 }
 
-\While{sample episode}{
-    \ForEach{timestep}{
+\ForEach{each episode}{
+    Initialize $S \in \mc{S}$\
+
+    \While{$S$ is non-terminal state}{
         $A \gets \text{ action given by } \pi \text{ for } S$\
 
         Take action $A$, observe $R, S'$\
@@ -500,13 +500,16 @@ we need to wait for the episode to be finished in order to update value function
 }
 
 \Output{estimated value function $V(s)$, for all $s \in \mc{S}$}
-
-\caption{TD(0)}
+\caption{On-policy TD(0) V prediction}
 \label{alg:alg4}
 \end{algorithm}
 
-In monte carlo methods, target $G_t=R_{t+1}+\gamma R_{t+2}+ \dots + \gamma^{T-t-1}R_T$ is \tb{unbiased estimates} of $v_\pi(S_t)$. However, in TD(0), target $R_{t+1}+\gamma V(S_{t+1})$ is biased estimated of $v_\pi(S_t)$, in that sense \bm{$\mbb{E}[R_{t+1} + \gamma V(S_{t+1})|S_t] \neq \mbb{E}[G_{t+1}|S_t] = v_\pi(S_t)$}. MC has high \ti{variance} because return $R_{t+1}$ depends on \ti{many} random choices, transitions, rewards but TD(0) has \ti{lower bias} than MC because TD(0) target only depends on \ti{one} random action, transition, rewards. MC is \ti{robust} to initial value, whereas TD(0) is \ti{sensitive} to initial value.
+In monte carlo methods, target $G_t=R_{t+1}+\gamma R_{t+2}+ \dots + \gamma^{T-t-1}R_T$ is \tb{unbiased estimates} of $v_\pi(S_t)$. 
+However, in TD(0), target $R_{t+1}+\gamma V(S_{t+1})$ is biased estimated of $v_\pi(S_t)$, in that sense \bm{$\mbb{E}[R_{t+1} + \gamma V(S_{t+1})|S_t] \neq \mbb{E}[G_{t+1}|S_t] = v_\pi(S_t)$}. 
+MC has high \ti{variance} because return $R_{t+1}$ depends on \ti{many} random choices, transitions, rewards but TD(0) has \ti{lower bias} than MC because TD(0) target only depends on \ti{one} random action, transition, rewards. 
+MC is \ti{robust} to initial value, whereas TD(0) is \ti{sensitive} to initial value.
 
+In this subsection, prediction for action value runction is not discussed. It will be dealed with TD control in \cref{sec:model-free control} because Q-prediction algorithm (policy evaluation) is naturally combined and discussed with policy improvement.
 
 \subsection{Batch MC, TD(0)}
 Suppose there is available only a finite episode or timestep. In this case, there is lack of experience to converge $v_\pi$. To handle this situation, one method is repeatedly updating using finite experiences.
@@ -564,7 +567,7 @@ To leverage both benefits of MC and TD(0), intermediate bootstrapping steps betw
 \end{equation}
 
 
-\section{Model-free Control}
+\section{Model-free Control} \label{sec:model-free control}
 \subsection{On-policy MC Control}
 % On-policy MC control methods can be divided by two different algorithms. One is exploring starts, which is usually used where agent can start in random initial state. 
 % Another is without exploring starts, which is start with fixed initial state $S_0$.
@@ -609,7 +612,8 @@ In the inequality, the general fact that "the maximum value in a probability dis
         v(\pi') &= q_\pi(s, \pi') \\
         &= \sum_{a \in \mc{A}} \pi'(a|s)q_\pi(s,a) \\
         &= \epsilon/m \sum_{a \in \mc{A}} q_\pi(s,a) + (1-\epsilon) \max_{a \in \mc{A}}q_\pi(s,a) \quad (m=|\mc{A}(s)|) \\
-        &\geq \epsilon / m \sum_{a \in \mc{A}}q_\pi(s,a) + (1-\epsilon)\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon / m}{1 - \epsilon}q_\pi(s,a) \quad \left(\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon /m}{1-\epsilon} =1\right)\\
+        &\geq \epsilon / m \sum_{a \in \mc{A}}q_\pi(s,a) + (1-\epsilon)\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon / m}{1 - \epsilon}q_\pi(s,a)\\ 
+        &\quad \left(\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon /m}{1-\epsilon} =1\right)\\
         &= \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a) \\
         &= v_\pi(s)
     \end{aligned}
@@ -639,29 +643,36 @@ In on-policy TD control, we learn action value function by \cref{eq:eq42}.
 \begin{equation} \label{eq:eq42}
     Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))
 \end{equation}
-In this equation, we only need $(S_t,A_t,R_{t+1}, S_{t+1}, A_{t+1})$, so this technique is called \tb{sarsa}.
+In this equation, we only need $(S_t,A_t,R_{t+1}, S_{t+1}, A_{t+1})$ in each iteration, so this technique is called \tb{sarsa}.
+\cref{alg:alg6} shows the whole process of \tb{on-policy TD(0) action value function control}.
+It uses only one policy, typically $\epsilon$-greedy, to visit and update state-action pair.
 
 \begin{algorithm}
     \Input{
         step size $\alpha \in (0,1]$, small $\epsilon > 0$
     }
-    \Init{$Q(s,a)$, for all $s \in \mc{S}, a \in \mc{A}(s)$, arbitrarily except that $Q(\text{terminal}, \cdot) = 0$}
-
-\For{each episode}{
-    Initialize $S \in \mc{S}$
-    Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
-
-    \While{$S$ is non-terminal state}{
-        Take action $A$, observe $R, S'$\
-
-        Choose $A'$ from $S'$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
-
-        $Q(S,A) \gets Q(S,A) + \alpha [R + \gamma Q(S',A') - Q(S,A)]$\ \label{eq:eq43}
-
-        $S\gets S';A\gets A';$
+    \Init{
+        $Q(s,a)$, for all $s \in \mc{S}^+, a \in \mc{A}(s)$, arbitrary except that $Q(\text{terminal-state}, \cdot)$
     }
-}
 
+    \ForEach{each episode}{
+        Initialize $S \in \mc{S}$\
+
+        Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+        \While{$S$ is non-terminal state}{
+            Take action $A$, observe $R, S'$\
+
+            Choose $A'$ from $S'$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+            $Q(S,A) \gets Q(S,A) + \alpha [R + \gamma Q(S',A') - Q(S,A)]$\ \label{eq:eq43}
+
+            $S \gets S'; A \gets A'$
+        }
+    }
+    \Output{
+        $\pi \gets$ greedy policy for $Q(\cdot, \cdot)$
+    }
 \caption{On-policy TD(0) control (sarsa)}
 \label{alg:alg6}
 \end{algorithm}
@@ -682,6 +693,8 @@ This sarsa algorithm converges under conditions in \cref{thm:thm1}.
     \end{itemize}
 \end{theorem}
 
+GLIE(Greedy in the Limit with Infinite Exploration) is defined by \cref{def:def1}.
+
 \begin{definition} \label{def:def1}
     We say a sequence of policies $(\pi_k)$ is \emph{Greedy in the Limit with Infinite Exploration (GLIE)} if it satisfies the following conditions:
 
@@ -699,14 +712,14 @@ This sarsa algorithm converges under conditions in \cref{thm:thm1}.
 \end{itemize}
 \end{definition}
 
-We can also discuss the \tb{n-step sarsa} algorithm.  By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq44}, We can simply get n-step sarsa control.
+We can also discuss \tb{n-step sarsa} algorithm. By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq44}, We can simply get n-step sarsa control.
 \begin{equation} \label{eq:eq44}
-    \begin{gathered}
-    q^n_t = R_{t+1} + \gamma R_{t+2}+ \gamma^2 R_{t+3} + \dots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n}, A_{t+n})\\
     Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (q^n_t - Q(S_t,A_t))
-    \end{gathered}
 \end{equation}
-In \cref{eq:eq44}, $q^n_t$ is the n-step Q-return.
+Where $q^n_t$, the n-step Q-return, is defined in \cref{eq:eq46}
+\begin{equation} \label{eq:eq46}
+    q^n_t = R_{t+1} + \gamma R_{t+2}+ \gamma^2 R_{t+3} + \dots + \gamma^{n-1} R_{t+n} + \gamma^n Q(S_{t+n}, A_{t+n})
+\end{equation}
 
 % We can also define \tb{Sarsa($\lambda$)}, which combines all n-step Q-returns $q^n_t$. By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq45}, we can get sarsa($\lambda$).
 % \begin{equation} \label{eq:eq45}
@@ -717,35 +730,47 @@ In \cref{eq:eq44}, $q^n_t$ is the n-step Q-return.
 % \end{equation}
 
 \subsection{Off-policy TD control: Q-learning}
-Like off-policy mc control, off-policy TD control needs importance sampling.
+Q-learning is the representative off-policy TD(0) control algorithm. 
+In Q-learning, the target policy $\pi$ is \ti{greedy} with respect to the current Q-function (estimated for optimal  $p^*$), while the behavior policy $\mu$ follows an \ti{$\epsilon$-greedy} strategy.
 
 \begin{algorithm}
     \Input{
         step size $\alpha \in (0,1]$, small $\epsilon > 0$
     }
-    \Init{$Q(s,a)$, for all $s \in \mc{S}, a \in \mc{A}(s)$, arbitrarily except that $Q(\text{terminal}, \cdot) = 0$}
-
-\For{each episode}{
-    Initialize $S \in \mc{S}$
-    Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
-
-    \While{$S$ is non-terminal state}{
-        Take action $A$, observe $R, S'$\
-
-        Choose $A'$ from $S'$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
-
-        $Q(S,A) \gets Q(S,A) + \alpha [R + \gamma Q(S',A') - Q(S,A)]$\ \label{eq:eq43}
-
-        $S\gets S';A\gets A';$
+    \Init{
+        $Q(s,a)$, for all $s \in \mc{S}^+, a \in \mc{A}(s)$, arbitrary except that $Q(\text{terminal-state}, \cdot)$
     }
-}
 
-\caption{On-policy TD(0) control (sarsa)}
-\label{alg:alg6}
+    \ForEach{each episode}{
+        Initialize $S$\
+
+        \While{$S$ is non-terminal state}{
+            Choose $A$ from $S$ using policy derived from $Q$ (e.g. $\epsilon$-greedy)\
+
+            Take action $A$, observe $R, S'$\
+
+            $Q(S,A) \gets Q(S,A) + \alpha[R + \gamma \max_a Q(S',a) - Q(S,A)]$\ \label{eq:eq47}
+
+            $S \gets S'$
+        }
+    }
+    \Output{
+        $\pi \gets$ greedy policy for $Q(\cdot, \cdot)$
+    }
+\caption{Off-policy TD(0) Control: Q-learning}
+\label{alg:alg10}
 \end{algorithm}
-Q-learning is a representative off-policy TD algorithm, and in this subsection, we will examine it. In Q-learning control, target policy $\pi$ is \ti{greedy} and behavior policy $\mu$ is \ti{$\epsilon$-greedy}.
 
+In Algorithm \cref{alg:alg10}, importance sampling is not required. 
+This is because the target state-action pair—obtained by greedily selecting an action from the current Q estimates (see Equation \cref{eq:eq47})—is used directly for the update. 
+Importance sampling is normally used to correct for differences between the distribution of samples generated by the behavior policy and that of the target policy. 
+However, in Q-learning the target update always uses the greedy action, so the samples from the behavior policy are not reweighted.
 
+In Q-learning, \ti{policy evaluation and policy improvement occur at every iteration}. 
+At each step, the updated Q-function is used to derive a greedy (or $\epsilon$-greedy) policy that selects the next action a for the successor state $S'$ as well as the current action A for state S. 
+Since the Q-function that underlies the greedy policy is updated at every iteration, the policy is effectively improved with each update. 
+Moreover, policy evaluation is carried out at every iteration via the update in \cref{eq:eq47}.
+Therefore, the Q-learning algorithm in \cref{alg:alg10} can be regarded as a form of generalized policy iteration (GPI) and is inherently a control algorithm.
 
 
 \end{document}
