@@ -5,6 +5,7 @@
 ]{article}
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule for better rules in tables
 \usepackage{amsmath} % Automatically numbers and align the equations
+\usepackage{amssymb} % to use \becuase and \therefore
 \usepackage{amsfonts} % To use mathematical fonts like mathbb
 \usepackage{amsthm} % To use theorem
 \usepackage[linesnumbered]{algorithm2e} % use algorithm
@@ -580,6 +581,44 @@ To leverage both benefits of MC and TD(0), intermediate bootstrapping steps betw
 
 
 \section{Model-free Control} \label{sec:model-free control}
+
+\begin{definition} \label{def:def1}
+    We say a sequence of policies $(\pi_k)$ is \emph{Greedy in the Limit with Infinite Exploration (GLIE)} if it satisfies the following conditions:
+
+\begin{itemize}
+    \item \tb{All state-action pairs are explored infinitely many times.} 
+    \[
+        \lim_{k \to \infty} N_k(s, a) = \infty
+    \]
+
+    \item \tb{The policy converges to a greedy policy.}
+    \[
+        \lim_{k \to \infty} \pi_k(a|s)
+        = 1\Bigl(a = \argmax_{a' \in \mathcal{A}} Q_k(s, a')\Bigr).
+    \]
+\end{itemize}
+\end{definition}
+
+\begin{theorem} \label{thm:thm2}
+    For any $\epsilon$-greedy policy $\pi$, the $\epsilon$-greedy policy $\pi'$ with respect to $q_\pi$ is an improvement, i.e. $v_{\pi'} \geq v_\pi$
+\end{theorem}
+
+\begin{proof}
+\begin{equation} \label{eq:eq39}
+    \begin{aligned}
+        q_\pi(s, \pi'(s))
+        &= \sum_{a \in \mc{A}} \pi'(a|s)q_\pi(s,a) \\
+        &= \epsilon/m \sum_{a \in \mc{A}} q_\pi(s,a) + (1-\epsilon) \max_{a \in \mc{A}}q_\pi(s,a) \quad (m=|\mc{A}(s)|) \\
+        &\geq \epsilon / m \sum_{a \in \mc{A}}q_\pi(s,a) + (1-\epsilon)\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon / m}{1 - \epsilon}q_\pi(s,a)\\ 
+        &\quad \left(\because \sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon /m}{1-\epsilon} =1, \pi(a|s) - \epsilon/m \geq 0, \forall s,a \right)\\
+        &= \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a) \\
+        &= v_\pi(s)
+    \end{aligned}
+\end{equation}
+\end{proof}
+
+Note that $q_\pi(s, \pi'(s))$ is \tb{one-step lookahead} for action value function $q_\pi$. 
+\cref{thm:thm2} shows that if one-step lookahead action value function is greater than or equal to previous $q_\pi$, then changing policy in every step from $\pi$ to $pi'$ is improvement (i.e. $v_{\pi'}(s) \geq v_\pi(s)$)
 \subsection{On-policy MC Control}
 % On-policy MC control methods can be divided by two different algorithms. One is exploring starts, which is usually used where agent can start in random initial state. 
 % Another is without exploring starts, which is start with fixed initial state $S_0$.
@@ -609,28 +648,17 @@ $N(s, a) \gets 0$, for all $s \in \mc{S}$ and for all $a \in \mc{A}(s)$
         }
     }
 }
-\caption{On-policy Monte Carlo control(first-visit method)}
+\caption{On-policy Monte Carlo control (first-visit method)}
 \label{alg:alg5}
 \end{algorithm}
 
 In algorithm \cref{alg:alg5}, policy improvement and policy evaluation occur alternately, one after the other. 
-But does the $\epsilon$-greedy update really satisfy the policy improvement theorem? 
+% But does the $\epsilon$-greedy update really satisfy the policy improvement theorem? 
 According to \ti{Generalized Policy Iteration (GPI)}, the improved policy $\pi'$ should satisfy $\pi' \geq \pi$, where $\pi$ is the policy before the update. 
 In this case, improved $\epsilon$-greedy policy $\pi'$ is greater than original policy $\pi$.
-\cref{eq:eq39} shows the fact that $v_{\pi'}(s) \geq v_\pi(s)$.
-In the inequality, the general fact that "the maximum value in a probability distribution function is always greater than or equal to any probability-weighted average" is used.
+% \cref{eq:eq39} shows the fact that $v_{\pi'}(s) \geq v_\pi(s)$.
+% In the inequality, the general fact that "the maximum value in a probability distribution function is always greater than or equal to any probability-weighted average" is used.
 
-\begin{equation} \label{eq:eq39}
-    \begin{aligned}
-        v(\pi') &= q_\pi(s, \pi') \\
-        &= \sum_{a \in \mc{A}} \pi'(a|s)q_\pi(s,a) \\
-        &= \epsilon/m \sum_{a \in \mc{A}} q_\pi(s,a) + (1-\epsilon) \max_{a \in \mc{A}}q_\pi(s,a) \quad (m=|\mc{A}(s)|) \\
-        &\geq \epsilon / m \sum_{a \in \mc{A}}q_\pi(s,a) + (1-\epsilon)\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon / m}{1 - \epsilon}q_\pi(s,a)\\ 
-        &\quad \left(\sum_{a \in \mc{A}}\frac{\pi(a|s) - \epsilon /m}{1-\epsilon} =1\right)\\
-        &= \sum_{a \in \mc{A}}\pi(a|s)q_\pi(s,a) \\
-        &= v_\pi(s)
-    \end{aligned}
-\end{equation}
 
 
 \subsection{Off-policy MC Control}
@@ -738,23 +766,6 @@ This sarsa algorithm converges under conditions in \cref{thm:thm1}.
 
 GLIE(Greedy in the Limit with Infinite Exploration) is defined by \cref{def:def1}.
 
-\begin{definition} \label{def:def1}
-    We say a sequence of policies $(\pi_k)$ is \emph{Greedy in the Limit with Infinite Exploration (GLIE)} if it satisfies the following conditions:
-
-\begin{itemize}
-    \item \tb{All state-action pairs are explored infinitely many times.} 
-    \[
-        \lim_{k \to \infty} N_k(s, a) = \infty
-    \]
-
-    \item \tb{The policy converges to a greedy policy.}
-    \[
-        \lim_{k \to \infty} \pi_k(a|s)
-        = 1\Bigl(a = \argmax_{a' \in \mathcal{A}} Q_k(s, a')\Bigr).
-    \]
-\end{itemize}
-\end{definition}
-
 We can also discuss \tb{n-step sarsa} algorithm. By changing \cref{eq:eq43} of algorithm \cref{alg:alg6} as \cref{eq:eq44}, We can simply get n-step sarsa control.
 \begin{equation} \label{eq:eq44}
     Q(S_t,A_t) \gets Q(S_t,A_t) + \alpha (q^n_t - Q(S_t,A_t))
@@ -815,5 +826,6 @@ Since the Q-function that underlies the greedy policy is updated at every iterat
 Moreover, policy evaluation is carried out at every iteration via the update in \cref{eq:eq47}.
 Therefore, the Q-learning algorithm in \cref{alg:alg10} can be regarded as a form of generalized policy iteration (GPI) and is inherently a control algorithm.
 
+\textcolor{red}{Need to implement n-step TD}
 
 \end{document}
