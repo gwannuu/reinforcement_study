@@ -51,6 +51,7 @@
 
 \newcommand{\mrm}[1]{\mathrm{#1}}
 \newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
 \newcommand{\ti}[1]{\textit{#1}}
@@ -828,5 +829,157 @@ Moreover, policy evaluation is carried out at every iteration via the update in 
 Therefore, the Q-learning algorithm in \cref{alg:alg10} can be regarded as a form of generalized policy iteration (GPI) and is inherently a control algorithm.
 
 \textcolor{red}{Need to implement n-step TD}
+
+
+\section{Value Function Approximation}
+In large MDPs, there are too many states and actions to store in memory.
+It leads too slow to learn the value of each state individually. 
+To solve this problem, in large MDPs, estimate value function with \ti{function approximator} such as \tb{neural network} or \tb{linear combinations of features}. 
+This approximater estimates the true value function such as $\hat{v}(s, \mb{w}) \approx v_\pi(s)$ or $\hat{q}(s,a,\mb{w}) \approx q_\pi(s,a)$.
+In both neural network and linear combinations of features methods, parameter $\mb{w}$ is updated using MC or TD learning by \tb{gradient descent}.
+
+We need to find parameter vector $\mb{w}$ minimising mean-squared error between approximate value function $\hat{v}(s, \mb{w})$ and true value function $v_\pi(s)$.
+By gradient descent for objective function $J(\mb{w})$ defined in \cref{eq:eq49}.
+\begin{equation} \label{eq:eq49}
+    J(\mb{w}) = \mbb{E}_\pi[(v_\pi(s) - \hat{v}(s, \mb{w}))^2]
+\end{equation}
+In gradient descent method, $\Delta \mb{w}$ is defined by \cref{eq:eq50}.
+\begin{equation} \label{eq:eq50}
+\begin{aligned}
+    \Delta \mb{w} &= -\frac{1}{2} \alpha \nabla_\mb{w} J(\mb{w})\\
+    &= \alpha \mbb{E}_\pi [(v_\pi(s) - \hat{v}(s, \mb{w}))\nabla_\mb{w} \hat{v}(s,\mb{w})]
+\end{aligned}
+\end{equation}
+In stochastic gradient descent method, $\Delta \mb{w}$ is defined slightly differently (\cref{eq:eq51}).
+\begin{equation} \label{eq:eq51}
+    \Delta \mb{w} = \alpha (v_\pi(s) - \hat{v}(s, \mb{w})) \nabla_\mb{w} \hat{v}(s, \mb{w})
+\end{equation}
+And also target $v_\pi(s)$ is substituted according to each methods. For MC, target becomes to be return $G_t$. (\cref{eq:eq54})
+\begin{equation} \label{eq:eq54}
+    \Delta \mb{w} = \alpha (G_t - \hat{v}(s, \mb{w})) \nabla_\mb{w} \hat{v}(s, \mb{w})
+\end{equation}
+For TD(0), the target becomes $r + \gamma \hat{v}(s', \mb{w})$. (\cref{eq:eq55})
+\begin{equation} \label{eq:eq55}
+    \Delta \mb{w} = \alpha (r + \gamma \hat{v}(s', \mb{w}) - \hat{v}(s, \mb{w})) \nabla_\mb{w} \hat{v}(s, \mb{w})
+\end{equation}
+FOr TD($\lambda$), the target is the $\lambda$-return $G^\lambda_t$. (\cref{eq:eq56})
+\begin{equation} \label{eq:eq56}
+    \Delta \mb{w} = \alpha (G^\lambda_t - \hat{v}(s, \mb{w})) \nabla_\mb{w} \hat{v}(s, \mb{w})
+\end{equation}
+
+
+\subsection{Linear Function Approximation}
+In linear function approximation methods, state is represented by a \tb{featuer vector}, $\mb{x}(s) = \begin{pmatrix}
+\mb{x}_1(s) \\ \vdots \\ \mb{x}_n(s)
+\end{pmatrix}$. Vaue function approximation is defined by $\hat{v}(s,\mb{w}) = \mb{x}(s)^\top \mb{w}$.
+In linear function approximation, function approximator $\hat{v}(s,\mb{w})$ of \cref{eq:eq49} is replaced by $\mb{x}^\top\mb{w}$, so defined by \cref{eq:eq52}
+\begin{equation} \label{eq:eq52}
+    J(\mb{w}) = \mbb{E}_\pi[(v_\pi(s) - \mb{x}(s)^\top \mb{w})^2]
+\end{equation}
+
+In linear function approximation, stochastic gradient method guarantees convergence on \tb{global optimum}. 
+Update rule is defined by \cref{eq:eq53}
+\begin{equation} \label{eq:eq53}\
+    \begin{aligned}
+    \nabla_\mb{w} \hat{v}(s,\mb{w}) &= \mb{x}(s) \\
+    \Delta \mb{w} &= \alpha (v_\pi(s) - \hat{v}(s, \mb{w}))\mb{x}(s)
+    \end{aligned}
+\end{equation}
+
+In MC, $v_\pi(s)$ of \cref{eq:eq53} becomes to $G_t$. (\cref{eq:eq57})
+\begin{equation} \label{eq:eq57}
+    \Delta \mb{w} = \alpha (G_t - \hat{v}(s, \mb{w}))\mb{x}(s)
+\end{equation}.
+In TD(0), $v_\pi(s)$ of \cref{eq:eq53} becomes to $r$. (\cref{eq:eq58})
+\begin{equation} \label{eq:eq58}
+    \Delta \mb{w} = \alpha (r + \gamma \hat{v}(s', \mb{w}) - \hat{v}(s, \mb{w}))\mb{x}(s)
+\end{equation}
+In TD($\lambda$), $v_\pi(s)$ is replaced with $G^\lambda_t$. (\cref{eq:eq59})
+\begin{equation} \label{eq:eq59} 
+    \Delta \mb{w} = \alpha (G^\lambda_t - \hat{v}(s, \mb{w})\mb{x}(s))
+\end{equation}
+\textcolor{red}{Need to implement backward view of TD($\lambda$)}.
+
+\tb{control with action value function approximation} method adopts approximating policy evaluation $\hat{q}(\cdot, \cdot, \mb{w}) \approx q_\pi$ as policy evaluation and $\epsilon$-greedy policy imrovement as policy improvement.
+
+Similar with value function approximation, approximate for the action value function is written as $\hat{q}(s, a, \mb{w}) \approx q_\pi(s,a)$.
+
+Objective function $J(\mb{w})$ with action value function approximation $\hat{q}(s, a, \mb{w})$ is defined by \cref{eq:eq60}.
+
+\begin{equation} \label{eq:eq60}
+    J(\mb{w}) = \mbb{E}_\pi[(q_\pi(s, a) - \hat{q}(s, a, \mb{w}))^2]
+\end{equation}
+
+State and action pair is represented by a feature vector.
+
+\begin{equation} \label{eq:eq62}
+    \mb{x}(s,a) = \begin{pmatrix}
+        \mb{x}_1(s,a)\\\vdots\\\mb{x}_n(s,a)
+    \end{pmatrix}
+\end{equation}
+
+Update rule of SGD for action value function is defined by \cref{eq:eq61}
+\begin{equation} \label{eq:eq61}
+    \begin{aligned}
+        -\frac{1}{2} \nabla_\mb{w} J(\mb{w}) &= (q_\pi(s,a) - \hat{q}(s, a, \mb{w})) \nabla_\mb{w}\hat{q}(s, a, \mb{w}) \\
+        \Delta \mb{w} &= \alpha (q_\pi(s, a) - \hat{q}(s, a, \mb{w})) \nabla_\mb{w} \hat{q}(s, a, \mb{w})\\
+        \Delta \mb{w} &= \alpha (q_\pi(s, a) - \hat{q}(s, a, \mb{w}))\mb{x}(s,a)
+    \end{aligned}
+\end{equation}
+
+Prediction for action value function approximation methods replaces target $q_\pi(s,a)$ to other terms matched with each methods.
+In MC, target $q_\pi(s,a)$ in \cref{eq:eq61} is replaced by $G_t$.
+\begin{equation} \label{eq:eq63}
+    \begin{aligned}
+        \Delta \mb{w} &= \alpha (q_\pi(s, a) - \hat{q}(s, a, \mb{w})) \nabla_\mb{w} \hat{q}(s, a, \mb{w})\\
+        \Delta \mb{w} &= \alpha (G_t - \hat{q}(s, a, \mb{w}))\mb{x}(s,a)
+    \end{aligned}
+\end{equation}
+In TD(0), target $q_\pi(s,a)$ in \cref{eq:eq61} is replaced by $r + \gamma \hat{q}(s', a', \mb{w})$.
+\begin{equation} \label{eq:eq64}
+    \begin{aligned}
+        \Delta \mb{w} &= \alpha (q_\pi(s, a) - \hat{q}(s, a, \mb{w})) \nabla_\mb{w} \hat{q}(s, a, \mb{w})\\
+        \Delta \mb{w} &= \alpha (r + \gamma \hat{q}(s', a', \mb{w})- \hat{q}(s, a, \mb{w}))\mb{x}(s,a)
+    \end{aligned}
+\end{equation}
+In TD($\lambda$), target $q_\pi(s,a)$ is replaced by action-value $\lambda$-return $q^\lambda_t$.
+\begin{equation} \label{eq:eq65}
+    \begin{aligned}
+        \Delta \mb{w} &= \alpha (q_\pi(s, a) - \hat{q}(s, a, \mb{w})) \nabla_\mb{w} \hat{q}(s, a, \mb{w})\\
+        \Delta \mb{w} &= \alpha(q^\lambda_t - \hat{q}(s, a, \mb{w}))\mb{x}(s,a)
+    \end{aligned}
+\end{equation}
+\textcolor{red}{Need to implement backward view of TD($
+\lambda$).}
+
+\subsection{Batch Method}
+For the experience $\mc{D} = \{\braket{s_1,v_1^\pi}, \braket{s_2,v_2^\pi}, \dots, \braket{s_T, v_T^\pi}\}$, to find best fitting parameter $\mb{w}$, \tb{least squares} algorithms find parameters $\mb{w}$ minimising sum-squared error between $\hat{v}(s_t, \mb{w})$ and target value $v_\pi(s)$.
+\begin{equation} \label{eq:eq66}
+    \begin{aligned}
+    \text{LS}(\mb{w}) &= \sum_{t=1}^T (v^\pi_t - \hat{v}(s, \mb{w}))^2\\
+    &= \mbb{E}_\mc{D} [(v^\pi - \hat{v}(s,\mb{w}))^2]
+    \end{aligned}
+\end{equation}
+
+SGD with experience with experience replay algorithm repeats below processes.
+\begin{enumerate}
+    \item Sample state, value pair from experience
+    $$\braket{s, v^\pi} \sim \mc{D}$$
+    \item Apply SGD update
+    $$\Delta \mb{w} = \alpha(v^\pi - \hat{v}(s, \mb{w}))\nabla_\mb{w} \hat{v}(s, \mb{w})$$
+\end{enumerate}
+This algorithm converges to least square solution. $$\mb{w}^\pi = \argmin_\mb{w} \text{LS}(\mb{w})$$
+
+\tb{Deep Q-learning} algorithm uses experience replay and fixed Q-targets.
+Store transition $(s,a,r,s')$ in $\mc{D}$.
+
+Objective function $\mc{L}_i(w_i)$ is defined by \cref{eq:eq67}.
+\begin{equation} \label{eq:eq67}
+    \mc{L}_i(w_i) = \mbb{E}_{s,a,r,s' \sim \mc{D}_i} \left[\left(r + \gamma \max_{a'}Q(s',a',w_i^-)-Q(s,a,w_i)^2\right)\right]
+\end{equation}
+In this equation, subscript $i$ represents the iteration index. The update paramter $w_i$, the fixed parameter $w_i^-$ and the experience replay $\mc{D}_i$ changes according to update iteration index. 
+$\mc{D}_i$ appends new experience and remove old experience as the index increases.
+In each iteration, fixed parameter $w_i^-$ is used to calculate loss $\mc{L}_i$ to stabilize the target. fixed parameter $w_i^-$ is periodically updated as $w_i^- \gets w_i$.
+
 
 \end{document}
