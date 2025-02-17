@@ -24,9 +24,24 @@ class LinearQNetwork(nn.Module):
         return self.fc(x)
 
 
-class QNetwork(nn.Module):
+class LunarLanderQNetwork(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_dim=64):
-        super(QNetwork, self).__init__()
+        super(LunarLanderQNetwork, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class CartpoleQNetwork(nn.Module):
+    def __init__(self, state_dim, action_dim, hidden_dim=64):
+        super(CartpoleQNetwork, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(state_dim, hidden_dim),
             nn.ReLU(),
@@ -140,9 +155,14 @@ class Trainer:
         self.device = device
         self.date = datetime.today().strftime("%Y%m%d-%H%M")
 
-    def model_save(self, name: str):
-        cur = Path.cwd()
-        model_save_dir = cur / self.date
+    def get_model_save_dir(self, env_name: str = "") -> Path:
+        if env_name == "":
+            env_name = self.env.env.spec.id
+        save_path = Path.cwd() / f"{env_name}_{self.date}"
+        return save_path
+
+    def model_save(self, env_name: str = "", name: str = "latest"):
+        model_save_dir = self.get_model_save_dir(env_name)
         Path.mkdir(model_save_dir, exist_ok=True)
         save_path = model_save_dir / f"{name}.pth"
         torch.save(self.policy_net.state_dict(), save_path)
@@ -251,7 +271,9 @@ class DQN_Trainer(Trainer):
 ##############################
 
 
-def evaluate_policy(model, n_episodes=5, max_step=500, save_dir="", model_path=""):
+def evaluate(
+    env: gym.Env, model, n_episodes=5, max_step=500, save_dir="", model_path=""
+):
     """
     학습된 모델(LinearQNetwork 또는 QNetwork)을 평가합니다.
     - 환경은 "rgb_array" 모드로 생성되어, OpenCV로 프레임을 받아옵니다.
@@ -263,7 +285,7 @@ def evaluate_policy(model, n_episodes=5, max_step=500, save_dir="", model_path="
     device = "mps"
 
     # rgb_array 모드로 환경 생성 (OpenCV로 직접 프레임을 처리)
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
+    # env = gym.make("CartPole-v1", render_mode="rgb_array")
     eval_rewards = []
     model.eval()
     model.to(device)
@@ -313,9 +335,12 @@ def evaluate_policy(model, n_episodes=5, max_step=500, save_dir="", model_path="
                 (0, 0, 255),
                 2,
             )
+            action_values = "Action Value: "
+            for action_value in q_values[0]:
+                action_values += f"{action_value.item():.3f}, "
             cv2.putText(
                 frame_bgr,
-                f"Action Value: {q_values[0][0]:.3f}, {q_values[0][1]:.3f}",
+                action_values,
                 (10, 80),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
