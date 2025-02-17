@@ -981,4 +981,53 @@ $\mc{D}_i$ appends new experience and remove old experience as the index increas
 In each iteration, fixed parameter $w_i^-$ is used to calculate loss $\mc{L}_i$ to stabilize the target. fixed parameter $w_i^-$ is periodically updated as $w_i^- \gets w_i$.
 
 
+\section{Policy Gradient}
+In previous sections, we approximate value function as $V_\theta(s) \approx V^\pi(s)$ and $Q_\theta(s, a) \approx Q^\pi(s,a)$.
+And policy is defined on value function approximation with methods such as $\epsilon$-greedy.
+
+In this section, policy is directly approximated by $\pi_\theta(s,a) = \mbb{P}[a|s, \theta]$. All discussions about policy gradient in this section is focused on model-free.
+
+By define policy as $\pi_\theta(s,a)$, policy can becomes stochastic.
+With $\epsilon$-greedy for value function approximation, policy only can be deterministic.
+In some cases, stochastic policy is better than deterministic policy.
+
+How good a policy is can be measured by the following methods.
+In case of episodic environments, policy is evaluate by \cref{eq:eq68}
+\begin{equation} \label{eq:eq68}
+    J(\theta) = V^\pi(s_1) = \mbb{E}_{\pi_\theta}[v_1]
+\end{equation}
+In continuing environments, policy is evaluated by \cref{eq:eq69}.
+$d^{\pi_\theta}(s)$ is \tb{stationary distribution of markov chain} for $\pi_\theta$ and defined by \cref{eq:eq70}, average value.
+\begin{equation} \label{eq:eq70}
+    d^{\pi_\theta}(s) = \lim_{t \rightarrow \infty} P[s_t|s_0,\pi]
+\end{equation}
+\begin{equation} \label{eq:eq69}
+    J_\text{avV}(\theta) = \sum_s d^{\pi_\theta}(s) V^{\pi_\theta}(s)
+\end{equation}
+\cref{eq:eq69} is expressed in slightly different manner by \cref{eq:eq71}, average reward per time.
+\begin{equation} \label{eq:eq71}
+    J_\text{avR}(\theta) = \sum_s d^{\pi_\theta} \sum_a \pi_\theta(s,a)\mc{R}^a_s
+\end{equation}
+
+
+\subsection{Score Function}
+Assume policy $\pi_\theta$ is differentiable whenever it is non-zero. 
+Then gradient of $\pi_\theta$ becomes \cref{eq:eq72}.
+\begin{equation} \label{eq:eq72}.
+    \begin{aligned}
+        \nabla_\theta \pi_\theta (s,a) &= \pi_\theta(s,a) \frac{\nabla_\theta \pi_\theta(s,a)}{\pi_\theta(s,a)}\\
+        &= \pi_\theta(s,a) \nabla_\theta \log \pi_\theta(s,a)
+    \end{aligned}
+\end{equation}
+The term $\nabla_\theta \log \pi_\theta (s,a)$ is called \tb{score function}.
+
+Softmax policy can be one example of score function. 
+Assume policy is $\pi_\theta(s,a) \propto e^{\phi(s,a)^\top \theta}$, which is softmax.
+Then score function for $\pi_theta(s,a)$ is \cref{eq:eq73}.
+\begin{equation} \label{eq:eq73}
+    \nabla_\theta \log \pi_\theta(s,a) = \phi(s,a) - \mbb{E}_{\pi_\theta}[\phi(s, \cdot)]
+\end{equation}
+
+
+
 \end{document}
