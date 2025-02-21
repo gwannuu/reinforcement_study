@@ -980,12 +980,16 @@ In this equation, subscript $i$ represents the iteration index. The update param
 $\mc{D}_i$ appends new experience and remove old experience as the index increases.
 In each iteration, fixed parameter $w_i^-$ is used to calculate loss $\mc{L}_i$ to stabilize the target. fixed parameter $w_i^-$ is periodically updated as $w_i^- \gets w_i$.
 
+Naive DQN algorithm has \tb{temporal correlation} problem.
+Temporal correlation is about situation that agent only consider recent states and discard some small portion of important states. Replay buffer (experience replay) is adopted to DQN to prevent this temporal correlation problem.
+
 
 \section{Policy Gradient}
 In previous sections, we approximate value function as $V_\theta(s) \approx V^\pi(s)$ and $Q_\theta(s, a) \approx Q^\pi(s,a)$.
 And policy is defined on value function approximation with methods such as $\epsilon$-greedy.
 
 In this section, policy is directly approximated by $\pi_\theta(s,a) = \mbb{P}[a|s, \theta]$. All discussions about policy gradient in this section is focused on model-free.
+The advantage of policy gradient is we can deal with \tb{continuous action space}. With DQN algorithm, we deal with continuous state space but action space is not. Only small discrete action space can be dealt with DQN.
 
 By define policy as $\pi_\theta(s,a)$, policy can becomes stochastic.
 With $\epsilon$-greedy for value function approximation, policy only can be deterministic.
@@ -1021,12 +1025,122 @@ Then gradient of $\pi_\theta$ becomes \cref{eq:eq72}.
 \end{equation}
 The term $\nabla_\theta \log \pi_\theta (s,a)$ is called \tb{score function}.
 
-Softmax policy can be one example of score function. 
-Assume policy is $\pi_\theta(s,a) \propto e^{\phi(s,a)^\top \theta}$, which is softmax.
-Then score function for $\pi_theta(s,a)$ is \cref{eq:eq73}.
+\tb{Softmax policy} can be one example of score function. 
+Assume policy is $\pi_\theta(s,a) = \frac{\exp(\phi(s,a)^\top \theta)}{\sum_{a'}\exp(\phi(s,a')^\top \theta)}$, which is softmax.
+Then score function for $\pi_\theta(s,a)$ is \cref{eq:eq73}.
 \begin{equation} \label{eq:eq73}
-    \nabla_\theta \log \pi_\theta(s,a) = \phi(s,a) - \mbb{E}_{\pi_\theta}[\phi(s, \cdot)]
+    \begin{aligned}
+    \nabla_\theta \log \pi_\theta(s,a) &= \phi(s,a) - \sum_{a'}\pi_\theta(s,a')\phi(s,a') \\
+    &= \phi(s,a) - \mbb{E}_{\pi_\theta}[\phi(s, \cdot)]
+    \end{aligned}
 \end{equation}
+
+Softmax policy is natural for discrete action space, whereas for continuous action space, \tb{gaussian policy} is natural.
+In gaussian policy, mean becomes a linear combination of state feature $\mu(s) = \phi(s)^\top \theta$. Policy is gaussian, $a \sim \mc{N}(\mu(s), \sigma^2)$. Then, score function is described by \cref{eq:eq74}.
+\begin{equation} \label{eq:eq74}
+    \nabla_\theta \log \pi_\theta(s,a) = \frac{(a - \mu(s))
+    \phi(s)}{\sigma^2}
+\end{equation}
+
+\subsection{Policy Gradient Theorem}
+For one-step MDP, \cref{eq:eq75} holds.
+\begin{equation} \label{eq:eq75}
+    \begin{aligned}
+        J(\theta) &= \mbb{E}_{\pi_\theta}[r] \\
+        &=\sum_{s \in \mc{S}}d(s)\sum_{a \in \mc{A}} \pi_\theta(s,a)\mc{R}_{s,a}\\
+        \nabla_\theta J(\theta) &= \sum_{s \in \mc{S}} d(s) \sum_{a \in \mc{A}} \pi_\theta(s,a) \nabla_\theta \log \pi_\theta(s,a)\mc{R}_{s,a} \\
+        &=\mbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta(s,a)r]
+    \end{aligned}
+\end{equation}
+For multi-step MDP, \cref{thm:thm3} holds.
+\begin{theorem} \label{thm:thm3}
+    For any \ti{differentiable policy} $\pi_\theta$(s,a),
+    for any of the policy objective functions ($J = J_1, J_\text{avR},\frac{1}{1-\gamma}J_\text{avV}$), the policy gradient is
+    $$\nabla_\theta J(\theta) = \mbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta (s,a) Q^{\pi_\theta}(s,a)]$$
+\end{theorem}
+
+Advantage of policy gradient \cref{thm:thm3} is that do not need to know transition probability $\mc{P}^a_{s, s'}$, which is hard to model, especially in continuous state-action spaces.
+As the variance of \cref{thm:thm3}, there exists \tb{REINFORCE}, \tb{Actor-Critic}, and so on. These methods update parameters by SGD.
+
+REINFORCE(Monte-carlo policy gradient) replaces $Q^{\pi_\theta}(s,a)$ of \cref{thm:thm3} as return $v_t$.
+\begin{algorithm}
+    \Input{$\alpha$, step size}
+    \Init{$\theta$, arbitrarily}
+    \ForEach{episode, $\{s_1, a_1, r_2, \dots, s_{T-1}, a_{T-1}, r_T\} \sim \pi_\theta$}{
+        \For{$t=1,\cdots,T-1$}{
+            $\theta \gets \theta + \alpha \nabla_\theta \log \pi_\theta(s,a)v_t$
+        }
+    }
+    \Output{$\theta$}
+\caption{REINFORCE (Monte-carlo policy gradient)}
+\end{algorithm}
+
+% \begin{algorithm}
+%     \Input{$\alpha$, step size}
+%     \Init{$\theta$, arbitrarily}
+%     \ForEach{episode, $\{s_1, a_1, r_2, \dots, s_{T-1}, a_{T-1}, r_T\} \sim \pi_\theta$}{
+%         \For{$t=1,\cdots,T-1$}{
+%             $\theta \gets \theta + \alpha \nabla_\theta \log \pi_\theta(s,a)v_t$
+%         }
+%     }
+%     \Output{$\theta$}
+% \caption{REINFORCE with baseline}
+% \end{algorithm}
+
+Monte carlo policy gradient methods has high variance. \tb{REINFORCE with baseline} methods reduces variance by optimizing for the difference in the discounted return $v_t$ and baseline $B(s)$.
+Baseline can be relative to state variable but not to action variable.
+
+One of the popular method is choosing state value approximator as baseline which only needs state variable $V(s)$.
+
+\begin{algorithm}
+    \Input{
+        $\alpha$, $\beta$, step size
+    }
+    \Init{
+        $\theta$, arbitrary\n
+        w, arbitrary\n
+    }
+    \ForEach{episode, $\{s_1, a_1, r_2, \dots, s_{T-1}, a_{T-1}, r_T\}\sim \pi_\theta$}{
+        \For{$t=1,\cdots,T-1$}{
+            $\delta \gets v_t - V_w(s)$\\
+                $w \gets w + \beta \delta \nabla_w V_w(s)$\label{eq:eq77}\\
+                $\theta \gets \theta + \alpha \gamma^t \delta$\label{eq:eq78}\\
+        }
+    }
+\caption{REINFORCE with baseline} \label{alg:alg11}
+\end{algorithm}
+
+In \cref{alg:alg11}, \cref{eq:eq77} minimizes $\mbb{E}_{\pi_\theta}[\sum_{t=1}^{T-1} (v_t - V_w(s_t))^2]$ and \cref{eq:eq78} maximizes $\nabla_\theta J = \mbb{E}_{\pi_\theta}[\sum_{t=1}^{T-1}(v_t - V_w(s_t))\nabla_\theta \log {\pi_\theta}(a_t|s_t)]$. This $v_t - V_w{s_t}$ term is called \tb{critic} because it gives guide for actor to maximize objective function.
+
+Instead of using return $v_t$, critic, which is estimate for the aciton-value function $$Q_w(s,a) \approx Q^{\pi_\theta}(s,a)$$ can be used.
+
+
+In \tb{actor-critic} methods, policy parametrized with $\theta$ becomes actor and estimates of action value function parameterized with $w$ becomse critic.
+Actor-critic algorithms follow an approximate policy gradient.
+\begin{equation} \label{eq:eq76}
+    \begin{aligned}
+        \nabla_\theta J(\theta) &\approx \mbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta (s,a) Q_w(s,a)]\\
+        \Delta \theta &= \alpha \nabla_\theta \log \pi_\theta(s,a) Q_w(s,a)
+    \end{aligned}
+\end{equation}
+
+\begin{algorithm} 
+    \Input{$\alpha, \beta$, step size}
+    \Init{$w$, $\theta$, arbirtary}
+    \ForEach{episode}{
+        \ForEach{timestep}{
+            Initialize $s$, sample action $a \sim \pi(\cdot|s)$,
+            sample reward $r$\\
+            sample transition $s'$, sample $a'\sim \pi(\cdot|s')$\\
+            $\delta \gets r + \gamma Q_w(s',a')-Q_w(s,a)$\\
+            $w \gets w + \beta \delta \nabla_w V_w(s)$\\
+            $\theta \gets \theta + \alpha \gamma^t Q_w(s,a) \nabla_\theta \log \pi_\theta(s,a)$
+        }
+    }
+\caption{Actor-Critic method} \label{alg:alg12}
+\end{algorithm}
+
+\cref{alg:alg12} shows actor-critic method. In this algorithm, critic is action-value approximator function (Q function). 
 
 
 
