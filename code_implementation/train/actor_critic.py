@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.categorical import Categorical
+from torch.distributions.normal import Normal
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 from train.lib import Trainer, device
@@ -19,11 +20,20 @@ class MountainContinuousActor(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(2, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, 1),
+            nn.Linear(hidden_dim, 1 * 2),  # mean and std
         )
 
     def forward(self, input):
-        return self.net(input)
+        mean, log_std = self.net(input)
+        log_std = torch.clamp(log_std, -20, 2)  # prevent extreme gradient value
+        std = torch.exp(log_std)
+        return mean, std
+
+    def get_action(self, mean, std):
+        dist = Normal(mean, std)
+        action = dist.sample()
+        log_prob = dist.log_prob(action)
+        return action, log_prob
 
 
 class Trajectory:
@@ -149,35 +159,30 @@ class ActorCriticTrainer(Trainer):
 class REINFORCEBatch(ActorCriticTrainer):
     def actor_forward(self, state):
         state = torch.Tensor(state).to(self.device)
-        action_values = self.actor(state)
-        dist = Categorical(action_values)
-        action = dist.sample()
-        return dist, action
+        mean, std = self.actor(state)
+        action, log_prob = self.actor.get_action(mean, std)
+        return action, log_prob
 
     def actor_update(self, state, episode):
-        prop, action = self.actor_forward(state)
+        action, log_prob = self.actor_forward(state)
         np_action = np.expand_dims(action.cpu().numpy(), axis=0)
         next_state, reward, terminated, truncated, info = self.env.step(np_action)
-        self.traj.add_sar(episode, state, action, reward, prop)
+        self.traj.add_sar(episode, state, action, reward, log_prob)
         return next_state, terminated or truncated, reward
 
     def final_update(self):
         self.loss = 0
         for e in self.traj.memory.keys():
             v_t = 0
-            dist: Categorical
-            for s, a, r, dist in self.traj.memory[e][::-1]:
+            for s, a, r, log_prob in self.traj.memory[e][::-1]:
                 v_t += r + self.gamma * v_t
-                print(
-                    f"log prob: {dist.log_prob(a)}, action: {a}, v_t: {v_t}, reward: {r}"
-                )
-                self.loss += v_t * -dist.log_prob(a)
+                # print(
+                #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}, self.gamma; {self.gamma:.3f}"
+                # )
+                self.loss += v_t * -log_prob
         self.loss.backward()
         self.actor_optimizer.step()
         self.actor_optimizer.zero_grad()
-
-        # for (s, a, r), p in zip(traj[::-1], props[::-1]):
-        # loss += r * torch.log(p)
 
     def actor_scheduler_step(self):
         self.actor_scheduler.step()
