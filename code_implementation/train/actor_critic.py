@@ -80,7 +80,7 @@ class ActorCriticTrainer(Trainer):
     def critic_update(self):
         pass
 
-    def final_update(self):
+    def per_episodes_update(self):
         pass
 
     def actor_scheduler_step(self):
@@ -134,17 +134,17 @@ class ActorCriticTrainer(Trainer):
             self.traj.add_episode(e)
             self.total_reward = 0
             done = False
-            # num_step = 0
+            self.num_step = 0
 
             while not done:
-                # num_step += 1
+                self.num_step += 1
                 state, done, reward = self.actor_update(state, e)
                 self.total_reward += reward
                 self.critic_update()
                 episode_rewards.append(self.total_reward)
 
             if e % per_episodes == 0:
-                self.final_update()
+                self.per_episodes_update()
                 self.traj.clear_all()
             self.critic_scheduler_step()
             self.actor_scheduler_step()
@@ -170,15 +170,15 @@ class REINFORCEBatch(ActorCriticTrainer):
         self.traj.add_sar(episode, state, action, reward, log_prob)
         return next_state, terminated or truncated, reward
 
-    def final_update(self):
+    def per_episodes_update(self):
         self.loss = 0
         for e in self.traj.memory.keys():
             v_t = 0
             for s, a, r, log_prob in self.traj.memory[e][::-1]:
-                v_t += r + self.gamma * v_t
-                # print(
-                #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}, self.gamma; {self.gamma:.3f}"
-                # )
+                v_t = r + self.gamma * v_t
+                print(
+                    f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
+                )
                 self.loss += v_t * -log_prob
         self.loss.backward()
         self.actor_optimizer.step()
@@ -189,5 +189,5 @@ class REINFORCEBatch(ActorCriticTrainer):
 
     def logging(self, episode):
         print(
-            f"Episode {episode}: total_reward: {self.total_reward}, actor_loss: {self.loss.item()}"
+            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_loss: {self.loss.item():.3f}, num_episodes: {self.num_step:.3f}"
         )
