@@ -1,5 +1,7 @@
 from datetime import datetime
+from pathlib import Path
 
+import cv2
 import gymnasium as gym
 import numpy as np
 import torch
@@ -9,7 +11,7 @@ from torch.distributions.categorical import Categorical
 from torch.distributions.normal import Normal
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
-from train.lib import Trainer, device
+from train.lib import Trainer, device, Renderer
 
 from tqdm.auto import trange, tqdm
 
@@ -161,11 +163,14 @@ class REINFORCEBatch(ActorCriticTrainer):
         state = torch.Tensor(state).to(self.device)
         mean, std = self.actor(state)
         action, log_prob = self.actor.get_action(mean, std)
-        return action, log_prob
+        return action, log_prob, mean, std
+
+    def get_np(self, torch_data):
+        return np.expand_dims(torch_data.cpu().numpy(), axis=0)
 
     def actor_update(self, state, episode):
-        action, log_prob = self.actor_forward(state)
-        np_action = np.expand_dims(action.cpu().numpy(), axis=0)
+        action, log_prob, _, _ = self.actor_forward(state)
+        np_action = self.get_np(action)
         next_state, reward, terminated, truncated, info = self.env.step(np_action)
         self.traj.add_sar(episode, state, action, reward, log_prob)
         return next_state, terminated or truncated, reward
@@ -191,3 +196,91 @@ class REINFORCEBatch(ActorCriticTrainer):
         print(
             f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_loss: {self.loss.item():.3f}, num_episodes: {self.num_step:.3f}"
         )
+
+
+class REINFORCEBatchRenderer:
+    def __init__(self, env: gym.Env, model: REINFORCEBatch, device=device):
+        self.env = env
+        self.model = model
+        self.model.actor.eval()
+        self.device = device
+        self.model.actor.to(self.device)
+
+    def rendering(self, num_render=3, max_step=500):
+        model = self.model
+        env = self.env
+        episodes = []
+        for n in range(num_render):
+            s, _ = env.reset()
+            self.total_reward = 0
+            self.step_count = 0
+            done = False
+            frames = []
+
+            while not done and self.step_count < max_step:
+                with torch.no_grad():
+                    a, log_prob, mean, std = model.actor_forward(s)
+                    np_a, np_mean, np_std = (
+                        model.get_np(a),
+                        model.get_np(mean),
+                        model.get_np(std),
+                    )
+
+                n_s, r, done, truncated, _ = env.step(np_a)
+                self.total_reward += r
+
+                frame = env.render()
+                frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                self.print_message(frame_bgr, action=np_a, mean=np_mean, std=np_std)
+                frames.append(frame_bgr)
+                cv2.imshow("Evaluation", frame_bgr)
+                if cv2.waitKey(30) & 0xFF in [ord("q"), 27]:
+                    done = True
+                    break
+                s = n_s
+                self.step_count += 1
+            episodes.append(frames)
+        return episodes
+
+    def print_message(self, frame_bgr, **kwargs):
+        action, mean, std = kwargs["action"], kwargs["mean"], kwargs["std"]
+        messages = []
+        messages.append(f"Step: {self.step_count}")
+        messages.append(f"Total Reward:{self.total_reward:.3f}")
+        messages.append(f"Action: {action[0]:.3f}")
+        messages.append(f"mean:{mean[0]:.3f}, std:{std[0]:.3f}")
+        h = 20
+        for i, m in enumerate(messages):
+            color = (0, 0, 255)
+            if i == 2 and action[0] >= 0:
+                color = (255, 0, 0)
+            cv2.putText(
+                frame_bgr,
+                m,
+                (10, h),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                color,
+                2,
+            )
+            h += 30
+
+    def save_as_video(self, frames, dir: str, name: str):
+        dir_p = Path(dir)
+        path = dir_p / f"{name}.mp4"
+
+        if len(frames) > 0:
+            frames = np.array(frames)
+            height, width, _ = frames[0].shape
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            out = cv2.VideoWriter(
+                f"{path}",
+                fourcc,
+                30.0,
+                (width, height),
+            )
+
+            for frame_bgr in frames:
+                out.write(frame_bgr)
+            out.release()
+            print(f"video is saved in {path}")
