@@ -1,14 +1,15 @@
 # lib.py
+import abc
+import random
+from abc import ABC, abstractmethod
+from collections import deque
+from datetime import datetime
+from pathlib import Path
+
 import gymnasium as gym
 import numpy as np
-import random
-from collections import deque
 import torch
 import torch.nn.functional as F
-import abc
-from pathlib import Path
-from datetime import datetime
-
 
 device = "mps"
 
@@ -29,28 +30,27 @@ class ReplayBuffer:
         return len(self.buffer)
 
 
-class Trainer:
+class Trainer(ABC):
     def __init__(
         self,
         env: gym.Env,
-        policy_net: torch.nn.Module,
-        target_net: torch.nn.Module,
         device: torch.device | str | None = device,
+        **kwargs,
     ):
         self.env = env
-        self.policy_net = policy_net
-        self.target_net = target_net
         self.device = device
         self.date = datetime.today().strftime("%Y%m%d-%H%M")
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-    def get_model_save_dir(self, env_name: str = "") -> Path:
+    def get_model_save_dir(self, env_name: str = "", info: str = "") -> Path:
         if env_name == "":
             env_name = self.env.env.spec.id
-        save_path = Path.cwd() / f"{env_name}_{self.date}"
+        if info == "":
+            info = self.__class__.__name__
+        save_path = Path.cwd() / f"{env_name}_{info}_{self.date}"
         return save_path
 
-    def model_save(self, env_name: str = "", name: str = "latest"):
-        model_save_dir = self.get_model_save_dir(env_name)
-        Path.mkdir(model_save_dir, exist_ok=True)
-        save_path = model_save_dir / f"{name}.pth"
-        torch.save(self.policy_net.state_dict(), save_path)
+    @abstractmethod
+    def model_save(self):
+        pass

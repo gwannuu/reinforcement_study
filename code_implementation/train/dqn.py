@@ -1,3 +1,4 @@
+from pathlib import Path
 import random
 
 import gymnasium as gym
@@ -119,7 +120,22 @@ def train_linear_q(
     return model, episode_rewards
 
 
-class DQN_Trainer(Trainer):
+class DQNTrainer(Trainer):
+    def __init__(
+        self,
+        env: gym.Env,
+        policy_net: torch.nn.Module,
+        target_net: torch.nn.Module,
+        device: torch.device | str | None = device,
+    ):
+        super().__init__(env, device, policy_net=policy_net, target_net=target_net)
+
+    def model_save(self, env_name: str = "", name: str = "latest"):
+        model_save_dir = self.get_model_save_dir(env_name)
+        Path.mkdir(model_save_dir, exist_ok=True)
+        save_path = model_save_dir / f"{name}.pth"
+        torch.save(self.policy_net.state_dict(), save_path)
+
     def dqn(
         self,
         num_episodes=500,

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 
@@ -55,7 +56,7 @@ class Trajectory:
         return self.memory.pop(episode_num)
 
 
-class ActorCriticTrainer(Trainer):
+class ActorCriticTrainer(Trainer, ABC):
     def __init__(
         self,
         env: gym.Env,
@@ -63,10 +64,7 @@ class ActorCriticTrainer(Trainer):
         critic: torch.nn.Module,
         device: torch.device | str | None = device,
     ):
-        self.env = env
-        self.actor = actor
-        self.critic = critic
-        self.device = device
+        super().__init__(env, device, actor=actor, critic=critic)
         self.date = datetime.today().strftime("%Y%m%d-%H%M")
         self.traj = Trajectory()
 
@@ -91,8 +89,24 @@ class ActorCriticTrainer(Trainer):
     def critic_scheduler_step(self):
         pass
 
-    def logging(self, episode):
+    @abstractmethod
+    def logging(self):
         pass
+
+    def on_start_callback(self):
+        self.e = 0
+
+    def on_end_callback(self):
+        self.e = 0
+        self.env.close()
+
+    def check_and_save(self, save_per_episodes):
+        if self.e % save_per_episodes == 0 and save_per_episodes != -1:
+            self.model_save(name=f"{self.e}")
+
+    def check_and_log(self, logging_per_episodes):
+        if self.e % logging_per_episodes == 0 and logging_per_episodes != -1:
+            self.logging(self.e)
 
     def train(
         self,
@@ -106,7 +120,9 @@ class ActorCriticTrainer(Trainer):
         gamma=0.99,
         per_episodes=1,
         logging_per_episodes=20,
+        save_per_episodes=50,
     ):
+        self.on_start_callback()
         env = self.env
         device = self.device
         self.actor.to(device)
@@ -132,6 +148,10 @@ class ActorCriticTrainer(Trainer):
             self.critic_scheduler = None
 
         for e in trange(num_episodes):
+            self.e = e
+            self.check_and_save(save_per_episodes=save_per_episodes)
+
+            self.total_reward = 0
             state, _ = env.reset()
             self.traj.add_episode(e)
             self.total_reward = 0
@@ -143,22 +163,29 @@ class ActorCriticTrainer(Trainer):
                 state, done, reward = self.actor_update(state, e)
                 self.total_reward += reward
                 self.critic_update()
-                episode_rewards.append(self.total_reward)
+
+            episode_rewards.append(self.total_reward)
 
             if e % per_episodes == 0:
                 self.per_episodes_update()
                 self.traj.clear_all()
             self.critic_scheduler_step()
             self.actor_scheduler_step()
+            self.check_and_log(logging_per_episodes=logging_per_episodes)
 
-            if e % logging_per_episodes == 0:
-                self.logging(e)
-
-        env.close()
+        self.e += 1
+        self.check_and_save(save_per_episodes=save_per_episodes)
+        self.on_end_callback()
         return episode_rewards
 
 
 class REINFORCEBatch(ActorCriticTrainer):
+    def model_save(self, env_name: str = "", name: str = "latest"):
+        model_save_dir = self.get_model_save_dir(env_name)
+        Path.mkdir(model_save_dir, exist_ok=True)
+        save_path = model_save_dir / f"{name}.pth"
+        torch.save(self.actor.state_dict(), save_path)
+
     def actor_forward(self, state):
         state = torch.Tensor(state).to(self.device)
         mean, std = self.actor(state)
@@ -181,9 +208,9 @@ class REINFORCEBatch(ActorCriticTrainer):
             v_t = 0
             for s, a, r, log_prob in self.traj.memory[e][::-1]:
                 v_t = r + self.gamma * v_t
-                print(
-                    f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
-                )
+                # print(
+                #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
+                # )
                 self.loss += v_t * -log_prob
         self.loss.backward()
         self.actor_optimizer.step()
