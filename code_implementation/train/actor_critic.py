@@ -328,6 +328,7 @@ class REINFORCEBatchRenderer:
 
     def save_as_video(self, frames, dir: str, name: str):
         dir_p = Path(dir)
+        dir_p.mkdir(exist_ok=True)
         path = dir_p / f"{name}.mp4"
 
         if len(frames) > 0:
