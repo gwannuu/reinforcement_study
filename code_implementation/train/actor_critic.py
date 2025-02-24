@@ -39,6 +39,30 @@ class MountainContinuousActor(nn.Module):
         return action, log_prob
 
 
+class MountainContinuousActorV2(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1 * 2),  # mean and std
+    )
+
+    def forward(self, input):
+        mean, log_std = self.net(input)
+        log_std = torch.clamp(log_std, -20, 2)  # prevent extreme gradient value
+        std = torch.exp(log_std)
+        return mean, std
+
+    def get_action(self, mean, std):
+        dist = Normal(mean, std)
+        action = dist.sample()
+        log_prob = dist.log_prob(action)
+        return action, log_prob
+
+
 class Trajectory:
     def __init__(self):
         self.memory = {}
