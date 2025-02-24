@@ -11,7 +11,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-device = "mps"
+# device = "mps"
+device= "cuda:1"
 
 
 class ReplayBuffer:

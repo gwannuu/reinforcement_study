@@ -12,7 +12,7 @@ from torch.distributions.categorical import Categorical
 from torch.distributions.normal import Normal
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
-from train.lib import Trainer, device, Renderer
+from train.lib import Trainer, device
 
 from tqdm.auto import trange, tqdm
 
@@ -323,7 +323,7 @@ class REINFORCEBatchRenderer:
             print(f"video is saved in {path}")
 
 
-class REINFORCE(ActorCriticTrainer):
+class REINFORCEwithBaseline(ActorCriticTrainer):
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
         Path.mkdir(model_save_dir, exist_ok=True)
