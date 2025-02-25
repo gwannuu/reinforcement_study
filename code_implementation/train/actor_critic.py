@@ -48,7 +48,7 @@ class MountainContinuousActorV2(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1 * 2),  # mean and std
-    )
+        )
 
     def forward(self, input):
         mean, log_std = self.net(input)
@@ -61,6 +61,21 @@ class MountainContinuousActorV2(nn.Module):
         action = dist.sample()
         log_prob = dist.log_prob(action)
         return action, log_prob
+
+
+class MountainContinuousCritic(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),  # mean and std
+        )
+
+    def forward(self, state):
+        return self.net(state)
 
 
 class Trajectory:
@@ -121,6 +136,9 @@ class ActorCriticTrainer(Trainer, ABC):
         self.e = 0
         Path(self.get_model_save_dir()).mkdir(exist_ok=True)
 
+    def on_start_episode_callback(self):
+        pass
+
     def on_end_callback(self):
         self.e = 0
         self.env.close()
@@ -178,33 +196,39 @@ class ActorCriticTrainer(Trainer, ABC):
             self.critic_scheduler = None
 
         for e in trange(num_episodes):
+            self.on_start_episode_callback()
             self.e = e
             self.check_and_save(save_per_episodes=save_per_episodes)
 
             self.total_reward = 0
             state, _ = env.reset()
             self.traj.add_episode(e)
-            self.total_reward = 0
             done = False
             self.num_step = 0
             self.discounted_return = 0
 
             while not done:
                 self.num_step += 1
-                state, done, reward = self.actor_update(state, e)
-                self.total_reward += reward
-                self.critic_update()
+                np_action, log_prob, mean, std = self.actor_forward(state)
+                next_state, reward, terminated, truncated, info = self.env.step(
+                    np_action
+                )
+                self.traj.add_sar(e, state, np_action, reward, log_prob)
+                state = next_state
+                done = terminated or truncated
 
-            episode_rewards.append(self.total_reward)
+                self.total_reward += reward
 
             if e % per_episodes == 0:
                 self.per_episodes_update()
                 self.traj.clear_all()
+            self.check_and_log(logging_per_episodes=logging_per_episodes)
+            episode_rewards.append(self.total_reward)
             self.critic_scheduler_step()
             self.actor_scheduler_step()
-            self.check_and_log(logging_per_episodes=logging_per_episodes)
 
         self.e += 1
+        self.check_and_log(logging_per_episodes=logging_per_episodes)
         self.check_and_save(save_per_episodes=save_per_episodes)
         self.on_end_callback()
         return episode_rewards
@@ -221,17 +245,11 @@ class REINFORCEBatch(ActorCriticTrainer):
         state = torch.Tensor(state).to(self.device)
         mean, std = self.actor(state)
         action, log_prob = self.actor.get_action(mean, std)
-        return action, log_prob, mean, std
+        np_action = self.get_np(action)
+        return np_action, log_prob, mean, std
 
     def get_np(self, torch_data):
         return np.expand_dims(torch_data.cpu().numpy(), axis=0)
-
-    def actor_update(self, state, episode):
-        action, log_prob, _, _ = self.actor_forward(state)
-        np_action = self.get_np(action)
-        next_state, reward, terminated, truncated, info = self.env.step(np_action)
-        self.traj.add_sar(episode, state, action, reward, log_prob)
-        return next_state, terminated or truncated, reward
 
     def per_episodes_update(self):
         self.loss = 0
@@ -349,6 +367,9 @@ class REINFORCEBatchRenderer:
 
 
 class REINFORCEwithBaseline(ActorCriticTrainer):
+    def on_start_episode_callback(self):
+        self.total_reward = 0
+
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
         Path.mkdir(model_save_dir, exist_ok=True)
@@ -359,43 +380,56 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         state = torch.Tensor(state).to(self.device)
         mean, std = self.actor(state)
         action, log_prob = self.actor.get_action(mean, std)
-        return action, log_prob, mean, std
+        np_action = self.get_np(action)
+        return np_action, log_prob, mean, std
+
+    def critic_forward(self, state):
+        state = torch.Tensor(state).to(self.device)
+        return self.critic(state)
 
     def get_np(self, torch_data):
         return np.expand_dims(torch_data.cpu().numpy(), axis=0)
 
-    def actor_update(self, state, episode):
-        action, log_prob, _, _ = self.actor_forward(state)
-        np_action = self.get_np(action)
-        next_state, reward, terminated, truncated, info = self.env.step(np_action)
-        self.discounted_return = reward + self.gamma * self.discounted_return
-        self.loss = self.discounted_return * -log_prob
-        self.loss.backward()
-        self.actor_optimizer.step()
-        self.actor_optimizer.zero_grad()
-        self.loss = 0
-        # self.traj.add_sar(episode, state, action, reward, log_prob)
-        return next_state, terminated or truncated, reward
-
     def per_episodes_update(self):
-        pass
-        # self.loss = 0
-        # for e in self.traj.memory.keys():
-        #     v_t = 0
-        #     for s, a, r, log_prob in self.traj.memory[e][::-1]:
-        #         v_t = r + self.gamma * v_t
-        #         # print(
-        #         #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
-        #         # )
-        #         self.loss += v_t * -log_prob
-        # self.loss.backward()
-        # self.actor_optimizer.step()
-        # self.actor_optimizer.zero_grad()
+        self.loss = 0
+        for e in self.traj.memory.keys():
+            v_t = 0
+            v_t_list = []
+            state_list = []
+            log_probs = []
+            for s, a, r, log_prob in self.traj.memory[e][::-1]:
+                v_t = r + self.gamma * v_t
+                v_t_list.insert(0, v_t)
+                state_list.insert(0, s)
+                log_probs.insert(0, log_prob)
+
+                # print(
+                #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
+                # )
+            v_ts = torch.tensor(v_t_list)[:, None].to(self.device)
+            states = torch.from_numpy(np.array(state_list)).to(self.device)
+            v_estimated = self.critic_forward(states)
+            self.critic_loss = F.mse_loss(v_estimated, v_ts)
+            self.critic_loss.backward()
+            self.critic_optimizer.step()
+            self.critic_optimizer.zero_grad()
+
+            with torch.no_grad():
+                v_estimated = self.critic_forward(states)
+            advantage = v_ts - v_estimated
+            log_probs = torch.stack(log_probs).to(self.device)
+            # print(
+            #     f"advantage shape: {advantage.shape}, v_ts shape: {v_ts.shape},log_probs shape: {log_probs.shape}"
+            # )
+            self.actor_loss = torch.sum(advantage * -log_probs)
+            self.actor_loss.backward()
+            self.actor_optimizer.step()
+            self.actor_optimizer.zero_grad()
 
     def actor_scheduler_step(self):
         self.actor_scheduler.step()
 
     def logging(self, episode):
         print(
-            f"Episode {episode}: total_reward: {self.total_reward:.3f}, num_steps: {self.num_step}"
+            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_loss: {self.actor_loss.item():.3f}, critic_loss: {self.critic_loss.item():.3f}, num_step: {self.num_step}"
         )
