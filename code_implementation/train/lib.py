@@ -36,15 +36,19 @@ class Trainer(ABC):
         self,
         env: gym.Env,
         device: torch.device | str | None = device,
+        dir: str | Path = None,
         **kwargs,
     ):
         self.env = env
         self.device = device
+        self.dir = dir
         self.date = datetime.today().strftime("%Y%m%d-%H%M")
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def get_model_save_dir(self, env_name: str = "", info: str = "") -> Path:
+        if self.dir is not None:
+            return self.dir
         if env_name == "":
             env_name = self.env.env.spec.id
         if info == "":

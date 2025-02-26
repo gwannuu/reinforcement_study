@@ -102,8 +102,9 @@ class ActorCriticTrainer(Trainer, ABC):
         actor: torch.nn.Module,
         critic: torch.nn.Module,
         device: torch.device | str | None = device,
+        dir: str | Path | None = None,
     ):
-        super().__init__(env, device, actor=actor, critic=critic)
+        super().__init__(env, device, dir, actor=actor, critic=critic)
         self.date = datetime.today().strftime("%Y%m%d-%H%M")
         self.traj = Trajectory()
 
@@ -186,7 +187,7 @@ class ActorCriticTrainer(Trainer, ABC):
         )
         if beta is not None:
             self.critic_optimizer = Adam(self.critic.parameters(), lr=beta)
-            self.critic_scheduelr = StepLR(
+            self.critic_scheduler = StepLR(
                 self.critic_optimizer,
                 step_size=beta_lr_per_episode,
                 gamma=beta_lr_decay,
@@ -213,7 +214,7 @@ class ActorCriticTrainer(Trainer, ABC):
                 next_state, reward, terminated, truncated, info = self.env.step(
                     np_action
                 )
-                self.traj.add_sar(e, state, np_action, reward, log_prob)
+                self.traj.add_sar(e, state, np_action, reward, log_prob.clone())
                 state = next_state
                 done = terminated or truncated
 
@@ -231,7 +232,8 @@ class ActorCriticTrainer(Trainer, ABC):
         self.check_and_log(logging_per_episodes=logging_per_episodes)
         self.check_and_save(save_per_episodes=save_per_episodes)
         self.on_end_callback()
-        return episode_rewards
+        returns = self.get_return()
+        return episode_rewards, returns
 
 
 class REINFORCEBatch(ActorCriticTrainer):
@@ -367,14 +369,19 @@ class REINFORCEBatchRenderer:
 
 
 class REINFORCEwithBaseline(ActorCriticTrainer):
+    def on_start_callback(self):
+        super().on_start_callback()
+        self.actor_losses = []
+        self.critic_losses = []
+
     def on_start_episode_callback(self):
         self.total_reward = 0
 
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
         Path.mkdir(model_save_dir, exist_ok=True)
-        save_path = model_save_dir / f"{name}.pth"
-        torch.save(self.actor.state_dict(), save_path)
+        torch.save(self.actor.state_dict(), model_save_dir / f"actor_{name}.pth")
+        torch.save(self.critic.state_dict(), model_save_dir / f"critic_{name}.pth")
 
     def actor_forward(self, state):
         state = torch.Tensor(state).to(self.device)
@@ -391,7 +398,8 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         return np.expand_dims(torch_data.cpu().numpy(), axis=0)
 
     def per_episodes_update(self):
-        self.loss = 0
+        self.critic_loss = 0
+        self.actor_loss = 0
         for e in self.traj.memory.keys():
             v_t = 0
             v_t_list = []
@@ -409,10 +417,8 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             v_ts = torch.tensor(v_t_list)[:, None].to(self.device)
             states = torch.from_numpy(np.array(state_list)).to(self.device)
             v_estimated = self.critic_forward(states)
-            self.critic_loss = F.mse_loss(v_estimated, v_ts)
-            self.critic_loss.backward()
-            self.critic_optimizer.step()
-            self.critic_optimizer.zero_grad()
+            self.critic_loss += F.mse_loss(v_estimated, v_ts)
+            self.critic_losses.append(self.critic_loss.item())
 
             with torch.no_grad():
                 v_estimated = self.critic_forward(states)
@@ -421,15 +427,128 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             # print(
             #     f"advantage shape: {advantage.shape}, v_ts shape: {v_ts.shape},log_probs shape: {log_probs.shape}"
             # )
-            self.actor_loss = torch.sum(advantage * -log_probs)
-            self.actor_loss.backward()
-            self.actor_optimizer.step()
-            self.actor_optimizer.zero_grad()
+            self.actor_loss += torch.sum(advantage * -log_probs)
+            self.actor_losses.append(self.actor_loss.item())
+
+        self.actor_loss.backward()
+        self.actor_optimizer.step()
+        self.actor_optimizer.zero_grad()
+        self.critic_loss.backward()
+        self.critic_optimizer.step()
+        self.critic_optimizer.zero_grad()
 
     def actor_scheduler_step(self):
         self.actor_scheduler.step()
 
+    def critic_scheduler_step(self):
+        self.critic_scheduler.step()
+
     def logging(self, episode):
         print(
-            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_loss: {self.actor_loss.item():.3f}, critic_loss: {self.critic_loss.item():.3f}, num_step: {self.num_step}"
+            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.actor_loss.item():.3f}, critic_loss: {self.critic_loss.item():.3f}, num_step: {self.num_step}"
         )
+
+    def get_return(self):
+        return self.actor_losses, self.critic_losses
+
+
+class REINFORCEwithBaselineRenderer:
+    def __init__(self, env: gym.Env, model: REINFORCEwithBaseline, device=device):
+        self.env = env
+        self.model = model
+        self.model.actor.eval()
+        self.device = device
+        self.model.actor.to(self.device)
+
+    def rendering(self, num_render=3, max_step=500):
+        model = self.model
+        env = self.env
+        episodes = []
+        for n in range(num_render):
+            s, _ = env.reset()
+            self.total_reward = 0
+            self.step_count = 0
+            done = False
+            frames = []
+
+            while not done and self.step_count < max_step:
+                with torch.no_grad():
+                    a, log_prob, mean, std = model.actor_forward(s)
+
+                    value_estimate = model.get_np(model.critic_forward(s))
+
+                n_s, r, done, truncated, _ = env.step(a)
+                self.total_reward += r
+
+                frame = env.render()
+                frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                self.print_message(
+                    frame_bgr,
+                    action=a,
+                    mean=model.get_np(mean),
+                    std=model.get_np(std),
+                    critic_value=value_estimate,
+                )
+                frames.append(frame_bgr)
+                cv2.imshow("Evaluation", frame_bgr)
+                if cv2.waitKey(30) & 0xFF in [ord("q"), 27]:
+                    done = True
+                    break
+                s = n_s
+                self.step_count += 1
+            episodes.append(frames)
+        return episodes
+
+    def print_message(self, frame_bgr, **kwargs):
+        action, mean, std, critic_value = (
+            kwargs["action"],
+            kwargs["mean"],
+            kwargs["std"],
+            kwargs["critic_value"],
+        )
+        messages = []
+        messages.append(f"Step: {self.step_count}")
+        messages.append(f"Total Reward:{self.total_reward:.3f}")
+        messages.append(f"Action: {action[0]:.3f}")
+        messages.append(f"mean:{mean[0]:.3f}, std:{std[0]:.3f}")
+        messages.append(f"critic_value: {np.squeeze(critic_value):.3f}")
+        h = 20
+        for i, m in enumerate(messages):
+            color = (0, 0, 255)
+            if i == 2 and action[0] >= 0:
+                color = (255, 0, 0)
+            cv2.putText(
+                frame_bgr,
+                m,
+                (10, h),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                color,
+                2,
+            )
+            h += 30
+
+    def save_as_video(self, frames, name: str, dir: str = None):
+        if dir is None:
+            dir_p = self.model.get_model_save_dir()
+        else:
+            dir_p = Path(dir)
+
+        dir_p.mkdir(exist_ok=True)
+        path = dir_p / f"{name}.mp4"
+
+        if len(frames) > 0:
+            frames = np.array(frames)
+            height, width, _ = frames[0].shape
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            out = cv2.VideoWriter(
+                f"{path}",
+                fourcc,
+                30.0,
+                (width, height),
+            )
+
+            for frame_bgr in frames:
+                out.write(frame_bgr)
+            out.release()
+            print(f"video is saved in {path}")
