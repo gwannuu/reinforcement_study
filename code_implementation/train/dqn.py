@@ -1,18 +1,13 @@
-# lib.py
+from pathlib import Path
+import random
+
 import gymnasium as gym
 import numpy as np
-import random
-from collections import deque
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
-import abc
-from pathlib import Path
-from datetime import datetime
-import cv2
-
-device = "mps"
+from train.lib import ReplayBuffer, Trainer, device
 
 
 class LinearQNetwork(nn.Module):
@@ -52,22 +47,6 @@ class CartpoleQNetwork(nn.Module):
 
     def forward(self, x):
         return self.net(x)
-
-
-class ReplayBuffer:
-    def __init__(self, capacity):
-        self.buffer = deque(maxlen=capacity)
-
-    def push(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
-
-    def sample(self, batch_size):
-        batch = random.sample(self.buffer, batch_size)
-        states, actions, rewards, next_states, dones = map(np.array, zip(*batch))
-        return states, actions, rewards, next_states, dones
-
-    def __len__(self):
-        return len(self.buffer)
 
 
 def train_linear_q(
@@ -141,25 +120,15 @@ def train_linear_q(
     return model, episode_rewards
 
 
-class Trainer:
+class DQNTrainer(Trainer):
     def __init__(
         self,
         env: gym.Env,
         policy_net: torch.nn.Module,
         target_net: torch.nn.Module,
-        device: torch.device | str,
+        device: torch.device | str | None = device,
     ):
-        self.env = env
-        self.policy_net = policy_net
-        self.target_net = target_net
-        self.device = device
-        self.date = datetime.today().strftime("%Y%m%d-%H%M")
-
-    def get_model_save_dir(self, env_name: str = "") -> Path:
-        if env_name == "":
-            env_name = self.env.env.spec.id
-        save_path = Path.cwd() / f"{env_name}_{self.date}"
-        return save_path
+        super().__init__(env, device, policy_net=policy_net, target_net=target_net)
 
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
@@ -167,8 +136,6 @@ class Trainer:
         save_path = model_save_dir / f"{name}.pth"
         torch.save(self.policy_net.state_dict(), save_path)
 
-
-class DQN_Trainer(Trainer):
     def dqn(
         self,
         num_episodes=500,
@@ -266,119 +233,123 @@ class DQN_Trainer(Trainer):
         return episode_rewards
 
 
-##############################
-# 3. 평가 및 렌더링 함수     #
-##############################
+# class DQN_Renderer:
+#     def __init__(self, env, device):
+#         self.env = env
+#         self.device = device
 
+#     def image_render(self, model, state, total_reward):
+#         env = self.env
+#         # 모델 입력을 위해 state를 tensor로 변환
+#         state_tensor = torch.FloatTensor(state).unsqueeze(0).to(device)
+#         with torch.no_grad():
+#             q_values = model(state_tensor)
+#             # 행동 선택 (여기서 before_action은 선택된 행동을 의미)
+#             action = q_values.argmax().item()
+#         before_action = action  # 선택된 행동
 
-def evaluate(
-    env: gym.Env, model, n_episodes=5, max_step=500, save_dir="", model_path=""
-):
-    """
-    학습된 모델(LinearQNetwork 또는 QNetwork)을 평가합니다.
-    - 환경은 "rgb_array" 모드로 생성되어, OpenCV로 프레임을 받아옵니다.
-    - 각 프레임의 좌상단에 현재 step, 총 보상(total reward), 그리고
-      행동 선택 직전의 before_action (여기서는 선택된 행동)을 표시합니다.
-    """
-    # device 설정 (모델과 동일한 device 사용)
-    # device = torch.device("" if torch.cuda.is_available() else "cpu")
-    device = "mps"
+#         # 환경에서 한 스텝 진행
+#         next_state, reward, done, truncated, _ = env.step(action)
+#         total_reward += reward
+#         step_count += 1
 
-    # rgb_array 모드로 환경 생성 (OpenCV로 직접 프레임을 처리)
-    # env = gym.make("CartPole-v1", render_mode="rgb_array")
-    eval_rewards = []
-    model.eval()
-    model.to(device)
+#         # 프레임을 rgb_array 모드로 가져옴
+#         frame = env.render()  # frame: (H, W, 3) RGB 형식 numpy array
+#         # OpenCV는 BGR 순서를 사용하므로 변환
+#         frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+#         return frame_bgr
 
-    for episode in range(n_episodes):
-        state, _ = env.reset()
-        total_reward = 0
-        done = False
-        step_count = 0
-        frames = []
+#     def evaluate(self, model, n_episodes=5, max_step=500, save_dir="", model_path=""):
+#         # rgb_array 모드로 환경 생성
+#         # env = gym.make("CartPole-v1", render_mode="rgb_array")
+#         eval_rewards = []
+#         model.eval()
+#         model.to(device)
 
-        while not done and step_count < 500:
-            # 모델 입력을 위해 state를 tensor로 변환
-            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(device)
-            with torch.no_grad():
-                q_values = model(state_tensor)
-            # 행동 선택 (여기서 before_action은 선택된 행동을 의미)
-            action = q_values.argmax().item()
-            before_action = action  # 선택된 행동
+#         state, _ = env.reset()
+#         self.total_reward = 0
+#         self.done = False
 
-            # 환경에서 한 스텝 진행
-            next_state, reward, done, truncated, _ = env.step(action)
-            total_reward += reward
-            step_count += 1
+#         for episode in range(n_episodes):
+#             state, _ = env.reset()
+#             total_reward = 0
+#             done = False
+#             step_count = 0
+#             frames = []
 
-            # 프레임을 rgb_array 모드로 가져옴
-            frame = env.render()  # frame: (H, W, 3) RGB 형식 numpy array
-            # OpenCV는 BGR 순서를 사용하므로 변환
-            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+#             while not done and step_count < 500:
+#                 frame_bgr = self.image_render()
+#                 dqn_write_text(
+#                     framg_bgr=frame_bgr,
+#                     step_count=step_count,
+#                     total_reward=total_reward,
+#                     q_values=q_values,
+#                 )
 
-            # 좌상단에 텍스트 오버레이: Step, Total Reward, Action
-            cv2.putText(
-                frame_bgr,
-                f"Step: {step_count}",
-                (10, 20),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 0, 255),
-                2,
-            )
-            cv2.putText(
-                frame_bgr,
-                f"Total Reward: {total_reward}",
-                (10, 50),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 0, 255),
-                2,
-            )
-            action_values = "Action Value: "
-            for action_value in q_values[0]:
-                action_values += f"{action_value.item():.3f}, "
-            cv2.putText(
-                frame_bgr,
-                action_values,
-                (10, 80),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 0, 255),
-                2,
-            )
+#                 # 프레임 출력 (ESC나 'q' 키를 누르면 종료)
+#                 frames.append(frame_bgr)
+#                 cv2.imshow("Evaluation", frame_bgr)
+#                 if cv2.waitKey(30) & 0xFF in [ord("q"), 27]:
+#                     done = True
+#                     break
 
-            # 프레임 출력 (ESC나 'q' 키를 누르면 종료)
-            frames.append(frame_bgr)
-            cv2.imshow("Evaluation", frame_bgr)
-            if cv2.waitKey(30) & 0xFF in [ord("q"), 27]:
-                done = True
-                break
+#                 state = next_state
 
-            state = next_state
+#             eval_rewards.append(total_reward)
+#             print(f"Evaluation Episode {episode} Reward: {total_reward}")
 
-        eval_rewards.append(total_reward)
-        print(f"Evaluation Episode {episode} Reward: {total_reward}")
+#             if len(frames) > 0:
+#                 frames = np.array(frames)
+#                 height, width, _ = frames[0].shape
+#                 fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4 코덱
+#                 out = cv2.VideoWriter(
+#                     f"{save_dir}/{model_path}_eval_{episode}.mp4",
+#                     fourcc,
+#                     30.0,
+#                     (width, height),
+#                 )
 
-        if len(frames) > 0:
-            frames = np.array(frames)
-            height, width, _ = frames[0].shape
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4 코덱
-            out = cv2.VideoWriter(
-                f"{save_dir}/{model_path}_eval_{episode}.mp4",
-                fourcc,
-                30.0,
-                (width, height),
-            )
+#                 # ----- (2) 한 프레임씩 동영상으로 쓰기 -----
+#                 for frame_bgr in frames:
+#                     out.write(frame_bgr)
 
-            # ----- (2) 한 프레임씩 동영상으로 쓰기 -----
-            for frame_bgr in frames:
-                out.write(frame_bgr)
+#                 # ----- (3) 자원 해제 -----
+#                 out.release()
+#                 print(f"video is saved in {save_dir}/eval_{episode}.mp4")
 
-            # ----- (3) 자원 해제 -----
-            out.release()
-            print(f"video is saved in {save_dir}/eval_{episode}.mp4")
+#         env.close()
+#         cv2.destroyAllWindows()
+#         return eval_rewards
 
-    env.close()
-    cv2.destroyAllWindows()
-    return eval_rewards
+#     def dqn_write_text(self, frame_bgr, step_count, total_reward, q_values):
+#         # 좌상단에 텍스트 오버레이: Step, Total Reward, Action
+#         cv2.putText(
+#             frame_bgr,
+#             f"Step: {self.step_count}",
+#             (10, 20),
+#             cv2.FONT_HERSHEY_SIMPLEX,
+#             0.6,
+#             (0, 0, 255),
+#             2,
+#         )
+#         cv2.putText(
+#             frame_bgr,
+#             f"Total Reward: {self.total_reward}",
+#             (10, 50),
+#             cv2.FONT_HERSHEY_SIMPLEX,
+#             0.6,
+#             (0, 0, 255),
+#             2,
+#         )
+#         action_values = "Action Value: "
+#         for action_value in self.q_values[0]:
+#             action_values += f"{action_value.item():.3f}, "
+#             cv2.putText(
+#                 frame_bgr,
+#                 action_values,
+#                 (10, 80),
+#                 cv2.FONT_HERSHEY_SIMPLEX,
+#                 0.6,
+#                 (0, 0, 255),
+#                 2,
+#             )
