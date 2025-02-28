@@ -21,7 +21,7 @@ class MountainContinuousActor(nn.Module):
 
     def forward(self, input):
         mean, log_std = self.net(input)
-        log_std = torch.clamp(log_std, -20, 2)  # prevent extreme gradient value
+        log_std = torch.clamp(log_std, -2, 0.5)  # prevent extreme gradient value
         std = torch.exp(log_std)
         return mean, std
 
@@ -39,7 +39,7 @@ class MountainContinuousActorV2(nn.Module):
 
     def forward(self, input):
         mean, log_std = self.net(input)
-        log_std = torch.clamp(log_std, -20, 2)  # prevent extreme gradient value
+        log_std = torch.clamp(log_std, -2, 0.5)  # prevent extreme gradient value
         std = torch.exp(log_std)
         return mean, std
 
