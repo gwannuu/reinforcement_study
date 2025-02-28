@@ -14,10 +14,12 @@ import torch.nn.functional as F
 from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 from tqdm.auto import trange
+import matplotlib.pyplot as plt
 
 # device = "mps"
 device= "cuda:1"
 
+render_size = (800, 600)
 figsize = (12, 6)
 
 
@@ -50,6 +52,44 @@ def add_text(prefix, array: np.ndarray):
     for i in get_onedim_np_from_torch(array):
         t += f"{i:.3f} "
     return t
+
+
+def plot_list(values, title, xlabel="", ylabel="", save_path=None):
+    plt.figure(figsize=figsize)
+    plt.plot(values)
+    plt.xlabel("Episode")
+    plt.ylabel("Total Reward")
+    plt.title("REINFORCE(baseline) Training Rewards")
+    if save_path is None:
+        plt.show()
+    else:
+        plt.savefig(save_path)
+        plt.close()
+
+
+def compare_plot(values1, values2, title, xlabel, y1label, y2label, save_path=None):
+    # 훈련 후 plot 생성
+    fig, ax1 = plt.subplots(figsize=figsize)
+
+    color = "tab:red"
+    ax1.set_xlabel(xlabel=xlabel)
+    ax1.set_ylabel(ylabel=y1label, color=color)
+    ax1.plot(values1, color=color, label=y1label)
+    ax1.tick_params(axis="y", labelcolor=color)
+
+    ax2 = ax1.twinx()  # 두번째 y축 생성
+    color = "tab:blue"
+    ax2.set_ylabel(y2label, color=color)
+    ax2.plot(values2, color=color, label=y2label)
+    ax2.tick_params(axis="y", labelcolor=color)
+
+    plt.title(title)
+    fig.tight_layout()
+    if save_path is None:
+        plt.show()
+    else:
+        plt.savefig(save_path)
+        plt.close()
 
 
 class ReplayBuffer:
@@ -94,7 +134,9 @@ class Trainer(ABC):
             env_name = self.env.env.spec.id
         if info == "":
             info = self.__class__.__name__
-        save_path = Path.cwd() / f"{env_name}_{info}_{self.date}"
+        save_path = (
+            Path.cwd() / "code_implementation" / f"{env_name}_{info}_{self.date}"
+        )
         return save_path
 
     @abstractmethod
@@ -194,9 +236,15 @@ class ActorCriticTrainer(Trainer, ABC):
         self.e = 0
         self.env.close()
 
-    @abstractmethod
     def on_end_episode_callback(self):
-        pass
+        self.write_line_to_txt("total_reward", f"{self.total_reward}")
+        self.write_line_to_txt("actor_object", f"{self.actor_loss}")
+        self.write_line_to_txt("actor_lr", f"{self.actor_scheduler.get_last_lr()[0]}")
+        if self.critic is not None:
+            self.write_line_to_txt("critic_loss", f"{self.critic_loss}")
+            self.write_line_to_txt(
+                "critic_lr", f"{self.critic_scheduler.get_last_lr()[0]}"
+            )
 
     def check_and_save(self, save_per_episodes):
         if self.e % save_per_episodes == 0 and save_per_episodes != -1:
@@ -354,6 +402,7 @@ class ActorCriticTrainer(Trainer, ABC):
                 self.total_reward += r
 
                 frame = env.render()
+                frame = cv2.resize(frame, render_size)
                 frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 self.print_message(frame_bgr)
                 frames.append(frame_bgr)

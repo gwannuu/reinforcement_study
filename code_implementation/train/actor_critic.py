@@ -9,10 +9,12 @@ from torch.distributions.categorical import Categorical
 from torch.distributions.normal import Normal
 from train.lib import (
     ActorCriticTrainer,
+    compare_plot,
     get_np,
     add_text,
     figsize,
     convert_to_log_values,
+    plot_list,
 )
 
 
@@ -124,7 +126,7 @@ class REINFORCEBatch(ActorCriticTrainer):
         return np_action
 
     def per_episodes_update(self):
-        self.loss = 0
+        self.actor_loss = 0
         for e in self.traj.memory.keys():
             v_t = 0
             for s, a, r, log_prob in self.traj.memory[e][::-1]:
@@ -132,8 +134,8 @@ class REINFORCEBatch(ActorCriticTrainer):
                 # print(
                 #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
                 # )
-                self.loss += torch.sum(v_t * -log_prob)
-        self.loss.backward()
+                self.actor_loss += torch.sum(v_t * -log_prob)
+        self.actor_loss.backward()
         self.actor_optimizer.step()
         self.actor_optimizer.zero_grad()
 
@@ -142,20 +144,17 @@ class REINFORCEBatch(ActorCriticTrainer):
 
     def logging(self, episode):
         print(
-            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.loss.item():.3f}, num_step: {self.num_step}"
+            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.actor_loss.item():.3f}, num_step: {self.num_step}"
         )
-
-    def on_end_episode_callback(self):
-        self.write_line_to_txt("total_reward", f"{self.total_reward}")
-        self.write_line_to_txt("actor_object", f"{self.loss}")
 
     def load_infos(self):
         total_losses = self.load_all_lines_from_txt("total_reward")
         actor_objects = self.load_all_lines_from_txt("actor_object")
-        return total_losses, actor_objects
+        actor_lr_list = self.load_all_lines_from_txt("actor_lr")
+        return total_losses, actor_objects, actor_lr_list
 
     def get_return(self):
-        return self.loss
+        return self.actor_loss
 
     def print_message(self, frame_bgr):
         action = self.np_action
@@ -182,30 +181,29 @@ class REINFORCEBatch(ActorCriticTrainer):
             )
             h += 30
 
-    def plot(self, rewards_list, actor_objects, jupyter=False):
-        import matplotlib.pyplot as plt
-
-        plt.figure(figsize=figsize)
-        plt.plot(rewards_list)
-        plt.xlabel("Episode")
-        plt.ylabel("Total Reward")
-        plt.title("REINFORCE Training Rewards")
-        if jupyter:
-            plt.show()
-        else:
-            plt.savefig(f"{self.get_model_save_dir()}/total_reward.png")
-            plt.close()
-
-        plt.figure(figsize=figsize)
-        plt.plot(actor_objects)
-        plt.xlabel("Episode")
-        plt.ylabel("Actor Object")
-        plt.title("REINFORCE Actor Object")
-        if jupyter:
-            plt.show()
-        else:
-            plt.savefig(f"{self.get_model_save_dir()}/loss.png")
-            plt.close()
+    def plot(self, rewards_list, actor_objects, actor_lr_list, jupyter=False):
+        save_dir = self.get_model_save_dir()
+        plot_list(
+            rewards_list,
+            title="REINFORCE(baseline) Training Rewards",
+            xlabel="Episode",
+            ylabel="Total Reward",
+            save_path=None if jupyter else f"{save_dir}/total_reward.png",
+        )
+        plot_list(
+            actor_objects,
+            title="Actor Loss Trends",
+            xlabel="Episode",
+            ylabel="Actor Object",
+            save_path=None if jupyter else f"{save_dir}/loss.png",
+        )
+        plot_list(
+            actor_lr_list,
+            title="Actor LR",
+            xlabel="Episode",
+            ylabel="learning rate",
+            save_path=None if jupyter else f"{save_dir}/actor_lr.png",
+        )
 
 
 class REINFORCEwithBaseline(ActorCriticTrainer):
@@ -304,44 +302,50 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         total_losses = self.load_all_lines_from_txt("total_reward")
         actor_objects = self.load_all_lines_from_txt("actor_object")
         critic_losses = self.load_all_lines_from_txt("critic_loss")
-        return total_losses, actor_objects, critic_losses
+        actor_lr_list = self.load_all_lines_from_txt("actor_lr")
+        critic_lr_list = self.load_all_lines_from_txt("critic_lr")
+        return total_losses, actor_objects, critic_losses, actor_lr_list, critic_lr_list
 
-    def plot(self, rewards_list, actor_objects, critic_losses, jupyter=False):
-        import matplotlib.pyplot as plt
-
-        plt.figure(figsize=figsize)
-        plt.plot(rewards_list)
-        plt.xlabel("Episode")
-        plt.ylabel("Total Reward")
-        plt.title("REINFORCE(baseline) Training Rewards")
-        if jupyter:
-            plt.show()
-        else:
-            plt.savefig(f"{self.get_model_save_dir()}/total_reward.png")
-            plt.close()
-
-        # 훈련 후 plot 생성
-        fig, ax1 = plt.subplots(figsize=figsize)
-
-        color = "tab:red"
-        ax1.set_xlabel("Episode")
-        ax1.set_ylabel("Actor Object", color=color)
-        ax1.plot(actor_objects, color=color, label="Actor Loss")
-        ax1.tick_params(axis="y", labelcolor=color)
-
-        ax2 = ax1.twinx()  # 두번째 y축 생성
-        color = "tab:blue"
-        ax2.set_ylabel("Critic Loss", color=color)
-        ax2.plot(critic_losses, color=color, label="Critic Loss")
-        ax2.tick_params(axis="y", labelcolor=color)
-
-        plt.title("Actor and Critic Loss Trends")
-        fig.tight_layout()
-        if jupyter:
-            plt.show()
-        else:
-            plt.savefig(f"{self.get_model_save_dir()}/loss.png")
-            plt.close()
+    def plot(
+        self,
+        rewards_list,
+        actor_objects,
+        critic_losses,
+        actor_lr_list,
+        critic_lr_list,
+        jupyter=False,
+    ):
+        save_dir = self.get_model_save_dir()
+        plot_list(
+            rewards_list,
+            title="REINFORCE(baseline) Training Rewards",
+            xlabel="Episode",
+            ylabel="Total Reward",
+            save_path=None if jupyter else f"{save_dir}/total_reward.png",
+        )
+        compare_plot(
+            actor_objects,
+            critic_losses,
+            title="Actor and Critic Loss Trends",
+            xlabel="Episode",
+            y1label="Actor Object",
+            y2label="Critic Loss",
+            save_path=None if jupyter else f"{save_dir}/loss.png",
+        )
+        plot_list(
+            actor_lr_list,
+            title="Actor LR",
+            xlabel="Episode",
+            ylabel="learning rate",
+            save_path=None if jupyter else f"{save_dir}/actor_lr.png",
+        )
+        plot_list(
+            critic_lr_list,
+            title="Critic LR",
+            xlabel="Episode",
+            ylabel="learning rate",
+            save_path=None if jupyter else f"{save_dir}/critic_lr.png",
+        )
 
     def get_return(self):
         return self.actor_losses, self.critic_losses
