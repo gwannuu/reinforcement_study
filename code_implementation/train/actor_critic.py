@@ -59,6 +59,40 @@ class MountainContinuousCritic(nn.Module):
         return self.net(state)
 
 
+class HalfCheetahActor(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(17, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 6 * 2),
+        )
+
+    def forward(self, state):
+        mean, log_std = torch.split(self.net(state), 6, dim=-1)
+        log_std = torch.clamp(log_std, -20, 3)
+        std = torch.exp(log_std)
+        return mean, std
+
+
+class HalfCheetahCritic(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(17, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+
+    def forward(self, input):
+        output = self.net(input)
+        return output
+
+
 class REINFORCEBatch(ActorCriticTrainer):
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
