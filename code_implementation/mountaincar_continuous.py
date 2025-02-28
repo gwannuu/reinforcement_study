@@ -66,10 +66,9 @@ def save_video(trainer, frames_list):
 
 if __name__ == "__main__":
     test()
-    # train()
-    # dir = "MountainCarContinuous-v0_REINFORCEwithBaseline_20250228-174219"
-    # name = "2000"
-    # trainer = load_trainer(dir, name)
-    # plot(trainer)
-    # frames_list = render(trainer)
-    # save_video(trainer, frames_list)
+    dir = "MountainCarContinuous-v0_REINFORCEwithBaseline_20250228-174219"
+    name = "2000"
+    trainer = load_trainer(dir, name)
+    plot(trainer)
+    frames_list = render(trainer)
+    save_video(trainer, frames_list)
