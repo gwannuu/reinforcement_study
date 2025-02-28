@@ -135,7 +135,7 @@ class Trainer(ABC):
         if info == "":
             info = self.__class__.__name__
         save_path = (
-            Path.cwd() / "code_implementation" / f"{env_name}_{info}_{self.date}"
+            Path.cwd() / f"{env_name}_{info}_{self.date}"
         )
         return save_path
 
