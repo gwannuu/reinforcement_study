@@ -182,21 +182,30 @@ class REINFORCEBatch(ActorCriticTrainer):
             )
             h += 30
 
-    def plot(self, rewards_list, actor_objects):
+    def plot(self, rewards_list, actor_objects, jupyter=False):
         import matplotlib.pyplot as plt
 
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=figsize)
         plt.plot(rewards_list)
         plt.xlabel("Episode")
         plt.ylabel("Total Reward")
         plt.title("REINFORCE Training Rewards")
+        if jupyter:
+            plt.show()
+        else:
+            plt.savefig(f"{self.get_model_save_dir()}/total_reward.png")
+            plt.close()
 
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=figsize)
         plt.plot(actor_objects)
         plt.xlabel("Episode")
         plt.ylabel("Actor Object")
         plt.title("REINFORCE Actor Object")
-        plt.show()
+        if jupyter:
+            plt.show()
+        else:
+            plt.savefig(f"{self.get_model_save_dir()}/loss.png")
+            plt.close()
 
 
 class REINFORCEwithBaseline(ActorCriticTrainer):
@@ -297,10 +306,10 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         critic_losses = self.load_all_lines_from_txt("critic_loss")
         return total_losses, actor_objects, critic_losses
 
-    def plot(self, rewards_list, actor_objects, critic_losses):
+    def plot(self, rewards_list, actor_objects, critic_losses, jupyter=False):
         import matplotlib.pyplot as plt
 
-        plt.figure(figsize=(8, 4))
+        plt.figure(figsize=figsize)
         plt.plot(rewards_list)
         plt.xlabel("Episode")
         plt.ylabel("Total Reward")
@@ -312,7 +321,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             plt.close()
 
         # 훈련 후 plot 생성
-        fig, ax1 = plt.subplots(figsize=(8, 4))
+        fig, ax1 = plt.subplots(figsize=figsize)
 
         color = "tab:red"
         ax1.set_xlabel("Episode")

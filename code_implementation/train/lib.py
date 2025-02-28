@@ -18,6 +18,8 @@ from tqdm.auto import trange
 # device = "mps"
 device= "cuda:1"
 
+figsize = (12, 6)
+
 
 def convert_to_log_values(iterable):
     result = []
