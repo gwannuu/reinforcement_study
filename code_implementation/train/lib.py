@@ -24,9 +24,21 @@ def get_np(torch_data):
         return torch_data.cpu().numpy()
 
 
+def get_onedim_np_from_torch(torch_data):
+    if isinstance(torch_data, torch.Tensor):
+        np_data = get_np(torch_data)
+    else:
+        np_data = torch_data
+    if np_data.ndim != 1:
+        np_data = np.squeeze(np_data)
+    if np_data.ndim == 0:
+        np_data = np_data[None]
+    return np_data
+
+
 def add_text(prefix, array: np.ndarray):
     t = prefix
-    for i in np.squeeze(array):
+    for i in get_onedim_np_from_torch(array):
         t += f"{i:.3f} "
     return t
 
@@ -58,7 +70,7 @@ class Trainer(ABC):
         self.env = env
         self.device = device
         self.dir = dir
-        self.date = datetime.today().strftime("%Y%m%d-%H%M")
+        self.date = datetime.today().strftime("%Y%m%d-%H%M%S")
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -79,6 +91,19 @@ class Trainer(ABC):
     @abstractmethod
     def model_save(self):
         pass
+
+    def write_line_to_txt(self, filename, line):
+        with open(f"{self.get_model_save_dir()}/{filename}.txt", "a") as f:
+            f.write(f"{line}\n")
+
+    def load_all_lines_from_txt(self, filename, np_float64=True):
+        result = []
+        with open(f"{self.get_model_save_dir()}/{filename}.txt", "r") as f:
+            for line in f:
+                if np_float64:
+                    line = np.float64(line)
+                result.append(line)
+        return result
 
 
 class Trajectory:
@@ -108,7 +133,6 @@ class ActorCriticTrainer(Trainer, ABC):
         dir: str | Path | None = None,
     ):
         super().__init__(env, device, dir, actor=actor, critic=critic)
-        self.date = datetime.today().strftime("%Y%m%d-%H%M")
         self.traj = Trajectory()
 
     def move_to_device(self):
@@ -156,6 +180,10 @@ class ActorCriticTrainer(Trainer, ABC):
     def on_end_callback(self):
         self.e = 0
         self.env.close()
+
+    @abstractmethod
+    def on_end_episode_callback(self):
+        pass
 
     def check_and_save(self, save_per_episodes):
         if self.e % save_per_episodes == 0 and save_per_episodes != -1:
@@ -220,9 +248,7 @@ class ActorCriticTrainer(Trainer, ABC):
 
             while not done:
                 self.num_step += 1
-                np_action = np.squeeze(self.actor_forward(state))
-                if np_action.ndim == 0:
-                    np_action = np_action[None]
+                np_action = get_onedim_np_from_torch(self.actor_forward(state))
                 next_state, reward, terminated, truncated, info = self.env.step(
                     np_action
                 )
@@ -239,6 +265,7 @@ class ActorCriticTrainer(Trainer, ABC):
             episode_rewards.append(self.total_reward)
             self.critic_scheduler_step()
             self.actor_scheduler_step()
+            self.on_end_episode_callback()
 
         self.e += 1
         self.check_and_log(logging_per_episodes=logging_per_episodes)
@@ -283,7 +310,7 @@ class ActorCriticTrainer(Trainer, ABC):
                 out.release()
                 print(f"video is saved in {path}")
 
-    def render(self, num_render=3, max_step=500, wait_time=30):
+    def render(self, num_render=2, max_step=500, wait_time=30):
         self.move_to_device()
         env = self.env
         episodes = []
@@ -298,7 +325,8 @@ class ActorCriticTrainer(Trainer, ABC):
                 with torch.no_grad():
                     a = self.actor_forward(state=s)
                     _ = get_np(self.critic_forward(state=s))
-                n_s, r, done, truncated, _ = env.step(np.squeeze(a))
+                np_action = get_onedim_np_from_torch(a)
+                n_s, r, done, truncated, _ = env.step(np_action)
                 self.total_reward += r
 
                 frame = env.render()

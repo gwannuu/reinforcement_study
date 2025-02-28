@@ -136,8 +136,17 @@ class REINFORCEBatch(ActorCriticTrainer):
 
     def logging(self, episode):
         print(
-            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_loss: {self.loss.item():.3f}, num_step: {self.num_step}"
+            f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.loss.item():.3f}, num_step: {self.num_step}"
         )
+
+    def on_end_episode_callback(self):
+        self.write_line_to_txt("total_reward", f"{self.total_reward}")
+        self.write_line_to_txt("actor_object", f"{self.loss}")
+
+    def load_infos(self):
+        total_losses = self.load_all_lines_from_txt("total_reward")
+        actor_objects = self.load_all_lines_from_txt("actor_object")
+        return total_losses, actor_objects
 
     def get_return(self):
         return self.loss
@@ -167,7 +176,7 @@ class REINFORCEBatch(ActorCriticTrainer):
             )
             h += 30
 
-    def plot(self, rewards_list, actor_losses):
+    def plot(self, rewards_list, actor_objects):
         import matplotlib.pyplot as plt
 
         plt.figure(figsize=(8, 4))
@@ -177,7 +186,7 @@ class REINFORCEBatch(ActorCriticTrainer):
         plt.title("REINFORCE Training Rewards")
 
         plt.figure(figsize=(8, 4))
-        plt.plot(rewards_list)
+        plt.plot(actor_objects)
         plt.xlabel("Episode")
         plt.ylabel("Actor Object")
         plt.title("REINFORCE Actor Object")
@@ -217,7 +226,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         return np_action
 
     def critic_forward(self, state):
-        state = torch.Tensor(state).to(device=self.device, dtype=torch.float32)
+        state = torch.from_numpy(state).to(device=self.device, dtype=torch.float32)
         self.critic_value = self.critic(state)
         return self.critic_value
 
@@ -239,7 +248,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
                 #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
                 # )
             v_ts = torch.tensor(v_t_list)[:, None].to(self.device)
-            states = torch.from_numpy(np.array(state_list)).to(self.device)
+            states = np.array(state_list)
             v_estimated = self.critic_forward(states)
             self.critic_loss += F.mse_loss(v_estimated, v_ts)
             self.critic_losses.append(self.critic_loss.item())
@@ -272,7 +281,18 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.actor_loss.item():.3f}, critic_loss: {self.critic_loss.item():.3f}, num_step: {self.num_step}"
         )
 
-    def plot(self, rewards_list, actor_losses, critic_losses):
+    def on_end_episode_callback(self):
+        self.write_line_to_txt("total_reward", f"{self.total_reward}")
+        self.write_line_to_txt("actor_object", f"{self.actor_loss.item()}")
+        self.write_line_to_txt("critic_loss", f"{self.critic_loss.item()}")
+
+    def load_infos(self):
+        total_losses = self.load_all_lines_from_txt("total_reward")
+        actor_objects = self.load_all_lines_from_txt("actor_object")
+        critic_losses = self.load_all_lines_from_txt("critic_loss")
+        return total_losses, actor_objects, critic_losses
+
+    def plot(self, rewards_list, actor_objects, critic_losses):
         import matplotlib.pyplot as plt
 
         plt.figure(figsize=(8, 4))
@@ -288,7 +308,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         color = "tab:red"
         ax1.set_xlabel("Episode")
         ax1.set_ylabel("Actor Object", color=color)
-        ax1.plot(actor_losses, color=color, label="Actor Loss")
+        ax1.plot(actor_objects, color=color, label="Actor Loss")
         ax1.tick_params(axis="y", labelcolor=color)
 
         ax2 = ax1.twinx()  # 두번째 y축 생성
