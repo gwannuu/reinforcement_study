@@ -249,14 +249,13 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
                 v_t_list.insert(0, v_t)
                 state_list.insert(0, s)
                 log_probs.insert(0, log_prob)
-
                 # print(
                 #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
                 # )
             v_ts = torch.tensor(v_t_list)[:, None].to(self.device)
             states = np.array(state_list)
             v_estimated = self.critic_forward(states)
-            self.critic_loss += F.mse_loss(v_estimated, v_ts)
+            self.critic_loss += F.mse_loss(v_estimated, v_ts, reduction="mean")
             self.critic_losses.append(self.critic_loss.item())
 
             with torch.no_grad():
@@ -266,7 +265,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             # print(
             #     f"advantage shape: {advantage.shape}, v_ts shape: {v_ts.shape},log_probs shape: {log_probs.shape}"
             # )
-            self.actor_loss += torch.sum(advantage * -log_probs)
+            self.actor_loss += torch.mean(advantage * -log_probs)
             self.actor_losses.append(self.actor_loss.item())
 
         self.actor_loss.backward()
