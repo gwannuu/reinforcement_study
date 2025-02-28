@@ -35,10 +35,24 @@ def train():
     trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic)
 
     episode_rewards, (actor_losses, critic_losses) = trainer.train(
-        num_episodes=2000,
-        logging_per_episodes=50,
-        save_per_episodes=50,
-        alpha=3e-4,
+        num_episodes=20000,
+        logging_per_episodes=500,
+        save_per_episodes=500,
+        alpha_lr_per_epidsode=2000,
+        beta_lr_per_episode=2000,
+    )
+
+
+def train_reinforce():
+    env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
+    actor = MountainContinuousActorV2(hidden_dim=64)
+    trainer = REINFORCEBatch(env=env, actor=actor)
+    trainer.train(
+        num_episodes=20000,
+        logging_per_episodes=500,
+        save_per_episodes=500,
+        alpha_lr_per_epidsode=2000,
+        beta_lr_per_episode=2000,
     )
 
 
@@ -65,10 +79,12 @@ def save_video(trainer, frames_list):
 
 
 if __name__ == "__main__":
-    test()
-    dir = "MountainCarContinuous-v0_REINFORCEwithBaseline_20250228-174219"
-    name = "2000"
-    trainer = load_trainer(dir, name)
-    plot(trainer)
-    frames_list = render(trainer)
-    save_video(trainer, frames_list)
+    # test()
+    train()
+    train_reinforce()
+    # dir = "MountainCarContinuous-v0_REINFORCEwithBaseline_20250228-174219"
+    # name = "2000"
+    # trainer = load_trainer(dir, name)
+    # plot(trainer)
+    # frames_list = render(trainer)
+    # save_video(trainer, frames_list)
