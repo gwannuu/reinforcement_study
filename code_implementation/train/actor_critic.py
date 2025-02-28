@@ -7,7 +7,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.categorical import Categorical
 from torch.distributions.normal import Normal
-from train.lib import ActorCriticTrainer, get_np, add_text
+from train.lib import (
+    ActorCriticTrainer,
+    get_np,
+    add_text,
+    figsize,
+    convert_to_log_values,
+)
 
 
 class MountainContinuousActor(nn.Module):
@@ -300,7 +306,11 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         plt.xlabel("Episode")
         plt.ylabel("Total Reward")
         plt.title("REINFORCE(baseline) Training Rewards")
-        plt.show()
+        if jupyter:
+            plt.show()
+        else:
+            plt.savefig(f"{self.get_model_save_dir()}/total_reward.png")
+            plt.close()
 
         # 훈련 후 plot 생성
         fig, ax1 = plt.subplots(figsize=(8, 4))
@@ -319,7 +329,11 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
 
         plt.title("Actor and Critic Loss Trends")
         fig.tight_layout()
-        plt.show()
+        if jupyter:
+            plt.show()
+        else:
+            plt.savefig(f"{self.get_model_save_dir()}/loss.png")
+            plt.close()
 
     def get_return(self):
         return self.actor_losses, self.critic_losses

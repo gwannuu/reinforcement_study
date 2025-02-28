@@ -19,6 +19,13 @@ from tqdm.auto import trange
 device= "cuda:1"
 
 
+def convert_to_log_values(iterable):
+    result = []
+    for i in iterable:
+        result.append(np.log(i))
+    return result
+
+
 def get_np(torch_data):
     if torch_data is not None:
         return torch_data.cpu().numpy()
@@ -91,6 +98,10 @@ class Trainer(ABC):
     @abstractmethod
     def model_save(self):
         pass
+
+    def load_model(self, name):
+        self.name = name
+        print(self, name)
 
     def write_line_to_txt(self, filename, line):
         with open(f"{self.get_model_save_dir()}/{filename}.txt", "a") as f:
@@ -275,6 +286,7 @@ class ActorCriticTrainer(Trainer, ABC):
         return episode_rewards, returns
 
     def load_model(self, name):
+        super().load_model(name)
         self.actor.load_state_dict(
             torch.load(f"{self.dir}/actor_{name}.pth", map_location=self.device)
         )
@@ -283,11 +295,17 @@ class ActorCriticTrainer(Trainer, ABC):
                 torch.load(f"{self.dir}/critic_{name}.pth", map_location=self.device)
             )
 
-    def save_as_video(self, frames_list, name: str, dir: str = None):
+    def save_as_video(self, frames_list, name: str = None, dir: str = None):
         if dir is None:
             dir_p = Path(self.get_model_save_dir())
         else:
             dir_p = Path(dir)
+
+        if hasattr(self, "name"):
+            name = self.name
+
+        if name == None:
+            raise ValueError
 
         dir_p.mkdir(exist_ok=True)
 
@@ -309,6 +327,10 @@ class ActorCriticTrainer(Trainer, ABC):
                     out.write(frame_bgr)
                 out.release()
                 print(f"video is saved in {path}")
+
+    @abstractmethod
+    def print_message(self):
+        pass
 
     def render(self, num_render=2, max_step=500, wait_time=30):
         self.move_to_device()
