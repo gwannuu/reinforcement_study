@@ -41,6 +41,12 @@ def get_np(torch_data):
         return torch_data.cpu().numpy()
 
 
+def make_data_as_2d(data):
+    for _ in range(2 - data.ndim):
+        data = data[None]
+    return data
+
+
 def get_onedim_np_from_torch(torch_data):
     if isinstance(torch_data, torch.Tensor):
         np_data = get_np(torch_data)
@@ -399,8 +405,10 @@ class ActorCriticTrainer(Trainer, ABC):
 
             while not done and self.step_count < max_step:
                 with torch.no_grad():
-                    a = self.actor_forward(state=s)
-                    _ = get_np(self.critic_forward(state=s, action=a))
+                    a = self.actor_forward(state=s)[None]
+                    a = make_data_as_2d(a)
+                    s = make_data_as_2d(s)
+                    get_np(self.critic_forward(state=s, action=a))
                 np_action = get_onedim_np_from_torch(a)
                 n_s, r, done, truncated, _ = env.step(np_action)
                 self.total_reward += r
