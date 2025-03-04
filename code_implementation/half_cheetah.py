@@ -110,13 +110,13 @@ def test_REINFORCEwithBaseline():
     frames_list = trainer.render(num_render=2, max_step=500)
     trainer.save_as_video(frames_list, name=num_episode)
 
-
 def train_REINFORCEwithBaseline():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
     actor = HalfCheetahActor(hidden_dim=64)
     critic = HalfCheetahCritic(hidden_dim=32)
     trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic)
 
+    # Test training
     trainer.train(
         num_episodes=20000,
         logging_per_episodes=200,
@@ -124,7 +124,6 @@ def train_REINFORCEwithBaseline():
         alpha_lr_per_epidsode=2000,
         beta_lr_per_episode=2000,
     )
-
 
 def test_QValueActorCritic():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
@@ -142,6 +141,19 @@ def test_QValueActorCritic():
     frames_list = trainer.render(num_render=2, max_step=500)
     trainer.save_as_video(frames_list, name=num_episode)
 
+def train_QValueActorCritic():
+    env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
+    actor = HalfCheetahActor(hidden_dim=64)
+    critic = HalfCheetahQCritic(hidden_dim=32)
+    trainer = QValueActorCritic(env=env, actor=actor, critic=critic)
+
+    trainer.train(
+        num_episodes=20000,
+        logging_per_episodes=200,
+        save_per_episodes=200,
+        alpha_lr_per_epidsode=2000,
+        beta_lr_per_episode=2000,
+    )
 
 def load_trainer_BASELINE(dir, name):
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
@@ -154,9 +166,9 @@ def load_trainer_BASELINE(dir, name):
 
 
 if __name__ == "__main__":
-    # test_QValueActorCritic()
-    # test_REINFORCE()
-    test_REINFORCEwithBaseline()
+    train_QValueActorCritic()
+    train_REINFORCE()
+    train_REINFORCEwithBaseline()
     # test()
     # train()
     # train_reinforce()

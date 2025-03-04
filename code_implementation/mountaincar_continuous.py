@@ -89,6 +89,19 @@ def test_REINFORCE():
     trainer.save_as_video(frames_list, name=num_episode)
 
 
+
+def train_REINFORCE():
+    env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
+    actor = MountainContinuousActorV2(hidden_dim=32)
+    trainer = REINFORCEBatch(env=env, actor=actor)
+    trainer.train(
+        num_episodes=20000,
+        logging_per_episodes=500,
+        save_per_episodes=500,
+        alpha_lr_per_epidsode=2000,
+        beta_lr_per_episode=2000,
+    )
+
 def test_REINFORCEwithBaseline():
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
     actor = MountainContinuousActorV2(hidden_dim=64)
@@ -105,6 +118,21 @@ def test_REINFORCEwithBaseline():
     trainer.plot(*trainer.load_infos())
     frames_list = trainer.render(num_render=2, max_step=500)
     trainer.save_as_video(frames_list, name=num_episode)
+
+
+def train_REINFORCEwithBaseline():
+    env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
+    actor = MountainContinuousActorV2(hidden_dim=32)
+    critic = MountainContinuousCritic(hidden_dim=32)
+    trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic)
+
+    trainer.train(
+        num_episodes=20000,
+        logging_per_episodes=500,
+        save_per_episodes=500,
+        alpha_lr_per_epidsode=2000,
+        beta_lr_per_episode=2000,
+    )
 
 
 def test_QValueActorCritic():
@@ -125,25 +153,12 @@ def test_QValueActorCritic():
     trainer.save_as_video(frames_list, name=num_episode)
 
 
-def train():
+def train_QValueActorCritic():
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
     actor = MountainContinuousActorV2(hidden_dim=32)
-    critic = MountainContinuousCritic(hidden_dim=32)
-    trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic)
+    critic = MountainContinuousQCritic(hidden_dim=32)
+    trainer = QValueActorCritic(env=env, actor=actor, critic=critic)
 
-    trainer.train(
-        num_episodes=20000,
-        logging_per_episodes=500,
-        save_per_episodes=500,
-        alpha_lr_per_epidsode=2000,
-        beta_lr_per_episode=2000,
-    )
-
-
-def train_REINFORCE():
-    env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
-    actor = MountainContinuousActorV2(hidden_dim=64)
-    trainer = REINFORCEBatch(env=env, actor=actor)
     trainer.train(
         num_episodes=20000,
         logging_per_episodes=500,
@@ -176,9 +191,9 @@ def save_video(trainer, frames_list):
 
 
 if __name__ == "__main__":
-    test_QValueActorCritic()
-    test_REINFORCE()
-    test_REINFORCEwithBaseline()
+    train_QValueActorCritic()
+    train_REINFORCE()
+    train_REINFORCEwithBaseline()
     # test()
     # train()
     # train_reinforce()
