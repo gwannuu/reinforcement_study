@@ -18,7 +18,7 @@ def test():
 
     # Test training
     num_episode = 3
-    episode_rewards, actor_losses = trainer.train(
+    trainer.train(
         num_episodes=num_episode,
         logging_per_episodes=1,
         save_per_episodes=1,
@@ -33,7 +33,7 @@ def train():
     actor = HalfCheetahActor(hidden_dim=64)
     trainer = REINFORCEBatch(env=env, actor=actor)
 
-    episode_rewards, (actor_losses, critic_losses) = trainer.train(
+    trainer.train(
         num_episodes=20000,
         logging_per_episodes=200,
         save_per_episodes=200,

@@ -18,7 +18,7 @@ def test():
 
     # Test training
     num_episode = 3
-    episode_rewards, actor_losses = trainer.train(
+    trainer.train(
         num_episodes=num_episode,
         logging_per_episodes=1,
         save_per_episodes=1,
@@ -34,7 +34,7 @@ def train():
     critic = MountainContinuousCritic(hidden_dim=32)
     trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic)
 
-    episode_rewards, (actor_losses, critic_losses) = trainer.train(
+    trainer.train(
         num_episodes=20000,
         logging_per_episodes=500,
         save_per_episodes=500,
