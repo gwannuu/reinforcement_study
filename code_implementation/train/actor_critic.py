@@ -105,7 +105,7 @@ class REINFORCEBatch(ActorCriticTrainer):
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
         Path.mkdir(model_save_dir, exist_ok=True)
-        save_path = model_save_dir / f"{name}.pth"
+        save_path = model_save_dir / f"actor_{name}.pth"
         torch.save(self.actor.state_dict(), save_path)
 
     def actor_get_action(self, mean, std):
@@ -134,7 +134,7 @@ class REINFORCEBatch(ActorCriticTrainer):
                 # print(
                 #     f"log prob: {log_prob:.3f}, action: {a:.3f}, v_t: {v_t:.3f}, reward: {r:.3f}"
                 # )
-                self.actor_loss += torch.sum(v_t * -log_prob)
+                self.actor_loss += torch.mean(v_t * -log_prob)
         self.actor_loss.backward()
         self.actor_optimizer.step()
         self.actor_optimizer.zero_grad()
@@ -238,7 +238,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         self.np_action = np_action
         return np_action
 
-    def critic_forward(self, state):
+    def critic_forward(self, state, action):
         state = torch.from_numpy(state).to(device=self.device, dtype=torch.float32)
         self.critic_value = self.critic(state)
         return self.critic_value
@@ -261,12 +261,11 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
                 # )
             v_ts = torch.tensor(v_t_list)[:, None].to(self.device)
             states = np.array(state_list)
-            v_estimated = self.critic_forward(states)
+            v_estimated = self.critic_forward(states, action=None)
             self.critic_loss += F.mse_loss(v_estimated, v_ts, reduction="mean")
-            self.critic_losses.append(self.critic_loss.item())
 
             with torch.no_grad():
-                v_estimated = self.critic_forward(states)
+                v_estimated = self.critic_forward(states, action=None)
             advantage = v_ts - v_estimated
             log_probs = torch.stack(log_probs).to(self.device)
             # print(
@@ -292,11 +291,6 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         print(
             f"Episode {episode}: total_reward: {self.total_reward:.3f}, actor_object: {self.actor_loss.item():.3f}, critic_loss: {self.critic_loss.item():.3f}, num_step: {self.num_step}"
         )
-
-    def on_end_episode_callback(self):
-        self.write_line_to_txt("total_reward", f"{self.total_reward}")
-        self.write_line_to_txt("actor_object", f"{self.actor_loss.item()}")
-        self.write_line_to_txt("critic_loss", f"{self.critic_loss.item()}")
 
     def load_infos(self):
         total_losses = self.load_all_lines_from_txt("total_reward")

@@ -23,6 +23,12 @@ render_size = (800, 600)
 figsize = (12, 6)
 
 
+def seed_setting(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
 def convert_to_log_values(iterable):
     result = []
     for i in iterable:
@@ -226,6 +232,7 @@ class ActorCriticTrainer(Trainer, ABC):
         pass
 
     def on_start_callback(self):
+        seed_setting()
         self.e = 0
         Path(self.get_model_save_dir()).mkdir(exist_ok=True)
 
@@ -396,7 +403,7 @@ class ActorCriticTrainer(Trainer, ABC):
             while not done and self.step_count < max_step:
                 with torch.no_grad():
                     a = self.actor_forward(state=s)
-                    _ = get_np(self.critic_forward(state=s))
+                    _ = get_np(self.critic_forward(state=s, action=a))
                 np_action = get_onedim_np_from_torch(a)
                 n_s, r, done, truncated, _ = env.step(np_action)
                 self.total_reward += r
@@ -416,3 +423,16 @@ class ActorCriticTrainer(Trainer, ABC):
                     break
             episodes.append(frames)
         return episodes
+
+
+def plot(trainer):
+    trainer.plot(*trainer.load_infos())
+
+
+def render(trainer):
+    frames_list = trainer.render()
+    return frames_list
+
+
+def save_video(trainer, frames_list):
+    trainer.save_as_video(frames_list=frames_list)

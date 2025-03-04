@@ -58,9 +58,9 @@ def train_reinforce():
 
 def load_trainer(dir, name):
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
-    actor = MountainContinuousActorV2(hidden_dim=32)
-    critic = MountainContinuousCritic(hidden_dim=32)
-    trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic, dir=dir)
+    actor = MountainContinuousActorV2(hidden_dim=64)
+    # critic = MountainContinuousCritic(hidden_dim=64)
+    trainer = REINFORCEBatch(env=env, actor=actor, critic=None, dir=dir)
     trainer.load_model(name=name)
     return trainer
 
@@ -80,11 +80,11 @@ def save_video(trainer, frames_list):
 
 if __name__ == "__main__":
     # test()
-    train()
-    train_reinforce()
-    # dir = "MountainCarContinuous-v0_REINFORCEwithBaseline_20250228-174219"
-    # name = "2000"
-    # trainer = load_trainer(dir, name)
-    # plot(trainer)
-    # frames_list = render(trainer)
-    # save_video(trainer, frames_list)
+    # train()
+    # train_reinforce()
+    dir = "MountainCarContinuous-v0_REINFORCEBatch_20250301-063634"
+    name = "20000"
+    trainer = load_trainer(dir, name)
+    plot(trainer)
+    frames_list = render(trainer)
+    save_video(trainer, frames_list)
