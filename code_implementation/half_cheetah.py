@@ -1,8 +1,11 @@
+from train.lib import plot, render, save_video
 from train.actor_critic import (
     REINFORCEwithBaseline,
     REINFORCEBatch,
     HalfCheetahActor,
     HalfCheetahCritic,
+    HalfCheetahQCritic,
+    QValueActorCritic,
 )
 from train.lib import device
 
@@ -75,18 +78,21 @@ def train_REINFORCEwithBaseline():
     )
 
 
-
-def load_trainer(dir, name):
+def test_QValueActorCritic():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
-    actor = MountainContinuousActorV2(hidden_dim=32)
-    critic = MountainContinuousCritic(hidden_dim=32)
-    trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic, dir=dir)
-    trainer.load_model(name=name)
-    return trainer
+    actor = HalfCheetahActor(hidden_dim=64)
+    critic = HalfCheetahQCritic(hidden_dim=32)
+    trainer = QValueActorCritic(env=env, actor=actor, critic=critic)
 
-
-def plot(trainer):
+    num_episode = 3
+    trainer.train(
+        num_episodes=num_episode,
+        logging_per_episodes=1,
+        save_per_episodes=1,
+    )
     trainer.plot(*trainer.load_infos())
+    frames_list = trainer.render(num_render=2, max_step=500)
+    trainer.save_as_video(frames_list, name=num_episode)
 
 
 def load_trainer_BASELINE(dir, name):
