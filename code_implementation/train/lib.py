@@ -140,9 +140,7 @@ class Trainer(ABC):
             env_name = self.env.env.spec.id
         if info == "":
             info = self.__class__.__name__
-        save_path = (
-            Path.cwd() / f"{env_name}_{info}_{self.date}"
-        )
+        save_path = Path.cwd() / f"{env_name}_{info}_{self.date}"
         return save_path
 
     @abstractmethod
@@ -339,8 +337,7 @@ class ActorCriticTrainer(Trainer, ABC):
         self.check_and_log(logging_per_episodes=logging_per_episodes)
         self.check_and_save(save_per_episodes=save_per_episodes)
         self.on_end_callback()
-        returns = self.get_return()
-        return episode_rewards, returns
+        return episode_rewards
 
     def load_model(self, name):
         super().load_model(name)
@@ -361,7 +358,7 @@ class ActorCriticTrainer(Trainer, ABC):
         if hasattr(self, "name"):
             name = self.name
 
-        if name == None:
+        if name is None:
             raise ValueError
 
         dir_p.mkdir(exist_ok=True)

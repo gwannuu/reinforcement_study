@@ -3,9 +3,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch.distributions.categorical import Categorical
 from torch.distributions.normal import Normal
 from train.lib import (
     ActorCriticTrainer,
@@ -16,90 +14,6 @@ from train.lib import (
     convert_to_log_values,
     plot_list,
 )
-
-
-class MountainContinuousActor(nn.Module):
-    def __init__(self, hidden_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(2, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1 * 2),  # mean and std
-        )
-
-    def forward(self, input):
-        mean, log_std = self.net(input)
-        log_std = torch.clamp(log_std, -2, 0.5)  # prevent extreme gradient value
-        std = torch.exp(log_std)
-        return mean, std
-
-
-class MountainContinuousActorV2(nn.Module):
-    def __init__(self, hidden_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(2, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1 * 2),  # mean and std
-        )
-
-    def forward(self, input):
-        mean, log_std = self.net(input)
-        log_std = torch.clamp(log_std, -2, 0.5)  # prevent extreme gradient value
-        std = torch.exp(log_std)
-        return mean, std
-
-
-class MountainContinuousCritic(nn.Module):
-    def __init__(self, hidden_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(2, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1),  # mean and std
-        )
-
-    def forward(self, state):
-        return self.net(state)
-
-
-class HalfCheetahActor(nn.Module):
-    def __init__(self, hidden_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(17, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 6 * 2),
-        )
-
-    def forward(self, state):
-        mean, log_std = torch.split(self.net(state), 6, dim=-1)
-        log_std = torch.clamp(log_std, -20, 3)
-        std = torch.exp(log_std)
-        return mean, std
-
-
-class HalfCheetahCritic(nn.Module):
-    def __init__(self, hidden_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(17, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1),
-        )
-
-    def forward(self, input):
-        output = self.net(input)
-        return output
-
 
 class REINFORCEBatch(ActorCriticTrainer):
     def model_save(self, env_name: str = "", name: str = "latest"):
@@ -153,9 +67,6 @@ class REINFORCEBatch(ActorCriticTrainer):
         actor_lr_list = self.load_all_lines_from_txt("actor_lr")
         return total_losses, actor_objects, actor_lr_list
 
-    def get_return(self):
-        return self.actor_loss
-
     def print_message(self, frame_bgr):
         action = self.np_action
         mean = get_np(self.mean)
@@ -207,11 +118,6 @@ class REINFORCEBatch(ActorCriticTrainer):
 
 
 class REINFORCEwithBaseline(ActorCriticTrainer):
-    def on_start_callback(self):
-        super().on_start_callback()
-        self.actor_losses = []
-        self.critic_losses = []
-
     def on_start_episode_callback(self):
         self.total_reward = 0
 
@@ -272,7 +178,6 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
             #     f"advantage shape: {advantage.shape}, v_ts shape: {v_ts.shape},log_probs shape: {log_probs.shape}"
             # )
             self.actor_loss += torch.mean(advantage * -log_probs)
-            self.actor_losses.append(self.actor_loss.item())
 
         self.actor_loss.backward()
         self.actor_optimizer.step()

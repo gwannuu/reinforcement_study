@@ -1,10 +1,8 @@
+import torch.nn as nn
 from train.lib import plot, render, save_video
 from train.actor_critic import (
     REINFORCEwithBaseline,
     REINFORCEBatch,
-    HalfCheetahActor,
-    HalfCheetahCritic,
-    HalfCheetahQCritic,
     QValueActorCritic,
 )
 from train.lib import device
@@ -12,6 +10,56 @@ from train.lib import device
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import torch
+
+
+class HalfCheetahActor(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(17, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 6 * 2),
+        )
+
+    def forward(self, state):
+        mean, log_std = torch.split(self.net(state), 6, dim=-1)
+        log_std = torch.clamp(log_std, -20, 3)
+        std = torch.exp(log_std)
+        return mean, std
+
+
+class HalfCheetahCritic(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(17, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+
+    def forward(self, input):
+        output = self.net(input)
+        return output
+
+
+class HalfCheetahQCritic(nn.Module):
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(17 + 6, hidden_dim),  # 17 state, 6 action
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1),
+        )
+
+    def forward(self, input):
+        output = self.net(input)
+        return output
 
 
 def test_REINFORCE():
