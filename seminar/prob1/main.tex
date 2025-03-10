@@ -1,0 +1,563 @@
+\documentclass{beamer}
+\usefonttheme[onlymath]{serif}
+% 테마 선택 (선택 사항)
+\usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{multicol}  % 여러 열 나누기
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+
+% 발표 제목, 저자, 날짜 설정
+\title{Probability}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% 목차 슬라이드
+\begin{frame}{contents}
+    \tableofcontents
+\end{frame}
+
+% 첫 번째 섹션
+\section{Conditional Probability}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Conditional Probability}
+    \begin{definition}[Conditional Probability]
+        If $A$ and $B$ are events with $P(B) > 0$, then the \tb{conditional probability} of $A$ given $B$, denoted by $P(A|B)$ is defined as $$P(A|B) = \frac{P(A \cap B)}{P(B)}$$
+    \end{definition}
+    \begin{itemize}
+        \item $P(A)$ is called \tb{prior probability} of $A$
+        \item $P(A|B)$ is called \tb{posterior probability} of $A$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Probability}
+    \begin{theorem}
+        For any events $A$ and $B$ with positive probabilities,
+        $$P(A \cap B) = P(B)P(A|B) = P(A)P(B|A)$$
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Conditional Probability}    
+    \begin{theorem}[Probability of the intersection of $n$ events]
+        For any events $A_1,\dots,A_n$ with $P(A_1,A_2,\dots,A_{n-1}) > 0$
+        \[
+            \begin{aligned}
+                P(A_1,A_2,\dots,A_n) &= P(A_1)P(A_2|A_1)P(A_3|A_1,A_2)\\
+                &=\cdots P(A_n|A_1,\dots,A_{n-1})
+            \end{aligned}
+        \]
+    \end{theorem}
+\end{frame}
+
+
+\section{Bayes' Rule}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+    \begin{theorem}[Baye's rule]
+        $$P(A|B) = \frac{P(B|A)P(A)}{P(B)}$$
+    \end{theorem}
+    \[
+        \frac{\frac{P(B \cap A)}{P(A)}P(A)}{P(B)}
+    \]
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+    \begin{theorem}[Law of total probability, LOTP]
+        Let $A_1,\dots,A_n$ be a partition of the sample space $S$, (i.e., the $A_i$ are disjoint events and their union is $S$), with $P(A_i)>0, \forall i$. Then
+        $$P(B)=\sum^n_{i=1}P(B|A_i)P(A_i)$$
+    \end{theorem}
+    \[
+        \begin{aligned}
+            P(B) &= P(B \cap A_1) + P(B \cap A_2) + \cdots + P(B \cap A_n)\\
+            &=P(B|A_1)P(A_1) + \cdots + P(B|A_n)P(A_n)
+        \end{aligned}
+    \]
+    % \begin{align*}
+        % $P(B)=P(B \cap )$
+    % \end{align*}
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+    \begin{example}[Testing for a rare disease]
+        A patient named Fred is tested for a disease called conditionitis, a medical condition that afflicts 1\% of the population. 
+        The test result is positive, i.e., the test claims that Fred has the disease. 
+        Let $D$ be the event that Fred has the disease and $T$ be the event that he tests positive.\newline
+        Suppose test accuracy is 95\%. 
+        i.e., $P(T|D)=0.95$, which is called \ti{true positive} and $P(T^c|D^c)$, which is called \ti{true negative}.\newline
+        Find thd conditional probability that Fred has conditionitis, given the evidence provided by the test result.
+    \end{example}
+
+%     \[
+%         \begin{aligned}
+%             P(D|T)&=\frac{P(T|D)P(D)}{P(T)}\\
+%             &=\frac{P(T|D)P(D)}{P(T|D)P(D) + P(T|D^c)P(D^c)}\\
+%         \end{aligned}
+%     \]  \begin{block}{Proof}
+%     \(a > 0\)이므로, \(\ldots\)  
+%     (증명의 나머지 부분)
+%   \end{block}
+\end{frame}
+
+
+\begin{frame}{Bayes' Rule}
+    \begin{block}{Solution}
+        \[
+            \begin{aligned}
+                P(D|T)&=\frac{P(T|D)P(D)}{P(T)} \\
+                &=\frac{P(T|D)P(D)}{P(T|D)P(D) + P(T|D^c)P(D^c)} \\
+                &= \frac{0.95 \cdot 0.01}{0.95 \cdot 0.01 + 0.05 \cdot 0.99} \\
+                &\approx 0.16
+            \end{aligned}
+        \]
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{Bayes' Rsule}
+    \begin{theorem}[Bayes' rule with extra conditioning]
+        Provided that $P(A \cap E) > 0$ and $P(B \cap E) > 0$, we have
+        \[
+            P(A|B,E) = \frac{P(B|A,E)P(A|E)}{P(B|E)}
+        \]
+    \end{theorem}
+    \begin{theorem}[LOTP with extra conditioning]
+        Let $A_1,\dots,A_n$ be a partition  of $S$. Provided that $P(A_i \cap E) > 0, \forall i$, we have
+        \[
+            P(B|E) = \sum^n_{i=1} P(B|A_i,E)P(A_i|E)
+        \]
+    \end{theorem}
+\end{frame}
+
+
+\section{Independence}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Independence}
+    \begin{definition}[Indepencende of events]
+        Events $A$ and $B$ are independent if
+        \[
+            P(A\cap B) = P(A)P(B).
+        \]
+        if $P(A) > 0$ and $P(B) > 0$, then is equivalent to
+        \[
+            P(A|B) = P(A),
+        \]
+        and also equivalent to $P(B|A) = P(B)$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Independence}
+    \begin{block}{Proposition}
+        If $A$ and $B$ are independent, then $A$ and $B^c$ are independent, $A^c$ and $B$ are independent, and $A^c$ and $B^c$ are independent.
+    \end{block}
+
+    \begin{proof}
+        \begin{itemize}
+            \item If $P(A)=0$, then $A$ is independent of \ti{every} event.
+            \item Else, show between $A$ and $B^c$, $A^c$ and $B$, and $A^c$ and $B^c$.
+            \begin{itemize}
+                \item $P(B^c|A) = 1 - P(B|A) = 1 - P(B) = P(B^c)$
+                \item $P(A^c|B) = 1- P(A|B) = 1 - P(A) = P(A^c)$
+                \item $P(B^C|A^C) = 1 - P(B|A^c) = 1- P(B) = P(B^c)$
+            \end{itemize}
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+
+\begin{frame}{Independence}
+    \begin{definition}[Independence of three events]
+        Events $A,B$ and $C$ are said to be \tb{independent} if all of the following equations hold
+        \[
+        \begin{gathered}
+            P(A\cap B) = P(A)P(B) \\
+            P(A\cap C) = P(A)P(C)\\
+            P(B\cap C) = P(B)P(C)\\
+            P(A\cap B\cap C) = P(A)P(B)P(C)
+        \end{gathered}
+        \]
+    \end{definition}
+    If the first three conditions hold, we say that $A,B$ and $C$ are \tb{pairwise independent}. Pairwise independent does not imply independence. (Example)
+\end{frame}
+
+\begin{frame}{Independence}
+    \begin{example}[Pairwise independence doesn't imply independence]
+        Consider two fair, independent coin tosses, and let $A$ be the event that the first is Heads, $B$ the event that the second is Heads, and $C$ the event that both tosses have the same result.\newline
+        \[
+        \begin{gathered}
+            P(A \cap B \cap C) = \frac{1}{4}\\
+            P(A)P(B)P(C) = \frac{1}{8}
+        \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Independence}
+    \begin{definition}[Independence of many events]
+        For $n$ events $A_1,A_2,\dots,A_n$ to be \ti{independent}, we require any pair to satisfy $P(A_i\cap A_j) = P(A_i)P(A_j)$ (for $i \neq j$), any triplet to satisfy $P(A_i \cap A_j \cap A_k) = P(A_i)P(A_j)P(A_k)$ (for $i,j,k$ distinct), and similarly for all quadruplets, quintuplets, and so on.\newline
+        \newline
+        For infinitely many events, we say that they are independent if every finite subset of the events is indepent.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Independence}
+    \begin{definition}[Conditional independence]
+        Events $A$ and $B$ are said to be \tb{conditionally independent} given $E$ if $P(A \cap B|E) = P(A|E)P(B|E)$.
+    \end{definition}
+    \begin{block}{Remark}
+            It is easy to make terrible blunders stemming from confusing independence and conditional independence. 
+            \begin{itemize}
+                \item Two events can be conditionally independent given $E$, but not independent given $E^c$. 
+                \item Two events can be conditionally independent given $E$, but not independent.
+                \item Two events can be independent, but not conditionally independent given $E$.
+            \end{itemize}
+    \end{block}
+
+    % \begin{remark}
+    % \end{remark}
+\end{frame}
+
+\begin{frame}
+    \begin{example}[Conditional independence given $E$ vs. given $E^c$]
+        Two events can be conditionally independent given $E$, but not independent given $E^c$. 
+
+        Suppose there are two types of class: good class and bad 
+        classes.
+        \begin{itemize}
+            \item Good class: if you work hard, you are very likely to get an A.
+            \item Bad class: the professor randomly assigns grades to students regardless of their effort.
+        \end{itemize}
+        Let $G$ be the event that a class is good, $W$ be the event that you work hard, and $A$ be the event that you receive an A.
+        \[
+        \begin{gathered}
+            P(W\cap A|G^c) = P(W|G^c)P(A|G^c)\\
+            P(W\cap A|G) \neq P(W|G)P(A|G)
+        \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}
+    \begin{example}[Conditional independence doesn't imply independence]
+        Suppose we have chosen either a fair coin or a biased coin.
+        \begin{itemize}
+            \item Fair coin: Head probability $\frac{1}{2}$
+            \item Unfair coin: Head probability $\frac{3}{4}$
+        \end{itemize}
+        Let $F$ be the event that chosen fair coin, $A$ the event that the first is Heads, and $B$ the event that the second is Heads.
+        \[
+        \begin{gathered}
+            P(A\cap B|F) = P(A|F)P(B|F)\\
+            P(A\cap B|F^c) = P(A|F^c)P(B|F^c)\\
+            P(A\cap B) \neq P(A)P(B)
+        \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+% \begin{frame}{2024년 수상 연구 개요}
+%     \begin{block}{수상 연구}
+%         \begin{itemize}
+%             \item 연구 제목: (수상 연구의 제목)
+%             \item 연구자: (수상자 이름)
+%             \item 연구 분야: (관련된 화학 분야)
+%         \end{itemize}
+%     \end{block}
+% \end{frame}
+
+% % 이미지 추가 예제
+% \begin{frame}{연구 관련 이미지}
+%     \begin{center}
+%         \includegraphics[width=0.8\linewidth]{example.jpg} % 이미지 경로
+%         \caption{2024년 수상 연구 개념도}
+%     \end{center}
+% \end{frame}
+
+% % 수식 예제
+% \begin{frame}{연구 관련 공식}
+%     연구에서 사용된 주요 수식:
+%     \begin{equation}
+%         E = mc^2
+%     \end{equation}
+% \end{frame}
+
+% % 결론 슬라이드
+% \section{결론 및 질의응답}
+
+% \begin{frame}{결론}
+%     \begin{itemize}
+%         \item 2024 노벨 화학상 연구 요약
+%         \item 연구의 영향 및 미래 전망
+%         \item 관련 응용 가능성
+%     \end{itemize}
+% \end{frame}
+
+% % 질문 슬라이드
+% \begin{frame}{질문이 있나요?}
+%     \begin{center}
+%         \Huge ❓
+%     \end{center}
+% \end{frame}
+
+\section{Random Variable and Distribution}
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Random Variable}
+    \begin{definition}[Random Variable]
+        Given an experiment with sample space $S$, a \tb{random variable} (r.v.) is a function from the sample space $S$ to the real numbers $\mbb{R}$.
+        It is common, but not required, to denote random variables by capital letters.
+    \end{definition}
+    \begin{example}
+        Consider coin toss twice. The sample space $S = \{HH, HT, TH, TT\}$.
+        \begin{itemize}
+            \item{
+                Let $X$ be the number of Heads. this is a random variable with possible values 0, 1, and 2.
+                \[
+                    X(HH) =2, X(HT)=X(TH)=1, X(TT) = 0
+                \]
+            }
+            \item{
+                Let $Y$ be the number of Tails. In terms of  $X$, we have $Y=2-X$. In other words, $Y$ and $2-X$ are the same r.v. (i.e., $Y(s)=2-X(s),\forall i$)
+            }
+        
+        \end{itemize}
+    \end{example}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Probability mass function]
+        The \tb{probability mass function} (PMF) of a discrete r.v. $X$ is the function $P_X$ given by $P_X(x) = P(X=x)$. Note that this is positive if $x$ is in the support of $X$, and 0 otherwise.
+    \end{definition}
+
+    \begin{example}
+            \[
+                \begin{gathered}
+                    P_X(0) = P(X=0) = \frac{1}{4}, P_X(1) = P(X=1) = \frac{1}{2} \\
+                    P_X(2) = P(X=2) = \frac{1}{4}, P_X(3) = P(X=3) = 0 \\
+                    P_Y(-1) = P(Y=-1) = 0, P_Y(0)=P(Y=0)=\frac{1}{4} \\
+                    P_Y(1) = P(Y=1) = \frac{1}{2}, P_Y(2)=P(Y=2)=\frac{1}{4}
+                \end{gathered}
+            \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Bernoulli distribution]
+        An r.v. $X$ is said to have the \tb{Bernoulli distribution} with parameter $p$ if $P(X=1)=p$ and $P(X=0) = 1- p$, where $0<p<1$.
+        We write this as $X \sim \text{Bern}(p)$
+    \end{definition}
+    \begin{definition}[Binomial distribution]
+        Suppose that $n$ \tb{independent bernoulli trials} are performed, each with the same success proability $p$.
+        Let $X$ be the number of successes. The distribution of $X$ is called the \tb{Binomial distribution} with parameters $n$ and $p$.
+        We write $X \sim \text{Bin}(n,p)$ to mean that $X$ has the Binomial distribution with parameters $n$ and $p$, where $n$ is a positive integer and $0<p<1$.
+        \[
+            P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}
+        \]
+
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Cumulative distribution function (CDF)]
+        The \tb{cumulative distribution function (CDF)} of an r.v. $X$ is the function $F_X$ given by $F_X(x) = P(X \leq x)$. When there is no risk of ambiguity, we sometimes drop the subscript and just write $F$ for a CDF.
+    \end{definition}
+    \begin{example}[from PDF to CDF]
+        To find $P(X \leq 1.5)$, which is the CDF evaluated at 1.5, we sum the PMF over all values of the support that are less than or equal to 1.5 ($X \sim \text{Bin}(4, \frac{1}{2})$):
+        \[
+        P(X \leq 1.5) = P(X=0) + P(X=1) = \frac{1}{2}^4 + 4\cdot\frac{1}{2}^4 = \frac{5}{16}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{theorem}[Valid CDFs]
+        Any CDF $F$ has the following properties.
+        \begin{itemize}
+        \item{Increasing: if $x_1 \leq x_2$, then $F(x_1)\leq F(x_2)$}.
+        \item {Right-continuous: $F(a) = \lim_{x \rightarrow a^+}F(x)$}.
+        \item {Convergence to 0 and 1 in the limits: $\lim_{x \rightarrow -\infty F(x) = 0}$ and $\lim_{x \rightarrow \infty F(x) = 1}$}
+        \end{itemize}
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Function of an r.v.]
+        For an experiment with sample space $S$, an r.v. $X$, and a function $g : \mbb{R} \rightarrow \mbb{R}$, $g(X)$ is the r.v. that maps $s$ to $g(X(s)), \forall s \in S$.
+    \end{definition}
+    \begin{theorem}[PMF of $g(X)$]
+        Let $X$ be a discrete r.v. and $g : \mbb{R}\rightarrow \mbb{R}$. Then the support of $g(X)$ is the set of all $y$ such that $g(x) = y$ for at least one $x$ in the support of $X$, and the PMF of $g(X)$ is \[P(g(X)=y) = \sum_{x:g(x)=y} P(X=x)\]
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Function of two r.v.s]
+        Given an experiment with sample space $S$, if $X$ and $Y$ are r.v.s that map $s \in S$ to $X(s)$ and $Y(s)$ respectively, then $g(X,Y)$ is the r.v. that maps $s$ to $g(X(s), Y(s))$.
+    \end{definition}
+    \begin{example}[Maximum of two die rolls]
+        We roll two fair 6-sided dice. Let $X$ be the number on the first die and $Y$ the number on the second die.
+        \[
+            \begin{aligned}
+                &P(\max(X,Y)=5) \\
+                &= P(X=5, Y \leq 4) + P(X \leq 4 , Y=5) + P(X=5, Y=5)\\
+                &=2P(X=5, Y\leq 4) + 1/36\\
+                &=2(4/36) + 1/36  = 0/36
+            \end{aligned}
+        \]
+    \end{example}
+\end{frame}
+
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Independence of two r.v.s]
+        Random variables $X$ and $Y$ are said to be \tb{independent} if
+        $\forall x, y \in \mbb{R}$,
+        \begin{itemize}
+            \item{
+                \[
+                    P(X \leq x, Y \leq y) = P(X \leq x)P(Y \leq y) \quad \text{(continuous)}
+                    \] 
+            }
+            \item{
+                \[
+                    P(X=x,Y=y) = P(X=x)P(Y=y) \quad \text{(discrete)}
+                \]
+            }
+        \end{itemize}
+    \end{definition}
+    \begin{definition}[Independence of many r.v.s]
+        Random variables $X_1,\dots, X_n$ are \tb{independent} if 
+        \[
+        \begin{gathered}
+            P(X_1 \leq x_1, \dots, X_n \leq x_n) = P(X_1 \leq x_1)\dots P(X_n\leq x_n),\\
+            \forall x_1,\dots, x_n \in \mbb{R}
+        \end{gathered}
+        \]
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{example}
+        In a roll of two fair dice, if $X$ is the number on the first die and $Y$ is the number on the second die, then $X+ Y$ is not independent of $X-Y$ since 
+        \[
+        \begin{gathered}
+            P(X+Y=12,X-Y=1) = 0\\
+            P(X+Y=12)P(X-Y=1) = \frac{1}{36} \cdot \frac{5}{36}\\
+            \therefore P(X+Y=12,X-Y=1)\neq P(X+Y=12)P(X-Y=1)
+        \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{theorem}[Functions of independent r.v.s]
+        If $X$ and $Y$ are independent r.v.s, then any function of $X$ is independent of any function $Y$.
+    \end{theorem}
+    \begin{center}
+        \begin{itemize}
+        \item{
+            $X^2$ is independent of $Y^4$
+        }
+        \end{itemize}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[i.i.d.]
+        We will often work with random variables that are independent and have the same distribution. We call such r.v.s \tb{independent and identically distributed}, or \ti{i.i.d} for short.
+    \end{definition}
+    \begin{itemize}
+        \item{Let $X$ be the result of a die roll, and let $Y$ be the result of a second, independent die roll. Then $X$ and $Y$ are i.i.d.}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Random Variable and Distribution}
+    \begin{theorem}
+        If $X \sim \text{Bin}(n,p)$, viewed as the number of successes in $n$ independent Bernoulli trials with success probability $p$, then we can write $X=X_1 + \cdots + X_n$ where the $X_i$ are i.i.d. $\text{Bern}(p)$.
+    \end{theorem}
+\end{frame}
+\begin{frame}{Random Variable and Distribution}
+    \[
+    \begin{aligned}
+        P(X+Y=k)&=\sum_{j=0}^k P(X+Y=k|X=j)P(X=j)\\
+        &=\sum^k_{j=0}P(Y=k-j)P(X=j)\\
+        &=\sum^k_{j=0} \binom{m}{k-j} p^{k-j} q^{m-k+j} \binom{n}{j} p^j q^{n-j}\\
+        &=p^j q^{n+m-k} \sum^k_{j=0} \binom {m}{k-j}\binom{n}{j}\\
+        &=\binom{n+m}{k}p^k q^{n+m-k}\\
+        \because P(X+Y=k|X=j) &= P(Y=k-j|X=j)=P(Y=k-j)
+    \end{aligned}
+    \]
+
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[Conditional independence of r.v.s]
+        Random variables $X$ and $Y$ are \tb{conditionally independent} given an r.v $Z$ if for all $x,y \in \mbb{R}$ and all $z$ in the support of $Z$,
+        \[
+        P(X\leq x, y\leq y| Z = z) = P(X \leq x|Z=z) P(Y \leq y|Z=z)
+        \]
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Random Variable and Distribution}
+    \begin{definition}[COnditional PMF]
+        For any discrete r.v.s $X$ and $Z$, the function $P(X=x|Z=z)$, when considered as a function of $x$ for fixed $z$,  is called the \ti{conditional} PMF of $X$ \ti{given} $Z=z$.
+    \end{definition}
+
+    \begin{example}[Two friends]
+        Consider the 'I have only two friends who ever call me" scenario. \newline\newline
+        Let $X$ be the indicator of Alice calling me next Friday, $Y$ be the indicator of Bob calling me next Friday, and $Z$ be the indicator of exactly one of them calling me next Friday. Then $X$ and $Y$ are independent (by assumption). But given $Z=1$, we have that $X$ and $Y$ are independent (by assumption). But given $Z=1$, we have that $X$ and $Y$ are completely dependent: given that $Z=1$, we have $Y=1-X$.    
+    \end{example}
+\end{frame}
+
+\end{document}
