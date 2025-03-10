@@ -110,6 +110,7 @@ def test_REINFORCEwithBaseline():
     frames_list = trainer.render(num_render=2, max_step=500)
     trainer.save_as_video(frames_list, name=num_episode)
 
+
 def train_REINFORCEwithBaseline():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
     actor = HalfCheetahActor(hidden_dim=64)
@@ -124,6 +125,7 @@ def train_REINFORCEwithBaseline():
         alpha_lr_per_epidsode=2000,
         beta_lr_per_episode=2000,
     )
+
 
 def test_QValueActorCritic():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
@@ -141,6 +143,7 @@ def test_QValueActorCritic():
     frames_list = trainer.render(num_render=2, max_step=500)
     trainer.save_as_video(frames_list, name=num_episode)
 
+
 def train_QValueActorCritic():
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
     actor = HalfCheetahActor(hidden_dim=64)
@@ -155,7 +158,8 @@ def train_QValueActorCritic():
         beta_lr_per_episode=2000,
     )
 
-def load_trainer_BASELINE(dir, name):
+
+def load_trainer_reinforce(dir, name):
     env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
     actor = HalfCheetahActor(hidden_dim=64)
     # critic = HalfCheetahCritic(hidden_dim=32)
@@ -165,16 +169,34 @@ def load_trainer_BASELINE(dir, name):
     return trainer
 
 
+def load_trainer_reinforce_baseline(dir, name):
+    env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
+    actor = HalfCheetahActor(hidden_dim=64)
+    critic = HalfCheetahCritic(hidden_dim=32)
+    trainer = REINFORCEwithBaseline(env=env, actor=actor, critic=critic, dir=dir)
+    trainer.load_model(name=name)
+    return trainer
+
+
+def load_trainer_QValueActorCritic(dir, name):
+    env = gym.make("HalfCheetah-v5", render_mode="rgb_array")
+    actor = HalfCheetahActor(hidden_dim=64)
+    critic = HalfCheetahQCritic(hidden_dim=32)
+    trainer = QValueActorCritic(env=env, actor=actor, critic=critic, dir=dir)
+    trainer.load_model(name=name)
+    return trainer
+
+
 if __name__ == "__main__":
-    train_QValueActorCritic()
-    train_REINFORCE()
-    train_REINFORCEwithBaseline()
+    # train_QValueActorCritic()
+    # train_REINFORCE()
+    # train_REINFORCEwithBaseline()
     # test()
     # train()
     # train_reinforce()
-    # dir = "HalfCheetah-v5_REINFORCEBatch_20250228-205714"
-    # name = "20000"
-    # trainer = load_trainer_BASELINE(dir, name)
-    # plot(trainer)
-    # frames_list = render(trainer)
-    # save_video(trainer, frames_list)
+    dir = "HalfCheetah-v5_QValueActorCritic_20250304-191913"
+    name = "20000"
+    trainer = load_trainer_QValueActorCritic(dir, name)
+    plot(trainer)
+    frames_list = render(trainer, max_step=1000)
+    save_video(trainer, frames_list)

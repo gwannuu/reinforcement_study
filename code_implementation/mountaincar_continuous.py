@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 from train.actor_critic import REINFORCEwithBaseline, REINFORCEBatch, QValueActorCritic
-from train.lib import device
+from train.lib import device, plot, render, save_video
 
 import gymnasium as gym
 import matplotlib.pyplot as plt
@@ -89,7 +89,6 @@ def test_REINFORCE():
     trainer.save_as_video(frames_list, name=num_episode)
 
 
-
 def train_REINFORCE():
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
     actor = MountainContinuousActorV2(hidden_dim=32)
@@ -101,6 +100,7 @@ def train_REINFORCE():
         alpha_lr_per_epidsode=2000,
         beta_lr_per_episode=2000,
     )
+
 
 def test_REINFORCEwithBaseline():
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
@@ -168,38 +168,26 @@ def train_QValueActorCritic():
     )
 
 
-def load_trainer(dir, name):
+def load_trainer(dir, name, trainer=REINFORCEBatch):
     env = gym.make("MountainCarContinuous-v0", render_mode="rgb_array")
-    actor = MountainContinuousActorV2(hidden_dim=64)
-    # critic = MountainContinuousCritic(hidden_dim=64)
-    trainer = REINFORCEBatch(env=env, actor=actor, critic=None, dir=dir)
+    actor = MountainContinuousActorV2(hidden_dim=32)
+    critic = MountainContinuousQCritic(hidden_dim=32)
+    critic = None
+    trainer = REINFORCEBatch(env=env, actor=actor, critic=critic, dir=dir)
     trainer.load_model(name=name)
     return trainer
 
 
-def plot(trainer):
-    trainer.plot(*trainer.load_infos())
-
-
-def render(trainer):
-    frames_list = trainer.render()
-    return frames_list
-
-
-def save_video(trainer, frames_list):
-    trainer.save_as_video(frames_list=frames_list)
-
-
 if __name__ == "__main__":
-    train_QValueActorCritic()
-    train_REINFORCE()
-    train_REINFORCEwithBaseline()
+    # test_QValueActorCritic()
+    # test_REINFORCE()
+    # test_REINFORCEwithBaseline()
     # test()
     # train()
     # train_reinforce()
-    # dir = "MountainCarContinuous-v0_REINFORCEBatch_20250301-063634"
-    # name = "20000"
-    # trainer = load_trainer(dir, name)
-    # plot(trainer)
-    # frames_list = render(trainer)
-    # save_video(trainer, frames_list)
+    dir = "MountainCarContinuous-v0_REINFORCEBatch_20250305-052858"
+    name = "500"
+    trainer = load_trainer(dir, name)
+    plot(trainer)
+    frames_list = render(trainer, max_step=1000)
+    save_video(trainer, frames_list)

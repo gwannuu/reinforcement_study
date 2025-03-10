@@ -16,8 +16,8 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm.auto import trange
 import matplotlib.pyplot as plt
 
-# device = "mps"
-device= "cuda:1"
+device = "mps"
+# device= "cuda:1"
 
 render_size = (800, 600)
 figsize = (12, 6)
@@ -69,9 +69,9 @@ def add_text(prefix, array: np.ndarray):
 def plot_list(values, title, xlabel="", ylabel="", save_path=None):
     plt.figure(figsize=figsize)
     plt.plot(values)
-    plt.xlabel("Episode")
-    plt.ylabel("Total Reward")
-    plt.title("REINFORCE(baseline) Training Rewards")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
     if save_path is None:
         plt.show()
     else:
@@ -434,8 +434,12 @@ def plot(trainer):
     trainer.plot(*trainer.load_infos())
 
 
-def render(trainer):
-    frames_list = trainer.render()
+def render(trainer, num_render=2, max_step=500, wait_time=30):
+    frames_list = trainer.render(
+        num_render=num_render,
+        max_step=max_step,
+        wait_time=wait_time,
+    )
     return frames_list
 
 

@@ -15,6 +15,7 @@ from train.lib import (
     plot_list,
 )
 
+
 class REINFORCEBatch(ActorCriticTrainer):
     def model_save(self, env_name: str = "", name: str = "latest"):
         model_save_dir = self.get_model_save_dir(env_name)
@@ -96,21 +97,21 @@ class REINFORCEBatch(ActorCriticTrainer):
         save_dir = self.get_model_save_dir()
         plot_list(
             rewards_list,
-            title="REINFORCE(baseline) Training Rewards",
+            title="REINFORCE Training Rewards",
             xlabel="Episode",
             ylabel="Total Reward",
             save_path=None if jupyter else f"{save_dir}/total_reward.png",
         )
         plot_list(
             actor_objects,
-            title="Actor Loss Trends",
+            title="REINFORCE Actor Loss Trends",
             xlabel="Episode",
             ylabel="Actor Object",
             save_path=None if jupyter else f"{save_dir}/loss.png",
         )
         plot_list(
             actor_lr_list,
-            title="Actor LR",
+            title="REINFORCE Actor LR",
             xlabel="Episode",
             ylabel="learning rate",
             save_path=None if jupyter else f"{save_dir}/actor_lr.png",
@@ -225,7 +226,7 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         compare_plot(
             actor_objects,
             critic_losses,
-            title="Actor and Critic Loss Trends",
+            title="REINFORCE(baseline) Actor and Critic Loss Trends",
             xlabel="Episode",
             y1label="Actor Object",
             y2label="Critic Loss",
@@ -233,14 +234,14 @@ class REINFORCEwithBaseline(ActorCriticTrainer):
         )
         plot_list(
             actor_lr_list,
-            title="Actor LR",
+            title="REINFORCE(baseline) Actor LR",
             xlabel="Episode",
             ylabel="learning rate",
             save_path=None if jupyter else f"{save_dir}/actor_lr.png",
         )
         plot_list(
             critic_lr_list,
-            title="Critic LR",
+            title="REINFORCE(baseline) Critic LR",
             xlabel="Episode",
             ylabel="learning rate",
             save_path=None if jupyter else f"{save_dir}/critic_lr.png",
@@ -386,7 +387,7 @@ class QValueActorCritic(ActorCriticTrainer):
         save_dir = self.get_model_save_dir()
         plot_list(
             rewards_list,
-            title="REINFORCE(baseline) Training Rewards",
+            title="Q-Value Actor Critic: Training Rewards",
             xlabel="Episode",
             ylabel="Total Reward",
             save_path=None if jupyter else f"{save_dir}/total_reward.png",
@@ -394,7 +395,7 @@ class QValueActorCritic(ActorCriticTrainer):
         compare_plot(
             actor_objects,
             critic_losses,
-            title="Actor and Critic Loss Trends",
+            title="Q-Value Actor Critic: Actor and Critic Loss Trends",
             xlabel="Episode",
             y1label="Actor Object",
             y2label="Critic Loss",
@@ -402,14 +403,14 @@ class QValueActorCritic(ActorCriticTrainer):
         )
         plot_list(
             actor_lr_list,
-            title="Actor LR",
+            title="Q-Value Actor Critic: Actor LR",
             xlabel="Episode",
             ylabel="learning rate",
             save_path=None if jupyter else f"{save_dir}/actor_lr.png",
         )
         plot_list(
             critic_lr_list,
-            title="Critic LR",
+            title="Q-Value Actor Critic: Critic LR",
             xlabel="Episode",
             ylabel="learning rate",
             save_path=None if jupyter else f"{save_dir}/critic_lr.png",
