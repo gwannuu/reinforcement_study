@@ -1,0 +1,209 @@
+\documentclass{beamer}
+\usefonttheme[onlymath]{serif}
+% 테마 선택 (선택 사항)
+\usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{multicol}  % 여러 열 나누기
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+
+% 발표 제목, 저자, 날짜 설정
+\title{Probability}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% 목차 슬라이드
+\begin{frame}{contents}
+    \tableofcontents
+\end{frame}
+
+\section{Expectation}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{definition}[Expectation of a discrete r.v.]
+        The \tb{expected value} (also called the \tb{expectation} or \tb{mean}) of a discrete r.v. $X$ whose distinct possible values are $x_1, x_2, \dots$ is defined by 
+        \[
+            E(X) = \sum_x x P(X=x)
+        \]
+        or infinite form
+        \[
+            E(X) = \sum^\infty_{j=1} x_j P(X=x_j)
+        \]
+
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Rolling dice]
+        Let $X \sim \text{Bern}(p)$ and $q = 1-p$.
+        \[
+            E(X) = 1p +0q = p
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Linearity of expectation]
+        For any r.v.s $X$, $Y$ and any constant $c$, 
+        \[
+        \begin{gathered}
+            E(X+Y)=E(X) + E(Y)\\
+            E(cX) = cE(X)
+        \end{gathered}
+        \]
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Binomial expectation]
+        For $X \sim \text{Bin}(n,p)$
+        \[
+            \begin{aligned}
+                E(X) &= \sum_{k=0}^n k P(X=k) = \sum_{k=0}^n k \binom{n}{k} p^k q^{n-k}\\
+                &= n \sum^n_{k=0} \binom{n-1}{k-1} p^k q^{n-k} \quad (\because k \binom{n}{k} = n \binom{n-1}{k-1})\\
+                &= np \sum^n_{k=1} \binom{n-1}{k-1} p^{k-1} q^{n-k} = np \sum_{j=0}^{n-1} \binom{n-1}{j}p^j q^{n-1-j} \\
+                &= np \quad (\because \binom{n-1}{j}p^j q^{n-1-j} = (p + q)^{n-1} = 1)
+            \end{aligned}
+        \]
+        For $X = I_1 + \dots + I_n, I_k \sim Berp(p)$, $E(X) = E(I_1) + \cdots + E(I_n) = np$
+    \end{example}
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{definition}[Geometric distribution]
+        Consider a sequence of independent Bernoulli trials, each with the same success probability $p \in (0,1)$, with trials repeated until success. Let $X$ be the number of trials before the first successful trial. Then $X$ has a \tb{geometric distribution} with parameter $p$. we denote this by $X \sim \text{Geom}(p)$.\newline
+    \end{definition}
+
+    Remine TD$(\lambda)$
+    \[
+        G^\lambda_t = (1-\lambda) \sum^\infty_{n=1} \lambda^{n-1} G_{t:t+n}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Geometric PMF]
+        If $X\sim\text{Geom}(p)$, then the PMF of $X$ is 
+        \[
+            P(X=k) = q^k p
+        \]
+        for $k = 0,1,2,\dots, $ wehre $Q = 1-p$
+    \end{theorem}
+    Note that summing a geometric series, we have
+    \[
+        \sum^\infty_{k=0} q^k p = p \sum^\infty_{k=0} q^k = p \cdot \frac{1}{1-q} = 1
+    \]
+    (Sum of probabilities should be $1$)
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Geometric expectation]
+        Let $X \sim \text{Geom}(p)$. By definition,
+        \[
+            E(X) = \sum^\infty_{k=0} k q ^k p = \frac{q}{p}
+        \]
+    \end{example}
+    \begin{block}{Proof}
+        \[
+            \begin{gathered}
+                \sum^\infty_{k=0} q^k = \frac{1}{1-q}\\
+                \sum^{\infty}_{k=0} kq^{k-1} =\frac{1}{(1-q)^2}\quad \text{(derivative both sides)}\\
+                \therefore E(X) = \sum^{\infty}_{k=0} k q^k p = pq \sum^\infty_{k=0} k q^{k-1} = pq \frac{1}{(1-q)^2} = \frac{q}{p}
+            \end{gathered}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{definition}[Negative Binomial distribution]
+        In a sequence of independent Bernoulli trials with success probability $p$, if $X$ is the number of \ti{failures} before the $r$th success, then $X$ is said to have the \tb{Negative Binomial distribution} with parameters with parameters $r$ and $p$, denoted $X \sim \text{NBin}(r, p)$\newline
+
+        if $X \sim NBin(r,p)$, then, the PMF of $X$ is
+        \[
+            P(X=n) = \binom{n+r-1}{r-1} p^r q^n
+        \]
+        for $n=0,1,2, \dots, $ where $q=1-p$
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Negative Binomial expectation]
+        Let $X \sim \text{NBin}(r,p)$. Then $X = X_1 + \cdots + X_r$, where the $X_i$ are i.i.d. $Geom(p)$. By linearity, 
+        \[
+            E(X) = E(X_1) + \cdots + E(X_r) = r \cdot \frac{q}{p}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{block}{Note}
+
+    \end{block}
+\end{frame}
+
+\begin{frame}{Expectation}
+    Indicator r.v.  $I_A$ or ($I(A)$) for an event $A$ is defined to be $1$ if $A$ occurs and $0$ otherwise. So $I_A \sim \text{Bern}(p)$. 
+    \begin{theorem}[Indicator r.v. properties]
+        Let $A$ and $B$ be events. Then the following properties hold
+        \begin{enumerate}
+            \item $(I_A)^k = I_A$ for any positive integer $k$
+            \item $I_{A^c} = 1 - I_A$
+            \item $I_{A \cap B} = I_A I_B$
+            \item $I_{A \cup B} = I_A + I_B - I_A I_B$
+        \end{enumerate}
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Fundamental bridge between probability and expectation (Skip)]
+        There is a \ti{one-to-one} correspondence between events and indicator r.v.s, and the probability of an event $A$ is the expected value of its indicator r.v. $I_A$: 
+        \[
+        P(A) = E(I_A)
+        \]
+    \end{theorem}
+
+    Proof. For any event $A$, we have an indicator r.v. $I_A$. This is a one-to-one correspondence since $A$ uniquely determines $I_A$ and vice versa (to get from $I_A$ back to $A$, we can use the fact that $A = \{s \in S: I_A(s) = 1\}$). Since $I_A \sim \text{Bern}(p)$ with $p = P(A)$, we have $E(I_A) = P(A)$
+\end{frame}
+
+\end{document}
