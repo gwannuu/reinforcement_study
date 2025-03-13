@@ -126,7 +126,9 @@ if __name__ == "__main__":
     run_name = f"{args.env_id}__{args.exp_name}__{int(time.time())}"
     if args.track:
         import wandb
+        import os
 
+        wandb.login(key=os.environ["WANDB_API_KEY"])
         run = wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
