@@ -249,7 +249,7 @@ if __name__ == "__main__":
     torch.save(q_network.cpu().state_dict(), model_path)
     print(f"model saved to {model_path}")
 
-    envs.close()
+    envs.reset()
     # if args.upload_model:
     #     from cleanrl_utils.huggingface import push_to_hub
 
