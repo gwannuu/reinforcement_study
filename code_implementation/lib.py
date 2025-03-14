@@ -4,8 +4,8 @@ import numpy as np
 import torch
 
 
-device = "mps"
-# device= "cuda:1"
+#device = "mps"
+device= "cuda:1"
 
 
 def seed_setting(seed=42, deterministic=True):
