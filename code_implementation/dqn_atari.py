@@ -52,13 +52,13 @@ class Args:
     env_id: str = "ALE/Breakout-v5"
     # env_id: str = "CartPole-v1"
     """the id of the environment"""
-    total_timesteps: int = 10000000
+    total_timesteps: int = 50000000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 50000
+    buffer_size: int = 1000000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -70,17 +70,20 @@ class Args:
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.05
+    end_e: float = 0.1
     """the ending epsilon for exploration"""
-    exploration_fraction: float = 0.5
+    exploration_fraction: float = 0.05
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 50000
+    learning_start_timestep: int = 50000
     """timestep to start learning"""
-    train_frequency: int = 50
+    update_frequency: int = 1
     """the frequency of training"""
-    save_frequency: int = 20000
+    save_every_n_episodes: int = 20000
     """the frequency of training model saving and video per episode"""
-    logging_frequency: int = 10
+    log_every_n_updates: int = 10
+    """Logging occurs once every specified number"""
+    log_episodic_info_every_n_episodes: int = 10
+    """Logging related to episodes (eposode length, total reward, etc) occurs once every specified number"""
 
 
 def make_train_env_list(args):
@@ -91,8 +94,7 @@ def make_train_env_list(args):
                 env = gym.wrappers.RecordVideo(
                     env,
                     video_folder=f"runs/{run_name}/videos",
-                    video_length=1000,
-                    episode_trigger=lambda x: x % (args.save_frequency / 5) == 0,
+                    episode_trigger=lambda x: x % (args.save_every_n_episodes / 5) == 0,
                 )
             else:
                 env = gym.make(args.env_id)
@@ -244,13 +246,11 @@ if __name__ == "__main__":
         obs = next_obs
 
         if truncations or terminations:
-            log_dict["train/episode"] = episode_step
-            log_dict["train/episodic_return"] = episodic_return
-            log_dict["train/episodic_length"] = episodic_length
-            if (
-                global_step > args.learning_starts
-                and episode_step % args.save_frequency == 0
-            ):
+            if episode_step % args.log_episodic_info_every_n_episodes == 0:
+                log_dict["train/episode"] = episode_step
+                log_dict["train/episodic_return"] = episodic_return
+                log_dict["train/episodic_length"] = episodic_length
+            if global_step < args.learning_start_timestep and episode_step % args.save_every_n_episodes == 0:
                 model_path = f"runs/{run_name}/{episode_step}.pth"
                 torch.save(q_network.state_dict(), model_path)
             episode_step += 1
@@ -258,8 +258,8 @@ if __name__ == "__main__":
             episodic_return = 0
 
         # ALGO LOGIC: training.
-        if global_step > args.learning_starts:
-            if global_step % args.train_frequency == 0:
+        if global_step > args.learning_start_timestep:
+            if global_step % args.update_frequency == 0:
                 data = rb.sample(args.batch_size)
                 q_values = q_network(data.observations.to(device))
                 q_values = torch.gather(q_values, dim=1, index=data.actions)
@@ -280,17 +280,19 @@ if __name__ == "__main__":
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
-                training_step += 1
 
-                log_dict["train/training_step"] = training_step
-                log_dict["train/loss"] = loss.item()
-                log_dict["train/lr"] = optimizer.param_groups[0]["lr"]
-                log_dict["train/epsilon"] = epsilon
+                if training_step % args.log_every_n_updates == 0:
+                    log_dict["train/training_step"] = training_step
+                    log_dict["train/loss"] = loss.item()
+                    log_dict["train/lr"] = optimizer.param_groups[0]["lr"]
+                    log_dict["train/epsilon"] = epsilon
+
+                training_step += 1
 
             # update target network
             if global_step % args.target_network_frequency == 0:
                 target_network.load_state_dict(q_network.state_dict())
-        if log_dict.keys() is not None:
+        if log_dict.keys() is not None and args.track:
             wandb.log(data=log_dict, step=global_step)
 
     model_path = f"runs/{run_name}/latest.pth"
