@@ -33,20 +33,10 @@ class Args:
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
-    track: bool = True
-    """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "dqn-atari-breakout"
-    """the wandb's project name"""
-    wandb_entity: str = None
-    """the entity (team) of wandb's project"""
     capture_video: bool = True
     """whether to capture videos of the agent performances (check out `videos` folder)"""
     # save_model: bool = True
     """whether to save model into the `runs/{run_name}` folder"""
-    upload_model: bool = False
-    """whether to upload the saved model to huggingface"""
-    hf_entity: str = ""
-    """the user or org name of the model repository from the Hugging Face Hub"""
 
     # Algorithm specific arguments
     env_id: str = "ALE/Breakout-v5"
@@ -85,6 +75,14 @@ class Args:
     log_episodic_info_every_n_episodes: int = 10
     """Logging related to episodes (eposode length, total reward, etc) occurs once every specified number"""
 
+    track: bool = True
+    """if toggled, this experiment will be tracked with Weights and Biases"""
+    wandb_entity: str = None
+    """the entity (team) of wandb's project"""
+    upload_model: bool = False
+    """whether to upload the saved model to huggingface"""
+    hf_entity: str = ""
+    """the user or org name of the model repository from the Hugging Face Hub"""
 
 def make_train_env_list(args):
     def thunk(idx):
@@ -158,9 +156,10 @@ if __name__ == "__main__":
         import wandb
         import os
 
+        env_id = args.env_id.split("/")[-1]
         wandb.login(key=os.environ["WANDB_API_KEY"])
         run = wandb.init(
-            project=args.wandb_project_name,
+            project=f"dqn-{env_id}",
             entity=args.wandb_entity,
             config=vars(args),
             name=run_name,
