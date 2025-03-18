@@ -5,7 +5,7 @@ import torch
 
 
 #device = "mps"
-device= "cuda:1"
+device= "cuda:3"
 
 
 def seed_setting(seed=42, deterministic=True):
