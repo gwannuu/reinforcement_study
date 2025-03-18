@@ -58,7 +58,7 @@ class Args:
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 200000
+    buffer_size: int = 50000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -72,9 +72,9 @@ class Args:
     """the starting epsilon for exploration"""
     end_e: float = 0.05
     """the ending epsilon for exploration"""
-    exploration_fraction: float = 0.7
+    exploration_fraction: float = 0.5
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 200000
+    learning_starts: int = 50000
     """timestep to start learning"""
     train_frequency: int = 50
     """the frequency of training"""
