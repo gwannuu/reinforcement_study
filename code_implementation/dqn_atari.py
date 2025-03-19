@@ -66,7 +66,7 @@ class Args:
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
     learning_start_timestep: int = 50000
     """timestep to start learning"""
-    update_frequency: int = 1
+    update_frequency: int = 10
     """the frequency of training"""
     save_every_n_episodes: int = 20000
     """the frequency of training model saving and video per episode"""
@@ -249,7 +249,7 @@ if __name__ == "__main__":
                 log_dict["train/episode"] = episode_step
                 log_dict["train/episodic_return"] = episodic_return
                 log_dict["train/episodic_length"] = episodic_length
-            if global_step < args.learning_start_timestep and episode_step % args.save_every_n_episodes == 0:
+            if global_step > args.learning_start_timestep and episode_step % args.save_every_n_episodes == 0:
                 model_path = f"runs/{run_name}/{episode_step}.pth"
                 torch.save(q_network.state_dict(), model_path)
             episode_step += 1
