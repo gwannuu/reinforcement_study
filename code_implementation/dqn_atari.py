@@ -51,7 +51,7 @@ class Args:
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 1000000
+    buffer_size: int = 100000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -78,7 +78,7 @@ class Args:
     log_episodic_info_every_n_episodes: int = 10
     """Logging related to episodes (eposode length, total reward, etc) occurs once every specified number"""
 
-    track: bool = False
+    track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
