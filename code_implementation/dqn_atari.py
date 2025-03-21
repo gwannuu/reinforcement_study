@@ -320,16 +320,8 @@ if __name__ == "__main__":
         real_next_obs = next_obs.copy()
         if actions.ndim == 1:
             actions = actions[:, None]
-        for idx, (ter, trunc) in enumerate(zip(truncations, terminations)):
-            if not (ter or trunc):
-                rb.add(
-                    obs,
-                    real_next_obs,
-                    actions,
-                    rewards,
-                    terminations,
-                    infos,
-                )
+
+        rb.add(obs, real_next_obs, actions, rewards, np.logical_or(terminations, truncations), infos)
 
         # TRY NOT TO MODIFY: CRUCIAL step easy to overlook
         obs = next_obs
