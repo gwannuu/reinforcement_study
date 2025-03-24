@@ -247,13 +247,7 @@ if __name__ == "__main__":
             monitor_gym=True,
             save_code=True,
         )
-        wandb.define_metric("train/episodic_return", step_metric="train/episode")
-        wandb.define_metric("train/episodic_length", step_metric="train/episode")
-        wandb.define_metric("train/loss", step_metric="train/training_step")
-        wandb.define_metric("train/lr", step_metric="train/training_step")
-        wandb.define_metric("train/epsilon", step_metric="train/training_step")
 
-        # wandb.define_metric("train/*", step_metric="train/step")
 
     # TRY NOT TO MODIFY: seeding
     seed_setting(args.seed, args.torch_deterministic)
