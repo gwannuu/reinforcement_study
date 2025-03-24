@@ -63,7 +63,7 @@ class Args:
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.1
+    end_e: float = 0.01
     """the ending epsilon for exploration"""
     exploration_fraction: float = 0.05
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
