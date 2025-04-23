@@ -1,0 +1,533 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+% 테마 선택 (선택 사항)
+\usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\pois}[1]{\text{Pois}(#1)}
+
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Probability}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% 목차 슬라이드
+\begin{frame}{contents}
+    \tableofcontents
+\end{frame}
+
+\section{Expectation}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{definition}[Expectation of a discrete r.v.]
+        The \tb{expected value} (also called the \tb{expectation} or \tb{mean}) of a discrete r.v. $X$ whose distinct possible values are $x_1, x_2, \dots$ is defined by 
+        \[
+            E(X) = \sum_x x P(X=x)
+        \]
+        or infinite form
+        \[
+            E(X) = \sum^\infty_{j=1} x_j P(X=x_j)
+        \]
+
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Bernoulli expectation]
+        Let $X \sim \text{Bern}(p)$ and $q = 1-p$.
+        \[
+            E(X) = 1p +0q = p
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Linearity of expectation]
+        For any r.v.s $X$, $Y$ and any constant $c$, 
+        \[
+        \begin{gathered}
+            E(X+Y)=E(X) + E(Y)\\
+            E(cX) = cE(X)
+        \end{gathered}
+        \]
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Binomial expectation]
+        For $X \sim \text{Bin}(n,p)$
+        \[
+            \begin{aligned}
+                E(X) &= \sum_{k=0}^n k P(X=k) = \sum_{k=0}^n k \binom{n}{k} p^k q^{n-k}\\
+                &= n \sum^n_{k=0} \binom{n-1}{k-1} p^k q^{n-k} \quad (\because k \binom{n}{k} = n \binom{n-1}{k-1})\\
+                &= np \sum^n_{k=1} \binom{n-1}{k-1} p^{k-1} q^{n-k} = np \sum_{j=0}^{n-1} \binom{n-1}{j}p^j q^{n-1-j} \\
+                &= np \quad (\because \binom{n-1}{j}p^j q^{n-1-j} = (p + q)^{n-1} = 1)
+            \end{aligned}
+        \]
+        For $X = I_1 + \dots + I_n, I_k \sim Berp(p)$, $E(X) = E(I_1) + \cdots + E(I_n) = np$
+    \end{example}
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{definition}[Geometric distribution]
+        Consider a sequence of independent Bernoulli trials, each with the same success probability $p \in (0,1)$, with trials repeated until success. Let $X$ be the number of trials before the first successful trial. Then $X$ has a \tb{geometric distribution} with parameter $p$. we denote this by $X \sim \text{Geom}(p)$.\newline
+    \end{definition}
+
+    Remine TD$(\lambda)$
+    \[
+        G^\lambda_t = (1-\lambda) \sum^\infty_{n=1} \lambda^{n-1} G_{t:t+n}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Geometric PMF]
+        If $X\sim\text{Geom}(p)$, then the PMF of $X$ is 
+        \[
+            P(X=k) = q^k p
+        \]
+        for $k = 0,1,2,\dots, $ wehre $Q = 1-p$
+    \end{theorem}
+    Note that summing a geometric series, we have
+    \[
+        \sum^\infty_{k=0} q^k p = p \sum^\infty_{k=0} q^k = p \cdot \frac{1}{1-q} = 1
+    \]
+    (Sum of probabilities should be $1$)
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Geometric expectation] \label{ex:geometric_expectation}
+        Let $X \sim \text{Geom}(p)$. By definition,
+        \[
+            E(X) = \sum^\infty_{k=0} k q ^k p = \frac{q}{p}
+        \]
+    \end{example}
+    \begin{block}{Proof}
+        \[
+            \begin{gathered}
+                \sum^\infty_{k=0} q^k = \frac{1}{1-q}\\
+                \sum^{\infty}_{k=0} kq^{k-1} =\frac{1}{(1-q)^2}\quad \text{(derivative both sides)}\\
+                \therefore E(X) = \sum^{\infty}_{k=0} k q^k p = pq \sum^\infty_{k=0} k q^{k-1} = pq \frac{1}{(1-q)^2} = \frac{q}{p}
+            \end{gathered}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{definition}[Negative Binomial distribution]
+        In a sequence of independent Bernoulli trials with success probability $p$, if $X$ is the number of \ti{failures} before the $r$th success, then $X$ is said to have the \tb{Negative Binomial distribution} with parameters with parameters $r$ and $p$, denoted $X \sim \text{NBin}(r, p)$\newline
+
+        if $X \sim NBin(r,p)$, then, the PMF of $X$ is
+        \[
+            P(X=n) = \binom{n+r-1}{r-1} p^r q^n
+        \]
+        for $n=0,1,2, \dots, $ where $q=1-p$
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Negative Binomial expectation]
+        Let $X \sim \text{NBin}(r,p)$. Then $X = X_1 + \cdots + X_r$, where the $X_i$ are i.i.d. $Geom(p)$. By linearity, 
+        \[
+            E(X) = E(X_1) + \cdots + E(X_r) = r \cdot \frac{q}{p}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    Indicator r.v.  $I_A$ or ($I(A)$) for an event $A$ is defined to be $1$ if $A$ occurs and $0$ otherwise. So $I_A \sim \text{Bern}(p)$. 
+    \begin{theorem}[Indicator r.v. properties]
+        Let $A$ and $B$ be events. Then the following properties hold
+        \begin{enumerate}
+            \item $(I_A)^k = I_A$ for any positive integer $k$
+            \item $I_{A^c} = 1 - I_A$
+            \item $I_{A \cap B} = I_A I_B$
+            \item $I_{A \cup B} = I_A + I_B - I_A I_B$
+        \end{enumerate}
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Fundamental bridge between probability and expectation]
+        There is a \ti{one-to-one} correspondence between events and indicator r.v.s, and the probability of an event $A$ is the expected value of its indicator r.v. $I_A$: 
+        \[
+        P(A) = E(I_A)
+        \]
+    \end{theorem}
+
+    Proof. For any event $A$, we have an indicator r.v. $I_A$. This is a one-to-one correspondence since $A$ uniquely determines $I_A$ and vice versa (to get from $I_A$ back to $A$, we can use the fact that $A = \{s \in S: I_A(s) = 1\}$). Since $I_A \sim \text{Bern}(p)$ with $p = P(A)$, we have $E(I_A) = P(A)$
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Expectation via survival function] \label{thm:expectation_via_survival_function}
+        Let $X$ be a nonnegative integer-valued r.v. Let $F$ be the $CDF$ of $X$, and $G(x)=1-F(x)=P(X>x)$. The function $G$ is called the \tb{survival function} of $X$. Then
+        \[
+            E(X) = \sum^\infty_{k=0} G(n)
+        \]
+        That is, we can obtain the expectation of $X$ by summing up the survival function (or \ti{tail probability of the distribution})
+    \end{theorem}
+    Proof. We can represent $X$ as a sum of indicator r.v.s.: $X = I_1 + I_2 + \cdots + I_b$, where $I_n = I(X \geq n)$. (ex: if $X=5$, then $I_1, \cdots, I_5 = 1$ and $I_6, \cdots = 0$) Then
+    \[
+        E(X) = \sum^b_{k=1} E(I_k) = \sum^b_{k=1} P(X \geq k ) = \sum^{b-1}_{n=0} P(X > n) = \sum^\infty_{n=0} G(n)
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Rolling dice expectation via survival function]
+        Suppose $X$ is the r.v. that represents the number of rolls of a fair die. Then $E(X) = \sum^\infty_{n=0}G(n) = \frac{(6+5+4+3+2+1+0)}{6}$
+    \end{example}
+    \begin{example}[Geometric expectation redux]
+        Let $X \sim \text{Geom}(p)$, and $q = 1-p$. Using the Geometric story, $\{X > n\}$ is the event that the first $n+1$ trials are all failures. So by \cref{thm:expectation_via_survival_function},
+        \[
+            E(X) = \sum^\infty_{n=0} P(X >n) = \sum^\infty_{n=0} q^{n+1}= \frac{q}{1-q} = \frac{q}{p}
+        \]
+    \end{example}
+    Compare procedures with \cref{ex:geometric_expectation}.
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{itemize}
+        \item In general, $E(g(X)) \neq g(E(X))$ for arbitrary function $g$. 
+        \item Therefore to find $E(g(X))$, first we have to know the distribution of $g(X)$ and apply the definition of expectation, $E(g(X))$.
+        \item But what if $g(x)$ is difficult to determine? or hard to calculate? 
+        \item Perhaps surprisingly, by $LOTUS$, without having to find the distrubition of $g(X)$, it is possible to find $E(g(X))$.
+    \end{itemize}
+    \begin{theorem}[\tb{Law of the unconscious statistician (LOTUS)}]
+        If $X$ is a discrete r.v. and $g$ is a function from $\mbb{R}$ to $\mbb{R}$, then
+        \[
+            E[g(X)] = \sum_x g(x)P(X = x)
+        \]
+    \end{theorem}
+\end{frame}
+
+\begin{frame}
+    (LOTUS) Let $X$ have support $0, 1, 2, \cdots$ with probabilities $p_0, p_1, p_2, \dots$ so the PMF is $P(X=n)=p_n$. Then $X^3$ has support $0^3, 1^3, 2^3, \dots$ with probabilities $p_0, p_1, P-2, \dots$, So
+    \[
+    \begin{gathered}
+        E(X) = \sum^\infty_{n=0} np_n,\\
+        E(X^3) = \sum^\infty_{n=0} n^3 p_n,
+    \end{gathered}
+    \]
+
+\end{frame}
+
+\begin{frame}{Expectation}
+    LOTUS Proof.(skip)
+    \[
+    \begin{aligned}
+        E(g(X)) &= \sum_s g(X(s))P(\{s\}) \\
+        &= \sum_x \sum_{s:X(s)=x} g(X(s)) P(\{s\})\\
+        &= \sum_x g(x) \sum_{s:X(s)=x} P(\{s\}) \\
+        &= \sum_x g(x) P(X=x)
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    One important application of LOTUS is for finding the \tb{variance} of a random variable.
+    \begin{definition}[Variance and standard deviation]
+        The \tb{variance} of an r.v. $X$ is
+        \[ Var(X) = E(X-EX)^2\]
+        THe square root of the variance is called the \tb{standard deviation} (SD)
+        \[SD(X) = \sqrt{Var(X)}\]
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}
+        For any r.v. $X$,
+        \[
+            Var(X) = E(X^2) - (EX)^2
+        \]
+    \end{theorem}
+    Proof. Let $\mu = EX$. Then
+    \[
+        E(X-\mu)^2 = E(X^2 - 2\mu X + \mu^2) = E(X^2) - 2\mu EX +\mu^2 = E(X^2) - \mu^2. \qed
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    Variance has the following properties.
+    \begin{itemize}
+        \item $Var(X+c) = Var(X)$ for any constant $c$ (By def. of variance).
+        \item $Var(cX) = c^2 Var(X)$ for any constnat $c$ (By def. of variance).
+        \item If $X$ and $Y$ are independent, then $Var(X+Y) = Var(X) + Var(Y)$ (Proof in chapter 7).
+        \begin{itemize}
+            \item If $X$ and $Y$ are dependent, then equation is not hold.
+            \item For example, if $X$ is always equals $Y$, we have \[
+                Var(X+Y) = Var(2X) = 4Var(X) \neq 2Var(X) = Var(X) + Var(Y)
+            \]
+        \end{itemize}
+        \item $Var(X) \geq 0$, with equality if and only if $P(X=a)=1$ for some constant $a$ (By def. of variance).
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{example}[Geometric variance]
+        Let $X \sim \text{Geom}(p)$. We already know $E(X)=\frac{q}{p}$. By LOTUS,
+        \[
+        \begin{gathered}
+            E(X^2) = \sum^\infty_{k=0} k^2 P(X=k)=\sum^\infty_{k=0} k^2 p q^k = \sum^\infty_{k=0} k^2 p q^k = \sum^{\infty}_{k=1} k^2 p q^k \\
+            = pq \frac{1+q}{(1-q)^3} = \frac{q(1+q)}{p^2}
+        \end{gathered}
+        \].
+    \end{example}
+    Use fact that 
+    \[
+        \begin{gathered}
+            \sum^\infty_{k=0} q^k = \frac{1}{1-q}\quad
+            \sum^\infty_{k=1}kq^{k-1} = \frac{1}{(1-q)^2}\\
+            \sum^\infty_{k=1}kq^k = \frac{q}{(1-q)^2}\quad
+            \sum^\infty_{k=1}k^2 q^{k-1} = \frac{1+q}{(1-q)^3}
+        \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Geometric Variance (continuous)]
+        \[
+        Var(X) = E(X^2) - (EX)^2 = \frac{q(1+q)}{p^2} - \frac{q}{p}^2 = \frac{q}{p^2}
+        \].
+    \end{example}
+\end{frame}
+
+
+
+\begin{frame}{Expectation}
+    \begin{example}[Binomial variance]
+        Let $X \sim \text{Bin}(n,p)$ using indicator r.v.s to avoid tedious sums, $X=I_1+I_2+\cdots+I_n$, where $I_j$ is the indicator of the $j$th trial being a success. Each $I_j$ has variance
+        \[
+        Var(I_j) = E(I_j^2) - (E(I_j))^2 = p - p^2 = p(1-p)
+        \]
+        Since the $I_j$ are independent, we can add their variances to get the variance of their sum:
+        \[
+        Var(X) = Var(I_1) + \cdots + Var(I_n) = np(1-p)
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \tb{Poission distribution} is an extremely popular \tb{discrete} distribution for modeling \ti{discrete data}.
+    \begin{itemize}
+        \item Note that $\sum^\infty_{k=0} \frac{\lambda^k}{k!}$ by taylor series.
+    \end{itemize}
+    \begin{definition}[Poission distribution]
+        An r.v. $X$ has the \tb{Poission distribution} with parameter $\lambda$, where
+        $\lambda > 0$, if the PMF of $X$ is
+        \[P(X=k)=\frac{e^{-\lambda}\lambda^k}{k!},\quad k=0,1,2,\dots\]
+        It is denoted by $X \sim \text{Pois}(\lambda)$.
+    \end{definition}
+    Poission distribution is a valid PMF because $\sum^\infty_{k=0} \frac{e^{-\lambda}\lambda^k}{k!} = e^{-\lambda} \sum^\infty_{k=0} \frac{\lambda^k}{k!} = e^{-\lambda}e^{\lambda} = 1$
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Poisson expectation]
+        Let $X \sim \text{Pois}(\lambda)$. We will show that the mean and variance are both equal to $\lambda$. For the mean, we have 
+        \[
+        \begin{aligned}
+            E(X) &= e^{-\lambda} \sum^\infty_{k=0} k \frac{\lambda^k}{k!} \\
+            &= e^{-\lambda} \sum^\infty_{k=1} k\frac{\lambda^k}{k!} \\
+            &= \lambda e^{-\lambda} \sum^\infty_{k=1} \frac{\lambda^{k-1}}{(k-1)!} \\
+            &= \lambda e^{-\lambda} e^{\lambda} = \lambda
+        \end{aligned}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Poisson variance]
+        Let $X \sim \text{Pois}(\lambda)$. We will show that the mean and variance are both equal to $\lambda$. For the variance, we have 
+        \[
+        \begin{aligned}
+            E(X^2) &= e^{-\lambda} \sum^\infty_{k=0} k^2 \frac{\lambda^k}{k!}
+            = e^{-\lambda} e^\lambda \lambda (1+\lambda) = \lambda (1+\lambda)
+        \end{aligned}
+        \]
+        Therefore, $Var(X) = E(X^2) - (EX)^2 = \lambda$
+    \end{example}
+
+    Note that
+    \begin{itemize}
+        \item $\sum^\infty_{k=0}\frac{\lambda^k}{k!} = e^\lambda$, $\sum^\infty_{k=1} k \frac{\lambda^{k-1}}{k!}=e^\lambda$, $\sum^\infty_{k=1}k\frac{\lambda^k}{k!}=\lambda e^\lambda$
+        \item $\sum^\infty_{k=1} k^2 \frac{\lambda^{k-1}}{k!}=e^\lambda + \lambda e^\lambda=e^\lambda (1 + \lambda)$, $\sum^\infty_{k=1} k^2 \frac{\lambda^k}{k!} = e^\lambda \lambda (1 + \lambda)$
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Expectation}
+    Poisson Distribution is highly related with \textbf{counting nonnegative integers} (called \textit{count data} in statistics)
+
+    \begin{block}{Approximation (Poisson paradigm)}
+        Let $A_1, \dots, A_n$ be events with $p_j = P(A_j)$, where $n$ is large, the $p_j$ are small, and the $A_j$ are independent or weakly dependent. Let
+        $$X = \sum^n_{j=1}I(A_j)$$
+        count how many of the $A_j$ occur. Then $X$ is approximatey distributed as $\pois{\lambda}$, where $\lambda = \sum^n_{j=1} p_j$
+    \end{block}
+
+    Detailed proof of approximation can be shown using an advanced technique known as the \textit{Stein-Chen method}.
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Balls in boxes]
+        There are $k$ distinguishable balls and $n$ distinguishable boxes. The balls are randomly placd in the boxes, with all $n^k$ possibilities equally likely. Problems in this setting are called $\textit{occupancy problems}$, and are at the core of many widely used algorithms in computer science.
+        \begin{enumerate}
+            \item Find the expected number of empty boxes
+            \item Find the probability that at least one box is empty.
+            \item Now let $n=1000$, $k=5806$. THe expected number of empty boxes is then approximately $3$. Find a good approximation for the probability that at least one box is empty. (use the fact $e^3 \approx 20$)
+        \end{enumerate}
+    \end{example}
+\end{frame}
+
+% \begin{frame}{Expectation}
+%     Find the expected number of empty boxes
+
+%     \newline
+%     Let $I_j$ be the indicator r.v. for the $j$th box being empty.
+
+% \end{frame}ss
+
+\begin{frame}
+    \begin{itemize}
+        \item Find the expected number of empty boxes
+    \end{itemize}
+
+    Let denote $I_j$ the indicator $j$-th box is empty (i.e. $I_j=1$ indicates the $j$-th box is empty)
+    $P(I_j=1) = E[I_j] = (\frac{n-1}{n})^k$
+
+    $\sum_{i=1}^n$ indicates that $n$ number of boxes is empty.
+
+    $E[\sum_{j=1}^n I_j] = \sum_{j=1}^n E[I_j] = n(\frac{n-1}{n})^k$ 
+
+    \begin{itemize}
+        \item Find the probability that at least one box is empty
+    \end{itemize}
+
+    Let denote $A_j$ is the event that $j$-th box is empty. we want to find $P(A_1 \cap A_2 \cap \dots \cap A_n)$. By inclusive-exclusive rule of probability, $P(A_1 \cap A_2 \cap \dots \cap A_n) = \sum_{j=1}^n (-1)^{j+1} \binom{n}{j} P(A_1 \cap A_2 \cap \dots A_j) = \sum_{j=1}^n (-1)^{j+1} \binom{n}{j} P(1 - \frac{j}{n})^k$
+
+    \begin{itemize}
+        \item Now let $n=1000$, $k=5806$. THe expected number of empty boxes is then approximately $3$. Find a good approximation for the probability that at least one box is empty. (use the fact $e^3 \approx 20$)
+    \end{itemize}
+
+    The number of empty boxes is approximately $\text{Pois}(3)$ because there exists many boxes and event that each box becomes empty is rare. $P(X \geq 1) =  1 - P(X = 0) = 1 - e^{-3} \approx 0.95$
+
+\end{frame}
+
+\begin{frame}{Expectation}
+    Poission and Binomial distribution are closely related.
+    \begin{itemize}
+        \item we can get from the Poission to the Binomial by conditioning
+        \item we can get from the Binomial to Poission by taking a limit
+    \end{itemize}
+
+    \begin{theorem}[Sum of independent Poissions]
+        If \(X \sim \text{Pois}(\lambda_1), Y \sim \text{Pois}(\lambda_2),\) and \(X\) is independent of \(Y\), then \(X + Y \sim \pois{\lambda_1 + \lambda_2}\)
+    \end{theorem}
+    Proof.
+    \[
+        \begin{aligned}
+            P(X+Y=k) &= \sum_{j=0}^k P(X+Y=k|X=j) P(X=j)\\
+            &= \sum_{j=0}^k P(Y=k-j) P(X=j) \\
+            &= e^{-\lambda_2} \frac{\lambda_2^{k-j}}{(k-j)!} e^{-\lambda_1} \frac{\lambda_1^{j}}{j!} = e^{-(\lambda_1+\lambda_2)} \sum_{j=0}^k \frac{\lambda_2^{k-j} \lambda_1^{j}}{(k-j)! j!} \\
+            &= \frac{e^{-(\lambda_1 + \lambda_2)}}{k!} \sum_{j=0}^k \binom{k}{j} \lambda_2^{k-j} \lambda_1^j = \frac{e^{-(\lambda_1 + \lambda_2)} (\lambda_1 + \lambda_2)^k}{k!}
+        \end{aligned}
+    \]
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poisson given a sum of Poissons]
+        If \(X \sim \operatorname{Pois}(\lambda_1), Y \sim \operatorname{Pois}(\lambda_2)\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\operatorname{Bin}(n, \lambda_1 / (\lambda_1 + \lambda_2))\).
+    \end{theorem}
+    Proof. 
+    \[
+    \begin{aligned}
+        P(X=k|X+Y=n) &= \frac{P(X+Y=n|X=k)P(X=k)}{P(X+Y=n)} \\
+        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-\lambda_1 + \lambda_2}(\lambda_1 + \lambda_2)^{n}} \\
+        &= \binom{n}{k} \frac{\lambda_2^{n-k}\lambda_1^{k}}{(\lambda_1 +\lambda_2)^{n}} = \binom{n}{k} \left(\frac{\lambda_2}{\lambda_1+\lambda_2}\right)^{n-k} \left(\frac{\lambda_1}{\lambda_1 + \lambda_2}\right)^k
+    
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poisson given a sum of Poissons]
+        If \(X \sim \operatorname{Pois}(\lambda_1), Y \sim \operatorname{Pois}(\lambda_2)\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\operatorname{Bin}(n, \lambda_1 / (\lambda_1 + \lambda_2))\).
+    \end{theorem}
+    Proof. 
+    \[
+    \begin{aligned}
+        P(X=k|X+Y=n) &= \frac{P(X+Y=n|X=k)P(X=k)}{P(X+Y=n)} \\
+        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-\lambda_1 + \lambda_2}(\lambda_1 + \lambda_2)^{n}} \\
+        &= \binom{n}{k} \frac{\lambda_2^{n-k}\lambda_1^{k}}{(\lambda_1 +\lambda_2)^{n}} = \binom{n}{k} \left(\frac{\lambda_2}{\lambda_1+\lambda_2}\right)^{n-k} \left(\frac{\lambda_1}{\lambda_1 + \lambda_2}\right)^k \\ 
+        &= \mybin{n}{\frac{\lambda_1}{\lambda_1 + \lambda_2}}
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poission given a sum of Poissions]
+        If \(X \sim \mybin{n}{p}\) and we let \(\mytoinf{n}\) and \(p \rightarrow 0\), and $\lambda = np$ remains fixed, then the PMF of \(X\) converges to the \(\mypois{\lambda}\).
+    \end{theorem}
+    Proof.
+    \[
+    \begin{aligned}
+        P(X=k) &= \binom{n}{k}p^k (1-p)^{n-k}
+        = \frac{n \times n-1 \times \dots \times n-k+1}{k!} \left(\frac{\lambda}{n}\right)^k \left(1- \frac{\lambda}{n}\right)^n\left(1- \frac{\lambda}{n}\right)^{-k} \\
+        &= \frac{\lambda^k}{k!} \frac{n \times n-1 \times \dots \times n-k+1}{n!} \left(1- \frac{\lambda}{n}\right)^n\left(1- \frac{\lambda}{n}\right)^{-k} \\
+        &\approx \frac{\lambda^k}{k!} e^{-\lambda} = P(X=k), X \sim \mypois{\lambda}
+    \end{aligned}
+    \]
+\end{frame}
+
+
+\end{document}
