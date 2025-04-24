@@ -365,7 +365,7 @@
         An r.v. $X$ has the \tb{Poission distribution} with parameter $\lambda$, where
         $\lambda > 0$, if the PMF of $X$ is
         \[P(X=k)=\frac{e^{-\lambda}\lambda^k}{k!},\quad k=0,1,2,\dots\]
-        It is denoted by $X \sim \text{Pois}(\lambda)$.
+        It is denoted by $X \sim \mypois{\lambda}$
     \end{definition}
     Poission distribution is a valid PMF because $\sum^\infty_{k=0} \frac{e^{-\lambda}\lambda^k}{k!} = e^{-\lambda} \sum^\infty_{k=0} \frac{\lambda^k}{k!} = e^{-\lambda}e^{\lambda} = 1$
 \end{frame}
@@ -486,7 +486,7 @@
 
 \begin{frame}{Expectation}
     \begin{theorem}[Poisson given a sum of Poissons]
-        If \(X \sim \operatorname{Pois}(\lambda_1), Y \sim \operatorname{Pois}(\lambda_2)\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\operatorname{Bin}(n, \lambda_1 / (\lambda_1 + \lambda_2))\).
+        If \(X \sim \mypois{\lambda}, Y \sim \mypois{\lambda_2}\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\mybin{n}{\lambda_1 / (\lambda_1 + \lambda_2)}\).
     \end{theorem}
     Proof. 
     \[
@@ -498,6 +498,8 @@
     \end{aligned}
     \]
 \end{frame}
+
+
 
 \begin{frame}{Expectation}
     \begin{theorem}[Poisson given a sum of Poissons]
