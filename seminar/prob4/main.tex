@@ -1,10 +1,14 @@
 \documentclass[8pt]{beamer}
 \usefonttheme[onlymath]{serif}
+
+
 % 테마 선택 (선택 사항)
 \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
 % \font{serif}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+
 
 % \setcounter{MaxMatrixCols}{20}
 
@@ -26,6 +30,8 @@
 \usepackage{hyperref}  % 하이퍼링크 추가
 \usepackage{cleveref}
 \usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
 
 
 \newcommand{\mrm}[1]{\mathrm{#1}}
@@ -225,7 +231,7 @@
     \textit{Proof.}
     \begin{itemize}
         \item Let $U \sim \myunif{0}{1}$ and $X = F^{-1}$. For all real $x$,
-         \[P(X \leq x) = P(F^{-1}(U)\leq x) = P(U \leq F(x)) = F(x)\]
+         \[P(X \leq x) = P(F^{-1}(U)\leq x) = P(U \leq F(x)) = \int_0^{F(x)} 1 du =F(x)\]
         \item Let $X$ have CDF, and find the CDF of $Y = F(X)$. Since $Y$ takes values in $(0,1)$, 
         \begin{itemize}
             \item $P(Y\leq y)$ equals $0$ for $y \leq 0$
@@ -244,5 +250,126 @@
     \]
 
 \end{frame}
+
+\begin{frame}{Continuous Random Variable}
+    \begin{example}[Universality with Logistic]
+        The Logistic CDF is $F = \frac{e^x}{1+e^x}, \forall x \in \mathbb{R}$ and $F^{-1} = \log{\frac{u}{1-u}}, \forall u \in (0,1)$. If we plug $U \sim \myunif{0}{1}$ in $F^{-1}$, then $F^{-1}(U) = \log{\frac{U}{1-U}}$.
+        \[\forall x \in \mathbb{R},
+        P\left(\log{\frac{U}{1-U}}\leq x\right) = P\left(U \leq \frac{e^x}{1+ e^x} \right)
+        \]
+        $\therefore \log{\frac{U}{1-U}} \sim$ Logistic. And also, $F(X) = \frac{e^X}{1+e^X} \sim \myunif{0}{1}$ 
+    \end{example}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.45\textwidth]{fig1.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Continuous Random Variable}
+    \begin{example}[Universality with Rayleigh]
+        The Rayleigh CDF is $F = 1 - e^{- x^2/2}, \forall x \in \mathbb{R}$ and $F^{-1} = \sqrt{-2 \log{(1-u)}}, \forall u \in (0,1)$.
+        $U \sim \myunif{0}{1} \implies \sqrt{-2 \log{(1-U)}} \sim $Layleigh, and $X \sim \text{Rayleigh} \implies F(X)=1-e^{-X^2/2} \sim \myunif{0}{1}$.
+    \end{example}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.52\textwidth]{fig2.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Continuous Random Variable}
+    Is Universality of the Uniform can be applied to discrete r.v.? Partially, yes.
+    For discrete r.v., it's CDF function doesn't have inverse $F^{-1}$ because $F$ of discrete r.v. has jumps and flat regions. We can instead using PMF.
+
+    Suppose we want to use $U \sim \myunif{0}{1}$ to construct a discrete r.v. $X$ with PMF $p_j = P(X=j)$ for $j=0,1,2,\dots,n$.
+    Consider the following trick that chop up the interval $(0,1)$ into pieces of lengths $p_0, p_1, \dots, p_n$
+    
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{fig3.png}
+    \end{figure}
+
+    The probability $P(X=j)$ is the probabiliy that $U$ falls into the interval of length $p_j$. But for a $\myunif{0}{1}$ r.v., probability is length, so $P(X=j)$ is precisely $p_j$, as desired
+
+\bigskip
+    For discrete r.v.,
+    \begin{itemize}
+        \item Let $U \sim \myunif{0}{1}$ and $X = F^{-1}$. Then $X$ is an r.v. with CDF $F$.
+        \item \sout{Let $X$ be an r.v. with CDF $F$. Then $F(X) \sim \myunif{0}{1}$.}
+    \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Continuous Random Variable}
+    \begin{definition}[Survival function]
+        The survival function of an r.v. $X$ with CDF $F$ is the function $G$ given by $G(x) = 1 - F(x) = P(X>x)$.
+    \end{definition}
+    \begin{theorem}[Expectation by integrating the survival function]
+        Let $X$ be a \textbf{nonnegative} r.v. Its expectation can be found by integrating its survival function:
+        \[
+        E[X] = \int_0^\infty P(X>x)dx
+        \]
+    \end{theorem}
+
+    Proof. Let $I(x>t)$ be $1$ if $x\geq t$ and $0$ otherwise. Then $\forall x > 0$, $x = \int_0^x dt = \int_0^\infty I(x>t) dt$. So $X = \int_0^\infty I(X>t) dt$. Taking the expectation of both sides and swapping the $E$ with the integral (which can be justified using results from real analysis), we have
+    \[E[X] = E\left[\int_0^\infty I(x>t)dt \right] = \int_0^\infty E[I(X>t)]dt  = \int_0^\infty P(X>t)dt\].
+\end{frame}
+
+\begin{frame}{Continuous Random Variable}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.63\textwidth]{fig4.png}
+    \end{figure}
+
+    For $U \sim \myunif{0}{1}$, \[\int_0^1 F^{-1}(u) du = E_{U}[F^{-1}(U)]= E[X]\]
+
+\end{frame}
+
+\subsection{Normal Distribution}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{Normal Distribution}
+    \begin{definition}[Standard Normal distribution]
+        A continuous r.v. $Z$ is said to have the \textit{Standard Normal distribution} if its PDF $\varphi$ is given by
+        \[\varphi (z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}, Z \in \mathbb{R}\]
+        We write this as $Z \sim \mathcal{N}(0,1)$
+        The Standard Normal CDF $\Phi$ is the accumulated area under the PDF
+        \[ \Phi(z) = \int^z_{-\infty} \varphi(t) dt = \int^z_{-\infty}\frac{1}{\sqrt{2\pi}}e^{-t^2/2}dt\]
+    \end{definition}
+\end{frame}
+
+\begin{frame}{Normal Distribution}
+    Check that $\varphi$ satisfies property of PDF, $\int_{-\infty}^\infty \varphi =1$. First, calculate $\int_{-\infty}^\infty e^{-z^2/2}dz$.
+    \[
+    \begin{gathered}
+        \left( \int_{-\infty}^\infty e^{-z^2/2} dz \right)\left( \int_{-\infty}^\infty e^{-z^2/2} dz \right) =  \left( \int_{-\infty}^\infty e^{-x^2/2} dx \right)\left( \int_{-\infty}^\infty e^{-y^2/2} dy \right)\\
+        = \int_{-\infty}^\infty \int_{-\infty}^\infty e^{-\frac{x^2 + y^2}{2}} dx dy = \int_{0}^{2\pi} \int_{0}^{\infty} e^{-r^2 /2} r dr d\theta = \int_{0}^{2\pi} \int_0^\infty e^{-u} du d\theta =\int_0^{2\pi} 1 d\theta = 2\pi  \\
+        \therefore  \left( \int_{-\infty}^\infty e^{-z^2/2} dz \right) = \sqrt{2\pi}
+    \end{gathered}
+    \]
+    So,
+    \[
+    \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi}}e^{-z^2/2} dz = 1
+    \]
+    And $\varphi$ is a valid PDF.
+
+\end{frame}
+
+\begin{frame}{Normal Distribution}
+    How can we calculate mean and variance of Standard Normal distribution?
+    \[E[Z] = \int_{-\infty}^\infty \frac{1}{\sqrt{2\pi}} z e^{-z^2/2} dz = -\int_{\infty}^0 \frac{1}{\sqrt{2\pi}} (-z)e^{-(-z)^2/2} dz + \int_0^\infty \frac{1}{\sqrt{2\pi}}ze^{-z^2/2}dz = 0\]
+    Also, variance of $Z$ can be calculated by
+    \[
+    \begin{gathered}
+        Var[Z] = E[Z^2] - E[Z]^2 = E[Z^2]\\
+        E[Z^2] =  \frac{2}{\sqrt{2\pi}}\int_0^{\infty}z^2 e^{-z^2/2} dz = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\cdot ze^{-z^2/2}dz
+    \end{gathered}
+    \]
+\end{frame}
+
 
 \end{document}
