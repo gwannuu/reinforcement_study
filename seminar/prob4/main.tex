@@ -2,8 +2,16 @@
 \usefonttheme[onlymath]{serif}
 
 
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
 % 테마 선택 (선택 사항)
-\usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
 % \font{serif}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -32,6 +40,8 @@
 \usepackage{multicol}  % 여러 열 나누기
 \usepackage{ulem} % 취소선 및줄 나누기
 
+\usepackage{mathtools}
+
 
 
 \newcommand{\mrm}[1]{\mathrm{#1}}
@@ -46,6 +56,10 @@
 \newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
 \newcommand{\myexp}[1]{\exp{\left(#1\right)}}
 \newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\DeclarePairedDelimiter\floor{\left\lfloor}{\right\rfloor}
+
 
 % 발표 제목, 저자, 날짜 설정
 \title{Probability}
@@ -58,10 +72,19 @@
     \titlepage
 \end{frame}
 
-% 목차 슬라이드
-\begin{frame}{contents}
-    \tableofcontents
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+\subsection{Continuous Random Variable}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
 \end{frame}
+
 
 \begin{frame}{Continuous Random Variable}
     \begin{definition}[Continuous r.v.]
@@ -108,7 +131,9 @@
             \]
             \item Rayleigh 
             \[
-                F(x; \mu, \sigma) = 1  - \myexp{- \frac{(x-\mu)^2}{2 \sigma^2}}, x > \mu \quad f(x; \mu, \sigma) = \frac{x-\mu}{\sigma^2} \myexp{-\frac{(x-\mu)^2}{2 \sigma^2}}, x > 0
+            \begin{gathered}
+                F(x; \mu, \sigma) = 1  - \myexp{- \frac{(x-\mu)^2}{2 \sigma^2}}, x > \mu  \\f(x; \mu, \sigma) = \frac{x-\mu}{\sigma^2} \myexp{-\frac{(x-\mu)^2}{2 \sigma^2}}, x > \mu
+            \end{gathered}
             \]
         \end{itemize}
     \end{example}
@@ -131,7 +156,17 @@
             E[g(X)] = \int_{-\infty}^\infty g(x)f(x) dx
         \]
     \end{theorem}
+\end{frame}
 
+\subsection{Uniform Distribution}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+
+\begin{frame}{Continuous Random Variable}
     \begin{definition}[Uniform distribution]
         A continuous r.v. is said to have Uniform distribution on the interval $(a,b)$ if its PDF is
         \[
@@ -179,8 +214,6 @@
     \begin{example}
         In a location-scale trainsformation, starting with $X\sim \myunif{a}{b}$ and transforming it to $Y = cX + d$ where $c$ and $d$ are constants with $c >0$, $Y$ is a linear function of $X$ and Uniformity is preserved: $Y \sim \myunif{ca+d}{cb+d}$.  But if $Y$ is defined as a \textit{nonlinear} transformation of $X$, then $Y$ will \textit{not} be Uniform in general. For example, for $X \sim Unif(a,b)$ with $0 \leq a <b$, the transformed r.v. $Y=X^2$ has support $(a^2,b^2)$ but is \textit{not} Uniform on that interval.
     \end{example}
-
-
 
 \end{frame}
 
@@ -366,10 +399,226 @@
     \[
     \begin{gathered}
         Var[Z] = E[Z^2] - E[Z]^2 = E[Z^2]\\
-        E[Z^2] =  \frac{2}{\sqrt{2\pi}}\int_0^{\infty}z^2 e^{-z^2/2} dz = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\cdot ze^{-z^2/2}dz
+        \begin{aligned}
+            E[Z^2] &=  \frac{2}{\sqrt{2\pi}}\int_0^{\infty}z^2 e^{-z^2/2} dz = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\cdot ze^{-z^2/2}dz \\
+            &= \frac{2}{\sqrt{2\pi}}\left(\left[z \cdot e^{- z^2 /2} \right]_\infty^0 -\int_0^\infty e^{-z^2/2} dz\right) = \frac{2}{\sqrt{2\pi}}\frac{\sqrt{2\pi}}{2} = 1
+        \end{aligned}\\
+        \therefore Var[Z] = 1
     \end{gathered}
     \]
 \end{frame}
 
+\begin{frame}{Normal Distribution}
+    \begin{definition}[Normal Distribution]
+        If $Z \sim \mathcal{N}(0,1)$, then $X = \sigma Z + \mu$ is saidto have the \textbf{Normal distribution} with mean $\mu$ and variance $\sigma^2$, for any real $\mu$ and $\sigma^2, \sigma > 0$. We denote this by $X \sim \mathcal{N}(\mu, \sigma^2)$.
+    \end{definition}
+
+    \begin{itemize}
+        \item \(E[X] = \sigma E[Z]+\mu = \mu\)
+        \item \(Var[X] = \sigma^2 Var[Z] = \sigma^2\)
+        \item $\frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1)$
+    \end{itemize}
+
+    \begin{theorem}[Normal CDF and PDF]
+        Let $X \sim \mathcal{N}(\mu, \sigma^2)$. Then the CDF and PDF of X is 
+        \[
+        F(x) = \Phi\left(\frac{x-\mu}{\sigma}\right) \qquad f(x) = \varphi\left(\frac{x-\mu}{\sigma}\right)\frac{1}{\sigma}
+        \]
+    \end{theorem}
+    \textit{Proof.} For the CDF, we start from the definition $F(x) = P(X\leq x)$, standardize and use the CDF of the standard Normal:
+\[
+\begin{gathered}
+    F(x) = P(X\leq x) = P\left(\frac{X-\mu}{\sigma}\leq \frac{x-\mu}{\sigma}\right) = \Phi\left(\frac{x-\mu}{\sigma}\right)\\
+    f(x) = \frac{1}{\sigma}\varphi\left(\frac{x-\mu}{\sigma}\right) \text{(by chain rule)}
+\end{gathered}
+\]
+
+\end{frame}
+
+\begin{frame}{Normal Distribution}
+    So from $\varphi(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}$ and $f(x) = \frac{1}{\sigma} \varphi\left(\frac{x-\mu}{\sigma}\right)$,
+    \[f(x) = \frac{1}{\sqrt{2\pi}\sigma} \exp{\left(- \frac{(x-\mu)^2}{2\sigma^2}\right)}\]
+
+    \begin{itemize}
+        \item As we will see later in the book, several important distributions can be obtained through transforming Normal r.v.s in natural ways (squaring or exponentiating). 
+        \item Chapter 8 delves into transformations in depth, but meanwhile there is a lot that we can do just using LOTUS and properties of CDFs.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Normal Distribution}
+    \begin{example}[Folded Normal]
+        Let $Y = \vert Z \vert$ with $Z \sim \mathcal{N}(0,1)$ The distribution of $Y$ is called a \textbf{Folded Normal} with parameters $\mu=0$ and $\sigma^1=1$.
+
+        \begin{enumerate}
+            \item[a] Find $E[Y]$
+            \item[b] Find $Var[Y]$
+            \item[c] Find the CDF and PDF of $Y$ 
+        \end{enumerate}
+
+        \textit{Solution(a):} \[
+        \begin{aligned}
+            E[Y] &= E[\vert Z \vert] = \int_{-\infty}^\infty \frac{1}{\sqrt{2\pi}} \vert z \vert e^{- {\vert z\vert}^2/2} dz = 2 \int_0^\infty \frac{1}{\sqrt{2\pi}}z e^{-z^2 /2}dz \\ &= 2\int_0^\infty \frac{1}{\sqrt{2\pi}} e^{-t} dt
+            = 2\left[ \frac{1}{\sqrt{2\pi}} e^{-t} \right]_\infty^0 = \sqrt{\frac{2}{\pi}}
+        \end{aligned}
+        \]
+
+        \textit{solution(b):} $E[Y^2] = E[Z^2]$ and $E[Z^2] = 1$.
+        $\therefore Var[Y^2] = E[Y^2] - E[Y]^2 = 1 - \frac{2}{\pi}$.
+        \textit{solution(c):} For $y \leq 0, F_Y(y) = 0$. For $y >0,$
+        \[\begin{aligned}
+            F_Y(y) &= P(Y \leq y) = P(-y \leq Z  \leq y) = \Phi(y) - (1 - \Phi(y))\ (\text{By symmetricity of } \Phi) \\
+            &= 2\Phi(y) -1\
+        \end{aligned}
+        \]
+        By derivative, PDF of $Y$ is $2\varphi(y)$ for $y\geq 0$ and $0$ for $y < 0$. \textit{Note that} although $2\Phi(y) -1$ is not differentiable at $y=0$, $2\Phi(y) -1$ is continuous for $y \in \mathbb{R}$.
+    \end{example}
+\end{frame}
+
+
+\subsection{Exponential}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+\end{frame}
+
+\begin{frame}{a}
+    \begin{itemize}
+        \item The \textbf{Exponential distribution} is the continuous counterpart to the Geometric distribution $\mygeom{\lambda}$.
+        \item \textit{Recall.} Geometric random variable counts the number of failures before the first success in a sequence of Bernoulli trials. For $X \sim \mygeom{\lambda}$, $P(X=k) = (1-\lambda)^{k-1}\lambda$, where $\lambda$ is success probability.
+        \item We are now waiting for a success in \textit{continuous} time, where success arrive at a rate of $\lambda$ successes per unit of time.
+        \item The average number of successes in a time interval of length $t$ is $\lambda t$, though the actual number of successes varies randomly.
+    \end{itemize}
+
+    \begin{definition}[Exponential distribution]
+        A continuous r.v. $X$ is said to have the \tb{Exponential distribution} with parameter $\lambda$, where $\lambda > 0$, if its PDF is
+        \[
+        f(x) = \lambda e^{-\lambda x}, x>0
+        \] 
+        This is denoted by $X \sim \myexpo{\lambda}$.
+        The corresponding CDF is 
+        \[
+        F(x) = 1 - e^{-\lambda x}, x>0
+        \]
+    \end{definition}
+
+\end{frame}
+
+ \begin{frame}{a}
+    \begin{examples}[5.43]
+        Suppose that Bernoulli trials are being performed in continuous time; rather than only thinking about first trial, second trial, etc., imagine that the trials take place at points on a timeline. Assume that the trials are at regularly spaced times $0, \Delta t, 2\Delta t, \dots,$ where $\Delta t$ is a small positive number. Let the probability of success of each trial be $\lambda \Delta t$, where $\lambda$ is a positive constant. Let $G$ be the number of failures before the first success (in discrete time), and $T$ be the time of the first success (in continuous time).
+        \begin{enumerate}
+            \item Find a simple equation relating $G$ to $T$.
+            \item Find the CDF of $T$.
+            \item Show that as $\Delta t\rightarrow 0$, the CDF of $T$ converges to the $\myexpo{\lambda}$ CDF, evaluating all the CDFs at fixed $t \geq 0$.
+        \end{enumerate}
+    \end{examples}
+    \textit{Solution(1):} $T = \Delta t (G+1)$. ($P(G=k) = (1- \lambda \Delta t)^k \lambda \Delta t$)
+
+    \textit{Solution(2):} \[\begin{gathered}
+        P(T \leq t) = P(\Delta t (G+1) \leq t) = P(G \leq \frac{t}{\Delta t} -1) = P(G \leq \left\lfloor \frac{t}{\Delta t} \right\rfloor - 1) \\
+        = \sum_{k=0}^{\left\lfloor \frac{t}{\Delta t}\right\rfloor - 1} (1-\lambda \Delta t)^ \lambda \Delta t = \frac{1 - (1 - \lambda \Delta t)^{\left\lfloor\frac{t}{\Delta t} \right\rfloor}}{\lambda \Delta t} \lambda \Delta t = 1 - (1-\lambda \Delta t)^{\left\lfloor \frac{t}{\Delta t}\right\rfloor}
+    \end{gathered}
+    \]
+
+
+ 
+ \end{frame}
+
+ \begin{frame}{a}
+    \begin{enumerate}
+        \item[3.] Show that as $\Delta t \rightarrow 0$, the CDF of T converges to the $\myexpo{\lambda}$ CDF, evaluating all the CDFs at a fixed $t \geq 0$.
+    \end{enumerate}
+
+    \textit{Solution(1):} $T = \Delta t (G+1)$. ($P(G=k) = (1- \lambda \Delta t)^k \lambda \Delta t$)
+
+    \textit{Solution(2):} \[\begin{gathered}
+        P(T \leq t) = P(\Delta t (G+1) \leq t) = P(G \leq \frac{t}{\Delta t} -1) = P(G \leq \left\lfloor \frac{t}{\Delta t} \right\rfloor - 1) \\
+        = \sum_{k=0}^{\left\lfloor \frac{t}{\Delta t}\right\rfloor - 1} (1-\lambda \Delta t)^ \lambda \Delta t = \frac{1 - (1 - \lambda \Delta t)^{\left\lfloor\frac{t}{\Delta t} \right\rfloor}}{\lambda \Delta t} \lambda \Delta t = 1 - (1-\lambda \Delta t)^{\left\lfloor \frac{t}{\Delta t}\right\rfloor}
+    \end{gathered}
+    \]
+
+    \textit{Solution(3):}
+    \[
+    \begin{gathered}
+        \lim_{\Delta t \rightarrow 0} F_T(t) = 1 - \lim_{\Delta t \rightarrow 0} (1- \lambda \Delta t)^{\frac{t}{\Delta t}} = 1- \myexp{-\lambda t}
+    \end{gathered}
+    \]
+
+    This example shows the relationship between Exponential distribution and Gemoetric distribution. With more faster and faster Bernoulli trials and smaller and smaller success probability, We can get Exponential distribution.
+
+
+ 
+ \end{frame}
+
+ \begin{frame}{a}
+ \begin{example}[location-scale transformation for Exponential distribution]
+    Suppose $X \sim \myexpo{1}$. Let r.v. $Y= \frac{X}{\lambda}$. Then $Y \sim \myexpo{\lambda}$.
+
+    Since \[P(Y\leq y) =P(X \leq \lambda y) = 1 - e^{-\lambda y}, \forall y >0
+    \]
+
+    Then, we can get mean and variance of $\myexpo{\lambda}$ via $E[\frac{X}{\lambda}] = \frac{1}{\lambda} E[X]$ and $Var [\frac{X}{\lambda}] = \frac{1}{\lambda^2} Var[X]$.
+
+    $E[X] = \int_0^\infty x e^{-x} dx = \left[ -x e^{-x} \right]^\infty_0 - \int_0^\infty -e^{-x} dx =  1$
+
+    $E[X^2] = \int_0^\infty x^2 e^{-x} dx = \left[ -x^2 e^{-x}\right]^{\infty}_0 - \int^\infty_0 -2x e^{-x} dx = 2$
+
+    $Var[X] = E[X^2] -E[X]^2 = 1$
+
+    $\therefore E[Y] = \frac{1}{\lambda}, Var[Y] = \frac{1}{\lambda^2}$
+ \end{example}
+
+ \begin{itemize}
+ \item As we'd expect intuitively, the faster the rate of arrivals $\lambda$, the shorter the average waiting time.
+ \end{itemize}
+ \end{frame}
+
+ \begin{frame}{a}
+    \begin{definition}[Memoryless property]
+        A continuous distribution is said to have the \ti{memoryless property} if a random variable $X$ from that distribution satisfies
+        \[
+            P(X\geq s + t | X\geq s) = P(X\geq t), \forall s,t >0
+        \]
+    \end{definition}
+
+
+    For example, for r.v. $X \sim \myexpo{\lambda}$
+    \[
+        \begin{aligned}
+        P(X\geq s+t | X \geq s) &= \frac{P(X \geq s+t)}{P(X \geq s)} = \frac{1 - P(X \leq s+t)}{1 - P(X \leq s)} = \frac{e^{-\lambda (s+t)}}{e^{-\lambda s}} \\
+        &= e^{-\lambda t} = P(X \geq t)
+        \end{aligned}
+    \]
+
+    Memoryless property is very special property of Exponential distribution because no other continuous on $(0,\infty)$ is memoryless!
+\end{frame}
+
+\begin{frame}{a}
+
+    \begin{theorem}
+        If $X$ is a positive continuous random variable with the memoryless property, then $X$ has an Exponential distribution.
+    \end{theorem}
+    
+    Before prove this theorem, first let's see the lemma
+
+    \begin{lemma}
+        For any function $G: (0, \infty) \mapsto [0,1]$, if $G$ satisfies this condition $\forall s,t\geq 0, G(s+t) = G(s)G(t)$, $\forall x >0, G(xt) = G(t)^x$ holds.
+    \end{lemma}
+
+    \ti{proof.} Putting $s = t$, $G(2t) = G(t)^2$. Simiarily, $G(mt) = G(t)^m$ for positive integer $m$. By the same way, $G(t) = G(\frac{t}{2})^2$ and $G(t)^{\frac{1}{2}} = G(\frac{t}{2})$. Simiarily, we can get $G(\frac{t}{n}) = G(t)^{\frac{1}{n}}$.
+    $\therefore G(\frac{m}{n} t) = G(t)^\frac{m}{n}$. So, for any positive rational number $x$, $G(xt) = G(t)^x$ holds. Any positive real number can be written as a limit of positive rational numbers so, using the fact that $G$ is a continuous function, the above equation holds for all positive real numbers $x$.
+
+    \bigskip
+    Note. For each $x > 0$, there exists a sequence of positive rational numbers $q_1, q_2, q_3, \dots$ such that $q_n \rightarrow x$ as $n \rightarrow \infty$.
+\end{frame}
+
+\begin{frame}{a}
+If $X$ is a positive continuous random variable with the memoryless property, then $X$ has an Exponential distribution.
+
+\bigskip
+\textit{proof.}
+Let denote survival function $G(t) = 1- F(t)$ (where $F(t)$ is CDF). Then memoryless property equation $P(X \geq s+t | x\geq s) = \frac{P(X \geq s+t)}{P(X \geq s)} = P(X\geq s)$ turns to $G(s+t) = G(s)G(t)$ and by lemma, $G(xt) = G(t)^x, \forall x >0$ holds.
+\end{frame}
 
 \end{document}

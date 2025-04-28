@@ -393,5 +393,14 @@
 
 % \end{frame}
 
+\begin{frame}
+    \begin{example}[Exercise 4.43]
+        A building has $n$ floors, labeled $1, 2, \dots, n$. At the first floor, $k$ people enter the elevator, which is going up and is empty before they enter. Independently, each decides which of floors $2, 3, \dots, n$ to go to and presses that button (unless someone has already pressed it).
+        \begin{enumerate}
+            \item[a] Assume for this part only that the probabilities for floors $2, 3, \dots, n$ are equal. Find the expected number of stops the elevator makes on floors $2, 3, \dots , n$.
+        \end{enumerate}    
+    \end{example}
+    \ti{Solution(a):} Let $X$ be the r.v. that represents number of floors on which elevator stops, and $I_i$ be the indicator r.v. that specific floor number of stop. Then $X = I_1+I_2+\dots +I_n$. $E[X] = E[I_2] +\dots +E[I_n] =P(I_2=1) +\dots + P(I_n=1)$. $P(I_i=1) = 1 - P(\text{no one among the }k\text{ press }i) = 1- \left(\frac{n-2}{n-1} \right)^k$. $\therefore E[X] = (n-1) \left[1-\left(\frac{n-2}{n-1}\right)^k\right]$.
+\end{frame}
 
 \end{document}
