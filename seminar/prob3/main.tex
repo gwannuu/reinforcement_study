@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[8pt]{beamer}
 \usefonttheme[onlymath]{serif}
 % 테마 선택 (선택 사항)
 \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
@@ -34,6 +34,13 @@
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
 \newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\pois}[1]{\text{Pois}(#1)}
+
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+
 
 % 발표 제목, 저자, 날짜 설정
 \title{Probability}
@@ -358,7 +365,7 @@
         An r.v. $X$ has the \tb{Poission distribution} with parameter $\lambda$, where
         $\lambda > 0$, if the PMF of $X$ is
         \[P(X=k)=\frac{e^{-\lambda}\lambda^k}{k!},\quad k=0,1,2,\dots\]
-        It is denoted by $X \sim \text{Pois}(\lambda)$.
+        It is denoted by $X \sim \mypois{\lambda}$
     \end{definition}
     Poission distribution is a valid PMF because $\sum^\infty_{k=0} \frac{e^{-\lambda}\lambda^k}{k!} = e^{-\lambda} \sum^\infty_{k=0} \frac{\lambda^k}{k!} = e^{-\lambda}e^{\lambda} = 1$
 \end{frame}
@@ -377,30 +384,152 @@
     \end{example}
 \end{frame}
 
-% \begin{frame}
-%     \begin{example}[Poisson variance]
-%         Let $X \sim \text{Pois}(\lambda)$. We will show that the mean and variance are both equal to $\lambda$. For the variance, we have 
-%         \[
-%         \begin{aligned}
-%             E(X^2) &= e^{-\lambda} \sum^\infty_{k=0} k^2 \frac{\lambda^k}{k!} \\
-%             &= e^{-\lambda} \sum^\infty_{k=1} k^2\frac{\lambda^k}{k!} \\
-%             &= \lambda e^{-\lambda} \sum^\infty_{k=1} k\frac{\lambda^{k-1}}{(k-1)!} \\
-%             &= \lambda e^{-\lambda} e^{\lambda} = \lambda
-%         \end{aligned}
-%         \]
-%         Therefore, $Var(X) = E(X^2) - (EX)^2 = \lambda$
-%     \end{example}
+\begin{frame}{Expectation}
+    \begin{example}[Poisson variance]
+        Let $X \sim \text{Pois}(\lambda)$. We will show that the mean and variance are both equal to $\lambda$. For the variance, we have 
+        \[
+        \begin{aligned}
+            E(X^2) &= e^{-\lambda} \sum^\infty_{k=0} k^2 \frac{\lambda^k}{k!}
+            = e^{-\lambda} e^\lambda \lambda (1+\lambda) = \lambda (1+\lambda)
+        \end{aligned}
+        \]
+        Therefore, $Var(X) = E(X^2) - (EX)^2 = \lambda$
+    \end{example}
 
-% \end{frame}
+    Note that
+    \begin{itemize}
+        \item $\sum^\infty_{k=0}\frac{\lambda^k}{k!} = e^\lambda$, $\sum^\infty_{k=1} k \frac{\lambda^{k-1}}{k!}=e^\lambda$, $\sum^\infty_{k=1}k\frac{\lambda^k}{k!}=\lambda e^\lambda$
+        \item $\sum^\infty_{k=1} k^2 \frac{\lambda^{k-1}}{k!}=e^\lambda + \lambda e^\lambda=e^\lambda (1 + \lambda)$, $\sum^\infty_{k=1} k^2 \frac{\lambda^k}{k!} = e^\lambda \lambda (1 + \lambda)$
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Expectation}
+    Poisson Distribution is highly related with \textbf{counting nonnegative integers} (called \textit{count data} in statistics)
+
+    \begin{block}{Approximation (Poisson paradigm)}
+        Let $A_1, \dots, A_n$ be events with $p_j = P(A_j)$, where $n$ is large, the $p_j$ are small, and the $A_j$ are independent or weakly dependent. Let
+        $$X = \sum^n_{j=1}I(A_j)$$
+        count how many of the $A_j$ occur. Then $X$ is approximatey distributed as $\pois{\lambda}$, where $\lambda = \sum^n_{j=1} p_j$
+    \end{block}
+
+    Detailed proof of approximation can be shown using an advanced technique known as the \textit{Stein-Chen method}.
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{example}[Balls in boxes]
+        There are $k$ distinguishable balls and $n$ distinguishable boxes. The balls are randomly placd in the boxes, with all $n^k$ possibilities equally likely. Problems in this setting are called $\textit{occupancy problems}$, and are at the core of many widely used algorithms in computer science.
+        \begin{enumerate}
+            \item Find the expected number of empty boxes
+            \item Find the probability that at least one box is empty.
+            \item Now let $n=1000$, $k=5806$. THe expected number of empty boxes is then approximately $3$. Find a good approximation for the probability that at least one box is empty. (use the fact $e^3 \approx 20$)
+        \end{enumerate}
+    \end{example}
+\end{frame}
+
+% \begin{frame}{Expectation}
+%     Find the expected number of empty boxes
+
+%     \newline
+%     Let $I_j$ be the indicator r.v. for the $j$th box being empty.
+
+% \end{frame}ss
 
 \begin{frame}
-    \begin{example}[Exercise 4.43]
-        A building has $n$ floors, labeled $1, 2, \dots, n$. At the first floor, $k$ people enter the elevator, which is going up and is empty before they enter. Independently, each decides which of floors $2, 3, \dots, n$ to go to and presses that button (unless someone has already pressed it).
-        \begin{enumerate}
-            \item[a] Assume for this part only that the probabilities for floors $2, 3, \dots, n$ are equal. Find the expected number of stops the elevator makes on floors $2, 3, \dots , n$.
-        \end{enumerate}    
-    \end{example}
-    \ti{Solution(a):} Let $X$ be the r.v. that represents number of floors on which elevator stops, and $I_i$ be the indicator r.v. that specific floor number of stop. Then $X = I_1+I_2+\dots +I_n$. $E[X] = E[I_2] +\dots +E[I_n] =P(I_2=1) +\dots + P(I_n=1)$. $P(I_i=1) = 1 - P(\text{no one among the }k\text{ press }i) = 1- \left(\frac{n-2}{n-1} \right)^k$. $\therefore E[X] = (n-1) \left[1-\left(\frac{n-2}{n-1}\right)^k\right]$.
+    \begin{itemize}
+        \item Find the expected number of empty boxes
+    \end{itemize}
+
+    Let denote $I_j$ the indicator $j$-th box is empty (i.e. $I_j=1$ indicates the $j$-th box is empty)
+    $P(I_j=1) = E[I_j] = (\frac{n-1}{n})^k$
+
+    $\sum_{i=1}^n$ indicates that $n$ number of boxes is empty.
+
+    $E[\sum_{j=1}^n I_j] = \sum_{j=1}^n E[I_j] = n(\frac{n-1}{n})^k$ 
+
+    \begin{itemize}
+        \item Find the probability that at least one box is empty
+    \end{itemize}
+
+    Let denote $A_j$ is the event that $j$-th box is empty. we want to find $P(A_1 \cap A_2 \cap \dots \cap A_n)$. By inclusive-exclusive rule of probability, $P(A_1 \cap A_2 \cap \dots \cap A_n) = \sum_{j=1}^n (-1)^{j+1} \binom{n}{j} P(A_1 \cap A_2 \cap \dots A_j) = \sum_{j=1}^n (-1)^{j+1} \binom{n}{j} P(1 - \frac{j}{n})^k$
+
+    \begin{itemize}
+        \item Now let $n=1000$, $k=5806$. THe expected number of empty boxes is then approximately $3$. Find a good approximation for the probability that at least one box is empty. (use the fact $e^3 \approx 20$)
+    \end{itemize}
+
+    The number of empty boxes is approximately $\text{Pois}(3)$ because there exists many boxes and event that each box becomes empty is rare. $P(X \geq 1) =  1 - P(X = 0) = 1 - e^{-3} \approx 0.95$
+
 \end{frame}
+
+\begin{frame}{Expectation}
+    Poission and Binomial distribution are closely related.
+    \begin{itemize}
+        \item we can get from the Poission to the Binomial by conditioning
+        \item we can get from the Binomial to Poission by taking a limit
+    \end{itemize}
+
+    \begin{theorem}[Sum of independent Poissions]
+        If \(X \sim \text{Pois}(\lambda_1), Y \sim \text{Pois}(\lambda_2),\) and \(X\) is independent of \(Y\), then \(X + Y \sim \pois{\lambda_1 + \lambda_2}\)
+    \end{theorem}
+    Proof.
+    \[
+        \begin{aligned}
+            P(X+Y=k) &= \sum_{j=0}^k P(X+Y=k|X=j) P(X=j)\\
+            &= \sum_{j=0}^k P(Y=k-j) P(X=j) \\
+            &= e^{-\lambda_2} \frac{\lambda_2^{k-j}}{(k-j)!} e^{-\lambda_1} \frac{\lambda_1^{j}}{j!} = e^{-(\lambda_1+\lambda_2)} \sum_{j=0}^k \frac{\lambda_2^{k-j} \lambda_1^{j}}{(k-j)! j!} \\
+            &= \frac{e^{-(\lambda_1 + \lambda_2)}}{k!} \sum_{j=0}^k \binom{k}{j} \lambda_2^{k-j} \lambda_1^j = \frac{e^{-(\lambda_1 + \lambda_2)} (\lambda_1 + \lambda_2)^k}{k!}
+        \end{aligned}
+    \]
+\end{frame}
+
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poisson given a sum of Poissons]
+        If \(X \sim \mypois{\lambda}, Y \sim \mypois{\lambda_2}\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\mybin{n}{\lambda_1 / (\lambda_1 + \lambda_2)}\).
+    \end{theorem}
+    Proof. 
+    \[
+    \begin{aligned}
+        P(X=k|X+Y=n) &= \frac{P(X+Y=n|X=k)P(X=k)}{P(X+Y=n)} \\
+        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-\lambda_1 + \lambda_2}(\lambda_1 + \lambda_2)^{n}} \\
+        &= \binom{n}{k} \frac{\lambda_2^{n-k}\lambda_1^{k}}{(\lambda_1 +\lambda_2)^{n}} = \binom{n}{k} \left(\frac{\lambda_2}{\lambda_1+\lambda_2}\right)^{n-k} \left(\frac{\lambda_1}{\lambda_1 + \lambda_2}\right)^k
+    
+    \end{aligned}
+    \]
+\end{frame}
+
+
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poisson given a sum of Poissons]
+        If \(X \sim \operatorname{Pois}(\lambda_1), Y \sim \operatorname{Pois}(\lambda_2)\), and \(X\) is independent of \(Y\), then the conditional distribution of \(X\) given \(X+Y=n\) is \(\operatorname{Bin}(n, \lambda_1 / (\lambda_1 + \lambda_2))\).
+    \end{theorem}
+    Proof. 
+    \[
+    \begin{aligned}
+        P(X=k|X+Y=n) &= \frac{P(X+Y=n|X=k)P(X=k)}{P(X+Y=n)} \\
+        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-\lambda_1 + \lambda_2}(\lambda_1 + \lambda_2)^{n}} \\
+        &= \binom{n}{k} \frac{\lambda_2^{n-k}\lambda_1^{k}}{(\lambda_1 +\lambda_2)^{n}} = \binom{n}{k} \left(\frac{\lambda_2}{\lambda_1+\lambda_2}\right)^{n-k} \left(\frac{\lambda_1}{\lambda_1 + \lambda_2}\right)^k \\ 
+        &= \mybin{n}{\frac{\lambda_1}{\lambda_1 + \lambda_2}}
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Expectation}
+    \begin{theorem}[Poission given a sum of Poissions]
+        If \(X \sim \mybin{n}{p}\) and we let \(\mytoinf{n}\) and \(p \rightarrow 0\), and $\lambda = np$ remains fixed, then the PMF of \(X\) converges to the \(\mypois{\lambda}\).
+    \end{theorem}
+    Proof.
+    \[
+    \begin{aligned}
+        P(X=k) &= \binom{n}{k}p^k (1-p)^{n-k}
+        = \frac{n \times n-1 \times \dots \times n-k+1}{k!} \left(\frac{\lambda}{n}\right)^k \left(1- \frac{\lambda}{n}\right)^n\left(1- \frac{\lambda}{n}\right)^{-k} \\
+        &= \frac{\lambda^k}{k!} \frac{n \times n-1 \times \dots \times n-k+1}{n!} \left(1- \frac{\lambda}{n}\right)^n\left(1- \frac{\lambda}{n}\right)^{-k} \\
+        &\approx \frac{\lambda^k}{k!} e^{-\lambda} = P(X=k), X \sim \mypois{\lambda}
+    \end{aligned}
+    \]
+\end{frame}
+
 
 \end{document}
