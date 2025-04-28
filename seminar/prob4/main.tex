@@ -82,7 +82,7 @@
 
 \begin{frame}
     \frametitle{Table of Contents}
-    \tableofcontents[currentsection]
+    \tableofcontents[currentsubsection]
 \end{frame}
 
 
@@ -162,7 +162,7 @@
 
 \begin{frame}
     \frametitle{Table of Contents}
-    \tableofcontents[currentsection]
+    \tableofcontents[currentsubsection]
 \end{frame}
 
 
@@ -362,7 +362,7 @@
 
 \begin{frame}
     \frametitle{Table of Contents}
-    \tableofcontents[currentsection]
+    \tableofcontents[currentsubsection]
 \end{frame}
 
 \begin{frame}{Normal Distribution}
@@ -479,7 +479,7 @@
 
 \begin{frame}
     \frametitle{Table of Contents}
-    \tableofcontents[currentsection]
+    \tableofcontents[currentsubsection]
 \end{frame}
 
 \begin{frame}{a}
@@ -619,6 +619,133 @@ If $X$ is a positive continuous random variable with the memoryless property, th
 \bigskip
 \textit{proof.}
 Let denote survival function $G(t) = 1- F(t)$ (where $F(t)$ is CDF). Then memoryless property equation $P(X \geq s+t | x\geq s) = \frac{P(X \geq s+t)}{P(X \geq s)} = P(X\geq s)$ turns to $G(s+t) = G(s)G(t)$ and by lemma, $G(xt) = G(t)^x, \forall x >0$ holds.
+
+Then $t=1 \Rightarrow G(x) = G(1)^x$. By setting $G(1) = e^{-\lambda}, \lambda > 0$, we can get $G(x) = e^{-\lambda x}$. This $G(x)$ is same with survival function of Exponential distribution.
+
+\bigskip
+Note that the only discrete r.v. distribution which has memoryless property is also \ti{Gemoetric distribution}, which is analogous to discrete version of Exponential distribution.
+
+$p(X\geq j+k|X\geq j) = p(X\geq k) \Rightarrow p(X \geq k)^m = p(X \geq mk)$ and let $p(X \geq 1) = 1-\lambda $ leads to $p(X \geq m) = (1-\lambda)^m$. Then $p(X = m)= p(X\geq m) - p(X\geq m+1) = (1-\lambda)^{m} - (1-\lambda)^{m+1}  = (1-\lambda)^m \lambda$ and $p(X = 0) = p(X \geq 0) - p(X \geq 1) = 1 - (1 - \lambda) = \lambda$.
+\end{frame}
+
+\subsection{Poission Process}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{a}
+    \begin{definition}[Poission Process]
+        A process of arrivals in continuous time is called a \ti{Poission Process} with rate $\lambda$ if the following two conditions hold:
+
+        \begin{itemize}
+            \item The number of arrivals that occur in an interval of length $t$ is a $\mypois{\lambda t}$ random variable.
+            \item The number of arrivals that occur in disjoint intervals are independent of each other. For example, the numbers of arrivals in the intervals $(0,10), [10,12)$, and $[15, \infty)$
+        \end{itemize}
+    \end{definition}
+
+    In this section , we will focus on Poission processes on $(0,\infty)$.
+
+    Imagine the situation that arrivals of emails. What we might want to know is
+    \begin{itemize}
+        \item How many emails will arive?
+        \item How long does it take until the first email arrives?
+    \end{itemize}
+    This two questions has essential connection.
+
+    \smallskip
+    Let $T_1$ be the time until the first email arrives and $N_t$ be the number of emails that arrive at or before time $t$. Then 
+    \[
+        T_1>t \text{ is the same event as } N_t =0
+    \]
+    More generalized way, 
+    \[
+        T_n >t \text{ is the same event as } N_t < n
+    \]
+    This is called the \tb{count-time duality}.
+\end{frame}
+
+\begin{frame}{Poission Process}
+    \[
+    \begin{gathered}
+        T_1>t \text{ is the same event as } N_t =0 \\
+        T_n >t \text{ is the same event as } N_t < n
+    \end{gathered}
+    \]
+    If two events are the same, then they have the same probability. From the definition of Poission Process, $N_t \sim \mypois{\lambda t}$. 
+    \[
+    P(T_1 > t) = P(N_t = 0) = \frac{e^{-\lambda t}(\lambda t)^0}{0!} = e^{-\lambda t}
+    \]
+    Therefore $P(T_1 \leq t) = 1 - e^{-\lambda t} \implies T_1 \sim \myexpo{\lambda}$
+
+    Also, $T_2 - T_1 \sim \myexpo{\lambda}$ because in poission process, disjoint intervals are independent of each other. Simiarily, $T_1$ and $\forall k=2,3,\dots, T_{k+1} - T_{k}$ are i.i.d. $\myexpo{\lambda}$ r.v.s.
+
+    Naively speaking, $T_n$ is related to $T_1, T_2 - T_1, T_3 - T_2, \dots, T_n -T_{n-1}$, which are i.i.d. $\myexpo{\lambda}$ r.v.s. And $N_t$ is random variable of $\mypois{\lambda t}$ distribution. Therefore there exists connection between i.i.d. $\myexpo{\lambda}$ r.v.s and $\mypois{\lambda t}$ r.v.
+\end{frame}
+
+\begin{frame}{Poission Process}
+    \begin{example}[Minimum of independent Expos]
+        Let $X_1, X_2, \dots, X_n$ be independent, with $X_j \sim \myexpo{\lambda_j}$. Let $L = \min{(x_1, \dots, X_n)}$. Then $L \sim \myexpo{\lambda_1 + \lambda_2 + \dots \lambda_n}$
+    \end{example}
+    \[
+    \begin{aligned}
+        p(L > t) &= p(X_1 >t, X_2 > t, \dots, X_n>t) = p(X_1>t)\cdots p(X_n>t) \\
+        &= e^{-\lambda_1 t} \cdots e^{-\lambda_n t} = e^{-(\lambda_1 + \dots + \lambda_n) t}
+    \end{aligned}
+    \]
+    ,Which is the survival function of $\myexpo{\lambda_1 + \dots + \lambda_n}$. It leads to the fact that r.v. $L$ has an CDF function of $\myexpo{\lambda_1 + \dots + \lambda_n}$ distribution.
+
+    \bigskip
+    We can imagine, for example, $X_1$ as the waiting time for bus 1 to pass by, $X_2$ as the waiting time for a bus 2 to pass by, and so on. Then $L$ is the waiting time for at least one bus to pass by. So it makes sense that $L$ has a combined rate of $\lambda_1 + \lambda_2 + \dots + \lambda_n$.
+\end{frame}
+
+\subsection{Symmetry of i.i.d. continuous r.v.s}
+
+\begin{frame}
+    \frametitle{a}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{a}
+    Let $X_1, \dots, X_n$ be i.i.d. r.v.s. from a continuous distribution. Then $P(X_i = X_j) = 0$ because each $X_i$ is drawn from continuous distribution. Since $\forall k, p(X_j=k) = 0$, $p(X_i = X_j) = \int_{-\infty}^{\infty} p(X_j=k | X_i=k) dk = \int_{-\infty}^\infty p(X_i=k) p(X_j=k) dk = 0, \forall k \in \mbb{R}$.
+
+    \begin{theorem}
+        Let $X_1, \dots, X_n$ be i.i.d. from a continuous distribution. Then 
+        \[
+        P(X_{a_1} < X_{a_2} < \cdots < X_{a_n}) = \frac{1}{n!}
+        \]
+        for any permutation $a_1,a_2,\dots, a_n$ of $1, 2, \dots, n$.
+    \end{theorem}
+
+    \ti{Proof.} $X_1, X_2, \dots, X_n$ are distinct with probability $1$, and the probability of any particular ordering is $\frac{1}{n!}$.
+\end{frame}
+
+\begin{frame}{a}
+    \begin{example}[Records]
+        Athletes compete one at a time at the high jump. Let $X_j$ be how high the $j$th jumper jumped, with $X_1, X_2, \dots$ i.i.d. with a continuous distribution. We say that the $j$th jumper sets a \ti{record} if $X_j$ is greater than all of $X_{j-1}, \dots, X_1$.
+
+        \begin{enumerate}
+            \item Is the event "the $110$th jumper sets a record" independent of the event "the $111$th jumper sets a record"?
+            \item Find the mean number of records among the first $n$ jumpers. What happens to the mean as $n \rightarrow \infty$?
+            \item A \ti{double record} occurs at time $j$ if \ti{both} the $j$th and $(j-1)$st jumpers set records. Find the mean number of double records among the first $n$ jumpers. What happends to the mean as $n \rightarrow \infty$?
+        \end{enumerate}
+        
+        \ti{Solution(a):}
+        Let $I_j$ be the indicator r.v. for the $j$th jumper setting a record. By symmetry, $P(I_j=1) = \frac{1}{j}$. Also, $P(I_{110}=1) = \frac{109!}{110!}$,$P(I_{111}=1) = \frac{110!}{111!}$, and $P(I_{110}=1, I_{111}=1) = \frac{109!}{111!}$. $\therefore$ $I_{110}=1$ and $I_{111}=1$ events are independent.
+
+        \ti{Solution(b):}
+        By the linearity of Expectation, $E[X] = E[I_1] + E[I_2] + \dots + E[I_n] = \sum_{j=1}^n \frac{1}{j}$. Since harmonic series diverges, $E[X] \rightarrow \infty$ as $n \rightarrow \infty$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{a}
+    \ti{Solution(c):} Let $J_j$ be the indicator r.v. for a double record occuring at time $j$, for $2\leq j \leq n$. Then $P(J_j = 1) = \frac{1}{j(j-1)}$, following the logic of Part (a). So the Expected number of double record is 
+    \[
+    \sum_{j=2}^n \frac{1}{j(j-1)} = \sum_{j=2}^n \left( \frac{1}{j-1} - \frac{1}{j} \right) = 1- \frac{1}{n}
+    \]
+    Thus, the expected number of double records goes to $1$.
+
 \end{frame}
 
 \end{document}
