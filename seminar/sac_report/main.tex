@@ -267,6 +267,89 @@
     \end{figure}
 \end{frame}
 
+\begin{frame}{Change of variables}
+    Performance compare
+    \begin{itemize}
+        \item Green is the version of adopting change of variable
+        \item Cyan is not adopted version
+    \end{itemize}
+    Fixed version shows slightly better performance than previous version.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{CovReturns.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Reproducibility}
+    Reproducibility is very important to compare performance of several experiments
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{UnmatchedReprod.png}
+    \end{figure}
+    I had Non-reproducibility issues between experiments of same settings
+    \begin{itemize}
+        \item It seems that different training results occur in each workstation(A5000) and desktop (RTX 3060).
+    \end{itemize}
+    So if one wants to guarantee reproducibility, then it would be nice to run experiments in same devices.
+\end{frame}
+
+\begin{frame}{Reproducibility}
+    In RTX-3060 GPU, in default setting, F.Linear operation doesn't guarantee reproducibility
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.0\textwidth]{CuBLASIssue.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \begin{center}
+                    \includegraphics[width=1.0\textwidth]{CublasEnvironmentVariable.png}
+                \end{center}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \begin{itemize}
+        \item To guarantee reproducibility, need to set environment variable "CUBLAS\_WORKSPACE\_CONFIG" as ":4096:8" or "16:8"
+        \item But occurs slow down of training as nearly $2/3$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    \begin{itemize}
+        \item Green one is average of every rewards in one evaluation episode
+        \item Pink one is average of every rewrads in ten evaluation episodes
+    \end{itemize}
+    It seems odd because usually in each episode, different states, different actions, and different rewards are expected to be represented.
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{WrongSeedSetting.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    I had reset with fixed seed in every evaluation episodes
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{WrongEvalSeed}
+    \end{figure}
+
+    Code should be like these.
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix1.png}
+    \end{figure}    
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix2.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    Note:
+    \begin{itemize}
+        \item From the point env.reset with a specific seed, random sequences are uniquely determined.
+        \item For example, suppose we rolled out 100 episodes with starting "env.reset(seed=42)". Then all state sequences and reward sequences in each episode are same for 100 times.
+    \end{itemize}
+\end{frame}
+
 \begin{frame}{Check loss function}
     Update rule for value function $V$ is
     \[
