@@ -385,11 +385,15 @@
 \begin{frame}{Check loss function}
     The code snippet for calculating V loss seems clear.
 
+    \begin{itemize}
+        \item Gradient for Q networks are not calculated because every forward operation is performed within "torch.no\_grad()" context.
+        \item There only exists gradient for V network
+    \end{itemize}
+
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\textwidth]{fig5.png}
+        \includegraphics[width=0.65\textwidth]{fig5.png}
     \end{figure}
-
 \end{frame}
 
 \begin{frame}{Check loss function}
@@ -399,6 +403,9 @@
         \includegraphics[width=0.6\textwidth]{fig6.png}
     \end{figure}
     Before update V($\psi$) network, Policy network($\phi$) is preceded.
+    \begin{itemize}
+        \item It is possible that gradient of Q network remains, which is produced by previous loss function (Policy Loss)
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Check loss function}
@@ -451,6 +458,66 @@
     \end{itemize}
 \end{frame}
 
+
+\begin{frame}{Check loss function}
+    Then why gradient of Q network is remained?
+    \begin{figure}
+        \includegraphics[width=0.6\textwidth]{POptimizerMistake1.png}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.6\textwidth]{POptimizerMistake2.png}
+    \end{figure}
+
+    It is because \ti{optimizer.zero\_grad()} function only clear gradient of its parameters.
+    \begin{itemize}
+        \item In this experinent, \ti{p\_optimizer.zero\_grad()} function only clear the gradient of Policy Network
+        \item So, gradient of Q network still remains
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Check loss function}
+    \begin{columns}
+        \begin{column}[]{0.4\textwidth}
+            \begin{itemize}
+                \item Remained gradient of Q network is measured (red line). 
+                \item And this remained gradient is accumulated with another gradient calculated from Q loss (blue line)
+                \item This mixed gradient from two different loss function distort the desired true gradient of Q network (yellow line)
+            \end{itemize}
+            Note that, gradient is not overwritten remained. it is accumulated with previous one.
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{VlossQloss.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Check loss function}
+    The desired true gradient of Q network is 
+    \[
+     \hat{\nabla}_{\theta_i} J_Q (\theta_i) = \nabla_{\theta_i} Q_{\theta_i} (s_t, a_t) \left(Q_{\theta_i}(s_t, a_t) - r(s_t, a_t) - \gamma V_{\hat{\psi}}(s_{t+1}) \right)
+    \]
+    And previous wrong gradient of Q network is calculated by
+    \[
+        \nabla_{\theta_i} Q_{\theta_i} (s_t, a_t) \left(Q_{\theta_i}(s_t, a_t) - r(s_t, a_t) - \gamma V_{\hat{\psi}}(s_{t+1}) \right) - \nabla_{a_t} Q(s_t, a_t) \nabla_\phi f_\phi (\epsilon_t; s_t)
+    \]
+\end{frame}
+
+\begin{frame}{Check loss function}
+    Fix this unwanted ramaining of gradient
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{AllOptimizerUpdate1.png}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{AllOptimizerUpdate2.png}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{AllOptimizerUpdate3.png}
+    \end{figure}
+
+    After each network update, clear all network's gradient via call \ti{zero\_grad()} method of all optimizers
+\end{frame}
 
 
 \begin{frame}{Robust for variant seeds}
