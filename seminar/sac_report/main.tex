@@ -293,28 +293,28 @@
     So if one wants to guarantee reproducibility, then it would be nice to run experiments in same devices.
 \end{frame}
 
-\begin{frame}{Reproducibility}
-    In RTX-3060 GPU, in default setting, F.Linear operation doesn't guarantee reproducibility
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=1.0\textwidth]{CuBLASIssue.png}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \begin{center}
-                    \includegraphics[width=1.0\textwidth]{CublasEnvironmentVariable.png}
-                \end{center}
-            \end{figure}
-        \end{column}
-    \end{columns}
-    \begin{itemize}
-        \item To guarantee reproducibility, need to set environment variable "CUBLAS\_WORKSPACE\_CONFIG" as ":4096:8" or "16:8"
-        \item But occurs slow down of training as nearly $2/3$
-    \end{itemize}
-\end{frame}
+% \begin{frame}{Reproducibility}
+%     In RTX-3060 GPU, in default setting, F.Linear operation doesn't guarantee reproducibility
+%     \begin{columns}
+%         \begin{column}{0.5\textwidth}
+%             \begin{figure}
+%                 \centering
+%                 \includegraphics[width=1.0\textwidth]{CuBLASIssue.png}
+%             \end{figure}
+%         \end{column}
+%         \begin{column}{0.5\textwidth}
+%             \begin{figure}
+%                 \begin{center}
+%                     \includegraphics[width=1.0\textwidth]{CublasEnvironmentVariable.png}
+%                 \end{center}
+%             \end{figure}
+%         \end{column}
+%     \end{columns}
+%     \begin{itemize}
+%         \item To guarantee reproducibility, need to set environment variable "CUBLAS\_WORKSPACE\_CONFIG" as ":4096:8" or "16:8"
+%         \item But occurs slow down of training as nearly $2/3$
+%     \end{itemize}
+% \end{frame}
 
 \begin{frame}{Wrong seed fixing}
     \begin{itemize}
