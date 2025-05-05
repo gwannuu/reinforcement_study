@@ -30,6 +30,9 @@
 % \theoremstyle{definition} % insert bellow all blocks you want in normal text
 % \newtheorem{definition}{Definition}[section] % to number according to section
 % \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
 \usepackage{tcolorbox}
 
 % 필요할 경우 패키지 추가
@@ -50,6 +53,7 @@
 \newcommand{\ti}[1]{\textit{#1}}
 \newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
 
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
 \newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
 \newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
 \newcommand{\myexp}[1]{\exp{\left(#1\right)}}
@@ -60,6 +64,9 @@
 \newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
 \newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
 \newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -169,7 +176,7 @@
 
 \begin{frame}{a}
     \begin{definition}[Kinds of moments]
-        Let $X$ be an r.v. with mean $\mu$ and variance $\sigma^2$. For any positive integer $n$, the $n$th \tb{moment} of $X$ is $E[X^2]$, the $n$th \tb{central moment} is $\expec{(X-\mu)^2}$, and the $n$th \tb{standardized moment} is $\expec{\left(\frac{X-\mu}{\sigma}\right)^n}$. Throughout the previous sentence, "if it exists" is left implicit.
+        Let $X$ be an r.v. with mean $\mu$ and variance $\sigma^2$. For any positive integer $n$, the $n$th \tb{moment} of $X$ is $E[X^n]$, the $n$th \tb{central moment} is $\expec{(X-\mu)^n}$, and the $n$th \tb{standardized moment} is $\expec{\left(\frac{X-\mu}{\sigma}\right)^n}$. Throughout the previous sentence, "if it exists" is left implicit.
     \end{definition}
 
     \bigskip
@@ -214,10 +221,393 @@
 
 \begin{frame}{Moments}
     \begin{lemma}[Symmetry in terms of the PDF]
-        Let $X$ be a continuous r.v. with PDF $f$. Then $X$ is symmetric about $\mu$ 
+        Let $X$ be a continuous r.v. with PDF $f$. Then $X$ is symmetric about $\mu$ if and only if $f(x) = f(2\mu - x)$ for all $x$.
     \end{lemma}
+
+    \ti{Proof.}
+    \begin{itemize}
+        \item $X$ is symmetric about $\mu \implies f(x) = f(2\mu - x)$. 
+        \[
+        \begin{gathered}
+            F(x) = P(X- \mu \leq x - \mu)  = P(\mu - X \leq x - \mu) \\
+            = P(X > 2\mu - x) = 1 - F(2\mu - x)
+            \implies f(x) = f(2\mu - x)
+        \end{gathered}
+        \]
+        \item $f(x) = f(2\mu - x) \implies X$ is symmetric about $\mu$
+        \[
+        \begin{gathered}
+            P(X-\mu \leq t) = \int_{-\infty}^{\mu +t} f(x) dx = \int_{-\infty}^{\mu +t} f(2\mu - x)dx = \int_{\mu - t}^{\infty} f(x) dx \\
+            = P(X \geq \mu - t) = P(\mu -X \leq t)
+        \end{gathered}
+        \]
+    \end{itemize}
 \end{frame}
 
+\begin{frame}{Moments}
+    \begin{lemma}[Odd central moments of a symmetric distribution]
+        Let $X$ be symmetric about its mean $\mu$. Then for any odd number $m$, the $m$th central moment $\expec{(X-\mu)^m}$ is $0$ if it exists.
+    \end{lemma}
 
+    \ti{Proof.}
+    Since $X-\mu$ has the same distribution as $\mu -X$, they have the same $m$th moment (if it exists):
+    \[
+    \begin{gathered}
+        \expec{(X-\mu)^m} = \expec{(\mu - X)^m} = \expec{(-1)^m (X -\mu)^m} = - \expec{(X - \mu)^m} \\
+        \implies \expec{(X - \mu)^m} = 0
+    \end{gathered}
+    \]
+
+    \begin{itemize}
+        \item THis leads us to consider using an odd standardized moment as a measure of skew of a distribution.
+        \item If $m = 1$, $\expec{\frac{X - \mu}{\sigma}} = \frac{1}{\sigma} (\expec{X} - \mu) = 0$
+        \item So we use \tb{third standardized moment} $\expec{\left(\frac{X - \mu}{\sigma}\right)^3}$ as measurement of skewness
+        \item Positive skewness $\expec{\left(\frac{X - \mu}{\sigma}\right)^3} > 0$ indicates that distribution has a long right tail relative to the left tail. Negative skewness indicates reverse.
+        \item The \tb{inverse of above is false}, since there exist asymmetric distributions whose odd central moments are all $0$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Moments}
+    \begin{itemize}
+        \item Another important descriptive feature of a distribution is how heavy its tails are.
+        \item As with measuring skew, no single measure can perfectly capture the tail behavior, but there is a widely used summary based on the fourth standardized moment.
+    \end{itemize}
+    \begin{definition}[Kurtosis]
+        The \tb{kurtosis} of an r.v. $X$ with mean $\mu$ and variance $\sigma^2$ is a shifted version of the fourth standardized moment of $X$
+        \[
+        \mykurt{X} = \expec{\left(\frac{X-\mu}{\sigma}\right)^4} - 3
+        \]
+    \end{definition}
+    \begin{itemize}
+        \item The reason for subtracting $3$ is that this makes any Normal distribution have kurtosis $0$
+        \item However, some source define the kurtosis without the $3$, in which case they call our version "excess kurtosis"    
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Moments}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{SkewAndKurtosis.png}
+    \end{figure}
+
+    Skewness and kurtosis of named distribution, $\myexpo{1}, \mypois{4},$ and $\myunif{0}{1}$
+    \begin{itemize}
+        \item $\myexpo{1}$: skewness = $2$, kurtosis = $6$
+        \item $\mypois{4}$: skewness = $0.5$, kurtosis = $0.25$
+        \item $\myunif{0}{1}$: skewness = $0$, kurtosis = $-1.2$
+    \end{itemize}
+\end{frame}
+
+\subsection{Sample Moments}
+\begin{frame}{Sample moments}
+    \begin{itemize}
+        \item How to estimate unknown parameters of distribution?
+        \item It is especially common to want to estimate the mean and variance of a distribution
+    \end{itemize}
+
+    \begin{definition}[Sample Moments]
+        Let $X_1, \dots, X_n$ be i.i.d. random variables.
+        The $k$th \tb{sample moment} is the r.v.
+        \[
+        M_k = \frac{1}{n} \sum_{j=1}^n X_j^k
+        \]
+    \end{definition}
+
+    The \tb{sample mean} $\bar{X_n}$ is the first sample moment
+    \[
+    \bar{X}_n = \frac{1}{n} \sum_{j=1}^n X_j
+    \]
+
+    \begin{itemize}
+        \item The law of large numbers says that the $k$th sample moment of i.i.d. random variables $X_1, X_2, \dots, X_n$ converges to the $k$th moment $\expec{X_1^k}$ as $n \rightarrow \infty$.
+
+    \end{itemize}
+    \[
+        \expec{\left(\frac{1}{n} \sum_{j=1}^n X_j^k\right)} = \frac{1}{n} \left(\expec{X_1^k} + \cdots + \expec{X^k_n} \right) = \frac{n}{n} \expec{X^k_1} = \expec{X^k_1}
+   \]
+\end{frame}
+
+\begin{frame}{Sample Moments}
+    \begin{theorem}[Mean and variance of sample mean]
+        Let $X_1, \dots, X_n$ be i.i.d. r.v.s with mean $\mu$ and variance $\sigma^2$. Then the sample mean $\bar{X}_n$ is unbiased for estimating $\mu$. That is
+        \[
+        \expec{\bar{X}_n} = \mu
+        \]
+        The variance of $\bar{X}_n$ is given by
+        \[
+        \myvar{\bar{X}_n} = \frac{\sigma^2}{n}
+        \]
+    \end{theorem}
+
+    \ti{Proof.} Expectation of $k$th sample monent is unbiased for estimating the $k$th moment.
+
+    So $E[\bar{X}_n] = \mu$ holds.
+
+    For the variance, the fact that the variance of the sum of \ti{independent} r.v.s is the sum of the variances
+    \[
+    \myvar{\bar{X}_n} = \frac{1}{n^2} \myvar{X_1 + \cdots + X_n} = \frac{n}{n^2} \myvar{X_1} = \frac{\sigma^2}{n} \qquad \blacksquare
+    \]
+
+    Note that 
+    \[
+    \myvar{\bar{X}_n} = \expec{(\bar{X}_n - \expec{\bar{X}_n})^2} = \expec{(\bar{X}_n - \mu)^2}
+    \]
+\end{frame}
+
+\begin{frame}{Sample Moments}
+    \begin{definition}[Sample variance and sample standard deviation]
+        Let $X_1, \dots, X_n$ be i.i.d. random variables. The \tb{sample variance} is the r.v.
+
+        \[
+        S^2_n = \frac{1}{n-1} \sum_{j=1}^n (X_j - \bar{X}_n)^2
+        \]
+        The \tb{sample standard deviation} is $\sqrt{S^2_n}$
+    \end{definition}
+
+    \begin{theorem}[Unbiasedness of sample variance]
+        Let $X_1, \dots, X_n$ be i.i.d. r.v.s with mean $\mu$ and variance $\sigma^2$. Then the sample variance $S^2_n$ is \tb{unbiased} for estimating $\sigma^2$, i.e.
+        \[
+            \expec{S^2_n} = \sigma^2
+        \]
+    \end{theorem}
+    \begin{itemize}
+        \item Note that sample standard deviation is \tb{not unbiased}, $E[\sqrt{S^2_n}] \neq \sigma$
+    \end{itemize}
+\end{frame}
+\begin{frame}{Sample Moments}
+    \begin{theorem}[Unbiasedness of sample variance]
+        Let $X_1, \dots, X_n$ be i.i.d. r.v.s with mean $\mu$ and variance $\sigma^2$. Then the sample variance $S^2_n$ is \tb{unbiased} for estimating $\sigma^2$, i.e.
+        \[
+            \expec{S^2_n} = \sigma^2
+        \]
+    \end{theorem}
+
+    Before start proof, following equation is hold
+    \[
+        \begin{aligned}
+            \sum_{j=1}^n (X_j - c)^2 &=  \sum_{j=1}^n ((X_j - \bar{X}_n) + (\bar{X}_n - c))^2 \\
+            &= \sum_{j=1}^n (X_j - \bar{X}_n)^2 + 2(\bar{X} - c) \sum_{j=1}^n (X_j - \bar{X}_n) + \sum_{j=1}^n (\bar{X}_n - c)^2 \\
+            &= \sum_{j=1}^n (X_j - \bar{X}_n)^2 + \sum_{j=1}^n (\bar{X}_n - c)^2 \left(\because \sum_{j=1}^n (X_j - \bar{X}_n) = 0\right) \\
+            &= \sum_{j=1}^n (X_j - \bar{X}_n)^2 + n (\bar{X}_n - c)^2
+            \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Sample Moments}
+    \begin{theorem}[Unbiasedness of sample variance]
+        Let $X_1, \dots, X_n$ be i.i.d. r.v.s with mean $\mu$ and variance $\sigma^2$. Then the sample variance $S^2_n$ is \tb{unbiased} for estimating $\sigma^2$, i.e.
+            
+        \[ \expec{S^2_n} = \sigma^2 \]
+    \end{theorem}
+
+    \ti{Proof.}
+    \[
+        \expec{(X_1 - \mu)^2 + \dots + (X_n - \mu)^2} = n \expec{(X_1 - \mu)^2} = n \sigma^2
+    \]
+
+    Also, 
+    \[
+    \begin{aligned}
+        &\expec{(X_1 - \mu)^2 + \dots (X_n - \mu)^2} = \expec{\sum_{j=1}^n(X_j - \bar{X}_n)^2 + n (\bar{X}_n - \mu)^2 } \\ 
+        &= \expec{\sum_{j=1}^n (X_j - \bar{X}_n)^2} + n \myvar{\bar{X}_n} = \expec{\sum_{j=1}^n (X_j - \bar{X}_n)^2} + \sigma^2 \\
+        &\implies \expec{\sum_{j=1}^n (X_j - \bar{X}_n)} = (n-1) \sigma^2 \implies \expec{\frac{1}{n-1} \sum_{j=1}^n (X_j - \bar{X}_n)^2} = \sigma^2
+    \end{aligned}
+    \]
+\end{frame}
+
+\subsection{Moment generating function}
+
+\begin{frame}{Moment generating functions}
+    \begin{itemize}
+        \item Generating functions are a powerful tool in combinatories and probability, bridging between sequences of numbers and the world of calculus
+        \item Starting with a sequence of numbers, create a continuous function (the generating function) that encodes the sequence
+    \end{itemize}
+
+    A moment generating function, as its name suggests, is a generating function that encodes the \tb{moments} of a distribution.
+
+    \begin{definition}[Moment generating function]
+        The \tb{moment generating function}(MGF) of an r.v. $X$ is $M(t) = \expec{e^{tX}}$, as a functino of t, if this is finite on some open interval $(-a, a)$ containing $0$. Otherwise the MGF of $X$ does not exist.
+    \end{definition}
+
+    \begin{example}[Bernoulli MGF]
+        For $X \sim \myber{p}, e^{tX}$ takes $e^t$ with probability $p$ and takes $1$ with probability $1-p$.
+        \[
+        M(t) = \expec{e^{tX}} = pe^t + q
+        \]
+
+        $M(t)$ is finite for interval $(-\infty, \infty)$. $M(t)$ is defined on the entirel real line.
+    \end{example}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{example}[Geometric MGF]
+        For $X \sim \mygeom{p}$,
+        \[
+        M(t) = \expec{e^{tX}} = \sum_{k=0}^\infty e^{tk} q^k p = p \sum_{k=0}^\infty (qe^t)^k = \frac{p}{1 - qe^t}
+        \]
+
+        $M(t)$ is finite in interval $(-\infty, \log{(1/q)})$.
+    \end{example}
+
+    \begin{example}[Uniform MGF]
+        Let $U \sim \myunif{a}{b}$.
+        \[
+        M(t) = \expec{e^{tU}} = \frac{1}{b-a} \int_a^b e^{tu} du = \frac{e^{tb} - e^{ta}}{t (b-a)}, \forall t \neq  0, M(0) = 1
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Moment generationg function}
+    Then why is MGF important?
+    \begin{itemize}
+        \item The MGF encodes the moments of an r.v.
+        \item The MGF of an r.v. determines its distribution (like CDF and PMF/PDF)
+        \item MGFs make it easy to find the distribution of a sum of independent r.v.s.
+    \end{itemize}
+    \begin{theorem}[Moments via derivatives of the MGF]
+        Given the MGF of $X$, we can get $n$th moment of $X$ by evaluating the $n$th derivative of the MGF at $0$
+        \[
+            \expec{X^n} = M^{(n)}(0)
+        \]
+    \end{theorem}
+
+    \ti{Proof.} $M(t) = \expec{e^{tX}} = \expec{\sum_{n=0}^\infty \frac{(tX)^n}{n!}} = \sum_{n=0}^\infty \expec{X^n \frac{t^n}{n!}} = \sum_{n=0}^\infty \frac{t^n}{n!} \expec{X^n}$.
+    On the other hand, by taylor series, $M(t) = \sum_{n=0}^\infty M^{(n)}(0) \frac{t^n}{n!}$. This implies $\expec{X^n} = M^{(n)}(0)$
+
+    \begin{theorem}[MGF determines the distribution]
+        If two r.v.s have the \tb{same MGF}, they must have the \tb{same distribution}. In fact, if there is even a tiny interval $(-a, a)$ containing $0$ on which the MGFs are equal, then the r.v.s must have the same distribution
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{MGF of a sum of independent r.v.s}
+    \begin{theorem}
+        If $X$ and $Y$ are independent, then the MGF of $X + Y$ is the product of the individual MGFs
+        \[
+        M_{X+Y} (t) = M_X (t) M_Y (t)
+        \]
+    \end{theorem}
+    \ti{proof.} If $X$ and $Y$ are independent, then $\expec{e^{t (X+Y)}} = \expec{e^{tX}} \expec{e^{tY}}$. (this follows from results discussed in Chapter 7)
+
+    \begin{example}[Binomial MGF]
+        The MGF of a $\myber{p}$ r.v. is $pe^t +q$, so the MGF of a $\mybin{n}{p}$ r.v. is $M(t) = (pe^t + q)^n$
+    \end{example}
+
+    \begin{proposition}[MGF of location-scale transformation]
+        If $X$ has MFG $M(t)$, then the MGF of $a + bX$ is 
+        \[
+            \expec{e^{t(a+bX)}} = e^{ta}\expec{e^{tbX}} = e^{ta}M(bt)
+        \]
+    \end{proposition}
+\end{frame}
+
+\begin{frame}{MGF of a sum of independent r.v.s}
+    \begin{example}[Normal MGF]
+        The MGF of a standard Normal r.v. $Z$ is 
+        \[
+        M_Z(t) = \expec{e^{tZ}} = \int_{-\infty}^\infty e^{tz} \frac{1}{\sqrt{2\pi}} e^{-z^2/2} dz = e^{t^2 /2} \int_{-\infty}^\infty \frac{1}{\sqrt{2\pi}} e^{-(z - t)^2 / 2}dz = e^{t^2/ 2}
+        \]
+        $X = \sigma Z + \mu$. Then MGF of $X$, $M_X$ is 
+        \[
+        M_X(t) = e^{\mu t} M_Z(\sigma t) = e^{\mu t} e^{(\sigma t)^2/2} = e^{\mu t + \frac{1}{2} \sigma^2 t^2} 
+        \]
+    \end{example}
+
+    \begin{example}{Exponential MGF}
+        The MGF of $X \sim \myexpo{1}$ is
+        \[
+            M_X(t) = \expec{e^{tX}} = \int_{0}^\infty e^{tx} e^{-x} dx = \int_{0}^\infty e^{-x(1 -t)} dx = \frac{1}{1 - t}, \forall t < 1
+        \]
+        So the MGF of $Y = X /\lambda \sim \myexpo{\lambda}$ is
+        \[
+        M_Y (t) = M_X(t / \lambda) = \frac{\lambda}{\lambda - t}, \forall t <\lambda
+        \]
+    \end{example}
+\end{frame}
+
+\subsection{Generating moments with MGFs}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{Generating moments with MGFs}
+    \begin{example}[Exponential moments]
+        Let $X \sim \myexpo{1}$. The MGF of $X$ is $M(t) = \frac{1}{1 - t} \forall t<1$. Then
+        \[
+        \begin{aligned}
+            M(t) &= \frac{1}{1 - t} = \sum_{n=0}^\infty t^n = \sum_{n=0}^\infty n! \frac{t^n}{n!} = \sum_{n=0}^\infty M^{(n)}(0) \frac{t^n}{n!} = \sum_{n=0}^\infty \expec{X^n} \frac{t^n}{n!} \\
+            &\implies \expec{X^n} = n!
+        \end{aligned}
+        \]
+        For $Y = X / \lambda \sim \myexpo{\lambda}$, $Y^n = X^n / \lambda^n$ and $\expec{Y^n} = \frac{n!}{\lambda^n}$
+    \end{example}
+
+    \begin{example}[Standard Normal moments]
+        Let $Z \sim \mathcal{N}(0, 1)$.
+        \[
+        \begin{aligned}
+            M(t) &= e^{t^2 /2} = \sum_{n=0}^\infty \frac{(t^2/2)^n}{n!} = \sum_{n=0}^\infty \frac{t^{2n}}{2^n n!} = \sum_{n=0}^\infty \frac{(2n)!}{2^n n!} \frac{t^{2n}}{(2n)!} \\
+            &\implies E[Z^{2n}] = \frac{(2n)!}{2^n n!} = \prod_{k=1}^n (2k - 1)
+        \end{aligned}
+        \]
+        And $E[Z^{2n-1}] = 0, \forall n$. 
+    \end{example}
+\end{frame}
+
+\begin{frame}{Generating moments with MGFs}
+    \begin{example}[Log-Normal moments]
+        We say that if $Y = e^X$ where $X \sim \mathcal{N}(\mu, \sigma^2)$, then $Y$ is \tb{Log-Normal} with parameters $\mu$ and $\sigma^2$, denoted by $Y \sim \mathcal{LN} (\mu, \sigma^2)$.
+
+        The name \ti{Log-Normal} is originated from \tb{"Log is Normal"}, $\log{Y} = X$.
+        
+        Interestingly, Log-Normal MGF does not exist, since $\expec{e^{tY}}$ is infinite for all $t> 0$.
+
+        Consider the case $Y = e^Z, Z \sim \mathcal{N}(0, 1)$. Then
+        \[
+            \expec{e^{tY}} = \expec{e^{te^Z}} = \int_{-\infty}^{\infty} e^{te^z} \frac{1}{\sqrt{2\pi}} e^{-z^2 /2}  = \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi}} e^{te^z - z^2/2} dz
+        \]
+
+        $\forall t > 0, e^{te^z - z^2 /2} \rightarrow \infty $ as $z \rightarrow \infty$. $\therefore \expec{e^{tY}} = \infty$.
+        
+        Since $\expec{e^{tY}}$ is not finite on an open interval around $0$, the MGF of $Y$ does not exist.
+
+        However, even though the Log-Normal MGF does not exist, we can get moments of Log-Normal, using the MGF of the Normal.
+        For $Y=e^X, X \sim \mathcal{N}(\mu, \sigma^2)$,
+        \[
+        E[Y^n] = E[e^nX] = e^{n\mu + \frac{1}{2}n^2 \sigma^2} 
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{Generating moments with MGFs}
+    Weibull distribution is widely used distributions in \ti{survival analysis} (e.g. modeling how long someone with a particular disease will live)
+    \begin{example}[Weibull distribution]
+        Let $T \sim X^{1/ \gamma}, X \sim \myexpo{\lambda}, \lambda,\gamma > 0$. Then the distribution of $T$ is called the \tb{Weibull distribution}, and denoted by $T \sim \mywei{\lambda}{\gamma}$.
+
+        The PDF of $T$ is (Shown from Chapter 8)
+        \[
+        f(t) = \gamma \lambda e^{-\lambda t^{\gamma}}t^{\gamma -1}, \forall t > 0
+        \] 
+
+        For $\lambda = 1$ and $\gamma = 1/3$,
+        \begin{itemize}
+            \item Find $P(T > s+t | T> s), \forall s,t > 0$. Does $T$ have the memoryless property?
+            \item Find the mean and variance of $T$, and the $n$th moment $\expec{T^n}, \forall n=1,2,\dots$
+            \item Determine whether or not the MGF of $T$ exists.
+        \end{itemize}
+    \end{example}
+
+    \begin{itemize}
+        \item Find $P(T > s+t | T> s), \forall s,t > 0$. Does $T$ have the memoryless property?
+    \end{itemize}
+    \[
+    \begin{gathered}
+        P(T\leq t) = P(X^3 \leq t) = F_X(t^{1/3}) = 1 - e^{-t^{1/3}}, \forall t>0 \\
+        \implies P(T> s+t | T>s) = \frac{1 - P(T \leq s+t)}{1 - P(t \leq s)} = \frac{e^{-(s+t)^{1/3}}}{e^{-s^{1/3}}} \neq e^{-t^{1/3}} = P(T > t)
+    \end{gathered}
+    \]
+    $\therefore$ $T$ does not have memoryless property
+\end{frame}
 
 \end{document}
