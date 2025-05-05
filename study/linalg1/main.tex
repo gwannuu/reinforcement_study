@@ -1,0 +1,247 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  % \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Linear Algebra}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+% \subsection{Introduction}
+
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents[currentsubsection]
+% \end{frame}
+
+
+\begin{frame}{Field}
+  \begin{definition}[Field]\label{def:field}
+    For $x, y, z \in F$,
+    \begin{itemize}
+      \item Addition is commutative $ x+ y = y + x$
+      \item Addition is associative $x + (y + z) = (x+y) + z$
+      \item There exists identity element for addition. $0$ in $F$
+      \item There exists inverse element for addition. $(-x), \forall x \in F$
+      \item Multiplication is commutative $xy = yx$
+      \item Multipication is associative $x(yz) = (xy)z$
+      \item There exists identity element for multiplication. $1$ in $F$
+      \item There exists inverse element for multiplication. $x^{-1}, \forall x \in F \setminus \{0\}$
+      \item $x(y+z) = xy + xz$
+    \end{itemize}
+    If set $F$ satisfies above conditions for two operators (addition, multiplication), is then called a \tb{field}
+  \end{definition}
+\end{frame}
+
+\begin{frame}{Field}
+  \begin{definition}[Subfield]
+    A subfield of the field $C$ is a set $F$ of complex numbers which is itself a field under the usual operations of addition and multiplication of complex numbers
+  \end{definition}
+
+  \begin{example}
+    \begin{itemize}
+      \item The set of integers is not a subfield of $C$. For an integer $n$, $1/n$ is not an integer (unless $n$ is $1$ or $-1$)
+      \item The set of rational numbers is a subfield of the field $C$
+      \item The set of all complex numbers of the form $x + y \sqrt{2}, x, y \in \mbb{Q}$
+    \end{itemize}
+  \end{example}
+
+  $(x + y \sqrt{2})^{-1} = \frac{x - y \sqrt{2}}{x^2 - 2 y^2}$
+
+  $(x + y \sqrt{2}) + (- x = y \sqrt{2}) = 0$
+
+  \begin{itemize}
+    \item Why we define subfield only for under complex number? Because complex field $\mbb{C}$ is \ti{characteristic zero}
+    \item In $\mbb{C}$, finite sum of $1$, $1 + 1 + \cdots + 1 \neq 0$
+    \item There exists some field $F$ that has characteristic, $1 + 1+ \cdots + 1 = 0$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{System of linear equation}
+  Suppose $F$ is a field. We consider the problem of finding $n$ scalars (elements of $F$) $x_1, \dots, x_n$ which satisfy the conditions of 
+  \begin{equation}\label{eq:1}
+    \begin{array}{ccccc}
+      A_{21}x_1 &+ A_{22}x_2  &+ \cdots &+ A_{2n}x_n & = y_2\\
+      A_{11}x_1 &+ A_{12}x_2  &+ \cdots &+ A_{1n}x_n & = y_1\\
+      \vdots    &  \vdots     &\empty    & \vdots          & \vdots\\
+      A_{m1}x_1 &+ A_{m2}x_2  &+ \cdots &+ A_{mn}x_n & = y_m
+    \end{array}
+  \end{equation}
+
+  where $y_1, \dots, y_m$ and $A_{ij}, 1\leq i\leq m, 1 \leq j \leq n $ are given elements of $F$. This is called a \ti{system of $m$ linear equations in $n$ unknowns}.
+
+  \bigskip
+  If $y_1 = y_2 =  \cdots = y_m = 0$, then this system of equations is called \ti{homogeneous}.
+
+  \bigskip
+  If each equation of system is the \tb{linear combination} of original system of equations, i.e. $(c_1 A_{11} + \dots  c_m A_{m1})x_1 + \cdots +(c_1 A_{1n} + \cdots + c_m A_{mn}  )x_n = c_1 y_1 + \cdots +c_m y_m, \forall c_1, \dots, c_n \in F$, then this new system of equations is \ti{equlvalent} with original system of equations.
+
+  \begin{theorem}
+    Equivalent system of linear equations have exactly the same solution
+  \end{theorem}
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  Equation \ref{eq:1} can be abbreviated by
+  $AX = Y$, where
+  \[
+  A = \left[ \begin{array}{ccc}
+    A_{11} & \cdots & A_{1n} \\
+    \vdots & \empty & \vdots \\
+    A_{m1} & \cdots & A_{mn}
+  \end{array} \right], 
+  X = \left[ \begin{array}{c}
+  x_1 \\ \vdots  \\ x_n
+  \end{array} \right],
+  Y = \left[\begin{matrix}
+    y_1 \\ \vdots \\ y_m
+  \end{matrix} \right]
+  \]
+
+
+  Three \tb{elementary row operations} on an $m \times n$ matrix $A$ over the field $F$ is
+
+  \begin{enumerate}
+    \item multiplication of one row of $A$ by a non-zero scalar $c$
+    \item replacement of the $r$th row of $A$ by row $r$ plus $c$ times row $s$, $c$ any scalar and $r \neq s$
+    \item interchange of two rows of $A$
+
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  \begin{theorem}
+    To each elementary row operation $e$ there corresponds an elementary row operation $e_1$, of the same type as $e$, such that $e_1 (e(A)) = e(e_1(A)) = A$ for each $A$. In other words, the inverse operation (function) of an elementary row operation exists and is an elementary row operation of the same type. 
+  \end{theorem}
+  \ti{Proof.} skip
+
+  \begin{definition}
+    If $A$ and $B$ are $m \times n$ matrices over the field $F$, we say that $B$ is \tb{row-equivalent} to $A$ if $B$ can be obtained from $A$ by a finite sequence of elementary row operations.
+  \end{definition}
+
+
+  \begin{theorem}
+    If $A$ and $B$ are row-equivalent $m \times n $ matrices, the homogeneous system of linear equations $AX = 0$ and $BX = 0$ have exactly the same solutions.
+  \end{theorem}
+  \ti{Proof.} skip
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  \begin{definition}
+    An $m \times n$ matrix $R$ is called row-reduced if  
+    \begin{enumerate}
+      \item[a] the first non-zero entry in each non-zero row of $R$ is equal to $1$
+      \item[b] each column of $R$ which contains the leading non-zero entry of some row has all its other entries $0$
+    \end{enumerate}
+  \end{definition}
+
+  \begin{theorem}
+    Every $m \times n$ matrix over the field $F$ is row-equivalent to a row-reduced matrix
+  \end{theorem}
+  \ti{proof} skip
+
+  \begin{definition}
+    An $m \times n$ matrix $R$ is called a \tb{row-reduced echelon matrix} if
+    \begin{itemize}
+      \item $R$ is row-reduced
+      \item every row of $R$ which has all its entries $0$ occurs below every row which has a non-zero entry
+      \item If rows $1, \dots, r$ are the non-zero rows of $R$, and if the leading non-zero entry of row $i$ occurs in column $k_i$, $i=1, \dots, r$ then $k_1< k_2< \cdots < k_r$
+    \end{itemize}
+  \end{definition}
+
+  \begin{theorem}
+    Every $m \times n$ matrix $A$ is row-equivalent to a row-reduced echelon matrix
+  \end{theorem}
+  \ti{proof} skip
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  \begin{theorem}
+    If $A$ is an $m \times n$ matrix and $m < n$, then the homogeneous system of linear equations $AX=0$ has a non-trivial solution.
+  \end{theorem}
+  \ti{Proof} Let $R$ be the row-reduced echelon matrix which is row-equivalent to $A$. Then the sysmtes $AX = 0$ and $RX=0$ have the same solutions. And $r \leq m$ and since $m < n$, $r < n$. ($r$ is the number of non-zero rows of $R$)
+
+  \begin{theorem}
+    If $A$ is an $n \times n$ matrix, then $A$ is row-equivalent to the $n\times n$ identity matrix if and only if the system of equations $AX = 0$ has only the trivial solution.
+  \end{theorem}
+  \ti{Proof.} $RX = 0$ has no non-trivial solution, thus $r \geq n$. But number of non-zero rows $r$ should be less or equal to $n$. $\therefore r = n \implies R = I$
+\end{frame}
+
+
+\end{document}
