@@ -1,0 +1,135 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{RL Theory}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+\subsection{MDP}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+
+\begin{frame}{Markov Decision Processes}
+    In MDP, transition probability $P_{s s^\prime}^a = Pr(s^\prime | s,a)$ can be expressed by matrix form $P \in \mbb{R}^{(\abs{\mathcal{S}} \cdot \abs{\mathcal{A}}) \times \mathcal{S}}$
+
+\end{frame}
+
+
+\begin{frame}{MDP}
+    \begin{corollary}
+        Suppose that $\pi$ is a stationary policy. We have that
+        \[
+        Q^\pi = (I - \gamma P^\pi)^{-1} r
+        \]
+        Where $I$ is the identity matrix.
+    \end{corollary}
+
+    \ti{Proof.}
+    To see that the $I - \gamma P^\pi$ is invertible ($\iff \ker{I - \gamma P^\pi} = \{0\}$), It is enough to show that $\forall x \neq 0, x \in \mbb{R}^{\abs{\mc{S}}\abs{\mc{A}}}, \norm{(I - \gamma P^\pi) x}_\infty > 0$.
+
+    \[
+    \begin{aligned}
+        \norm{(I - \gamma P^\pi)x}_\infty &= \norm{x - \gamma P^\pi x}_\infty \\ &\geq \norm{x}_\infty - \gamma \norm{P^\pi x}_\infty &(\text{reverse triangle inequality})\\
+        &\geq \norm{x}_\infty - \gamma \norm{x}_\infty &(\text{each element of }P^\pi x\text{ is an average of }x ) \\
+        &=(1-\gamma) \norm{x}_\infty > 0 &(\gamma < 1, x \neq 0)
+    \end{aligned}
+    \]
+    This implies $(I - \gamma P^\pi)x = 0 \implies x = 0$ and matrix $I - \gamma P^\pi$ is full rank
+\end{frame}
+
+\begin{frame}{MDP}
+    \begin{lemma}
+        \[
+        \begin{gathered}
+            \left[(1 - \gamma)(I - \gamma P^\pi)^{-1}\right]_{(s,a), (s^\prime, a^\prime)} \\
+            = (1 - \gamma) \sum_{t=0}^\infty \gamma^t Pr(S_t=s^\prime, A_t = a^\prime | S_0 =s, A_0 = a; \pi)
+        \end{gathered}
+        \]
+    \end{lemma}
+
+    \ti{proof.}
+    
+\end{frame}
+
+
+\end{document}
