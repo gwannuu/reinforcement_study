@@ -115,6 +115,8 @@
 
 
 
+
+
 \begin{frame}{Code implementation}
     Network arcitectures are like these
     \begin{columns}[t]
@@ -207,6 +209,59 @@
 \end{frame}
 
 
+\begin{frame}{Reproducibility}
+    Reproducibility is very important to compare performance of several experiments
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{UnmatchedReprod.png}
+    \end{figure}
+    I had Non-reproducibility issues between experiments of same settings
+    \begin{itemize}
+        \item It seems that different training results occur in each workstation(A5000) and desktop (RTX 3060).
+    \end{itemize}
+    So if one wants to guarantee reproducibility, then it would be nice to run experiments in same devices.
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    \begin{itemize}
+        \item Green one is average of every rewards in one evaluation episode
+        \item Pink one is average of every rewrads in ten evaluation episodes
+        \item But there exists frequently matched points
+    \end{itemize}
+
+    If in each episode start state is different, then
+    \begin{itemize}
+        \item It seems odd that there exists frequently matched points because usually in each episode, different states, different actions, and different rewards are expected to be represented.
+    \end{itemize}
+
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{WrongSeedSetting.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    I had reset with fixed seed in every evaluation episodes
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{WrongEvalSeed}
+    \end{figure}
+
+    Code should be like these.
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix1.png}
+    \end{figure}    
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix2.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Wrong seed fixing}
+    Note:
+    \begin{itemize}
+        \item From the point env.reset with a specific seed, random sequences are uniquely determined.
+        \item For example, suppose we rolled out 100 episodes with starting "env.reset(seed=42)". Then with fixed policy, all state sequences and reward sequences in each episode are same for 100 times.
+    \end{itemize}
+\end{frame}
+
 \begin{frame}{Change of variables}
     In my first code implementation, 
     \begin{itemize}
@@ -280,17 +335,32 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{Reproducibility}
-    Reproducibility is very important to compare performance of several experiments
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{UnmatchedReprod.png}
-    \end{figure}
-    I had Non-reproducibility issues between experiments of same settings
+\begin{frame}{Change of variables}
+    After adopting change of variables (CoV), q loss value increases
+
     \begin{itemize}
-        \item It seems that different training results occur in each workstation(A5000) and desktop (RTX 3060).
+        \item Adopt CoV version is Pink, and dropped CoV version is Mint
+        \item Note that before adopting CoV, the loss function is $\operatorname{log} \mu(a^\prime |s)$, where $\mu$ is gaussian probability density induced by reparametrization trick
+        \item and after adopting CoV, the loss function is $\operatorname{log} \mu(a^\prime |s) - \sum_{i=1}^D \log{(1 - \operatorname{tanh}^2 (a^\prime_i))}$
+        \item $ \sum_{i=1}^D \log{(1 - \operatorname{tanh}^2 (a^\prime_i))} < 0$ ($\because 0 < \operatorname{tanh}^2 (a^\prime_i) \leq 1$)
+    
     \end{itemize}
-    So if one wants to guarantee reproducibility, then it would be nice to run experiments in same devices.
+    \begin{figure}
+        \includegraphics[width=0.85\textwidth]{AfterCoVPLossDiff.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}{Change of variables}
+    Adopt CoV version (Pink) has more stable gradient for P\_loss than dropped CoV version (Mint). Mint has more variance in p\_loss\_grad\_norm.
+    \begin{figure}
+        \includegraphics[width=0.75\textwidth]{MoreStablePLoss.png}
+    \end{figure}
+
+    Performance rarely slightly increases.
+    \begin{figure}
+        \includegraphics[width=0.45\textwidth]{CoVReturns.png}
+    \end{figure}
 \end{frame}
 
 % \begin{frame}{Reproducibility}
@@ -316,39 +386,18 @@
 %     \end{itemize}
 % \end{frame}
 
-\begin{frame}{Wrong seed fixing}
-    \begin{itemize}
-        \item Green one is average of every rewards in one evaluation episode
-        \item Pink one is average of every rewrads in ten evaluation episodes
-    \end{itemize}
-    It seems odd because usually in each episode, different states, different actions, and different rewards are expected to be represented.
-    \begin{figure}
-        \includegraphics[width=0.7\textwidth]{WrongSeedSetting.png}
-    \end{figure}
-\end{frame}
 
-\begin{frame}{Wrong seed fixing}
-    I had reset with fixed seed in every evaluation episodes
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{WrongEvalSeed}
-    \end{figure}
+% \begin{frame}{Check loss function}
+%     Update rule for value function $Q$ is
+%     \[
+%     \begin{gathered}
+%         J_Q(\theta) = \mbb{E}_{(s_t, a_t) \sim \mathcal{D}}\left[\frac{1}{2} \left(  Q_\theta (s_t, a_t) - \hat{Q}  (s_t, a_t) \right)^2 \right] \\
+%         \hat{\nabla}_\theta J_Q(\theta) = \nabla_\theta Q_\theta (s_t, a_t) \left( Q_\theta(s_t, a_t) -r(s_t, a_t) -\gamma V_{\hat{\psi}}(s_{t+1})  \right)
+%     \end{gathered}
+%     \]
 
-    Code should be like these.
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix1.png}
-    \end{figure}    
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{FixEvalSeedFix2.png}
-    \end{figure}
-\end{frame}
+% \end{frame}
 
-\begin{frame}{Wrong seed fixing}
-    Note:
-    \begin{itemize}
-        \item From the point env.reset with a specific seed, random sequences are uniquely determined.
-        \item For example, suppose we rolled out 100 episodes with starting "env.reset(seed=42)". Then all state sequences and reward sequences in each episode are same for 100 times.
-    \end{itemize}
-\end{frame}
 
 \begin{frame}{Check loss function}
     Update rule for value function $V$ is
@@ -371,16 +420,6 @@
     \end{itemize}
 \end{frame}
 
-% \begin{frame}{Check loss function}
-%     Update rule for value function $Q$ is
-%     \[
-%     \begin{gathered}
-%         J_Q(\theta) = \mbb{E}_{(s_t, a_t) \sim \mathcal{D}}\left[\frac{1}{2} \left(  Q_\theta (s_t, a_t) - \hat{Q}  (s_t, a_t) \right)^2 \right] \\
-%         \hat{\nabla}_\theta J_Q(\theta) = \nabla_\theta Q_\theta (s_t, a_t) \left( Q_\theta(s_t, a_t) -r(s_t, a_t) -\gamma V_{\hat{\psi}}(s_{t+1})  \right)
-%     \end{gathered}
-%     \]
-
-% \end{frame}
 
 \begin{frame}{Check loss function}
     The code snippet for calculating V loss seems clear.
@@ -502,6 +541,7 @@
     \[
         \nabla_{\theta_i} Q_{\theta_i} (s_t, a_t) \left(Q_{\theta_i}(s_t, a_t) - r(s_t, a_t) - \gamma V_{\hat{\psi}}(s_{t+1}) \right) - \nabla_{a_t} Q(s_t, a_t) \nabla_\phi f_\phi (\epsilon_t; s_t)
     \]
+    where unwanted gradient term $- \nabla_{a_t} Q(s_t, a_t) \nabla_\phi f_\phi (\epsilon_t; s_t)$ is appended
 \end{frame}
 
 \begin{frame}{Check loss function}
@@ -519,32 +559,60 @@
     After each network update, clear all network's gradient via call \ti{zero\_grad()} method of all optimizers
 \end{frame}
 
-
-\begin{frame}{Robust for variant seeds}
-    \begin{itemize}
-        \item When run with same seed, same performance is obtained
-        \item It seems seed fix is well done
-    \end{itemize}
+\begin{frame}{Check loss function}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item It seems there is no dramatic increasing
+                \item Comparing the scale of q loss gradient norms from each q\_loss and p\_loss, Norm of gradient from q\_loss is significantly bigger than one from p\_loss
+                \item Leading no improvement
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=0.75\textwidth]{NoBigDiffafterLossFix.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
     \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{fig1.png}
-    \end{figure}
-
-    Average reward is calculated by
-    $\frac{\sum_{i=1}^T r_i}{T}$, where $T$ is terminated time step.
-\end{frame}
-
-\begin{frame}{Robust for variant seeds}
-    \begin{itemize}
-        \item With variant seeds, different performance is obtained
-        \item But shows \tb{similar performance}
-        \item One of the important property of SAC is robust performance and this experiment shows that point
-    \end{itemize}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{fig2.png}
+        \includegraphics[width=0.86\textwidth]{CompareQGradNorm.png}
     \end{figure}
 \end{frame}
+
+\begin{frame}{More stuff to experiment}
+    \begin{itemize}
+        \item Implement discrete version of SAC
+        \item Experiment in more harder environments (It seems walker2d is too easy task to SAC algorithm)
+        \item Reward Scaling
+    \end{itemize}
+\end{frame}
+
+
+% \begin{frame}{Robust for variant seeds}
+%     \begin{itemize}
+%         \item When run with same seed, same performance is obtained
+%         \item It seems seed fix is well done
+%     \end{itemize}
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.8\textwidth]{fig1.png}
+%     \end{figure}
+
+%     Average reward is calculated by
+%     $\frac{\sum_{i=1}^T r_i}{T}$, where $T$ is terminated time step.
+% \end{frame}
+
+% \begin{frame}{Robust for variant seeds}
+%     \begin{itemize}
+%         \item With variant seeds, different performance is obtained
+%         \item But shows \tb{similar performance}
+%         \item One of the important property of SAC is robust performance and this experiment shows that point
+%     \end{itemize}
+
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.8\textwidth]{fig2.png}
+%     \end{figure}
+% \end{frame}
 
 \end{document}
