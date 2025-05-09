@@ -325,14 +325,28 @@
 \begin{frame}{Change of variables}
     Performance compare
     \begin{itemize}
-        \item Green is the version of adopting change of variable
-        \item Cyan is not adopted version
+        \item Pink(Yellow in right figure) is the version of adopting change of variable (CoV)
+        \item Cyan(Purple in right figure) is not adopted version
     \end{itemize}
-    Fixed version shows slightly better performance than previous version.
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.8\textwidth]{CovReturns.png}
-    \end{figure}
+    Fixed version (Adopting CoV) is trained more unstablly.
+    \begin{itemize}
+        \item Don't know why..
+    \end{itemize}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=1.0\textwidth]{CovReturns.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{CoVReturns1.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+
 \end{frame}
 
 \begin{frame}{Change of variables}
@@ -357,7 +371,7 @@
         \includegraphics[width=0.75\textwidth]{MoreStablePLoss.png}
     \end{figure}
 
-    Performance rarely slightly increases.
+    But "average\_total\_reward" of Pink is slightly lower than Cyan and more unstable.
     \begin{figure}
         \includegraphics[width=0.45\textwidth]{CoVReturns.png}
     \end{figure}
@@ -378,6 +392,41 @@
         \end{figure}
     \end{column}
     \end{columns}
+\end{frame}
+
+\begin{frame}{Change of variables (Numerically unstable issue)}
+    Following code snippet can easily produce "NaN" value. See the printed information in Debug console.
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{UnstableCoV.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{LogProbInf.png}
+            \end{figure}
+            Tanh function easily produces $\operatorname{tanh}(a) = -1.0$ or $\operatorname{tanh}(a) = 1.0$, which leads $\log{1 - \operatorname{tanh}^2 (a)} = \infty$
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{NumericallyStableLogProbofTanH.png}
+            \end{figure}
+            Whereas, same equation but numerically more stable version, $2 (\log{2} - a - \log{(e^{-2a} + 1)})$ don't generate $\infty$
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Change of variables (Numerically unstable issue)}
+    This $\infty$ included "log\_prob" values produces $\infty$ "p\_loss"
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{UpdatePwithNaNGrad.png}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{NaNIncludedinGrad.png}
+    \end{figure}
+    After update this "NaN" grad, updated network parameter values become "NaN"
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{NaNIncludedinP.png}
+    \end{figure}
 \end{frame}
 
 % \begin{frame}{Reproducibility}
@@ -599,6 +648,7 @@
 \begin{frame}{More stuff to experiment}
     \begin{itemize}
         \item Implement discrete version of SAC
+        \item Clip gradient for each loss functions (because loss scale and gradient scale is large)
         \item Experiment in more harder environments (It seems walker2d is too easy task to SAC algorithm)
         \item Reward Scaling
     \end{itemize}
