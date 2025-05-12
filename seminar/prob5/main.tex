@@ -512,7 +512,7 @@
         \]
     \end{example}
 
-    \begin{example}{Exponential MGF}
+    \begin{example}[Exponential MGF]
         The MGF of $X \sim \myexpo{1}$ is
         \[
             M_X(t) = \expec{e^{tX}} = \int_{0}^\infty e^{tx} e^{-x} dx = \int_{0}^\infty e^{-x(1 -t)} dx = \frac{1}{1 - t}, \forall t < 1
@@ -585,9 +585,13 @@
     \begin{example}[Weibull distribution]
         Let $T \sim X^{1/ \gamma}, X \sim \myexpo{\lambda}, \lambda,\gamma > 0$. Then the distribution of $T$ is called the \tb{Weibull distribution}, and denoted by $T \sim \mywei{\lambda}{\gamma}$.
 
-        The PDF of $T$ is (Shown from Chapter 8)
+        The PDF of $T$
         \[
-        f(t) = \gamma \lambda e^{-\lambda t^{\gamma}}t^{\gamma -1}, \forall t > 0
+        \begin{gathered}
+            f(t) = \gamma \lambda e^{-\lambda t^{\gamma}}t^{\gamma -1}, \forall t > 0 \\
+            \because F_T(t) = P(T\leq t) = P(X \leq t^\gamma) = F_X(t^\gamma) \implies f_T(t) = f_X(t^\gamma) \gamma t^{\gamma -1} \\
+            f_T(t) = \gamma t^{\gamma - 1} \lambda e^{-\lambda t^\gamma}
+        \end{gathered}
         \] 
 
         For $\lambda = 1$ and $\gamma = 1/3$,
@@ -609,5 +613,167 @@
     \]
     $\therefore$ $T$ does not have memoryless property
 \end{frame}
+
+\begin{frame}{Generating moments with MGFs}
+    \begin{itemize}
+        \item Find the mean and variance of $T$, and the $n$th moment $\expec{T^n}, \forall n = 1,2,\dots$
+    \end{itemize}
+
+    Note that $M_X(t) = \frac{\lambda}{\lambda - t}$ and $E[X^n] = \frac{n!}{\lambda^n}$. $\expec{X^n} = \expec{T^{\gamma n}} = \frac{n!}{\lambda^n}$.
+    $\therefore \expec{T^n} = \frac{(n/\gamma)!}{\lambda^{(n /\gamma)}}$.
+    For $\lambda = 1, \gamma = \frac{1}{3}$, $\expec{T^n} = (3n)!$. $E[T] = 6$ and $E[T^2] = 1*2*3*4*5*6 = 720$. $\myvar{T} = E[T^2] - E[T]^2 = 684$
+
+    \begin{itemize}
+        \item Determine whether or not the MGF of $T$ exists
+    \end{itemize}
+
+    \[
+        M_T(t) = \expec{e^{tT}} = \expec{e^{tX^3}} = \int_0^\infty e^{tx^3 - x} dx
+    \]
+    $\int_0^\infty e^{tx^3} \rightarrow \infty$ as $x \rightarrow \infty$. So $M_T(t)$ diverges.
+
+\end{frame}
+
+\subsection{Sums of independent r.v.s via MGFs}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{Sums of independent r.v.s via MGFs}
+    \begin{example}[Sum of independent Poissons]
+        Using MGFs, we can easily show that the sum of independent Poission is Poisson.
+        Let $X \sim \mypois{\lambda}$
+        \[
+        M_X(t) = \expec{e^{tX}} = \sum_{k=0}^\infty e^{tk} \frac{e^{-\lambda}\lambda^k}{k!} = e^{-\lambda} \sum_{k=0}^\infty \frac{e^{tk} \lambda^k}{k!} = e^{-\lambda} e^{\lambda e^t} = e^{\lambda (e^t - 1)}
+        \]
+        Let $Y \sim \mypois{\mu}$. $Y$ is independent of $X$. The MGF of $X+Y$ is
+        \[
+            \expec{e^{t(X+Y)}} = \expec{e^{tX}} \expec{e^{tY}} =e^{\lambda (e^t -1)} e^{\mu (e^t -1)} =e^{(\lambda + \mu)(e^t -1)} = M_{X+Y}(t) 
+        \]
+    \end{example}
+
+    \begin{example}[Sum of independent Poissions]
+        If we have $X_1\sim \mathcal{N}(\mu_1, \sigma_1^2)$ and $X_2 \sim \mathcal{N}(\mu_2, \sigma_2^2)$ independently, then the MGF of $X_1 + X_2$ is 
+        \[
+            M_{X_1+X_2}(t) = M_{X_1}(t) M_{X_2}(t) = e^{\mu_1 + \frac{1}{2}\sigma^2 t^2} e^{\mu_2 + \frac{1}{2}\sigma^2 t^2} = e^{(\mu_1 + \mu_2) + \frac{1}{2}(\sigma_1^2+ \sigma_2^2)t^2}
+        \]
+        Whic is the $\mathcal{N}(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)$ MGF.
+    \end{example}
+\end{frame}
+
+\subsection{Probability generating functions}
+
+\begin{frame}
+    \frametitle{Probability generating functions}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{Probability generating functions}
+    \begin{definition}[Probability generating functions]
+        The \tb{probability generating function} (PGF) of a nonnegative integer-valued r.v. $X$ with PMF $p_k = P(X=K)$ is the generating function of the PMF. By LOTUS, this is
+        \[
+        \expec{t^X} = \sum_{k=0}^\infty p_k t^k
+        \]
+        The PGF converges to a value in $[-1, 1], \forall t \in [-1, 1]$, $\because \sum_{k=0}^\infty p_k = 1$ and $\abs{p_k t^k} \leq p_k, \forall \abs{t}\leq 1$
+
+        The MGF is closely related to the PGF, when both exist: for $t > 0$,
+        \[
+        \expec{t^X} = \expec{e^{X \log{t}}} = M_X(\log{t})
+        \]
+    \end{definition}
+
+    For a nonnegative integer-valued $X$, with $M_X(t)$,
+    \begin{itemize}
+        \item If $X$ has "light enough" tails (e.g. Poission, Binomial, Geometric) then $M_X(t)$ is finite on some open interval around $0$.
+        \item But if $X$ has "heavy" tails (say $P(X = k) \propto 1/ k^2$), then $\sum_{k=0}^\infty e^{tk} P(X=k)$ can diverge for every $t>0$. In that case the MGF simply does not exist except at $t=0$
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Probability generating functions}
+    We can use PGF to \tb{conquer a seemingly intractable counting problem}.
+
+    \bigskip
+    Suppose we roll fair dice $N$ times, and let $X$ be the sum of numbers of each rolling dice.
+    \begin{itemize}
+        \item What is the probability of $N=3, P(X=10)$
+        \item What is the probability of $N=6, P(X=18)$
+    \end{itemize}
+    Listing all possible cases is feasible in $N=3$ cases, but it becomes extremely hard to track all cases in $N=6$. Can we generalize counting all possible cases?
+
+    \begin{example}[Rolling dice probabilities]
+        Let $X$ be the total from rolling 6 fair dice, and let $X_1, \dots X_6$ be the individual rolls. How can we obtain $P(X=18)$? It turns out that there are $3431$ ways to obtain a sum of $18$, so the probability is $3431/6^6 \approx 0.0735$.
+    \end{example}
+
+    PGF of $X = X_1 + \dots + X_6$ is 
+    \[
+    \expec{t^X} = \expec{t^{X_1}}\cdots \expec{t^{X_6}} = \frac{t^6}{6}(1+t +\cdots + t^5)^6 \ \  (\because \expec{t^{X_k}} = (t + t^2 + \cdots + t^6) /6)
+    \]
+    By the definition of PGF, the coefficient of $t^k$ is the probability of $P(X=k)$. And because of geometric series, $\frac{t^6}{6^6} (1 + t + \cdots + t^5)^6 = \frac{t^6}{6^6} (1-t^6)^6 (1-t)^{-6}$.  What is the coefficient of $t^{18}$ in equation $\frac{t^6}{6^6} (1 - t^6)^6 (1 - t)^{-6}$?
+\end{frame}
+
+\begin{frame}{Probability generating functions}
+    What is the coefficient of $t^{18}$ in equation $\frac{t^6}{6
+    ^6} (1 - t^6)^6 (1-t)^{-6}$? First, $(1-t^6)^6 = \sum_{k=0}^6 \binom{6}{k} (-1)^{k}t^{6k}$. Second,
+    \[
+    (1-t)^{-6} = (1 + t + t^2 + \cdots)^6 = \sum_{k=0}^\infty \binom{k+5}{5} t^k
+    \]
+
+    Then 
+    \[
+        \frac{t^6}{6} (1-t^6)^6 (1-t)^{-6} = \frac{t^6}{6} \sum_{j=0}^6 \binom{6}{j} (-1)^j t^{6j} \sum_{k=0}^\infty \binom{k+5}{5} t^k
+    \]
+
+    The only case matches with $t^{18}$ is $(j,k) = (0, 12), (1, 6), (2, 0)$. so
+    \[
+        \frac{1}{6^6} \left(\binom{17}{5} +  (-1) \binom{6}{1} \binom{11}{5} + \binom{6}{2} \right) = \frac{3431}{6^6}
+    \]
+\end{frame}
+
+\begin{frame}{Probability generating functions}
+    \begin{theorem}
+        Let $X$ and $Y$ be nonnegative integer-valued r.v.s, with PGFs $g_X$ and $g_Y$ respectively. Suppose that $g_X(t) = g_Y(t), \forall t \in (-a, a)$, where $0<a<1$. Then $X$ and $Y$ have the same distribution, and their PMF can be recovered by taking derivatives of $g_X$
+        \[
+        P(X=k) = P(Y=k) = \frac{g_X^{(k)} (0)}{k!}
+        \]
+    \end{theorem}
+
+    \ti{Proof.} Write
+    \[
+    g_X(t) = \sum_{k=0}^\infty p_k t^k
+    \]
+    Then $g_X(0) = P(X=0)$. Also, from 
+    \[
+        g^{(n)}_X(t) = \sum_{k=n}^\infty \frac{k!}{(k-n)!} p_k t^{k-n}
+    \]
+    $g^{(n)}_X(0) = n! p(X=n) \implies P(X=k) = g^{(k)}_X(0)/k!$
+\end{frame}
+
+\begin{frame}{Probability generating function}
+    \begin{example}[Binomial PMF with PGF]
+        Let $X \sim \mybin{n}{p}$. The PGF of a $\myber{p}$ r.v. is $pt + q$, so the PGF of $X$ is $g(t) = (pt + q)^n$. The above theorem says that any r.v. with this PGF must in fact be Binomial. Furthermore, we can recover the PMF by computing
+        \[
+        g(0) = q^n, g^\prime (0) = npq^{n-1}, g^{\prime \prime} (0) / 2! = \binom{n}{2} p^2 q^{n-2}, \dots
+        \]
+
+        Also, we can get moments of a Binomial. From
+        \[
+            g^\prime (t) = np (pt + q)^{n-1} = \sum_{k=1}^\infty kp_k t^{k-1} \implies g^\prime (1) = np = \expec{X}
+        \]
+
+        From 
+        \[
+        \begin{gathered}
+            g^{\prime \prime} (t) = n(n-1) p^2 (pt+q)^{n-2} = \sum_{k=2}^\infty k(k-1) p_k t^{k-2}\\
+            \implies g^{\prime \prime}(1) = n(n-1) p^2 = \expec{X(X-1)} \\
+            \implies \expec{X(X-1)} + \expec{X}  - \expec{X}^2= \myvar{X}  = npq
+        \end{gathered}
+        \] Note that under equation is called the \tb{factorical moments} of the Binomial 
+        \[\expec{X(X-1)\cdots (X-k+1)} = k! \binom{n}{k}p^k \implies \expec{\binom{X}{k}} = \binom{n}{k} p^k\]
+    \end{example}
+\end{frame}
+
 
 \end{document}
