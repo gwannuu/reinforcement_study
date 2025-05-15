@@ -202,7 +202,7 @@
   \ti{Proof.} skip
 \end{frame}
 
-\begin{frame}{Matrices and Elementary Row Operations}
+\begin{frame}{Row-Reduced Echelon Matrices}
   \begin{definition}
     An $m \times n$ matrix $R$ is called row-reduced if  
     \begin{enumerate}
@@ -231,7 +231,7 @@
   \ti{proof} skip
 \end{frame}
 
-\begin{frame}{Matrices and Elementary Row Operations}
+\begin{frame}{Row-Reduced Echelon Matrices}
   \begin{theorem}
     If $A$ is an $m \times n$ matrix and $m < n$, then the homogeneous system of linear equations $AX=0$ has a non-trivial solution.
   \end{theorem}
@@ -240,8 +240,185 @@
   \begin{theorem}
     If $A$ is an $n \times n$ matrix, then $A$ is row-equivalent to the $n\times n$ identity matrix if and only if the system of equations $AX = 0$ has only the trivial solution.
   \end{theorem}
-  \ti{Proof.} $RX = 0$ has no non-trivial solution, thus $r \geq n$. But number of non-zero rows $r$ should be less or equal to $n$. $\therefore r = n \implies R = I$
+  \ti{Proof.} 
+  \begin{itemize}
+    \item $\implies$ $AX =0 $and $IX = 0$ has same solution, which is trivial.
+    \item  $\impliedby$  $RX = 0$ has no non-trivial solution, thus $r \geq n$. But number of non-zero rows $r$ should be less or equal to $n$. $\therefore r = n \implies R = I$
+  \end{itemize}
 \end{frame}
+
+\begin{frame}{Row-Reduced Echelon Matrices}
+  Let's consider about non-homogeneous case, $AX = Y$
+  Then we can form $m \times (n +1)$ matrix $A^\prime$ in which last column is $Y$. And the solution of $AX=Y$ and $RX=Z$ are same, where $Z$ is the last column of $R^\prime$ and $R^\prime$ is row-reduced echelon matrix from $A^\prime$
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  Let $A \in \mbb{R}^{m \times n}$ and $B \in \mbb{R}^{n \times p}$, then $C (= AB) \in \mbb{R}^{m \times p}$ is defined by $C_{i *} = A_{i1}B_{1 *} + A_{i2} B_{2 *} + \cdots + A_{in} B_{n*}$, where $B_{i *}$ is the $i$th row of $B$ and $C_{i*}$ is the $i$th row of $C$.
+
+  \begin{definition}
+    Let $A$ be an $m \times n $ matrix over the field $F$ and let $B$ be an $n \times p$ mtrix over $F$. The product $AB$ is the $m \times p$ matrix $C$ whose $i,j$ entry is
+    \[
+      C_{ij} = \sum_{r=1}^n A_{ir}B_{rj}
+    \]
+  \end{definition}
+
+  \begin{itemize}
+    \item Note that matrix multiplication is defined if and only if the number of columns in the first matrix coincides with the number of rows in the second matrix.
+    \item Note that $j$th column of $AB$, $(AB)_{*j} = AB_{*j}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{theorem}
+    If $A,B,C$ are matrices over the field $F$ such that the products $BC$ and $A(BC)$
+  \end{theorem}
+  \begin{proof}
+    \[
+      \begin{aligned}
+        ((AB)C)_{ij} &= \sum_{k} (AB)_{ik} C_{kj} = \sum_k \left(\sum_l A_{il} B_{lk}\right) C_{kj} \\
+        &= \sum_l A_{il }\sum_k B_{lk} C_{kj} = \sum_l A_{il} (BC)_{lj} \\
+        &= (A(BC))_{ij}
+      \end{aligned}
+    \]
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{definition}
+    An $m \times n$ matrix is said to be an \tb{elementary matrix} if it can be obtained from the $m \times m$ identity matrix by means of single elementary row operation
+  \end{definition}
+
+  For example, under matrices are $2\times 2$ elementary matrix
+  \[  
+  \left[\begin{matrix} 0 & 1 \\ 1 & 0\end{matrix} \right],   \left[\begin{matrix} 1 & c \\ 0 & 1\end{matrix} \right],   \left[\begin{matrix} c & 0 \\ 0 & 1\end{matrix} \right]
+  \]
+
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{theorem}
+    Let $e$ be an elementary row operation and let $E$ be the $m\times m$ elementary matrix $E = e(I)$. Then, for every $m \times n$ matrix $A$,
+    \[
+    e(A) = EA
+    \]
+  
+  \end{theorem}
+  Let row vector $R_{i} = \left[\begin{matrix}
+    0, \dots, 1, \dots, 0
+  \end{matrix}\right] \in \mbb{R}^m$, where $i$ th element of $R_i$ is $1$ and else $0$.
+  \begin{itemize}
+    \item Suppose $\forall i \text{ s.t. } 1 \leq i \leq m, E_{i*}= c R_i, c \neq 0$ and $E_j = R_j, j \neq i$. Then $(EA)_{i*} = cA_{i*}$ and $(EA)_{j*} = A_{j*}$
+    \item Suppose $\forall i, j \text{ s.t. } 1 \leq i,j \leq m, i \neq j$ and $E_{i*} = R_j, E_{j*} = R_i, E_{k*} = R_k , \forall k \neq i, k \neq j$. Then $(EA)_{i*} = A_{j*}$ and $(EA)_{j*} = A_{i*}$ and $(EA)_{k*} = A_{k*}$
+    \item Suppose $\forall i,j \text{ s.t.} 1 \leq i, j \leq m, E_{i*} = R_i + c * R_j$ and $E_{k*} = R_k, \forall k \neq i$. Then $(EA)_i = A_{i*} + c A_{j*}$ and $(EA)_k = A_{k*}$
+  \end{itemize}
+
+  \begin{corollary}
+    Let $A$ and $B$ be $m \times n$ matrices over the field $F$. Then $B$ is row-equivalent to $A$ if and only if $B = PA$, where $P$ is a product of $m \times n$ elementary matrices
+  \end{corollary}
+
+  \ti{Proof.} skip
+
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  Suppose that $A$ and $B$ is row-equivalent. Then there exists product of elementary matrices $P$ such that $B = PA$. Since $B$ is row-equivalent with $A$, there also exists another product oof elementary matrices $Q$ such that $A = QB$. This implies $A = QPA$ and $QP = I$.
+
+  \begin{definition}[Invertible matrices]
+    Let $A$ be an $n \times n $ matrix over the field $F$. An $n \times n$ matrix $B$ such that $BA = I$ is called a \tb{left inverse} of $A$; an $n \times n$ matrix $B$ such that $AB = I$ is a right inverse of $A$. If $AB = BA = I$, then $B$ is called a \tb{two-sided inverse} of $A$ and $A$ is said to be \tb{invertible}
+  \end{definition}
+
+  Note that it there both exists left inverse of $A$, $B$ and right inverse of $A$, $C$, then $B = C$. 
+  \[
+    BA = I, AC = I \implies B = BI = B(AC) = (BA)C = IC = C
+  \]
+  Thus $B$ and $C$ is simply denoted by $A^{-1}$ is said to the \tb{inverse of} $A$.
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    Let $A$ and $B$ be $n \times n$ matrices over $F$
+    \begin{enumerate}
+      \item If $A$ is invertible, so is $A^{-1}$ and $(A^{-1})^{-1}$
+      \item If both $A$ and $B$ are invertible, so is $AB$ and $(AB)^{-1} = B^{-1}A^{-1}$
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{proof}
+    \begin{itemize}
+      \item $\exists A^{-1}$ such that $A A^{-1} = A^{-1} A = I$. $A A^{-1} = I$ implies $A$ is left inverse of $A^{-1}$ and $A^{-1} A = I$ implies $A$ is right inverse of $A^{-1}$. So, $(A^{-1})^{-1} = A$
+      \item $ I = A B B^{-1} A^{-1} = (A B) (B^{-1} A^{-1}) \implies (AB)^{-1} = (B^{-1}A^{-1})$
+    \end{itemize}
+  \end{proof}
+
+  \begin{corollary}
+      A product of invertible matrices is invertible
+  \end{corollary}
+\end{frame}
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    An elementary matrix is invertible
+  \end{theorem}
+  \begin{example}
+    \[
+    \left[\begin{matrix}
+    0 & 1 \\ 1 & 0 
+    \end{matrix}\right]^{-1} =     \left[\begin{matrix}
+    0 & 1 \\ 1 & 0 
+    \end{matrix}\right]
+    \]
+
+    \[
+    \left[\begin{matrix}
+    1 & c \\ 0 & 1 
+    \end{matrix}\right]^{-1} =      \left[\begin{matrix}
+    1 & -c \\ 0 & 1 
+    \end{matrix}\right]
+    \]
+
+    \[
+      \left[\begin{matrix}
+    c & 0 \\ 0 & 1
+    \end{matrix}\right]^{-1} =       \left[\begin{matrix}
+    c^{-1} & 0 \\ 0 & 1
+    \end{matrix}\right]
+    \]
+  \end{example}
+\end{frame}
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    If $A$ is an $n \times n$ matrix, the following are equivalent
+    \begin{enumerate}
+      \item $A$ is invertible
+      \item $A$ is row-equivalent to the $n \times n$ identity matrix
+      \item $A$ is a product of elementary matrices
+    \end{enumerate}
+  \end{theorem}
+  \ti{Proof.} skip
+
+  \begin{corollary}
+    \begin{itemize}
+      \item If $A$ is an invertible $n\times n$ matrix and if a sequence of elementary row operations reduces $A$ to the identity, then that same sequence of operations when applied to $I$ yields $A^{-1}$
+      \item Let $A$ and $B$ be $m \times n$ matrices. Then $B$ is row-equivalent to $A$ if and only if $P$ is an invertible $m \times m$ matrix.
+    \end{itemize}
+  \end{corollary}
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    For an $n \times n$ matrix $A$, the following are equivalent
+    \begin{itemize}
+      \item $A$ is invertible
+      \item The homogeneous system $AX=0$ has only the trivial solution $X=0$
+      \item The system of equations $AX=Y$ has a solution $X$ for each $n\times 1$ matrix $Y$
+    \end{itemize}
+  \end{theorem}
+\end{frame}
+
 
 
 \end{document}
