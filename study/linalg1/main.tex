@@ -237,7 +237,7 @@
   \end{theorem}
   \ti{Proof} Let $R$ be the row-reduced echelon matrix which is row-equivalent to $A$. Then the sysmtes $AX = 0$ and $RX=0$ have the same solutions. And $r \leq m$ and since $m < n$, $r < n$. ($r$ is the number of non-zero rows of $R$)
 
-  \begin{theorem}
+  \begin{theorem}\label{th:1}
     If $A$ is an $n \times n$ matrix, then $A$ is row-equivalent to the $n\times n$ identity matrix if and only if the system of equations $AX = 0$ has only the trivial solution.
   \end{theorem}
   \ti{Proof.} 
@@ -389,7 +389,7 @@
 \end{frame}
 
 \begin{frame}{Invertible Matrices}
-  \begin{theorem}
+  \begin{theorem}\label{th:2}
     If $A$ is an $n \times n$ matrix, the following are equivalent
     \begin{enumerate}
       \item $A$ is invertible
@@ -411,14 +411,32 @@
 \begin{frame}{Invertible Matrices}
   \begin{theorem}
     For an $n \times n$ matrix $A$, the following are equivalent
-    \begin{itemize}
+    \begin{enumerate}
       \item $A$ is invertible
       \item The homogeneous system $AX=0$ has only the trivial solution $X=0$
       \item The system of equations $AX=Y$ has a solution $X$ for each $n\times 1$ matrix $Y$
-    \end{itemize}
+    \end{enumerate}
   \end{theorem}
+  \begin{proof}
+    By theorem \ref{th:1}, 2. means that $A$ is row-equivalent to $I$. By theorem \ref{th:2}, each 1. and 2. $\iff$ $A$ is row-equivalent to $I$.
+    3. Let 
+    \[
+    E = \left[\begin{matrix}
+    0 \\ 0 \\ \vdots \\ 1
+    \end{matrix}\right]
+    \] Then $\exists P, Y$, where $P$ is product of elementary row operations, s.t. $RX = PAX = PY = E (\because \forall P : PA = R, \exists Y : Y = P^{-1}E)$. $RX = E$ has solution implies last row of matrix $R$ is non-zero and $R = I$
+  \end{proof}
 \end{frame}
 
 
+\begin{frame}{Invertible Matrices}
+  \begin{corollary}
+     A square matrix with either a left or right inverse is invertible
+  \end{corollary}
+
+  \begin{corollary}
+     Let $A = A_1 A_2 \cdots A_k$ where $A_1, \dots, A_k$ are $n \times n$ matrices. Then $A$ is invertible if and only if each $A_i$ is invertible
+  \end{corollary}
+\end{frame}
 
 \end{document}
