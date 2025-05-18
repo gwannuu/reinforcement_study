@@ -1,0 +1,345 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+
+% 발표 제목, 저자, 날짜 설정
+\title{Linear Algebra}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+\subsection{Vector Space}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{a}
+    \begin{definition}[Vector Space]
+        A \tb{vector space} consists of the following
+        \begin{enumerate}
+        \item a field $F$ of scalars
+        \item a set $V$ of objects, called vectors
+        \item a rule (or operation), called \tb{vector addition}, which associates with each pair of vectors $\alpha, \beta \in V$ and $\alpha + \beta \in V$, called the sum of $\alpha$ and $\beta$, vector addition should satisfies following rules. \begin{enumerate}
+            \item addition is commutative, $\alpha + \beta = \beta + \alpha$    
+            \item addition is associative, $\alpha + (\beta + \gamma) = (\alpha+ \beta) + \gamma$
+            \item $\exists ! 0 \in V$. $\forall \alpha \in V, \alpha + 0 = \alpha$ (called \tb{zero vector} or identity element for addition)
+            \item $\forall \alpha \in V, \exists ! (-\alpha) : \alpha  + (-\alpha) = 0$ (called inverse element)
+            \end{enumerate}
+        \item a rule (or operation), called \tb{scalar multiplication}, which associates with each scalar $c \in F$ and vector $\alpha \in V$ and $c\alpha \in V$. scalar multiplication should satisfies following rules \begin{enumerate}
+            \item $\forall \alpha \in V, 1 \alpha = \alpha$
+            \item $\forall c_1, c_2 \in F, \forall \alpha \in V, (c_1 c_2) \alpha = c_1 (c_2 \alpha)$
+            \item $\forall c \in F, \forall \alpha, \beta \in V, c(\alpha+ \beta) = c\alpha + c\beta $
+            \item $\forall c_1, c_2 \in F, \forall \alpha  \in V, (c_1 + c_2) \alpha = c_1 \alpha + c_2 \alpha$
+        \end{enumerate}
+        \end{enumerate}
+    \end{definition}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{example}[The n-tuple space]
+        Let $F$ be any field and let $F^n = \{ (x_1, x_2, \dots, x_n) \mid x_i \in F\}$. W.L.O.G, Let $\alpha = (x_1, \dots, x_n) \in F^n$ and $\beta = (y_1, \dots, y_n) \in F^n$.
+        \begin{itemize}
+            \item $\forall \alpha, \beta \in V, \alpha + \beta := (x_1 + y_1 ,\dots , x_n+y_n)$.
+            \item $\forall c \in F, \forall \alpha \in V$, $c \alpha := (cx_1, \dots cx_n) $.
+        \end{itemize}
+    \end{example}
+
+    \begin{example}[The space of $m \times n$ matrices]
+        Let $F$ be any field and let $m$ and $n$ be positive integers. Let $F^{m \times n}$ be set of all $m \times n$ matrices, $\left[\begin{matrix}
+            x_{11} & \dots & x_{1n} \\ \vdots & & \vdots \\ x_{m1} & \dots &x_{mn} 
+        \end{matrix}\right], \forall x_{ij} \in F$. Let $\alpha = \left[\begin{matrix}
+            x_{11} & \dots & x_{1n} \\ \vdots & & \vdots \\ x_{m1} & \dots &x_{mn} 
+        \end{matrix}\right]$ and $\beta = \left[\begin{matrix}
+            y_{11} & \dots & y_{1n} \\ \vdots & & \vdots \\ y_{m1} & \dots &y_{mn} 
+        \end{matrix}\right]$
+        \begin{itemize}
+            \item $\forall \alpha, \beta \in F^{m \times n}, \alpha + \beta := \left[\begin{matrix}
+            x_{11}+y_{11} & \dots & x_{1n}+y_{1n} \\ \vdots & & \vdots \\ x_{m1}+y_{m1} & \dots &x_{mn}+y_{mn} 
+        \end{matrix}\right]$
+        \end{itemize}
+    \end{example}
+\end{frame}
+
+
+
+\begin{frame}{Vector Space}
+    \begingroup
+        \setbeamercolor{itemize item}{fg=OliveGreen}
+        \begin{itemize}
+            \item $\forall c \in F,\forall \alpha \in F^{m\times n}, c\alpha := \left[\begin{matrix}
+                cy_{11} & \dots & cy_{1n} \\ \vdots & & \vdots \\ cy_{m1} & \dots & cy_{mn} 
+            \end{matrix}\right]$
+        \end{itemize}
+    \endgroup
+
+    \begin{example}[The space of functions from a set to a field]
+        Let $F$ be any field nad let $S$ be any non-empty set. Let $V = \{ f \mid f \colon S \to F \}$ Let $f,g \in V$.Then
+
+        \begin{itemize}
+            \item $f + g \in V $, where $\forall s \in S, (f + g)(s) := f(s) + g(s)$
+            \item $f \in V, \forall c \in F$, where $\forall s \in S, (cf)(s) := cf(s)$
+            \item $\exists ! 0 \in V$. Zero vector is the function that given $s, s \mapsto 0(s) = 0$ always returns $0 \in F$. 
+        \end{itemize}
+    \end{example}
+
+    \begin{example}[The space of polynomial functions over a field $F$]
+        Let $F$ be a field and let $V$ be the set of all functions $f$ from $F$ into $F$ which have a rule of the form $f(x) = c_0 + c_1 x + \dots + c_n x^n$, where $c_0, c_1, \dots, c_n \in F$. $f$ is called \ti{polynomial function on} $F$.
+    \end{example}
+    
+\end{frame}
+
+
+\subsection{Subspace}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{a}
+    \begin{definition}
+        A vector $\beta \in V$ is said to be a \tb{linear-combination} of the $a_1, \dots, a_n \in V$ provided there exist scalars $c_1, \dots, c_n \in F$ s.t. 
+        $\beta = c_1 \alpha_1 + \dots + c_n \alpha_n  = \sum_{i=1}^n c_i \alpha_i$.
+    \end{definition}
+
+    \begin{definition}
+        Let $V$ be a vector space over the field $F$. A \tb{subspace} of $V$ is a subset $W$ of $V$ which is itself a vector soace over $F$ with the operations of vector addition and scalar multiplication on $V$ 
+    \end{definition}
+
+    \begin{theorem}
+        A non-empty subset $W$ of $V$ is a subspace of $V$ if and only if for each pair of vectors $\alpha, \beta \in W$ and each scalar $c \in F$ the vector $c \alpha + \beta \in W$ 
+    \end{theorem}
+    \begin{proof}
+        $(\implies)$ $c \alpha \in W \implies (c\alpha) + \beta \in W$
+
+        $(\impliedby)$ $c \alpha  + \beta \in W$  and $\alpha, \beta \in W$. $c = 0 \implies \alpha + \beta \in W$ and $\beta = 0 \implies c \alpha \in W$  and $\beta =0 , c =0 \implies 0 \in W$
+    \end{proof}
+\end{frame}
+
+\begin{frame}{Subspace}
+    \begin{itemize}
+        \item If $V$ is any vector space, $V$ is a subspace of $V$; the subset consisting of the zero vector alone is a subspace of $V$, called the \ti{zero subspace} of $V$.
+        \item In $F^n$, the set of n-tuples $(x_1, \dots, x_n)$ with $x_1 = 0$ is a subspace. However the set of n-tuples with $x_1 = 1 + x_2$ is not a subspace.
+        \item The space of polynomial functions over the field $F$ is a subspace of the space of all functions from $F$ into $F$
+        \item An $n \times n $ matrix $A$ over the field $F$ is \tb{symmetric} if $A_{ij} = A_{ji}, \forall i,j$. The symmetric matrices form a subspace of the space of all $n \times n $ matrices over $F$.
+        \item An $n \times n$ matrix $A$ over the field $C$ of complex numbers is \tb{Hermitian} (or \tb{self-adjoint}) if $A_{jk} = \bar{A_{kj}}, \forall j, k$, where the bar denoting complex conjugation. A $2\times 2$ matrix is Hermitian if and only if it has the form where $x, y, z \in \mbb{R}$
+        \[
+        \left[
+            \begin{matrix}
+                z & x+yi \\ x - yi & w
+            \end{matrix}
+        \right]
+        \]
+        \item Let $V = F^{n \times 1}$ and $W = \{X \mid X \in F^{n \times 1}, AX = 0\}$ for given $A \in F^{m \times n}$. $W \subset V$  $\because \forall X_1, X_2 \in W, \forall c \in F  $ s.t. $AX_1= 0 , AX_2 = 0$, $A(cX_1) + AX_2 = 0 \implies A(cX_1 + X_2) = 0 \implies cX_1 + X_2 \in W$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{theorem}
+        Let $V$ be a vector space over the field $F$. The intersection of any collection of subspaces of $V$ is a subspace of $V$.
+    \end{theorem}
+    \begin{definition}
+        Let $S$ be a set of vectors in a vector space $V$. The \tb{subspace spanned} by $S$ is defined to be the intersection $W$ of all subspaces of $V$ which contains $S$. When $S$ is a finite set of vectors, $S = {\alpha_1, \alpha_2, \dots, \alpha_n}$, we shall simply call $W$ the \tb{subspace spanned by the vectors} $\alpha_1, \alpha_2, \dots, \alpha_n$
+    \end{definition}
+
+    \begin{theorem}\label{th:1}
+        The subspace spanned by a non-empty subset $S$ of a vector space $V$ is the set of all linear combinations of vectors in $S$
+    \end{theorem}
+    \begin{proof}
+        Let $W$ be the subspace spanned by $S$ and $L$ be the set of all linear combinations of vectors in $S$. One element of set $L$ can be expressed by $\alpha = c_1 \alpha_1 + \cdots + c_k \alpha_k \in L$ for $\alpha_1, \dots, \alpha_k \in S$. Similarly, another element of $L$ can be expressed by $\beta= d_1 \beta_1 + \cdots + d_l \beta_l \in L$ for $\beta_1 , \dots, \beta_l \in S$. Then for any scalar $e \in F$, $e\alpha + \beta \in L$ implying $L$ is subspace of $V$.
+        Thus $L$ is the subspace contains set $S$. 
+        
+        Suppose for any subspace $W^\prime$ that includes $S$, there exists element $\gamma$ s.t. $\gamma \in W, \gamma \notin S$.
+        For any element $\alpha \in L$, $c\alpha + \gamma \in W^\prime$ and this implies $L \subset W^\prime$. Thus, $L$ is the intersection of all subspace that includes $S$.
+    \end{proof}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{definition}
+        If $S_1, S_2, \dots, S_k$ are subsets of a vector space $V$, the set of all sums $\alpha_1 + \alpha_2 + \cdots +\alpha_k$ of vectors $\alpha_i \in S_i$ is called the \tb{sum} of the subsets $S_1, S_2, \dots, S_3$ and is denoted by $S_1 + S_2 + \cdots + S_k$
+    \end{definition}
+
+    If $W_1, W_2, \dots, W_k$ are subspaces of $V$, then the sum $W = W_1 + W_2 + \cdots + W_k$ is subspace of $V$. (Proof is similar with theorem \ref{th:1})
+
+    \begin{example} \label{ex:1}
+        Let $V$ be the space of all polynomial functions over $F$. Let $S$ be the subset of $V$ consisting of the polynomial functions $f_0, f_1, \dots$ defined by $f_n = x^n, n=0, 1, 2, \dots$
+        Then $V$ is the subspace spanned by the set $S$
+    \end{example}
+\end{frame}
+
+\subsection{Bases and Dimension}
+
+\begin{frame}
+    \frametitle{Table of contents}
+    \tableofcontents[currentsubsection]
+\end{frame}
+
+\begin{frame}{A}
+    \begin{definition} [Linearly independent]
+        Let $V$ be a vector space over $F$. A subset $S$ of $V$ is said to be \tb{linearly dependent} (or simply \tb{dependent}) if there exists distinct vectors $\alpha_1, \alpha_2, \dots, \alpha_n \in S$ and scalars $c_1, c_2, \dots c_n \in F$, not all of which are $0$, such that 
+        \[
+        c_1 \alpha_1 + c_2 \alpha_2 + \cdots + c_n \alpha_n = 0
+        \]
+        A set which is not linearly dependent is called \tb{linearly independent}.
+    \end{definition}
+    \begin{corollary}
+        \begin{itemize}
+            \item Any set which contains a linearly dependent set is linearly dependent
+            \item Any subset of a linearly dependent set is linearly independent
+            \item Any set which contains the $0$ vector is linearly dependent
+            \item A set $S$ of vectors is linearly independent if and only if each finite subset of $S$ is linearly independent
+        \end{itemize}
+    \end{corollary}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{definition}
+        Let $V$ be a vector space. A \tb{basis} for $V$ is a linearly independent set of vectors in $V$ which spans the space $V$. The space $V$ is \tb{finite dimensional} if it has a finite basis.
+    \end{definition}
+
+    Examle \ref{ex:1} is good example of infinite basis.
+    \begin{example}
+        Let $F$ be a field and in $F^n$ let $S$ be the subset consisting of the vectors $e_1, e_2, \dots, e_n$ defined by 
+        \[
+        \begin{gathered}
+            e_1 = (1, 0, \dots, 0) \\
+            e_2 = (0, 1, \dots, 0) \\
+            \vdots \\
+            e_n = (0, 0, \dots, 1)
+        \end{gathered}
+        \]
+        Let $x_1, x_2, \dots, x_n$ be scalars in $F$ and put $\alpha = x_1 e_1 + x_2 e_2 + \dots + x_n e_n$. Then $\alpha = (x_1, x_2, \dots, x_n)$. $\therefore e_1, e_2, \dots e_n$ span $F^n$. This special basis is called the \tb{standard basis}.
+    \end{example}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{example}
+        Let $P$ be an invertible $n\times n$ matrix with entries in the field $F$. Then columns of $P, P_{*1}, P_{*2}, \dots, P_{*n}$ forms a basis of $F^{n \times 1}$. Let $X \in F^n$. Then $PX = x_1 P_{*1} + x_2 P_{*2} + \dots + x_n P_{*n}$. Since $PX = 0$ has only trivial solution, $\{ P_{*1}, P_{*2}, \dots, P_{*n} \}$ is linearly independent. And for any $Y \in F^{n\times 1}$, $Y = P^{-1}X$ and this implies $\Span{\{ P_{*1}, P_{*2}, \dots, P_{*n} \}} = F^{n \times 1}$. $\therefore \{ P_{*1}, P_{*2}, \dots, P_{*n} \} $ is a basis for $F^{n\times 1}$
+    \end{example}
+
+    \begin{theorem}\label{th:2}
+        Let $V$ be a vector space which is spanned by a finite set of vectors $\beta_1, \beta_2, \dots, \beta_m$. Then any independent set of vectors in $V$ is finite and contains no more than $m$ elements.
+    \end{theorem}
+    \begin{proof}
+        Consider $n>m$ number of set $\alpha_1, \alpha_2, \dots, \alpha_{n} \in V$. Each $\alpha_j$ can be expressed by $\sum_{i} A_{ij} \beta_i$, where $A_{ij} \in F$. Then linear combination of $a_j$ is  $\sum_{j} c_j \sum_i A_{ij} \beta_i = \sum_{i}\sum_{j} c_j A_{ij} \beta_i$, where $c_j \in F$. 
+        (Suppose $\beta_1, \beta_2, \dots, \beta_n$ is independent.) Let $ \sum_i \sum_j c_j A_{ij} \beta_i = 0$. Then $\sum_j c_j A_{ij} = 0, \forall i$. However since $n>m$, there exists some $c_j \neq 0$. This implies $\{\alpha_j \mid j=1, 2, \dots, n\}$ is dependent.
+    \end{proof}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{corollary}
+        If $V$ is a finite-dimensional vector space, then any two bases of $V$ have the same (finite) number of elements
+    \end{corollary}
+    \begin{proof}
+            Suppose there exists $m$ basis $\{\beta_1, \dots, \beta_m\}$ and $n$ basis $\{\alpha_1, \dots, \alpha_n\}$. By theorem \ref{th:2}, $n \leq m$ (if not, $n > m$, then $\{\alpha_1, \dots, \alpha_n\}$ is lineary depenent). And also, $m \leq n$ (if not, $m > n$, then $\{\beta_1, \dots, \beta_m\}$ becomes linearly dependent).
+            $\therefore m=n$.
+    \end{proof}
+
+    \begin{corollary}
+        Let $V$ be a finite-dimensional vector space and let $n = \dim{V}$. Then
+        \begin{itemize}
+            \item any subset of $V$ which contains more than $n$ vectors is linearly dependent
+            \item no subset of $V$ which contains fewer than $n$ vectors can span $V$
+        \end{itemize}
+    \end{corollary}
+
+    \begin{example}
+        \begin{itemize}
+            \item $\dim{F^n} = n$
+            \item $\dim{F^{m \times n}} = mn$
+            \item Let $A \in F^{m \times n}$. For $V=\{X\mid AX =0\}$ (solution space), $\dim{V} = n - r$, where $r$ is the number of non-zero row of row-reduced echelon matrix $R$ of $A$.
+            \item Zero subspace $V = \{0\}$, $\dim{V} = 0$. Note that $\{0\}$ is linearly dependent thus not a basis. So basis of $V = \emptyset$ and $\emptyset$ is linearly independent.
+        \end{itemize}
+    \end{example}
+\end{frame}
+
+\begin{frame}{a}
+    \begin{lemma}
+        Let $S$ be a linearly independent subset of a vector space $V$. Suppose $\beta$ is a vector in $V$ which is not in the subspace spanned by $S$. Then the set obtained by adjoining $\beta$ to $S$ is linearly independent.
+    \end{lemma}
+    \begin{proof}
+    Suppose $\alpha_1, \dots, \alpha_m$ are distinct vectors in $S$ and that $c_1\alpha_1 + \cdots + c_m \alpha_m + b \beta = 0$.
+    If $b\neq 0, \beta = \frac{-c_1}{b}\alpha_1 + \cdots + \frac{-c_m}{b}\alpha_m$ and $\beta \in S$, which leads to a contradiction. $\therefore b = 0$ and this implies $\{\alpha_1, \dots, \alpha_m, \beta\}$ is linearly independent.
+    \end{proof}
+\end{frame}
+
+\end{document}
