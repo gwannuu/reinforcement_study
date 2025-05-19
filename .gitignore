@@ -9,4 +9,8 @@
 **/*.synctex.gz
 **/*.snm
 **/*.Identifier
+**/*.bbl
+**/*.bcf
+**/*.blg
+**/*.run.xml
 
