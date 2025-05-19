@@ -156,11 +156,13 @@
     My Experiment setting is Below. 
     \begin{itemize}
         \item Training is based on DQN algorithm and detailed explanation is in [\cite{mnih2015human}]
-        \item Buffer size: $0.1M$ (Original DQN algorithm uses $1M$)
+        \item Buffer size: $0.1M$ (\cite{mnih2015human} algorithm uses $1M$)
         \item behavior policy : $\epsilon$-greedy with annealing $\epsilon : 1 \rightarrow 0.1$ in first $1M$ timestep
         \item target policy: $\epsilon$-greedy with $\epsilon: 0.5$
-        \item Total timestep : $2.5M$ (Origianl DQN algorithm uses $50M$)
-        \item Same CNN structure (except $V$ network and $A$ network)
+        \item Total timestep : $2.5M$ (\cite{mnih2015human} algorithm uses $50M$)
+        \item Same CNN structure except $V$ network and $A$ network
+        \item Target Network update frequency: $500$ (\cite{mnih2015human} is $10000$)
+        \item Minibatch size : $256$ (\cite{mnih2015human} is $32$)
     \end{itemize}
 \end{frame}
 
@@ -214,6 +216,7 @@
     \begin{itemize}
         \item Increase total timestep (up to $10M$ timesteps), because in \cite{mnih2015human}, total timestep is 50M
         \item Since replay buffer size is $0.1M$, which is much smaller than \cite{mnih2015human} ($1M$), it seems that increasing $\epsilon$ ($0.1 \rightarrow 0.2$) of behavior policy or increasing annealing timestep ($1M \rightarrow 5M$) can show better performance
+        \item Increase target network frequency $500 \rightarrow 10000$
     \end{itemize}
 \end{frame}
 
