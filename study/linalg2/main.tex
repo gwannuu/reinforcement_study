@@ -340,6 +340,59 @@
     Suppose $\alpha_1, \dots, \alpha_m$ are distinct vectors in $S$ and that $c_1\alpha_1 + \cdots + c_m \alpha_m + b \beta = 0$.
     If $b\neq 0, \beta = \frac{-c_1}{b}\alpha_1 + \cdots + \frac{-c_m}{b}\alpha_m$ and $\beta \in S$, which leads to a contradiction. $\therefore b = 0$ and this implies $\{\alpha_1, \dots, \alpha_m, \beta\}$ is linearly independent.
     \end{proof}
+
+    \begin{theorem}[Span toward basis]
+        If $W$ is a subspace of a finite-dimensional vector space $V$, every linearly independent subset of $W$ is finite and is part of a (finite) basis for $W$.
+    \end{theorem}
+    \begin{proof}
+        Let $\dim{W} = m$. For any linearly independent subset $S_0 = \{\beta_1, \beta_2, \dots, \beta_n\}$ of $W$, where $n \leq m$, we can construct basis $S$ of $W$, which includes $S_0$. If $n = m$, then $S_0$ is basis of $W$. If $n < m$, then we can find vector $\beta_{n+1}$ such that $S_1 =  S_0 \cup \{\beta_{n+1}\}$ is independent. If $S_1$ can not span $W$, then with same process, $S_2$ can be obtained. Repeat this process until $S_k$ spans $W$.
+    \end{proof}
+     \begin{corollary}
+        If $W$ is a proper subspace of a finite-dimensional vector space $V$, then $W$ is finite-dimensional and $\dim{W}<\dim{V}$
+    \end{corollary}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{corollary}
+        In a finite-dimensional vector space $V$ every non-empty linearly independent set of vectors is part of a basis
+    \end{corollary}
+    \begin{corollary}
+        Let $A$ be an $n \times n$ matrix over a field $F$, and suppose the row vectors of $A$ form a linearly independent set of vectors in $F^n$. Then $A$ is invertible
+    \end{corollary}
+    \begin{proof}
+        $\{A_{1*}, A_{2*}, \dots, A_{n*}\}$ is linearly independent and $\abs{\{A_{1*}, A_{2*}, \dots, A_{n*}\}} = n$. So $\{A_{1*}, A_{2*}, \dots, A_{n*}\}$ spans $F^n$.
+        Then there exists scalar $\forall i, j, 1 \leq i,j \leq n,B_{ij}$ s.t. $\epsilon_i = \sum_j^n B_{ij} A_{j*}$ and this implies $I = BA$ where $B = A^{-1}$
+    \end{proof}
+    \begin{corollary}
+        Let $A$ be an $n \times n$ matrix over a field $F$, and suppose the column vectors of $A$ form a linearly independent set of vectors in $F^n$. Then $A$ is invertible
+    \end{corollary}
+    \begin{proof}
+        $\{A_{*1}, A_{*2}, \dots, A_{*n}\}$ is linearly independent and $\abs{\{A_{*1}, A_{*2}, \dots, A_{*n}\}} = n$. So $\{A_{*1}, A_{*2}, \dots, A_{*n}\}$ spans $F^n$. Then there exists scalar $ \forall i, j, 1\leq i,j \leq n, B_{ij}$  s.t. $\epsilon_j = \sum_{i}^n B_{ij}A_{*i}$ and this implies $I = AB$ where $B = A^{-1}$
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $W_1$ and $W_2$ are finite-dimensional subspaces of a vector space $V$, then $W_1 + W_2$ is finite-dimensional and
+        \[
+            \dim{W_1 + W_2} = \dim{W_1} + \dim{W_2} - \dim{W_1 \cap W_2}
+        \]
+    \end{theorem}
+
+    \begin{proof}
+        Let basis of $W_1 \cap W_2$ by $\{\alpha_1, \alpha_2, \dots, \alpha_r\}$.
+
+        Then basis of $W_1$, $S_1$ can be defined by $\{\alpha_1, \alpha_2, \dots, \alpha_r, \beta_1, \beta_2, \dots, \beta_m\}$ and basis of $W_2$, $S_2$ can be defined by $\{\alpha_1, \alpha_2, \dots, \alpha_r, \gamma_1, \gamma_2, \dots, \gamma_n\}$.
+        
+        For any element $s \in W_1 + W_2$, $s$ can be represented by $s = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i}+ \sum_{j=1}^n d_{j+r} \gamma_j$ for scalars $c_i, d_j, e_k\in F$.
+
+        Suppose $s = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i}+ \sum_{j=1}^n d_{j+r} \gamma_j = 0$. Then $-\sum_{j=1}^n d_{j+r}\gamma_j = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i} \in W_1$.  By the assumption $\gamma_j \in W_1$ and $\gamma_j \notin W_2$, $d_{r+1} =  \dots =  d_{r+n} = 0$. Then $0 = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^m c_{i+r} \beta_i$ holds and by lin. ind. of $\{\alpha_1, \alpha_2, \dots, \alpha_r, \beta_1, \beta_2, \dots, \beta_m\}$, $e_1 = \dots = e_r = d_{r+1} = \dots = d_{r+n} = 0$.
+
+        $\therefore  \{\alpha_1, \dots, \alpha_r, \beta_1, \dots, \beta_m , \gamma_1, \dots, \gamma_n\}$ is basis of $W_1 + W_2$ and  $\dim_{W_1+W_2} = \dim_{W_1} + \dim_{W_2} - \dim_{W_1 \cap W_2}$.
+    \end{proof}
+
+
+
 \end{frame}
 
 \end{document}
