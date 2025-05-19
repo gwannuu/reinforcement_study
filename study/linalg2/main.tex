@@ -340,6 +340,207 @@
     Suppose $\alpha_1, \dots, \alpha_m$ are distinct vectors in $S$ and that $c_1\alpha_1 + \cdots + c_m \alpha_m + b \beta = 0$.
     If $b\neq 0, \beta = \frac{-c_1}{b}\alpha_1 + \cdots + \frac{-c_m}{b}\alpha_m$ and $\beta \in S$, which leads to a contradiction. $\therefore b = 0$ and this implies $\{\alpha_1, \dots, \alpha_m, \beta\}$ is linearly independent.
     \end{proof}
+
+    \begin{theorem}[Span toward basis]
+        If $W$ is a subspace of a finite-dimensional vector space $V$, every linearly independent subset of $W$ is finite and is part of a (finite) basis for $W$.
+    \end{theorem}
+    \begin{proof}
+        Let $\dim{W} = m$. For any linearly independent subset $S_0 = \{\beta_1, \beta_2, \dots, \beta_n\}$ of $W$, where $n \leq m$, we can construct basis $S$ of $W$, which includes $S_0$. If $n = m$, then $S_0$ is basis of $W$. If $n < m$, then we can find vector $\beta_{n+1}$ such that $S_1 =  S_0 \cup \{\beta_{n+1}\}$ is independent. If $S_1$ can not span $W$, then with same process, $S_2$ can be obtained. Repeat this process until $S_k$ spans $W$.
+    \end{proof}
+     \begin{corollary}
+        If $W$ is a proper subspace of a finite-dimensional vector space $V$, then $W$ is finite-dimensional and $\dim{W}<\dim{V}$
+    \end{corollary}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{corollary}
+        In a finite-dimensional vector space $V$ every non-empty linearly independent set of vectors is part of a basis
+    \end{corollary}
+    \begin{corollary}
+        Let $A$ be an $n \times n$ matrix over a field $F$, and suppose the row vectors of $A$ form a linearly independent set of vectors in $F^n$. Then $A$ is invertible
+    \end{corollary}
+    \begin{proof}
+        $\{A_{1*}, A_{2*}, \dots, A_{n*}\}$ is linearly independent and $\abs{\{A_{1*}, A_{2*}, \dots, A_{n*}\}} = n$. So $\{A_{1*}, A_{2*}, \dots, A_{n*}\}$ spans $F^n$.
+        Then there exists scalar $\forall i, j, 1 \leq i,j \leq n,B_{ij}$ s.t. $\epsilon_i = \sum_j^n B_{ij} A_{j*}$ and this implies $I = BA$ where $B = A^{-1}$
+    \end{proof}
+    \begin{corollary}
+        Let $A$ be an $n \times n$ matrix over a field $F$, and suppose the column vectors of $A$ form a linearly independent set of vectors in $F^n$. Then $A$ is invertible
+    \end{corollary}
+    \begin{proof}
+        $\{A_{*1}, A_{*2}, \dots, A_{*n}\}$ is linearly independent and $\abs{\{A_{*1}, A_{*2}, \dots, A_{*n}\}} = n$. So $\{A_{*1}, A_{*2}, \dots, A_{*n}\}$ spans $F^n$. Then there exists scalar $ \forall i, j, 1\leq i,j \leq n, B_{ij}$  s.t. $\epsilon_j = \sum_{i}^n B_{ij}A_{*i}$ and this implies $I = AB$ where $B = A^{-1}$
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $W_1$ and $W_2$ are finite-dimensional subspaces of a vector space $V$, then $W_1 + W_2$ is finite-dimensional and
+        \[
+            \dim{W_1 + W_2} = \dim{W_1} + \dim{W_2} - \dim{W_1 \cap W_2}
+        \]
+    \end{theorem}
+
+    \begin{proof}
+        Let basis of $W_1 \cap W_2$ by $\{\alpha_1, \alpha_2, \dots, \alpha_r\}$.
+
+        Then basis of $W_1$, $S_1$ can be defined by $\{\alpha_1, \alpha_2, \dots, \alpha_r, \beta_1, \beta_2, \dots, \beta_m\}$ and basis of $W_2$, $S_2$ can be defined by $\{\alpha_1, \alpha_2, \dots, \alpha_r, \gamma_1, \gamma_2, \dots, \gamma_n\}$.
+        
+        For any element $s \in W_1 + W_2$, $s$ can be represented by $s = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i}+ \sum_{j=1}^n d_{j+r} \gamma_j$ for scalars $c_i, d_j, e_k\in F$.
+
+        Suppose $s = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i}+ \sum_{j=1}^n d_{j+r} \gamma_j = 0$. Then $-\sum_{j=1}^n d_{j+r}\gamma_j = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^{m} c_{i+r} \beta_{i} \in W_1$.  By the assumption $\gamma_j \in W_1$ and $\gamma_j \notin W_2$, $d_{r+1} =  \dots =  d_{r+n} = 0$. Then $0 = \sum_{k=1}^r e_k \alpha_k + \sum_{i=1}^m c_{i+r} \beta_i$ holds and by lin. ind. of $\{\alpha_1, \alpha_2, \dots, \alpha_r, \beta_1, \beta_2, \dots, \beta_m\}$, $e_1 = \dots = e_r = d_{r+1} = \dots = d_{r+n} = 0$.
+
+        $\therefore  \{\alpha_1, \dots, \alpha_r, \beta_1, \dots, \beta_m , \gamma_1, \dots, \gamma_n\}$ is basis of $W_1 + W_2$ and  $\dim_{W_1+W_2} = \dim_{W_1} + \dim_{W_2} - \dim_{W_1 \cap W_2}$.
+    \end{proof}
+\end{frame}
+
+\subsection{Coordinates}
+
+\begin{frame}{.}
+    \begin{definition}
+        If $V$ is a finite-dimensional vector space, an \tb{ordered basis} for $V$ is a finite sequence of vectors which is linearly independent and spans $V$
+    \end{definition}
+    Suppose $V$ is a finite-dimensional vector space over the field $F$ and that 
+    \[
+    \mc{B} = \{\alpha_1, \alpha_2, \dots, \alpha_n\}
+    \]
+    is an ordered basis for $V$. Given $\alpha$ in $V$, there is a unique $n$-tuple $(x_1, x_2, \dots, x_n)$ of scalars such that 
+    \[
+    \alpha = \sum_{i=1}^n x_i \alpha_i
+    \]
+    The $n$-tuple is unique, becaus if we also have 
+    \[
+    \alpha = \sum_{i=1}^n y_i \alpha_i
+    \]
+    Then 
+    \[
+    \alpha = \sum_{i=1}^n (x_i - y_i)\alpha_i = 0
+    \]
+    And this implies $x_i = y_i$. We call $x_i$, the $i$th \tb{coordinate of }$\alpha$ \tb{relative to the ordered basis} $\mc{B}$
+\end{frame}
+
+\begin{frame}{.}
+    Frequently, it will be more convenient for us to use the \tb{coordinate matrix of }$\alpha$ \tb{to the ordered basis }$\beta$ rather than $n$-tuple $(x_1, \dots, x_n)$ of coordinates.
+
+    To indicate the dependence of this coordinate marix on the basis, we shall use the symbol
+    \[
+    X = \left[\begin{matrix} x_1 \\ \vdots \\ x_n \end{matrix}\right] = [\alpha]_{\mc{B}}
+    \]
+
+    \bigskip
+
+    Suppose there exists two basis $\mc{B} = \{\alpha_1, \dots, \alpha_n \}$ and $\mc{B}^\prime = \{\alpha^\prime_1, \dots, \alpha^\prime_n\}$. There exists unique scalars $\forall i, j, 1\leq i,j \leq n, P_{ij}$ s.t. $\alpha^\prime_j = \sum_{i=1}^n P_{ij} \alpha_i$. 
+    
+    Let $x_1^\prime, \dots, x^\prime_n$ be the coordinate of a given vector $\alpha \in V$ in the ordered basis $\mc{B}^\prime$. Then $\alpha = \sum_{j=1}^n x^\prime_j \alpha^\prime_j = \sum^n_{j=1} x^\prime_j \sum_{i=1}^n P_{ij} \alpha_i = \sum_{i=1}^n \sum_{j=1}^n (P_{ij} x^\prime_j) \alpha_i$. And also, there exists $x_1, \dots, x_n$, the coordinate of $\alpha$ in the ordered basis $\mc{B}$ and $\alpha = \sum_{i=1}^n x_i \alpha_i$ holds.
+
+    This implies $x_i = \sum_{j}^n P_{ij} x^\prime_j (X = PX^\prime)$.
+    
+    \smallskip
+
+    Note that since $\mc{B}$ and $\mc{B}^\prime$ are lin. ind., $X = 0 \iff X^\prime = 0$.
+    And $X^\prime = P^{-1} X$ holds.
+    This is same with $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}^\prime}$ and $[\alpha]_{\mc{B}^\prime} = P^{-1} [\alpha]_{\mc{B}}$.
+\end{frame}
+
+\begin{frame}{.}
+    Thus preceding discussions may be summarized as follows.
+
+    \begin{theorem} \label{th:4}
+        Let $V$ be an $n$-dimensional vector space over the field $F$, and let $\mc{B}$ and $\mc{B}^\prime$ be two ordered bases of $V$. Then there is a unique, necessarily invertible, $n \times n$ matrix $P$ with entries in $F$ such that
+        \begin{enumerate}
+            \item $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}}^\prime$
+            \item $[\alpha]_{\mc{B}^\prime} = P^{-1} [\alpha]_{\mc{B}}$
+        \end{enumerate}
+    \end{theorem}
+
+    For simplicity of proof, let present more concise proof.
+
+    % Let $\mc{B}$ denote for the matrix s.t. each $j$ th column of $\mc{B}_{:, j} = \alpha_j$. Then for arbitrary vector $\alpha \in V$, $\alpha = \mc{B}[\alpha]_{\mc{B}}$ holds. 
+    % We can think about another matrix $\mc{B}^\prime$ s.t. $\mc{B}^\prime = \mc{B} P$. 
+
+    % This $\mc{B}^\prime = \left[\begin{matrix} | & \empty & | \\ \alpha^\prime_1 & \cdots & \alpha^\prime_n \\ | & \empty & | \end{matrix}\right]$ is column matrix, that is lin. ind., i.e., $\mc{B}^\prime C = 0 \implies \mc{B} P C = 0 \implies   C = 0$, where $C$ is column vector. So, $\mc{B}^\prime$ is another basis of 
+
+    % Then $\alpha = \mc{B}^\prime P^{-1}  [\alpha]_\mc{B}$.
+
+    Let $[\mc{B}] =  \left[\begin{matrix} | & \empty & | \\ \alpha_1 & \cdots & \alpha_n \\ | & \empty & | \end{matrix}\right]$ be a matrix where each column is element of $\mc{B}$. 
+    Same notation for $\mc{B}^\prime$.
+    Then, $\alpha = [\mc{B}] [\alpha]_{\mc{B}} = [\mc{B}^\prime] [\alpha]_{\mc{B}^\prime}$.
+
+    By the property of basis, there exists some scalar $P_{ij} \in F$ s.t. $\alpha^\prime_j = \sum_i \alpha_i P_{ij}$. So $[\mc{B}^\prime] = [\mc{B}] P$.
+
+    $\therefore \alpha = [\mc{B}^\prime] [\alpha]_{\mc{B}^\prime} = [\mc{B}] P [\alpha]_{\mc{B}^\prime} = [\mc{B}] [\alpha]_{\mc{B}} \implies [\alpha]_\mc{B} = P [\alpha]_{\mc{B}^\prime}$.
+
+    Also, this matrix $P$ is invertible because $[\alpha]_{\mc{B}} = 0 \iff [\alpha]_{\mc{B}^\prime} = 0$ from the fact that both $\mc{B}$ and $\mc{B}^\prime$ are lin. ind. So $P^{-1} [\alpha]_{\mc{B}} = [\alpha]_{\mc{B}^\prime}$ also holds.
+
+
+\end{frame}
+
+\begin{frame}{.}
+    Also, following theorem holds.
+    \begin{theorem} \label{th:3}
+        Suppose $P$ is an $n \times n$ invertible matrix over $F$. Let $V$ be an $n$-dimensional vector space over $F$, and let $\mc{B}$ be an ordered basis of $V$. Then there is a unique ordered basis $\mc{B}^\prime$ of $V$ such that
+        \begin{enumerate}
+            \item $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}}^\prime$
+            \item $[\alpha]_{\mc{B}^\prime} = P^{-1} [\alpha]_{\mc{B}}$
+        \end{enumerate}
+        for every vector $\alpha$ in $V$.
+    \end{theorem}
+
+    Proof for Theorem \ref{th:3}.
+
+    Let $[\mc{B}^\prime] = [\mc{B}] P$. Then this new matrix $[\mc{B}^\prime]$ is lin. ind.
+    \begin{itemize}
+        \item Because, $[\mc{B}^\prime] C = 0, \forall C \in V \implies C = 0$.
+        \item $[\mc{B}^\prime]C = [\mc{B}]PC = [\mc{B}]D$ s.t. $PC = D$. Since $P$ is invertible, $[\mc{B}]D = 0 \implies D = 0$ and $\therefore C = 0$. So $[\mc{B}^\prime]$ is lin. ind.
+    \end{itemize}
+    Then we can same conclusion with theorem \ref{th:4}.
+
+\end{frame}
+
+\subsection{Summary of Row-Equivalence}
+
+\begin{frame}{.}
+    Let $A \in F^{m \times n}$.
+
+    \begin{definition}[Row Rank]
+        We can consider that each row vector of $A$, $A_{i,:} \in F^{n}, i=1, \dots, m$. Then there exists vector space spanned by $\{A_{1, :}, \dots, A_{m, :}\}$. \tb{Row rank} is the dimension of this spanned vector space.
+    \end{definition}
+
+     $P \in F^{k \times m}$. Then we can consider matrix multiplication  $B = PA, B \in F^{k \times n}$. Let row space of $A$ as $V_A$ and row space of $B$ as $V_B$.
+
+     \begin{itemize}
+        \item The row space of $B$ is a subspace of the row space of $A$.
+        Then for any vector $b \in V_B$, $\exists c_i$ s.t. $b = \sum_{i=1}^k c_i B_{i, :}$. 
+        And $B_{i,:} = \sum_{j=1}^m P_{i, j} A_{j, :}$ so $b = \sum_{i=1}^k \sum_{j=1}^m c_i P_{i,j} A_{j, :}$ and this implies $V_B \subset V_A$.
+        \item What if the $P$ is $m \times m $ invertible invertible matrix?
+        Then $B$ becomes row-equivalent to $A$ so that the symmetry of row-equivalence implies that $V_A \subset V_B$. (Or simply from the equation $A = P^{-1} B \implies V_A \subset V_B$)
+     \end{itemize}
+
+     \begin{theorem}
+        Row-equivalent matrices have the same row space.
+     \end{theorem}
+     Proof. skip
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $R$ be a non-zero row-reduced echelon matrix. Then the non-zero row vectors of $R$ form a basis for the row space of $R$.
+    \end{theorem}
+    Proof. skip
+
+    \begin{corollary}
+        Each $m \times n$ matrix $A$ is row-equivalent to one and only one row-reduced echelon matrix.
+    \end{corollary}
+
+    \begin{corollary}
+        Let $A$ and $B$ be $m\times n$ matrices over the field $F$. Then $A$ and $B$ are row-equivalent if and only if they have the same row space.
+    \end{corollary}
+
+    To summarize, the followings are equivalent 
+
+    \begin{enumerate}
+        \item $A$ and $B$ are row-equivalent
+        \item $A$ and $B$ have the same row space.
+        \item $B=PA$, where $P$ is an invertible $m \times m$ matrix.
+    \end{enumerate}
 \end{frame}
 
 \end{document}
