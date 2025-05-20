@@ -1,0 +1,151 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamerfont{frametitlefont}{size=\Large}
+\setbeamerfont{framesubtitlefont}{size=\large}
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{titlebig}%
+  \insertsectionhead
+  \usebeamerfont{framesubtitlefont}
+  \!:\insertsubsectionhead
+  \par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\argmax}[1]{\operatorname{arg max}_{#1}}
+\newcommand{\argmin}[1]{\operatorname{arg min}_{#1}}
+\newcommand{\nll}[1]{\operatorname{NLL}\!\left(#1\right)}
+\newcommand{\rss}[1]{\operatorname{RSS}\!\left(#1\right)}
+\newcommand{\tr}[1]{\operatorname{tr}\!\left(#1\right)}
+
+% 발표 제목, 저자, 날짜 설정
+\title{Math Foundation}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+
+\section{Linear Algebra}
+\subsection{Norms of a vector and matrix}
+
+\begin{frame}{.}
+    \begin{definition}
+        In vector space $\mbb{R}^d$, A norm of vector $\abs{x}$ is a measure of how big a vector is. Norm is any function $f: \mbb{R}^d \rightarrow \mbb{R}$ that satisfies under condition.
+        \begin{itemize}
+            \item $\abs{x} \geq 0, \forall x\in \mbb{R}^d$
+            \item $\abs{x} = 0 \iff x = 0$
+            \item $\abs{cx} = c\abs{x}, \forall c \in \mbb{R}$
+            \item $\abs{x} + \abs{y} \geq \abs{x+y}, \forall x,y \in \mbb{R}^d$
+        \end{itemize}
+    \end{definition}
+
+    Example of several norms satisfying these conditions.
+
+    \tb{$p$-norm}: $\abs{x}_p = \sqrt[p]{\sum_{i=1}^d \abs{x_i}^p}$, for $p \geq 1$
+
+    \tb{max-norm ($\infty$-norm)}: $\abs{x}_\infty = \max_i \abs{x_i}$
+
+    $0$-norm: $\abs{x}_0 = \sum_{i=1}^d \mb{1}(\abs{x_i} > 0 )$
+\end{frame}
+
+\begin{frame}{.}
+    If we think matrix $A \in \mbb{R}^{m \times n}$ as linear function $f: \mbb{R}^n \rightarrow \mbb{R}^m$, $x \mapsto f(x) = Ax$, we can define \tb{induced norm} of that function $f$ by 
+
+    \[\abs{A} = \max_{x\neq 0}\frac{\abs{Ax}_p}{\abs{x}_p} = \max_{\abs{x} = 1} \abs{Ax}_p\]
+
+    Especially, $p=2$,
+    \[
+    \abs{A}_2 = \max_{\abs{x} = 1} \abs{Ax}_2\ = \max_i \sigma_i
+    \] where $\sigma_i$ is the $i$-th singular value of $A$.
+
+    Also there exists called \tb{nuclear norm} or \tb{trace norm}, is
+    \[
+    \abs{A}_\ast = \tr{\sqrt{A^\top A}} = \sum_i \sigma_i = \sum_i \abs{\sigma_i}
+    \]
+
+    More generalized version of trace norm, \tb{Schatten $p$-norm} is defined by
+    \[
+    \abs{A}_p = \sum_i \left(\abs{\sigma_i}^p\right)^{1/p}
+    \]
+\end{frame}
+
+\end{document}

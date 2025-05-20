@@ -1,0 +1,115 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{titlebig}%
+  \insertsectionhead
+  \usebeamerfont{framesubtitlefont}
+  \!:\insertsubsectionhead
+  \par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\argmax}[1]{\operatorname{arg max}_{#1}}
+\newcommand{\argmin}[1]{\operatorname{arg min}_{#1}}
+\newcommand{\nll}[1]{\operatorname{NLL}\!\left(#1\right)}
+\newcommand{\rss}[1]{\operatorname{RSS}\!\left(#1\right)}
+
+% 발표 제목, 저자, 날짜 설정
+\title{DL Foundation}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{Loss}
+\subsection{Contrastive Loss}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    Object of contrastive learning: In embedding space, make datas from same category more closer and datas from different categories move away.
+
+    \bigskip
+    Suppose there exists two categories, $c_1, c_2$ and there exists dataset corresponding to each category, $\mc{D}_1, \mc{D}_2$.
+\end{frame}
+
+
+\end{document}
