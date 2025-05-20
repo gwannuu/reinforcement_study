@@ -390,7 +390,52 @@
 
         $\therefore  \{\alpha_1, \dots, \alpha_r, \beta_1, \dots, \beta_m , \gamma_1, \dots, \gamma_n\}$ is basis of $W_1 + W_2$ and  $\dim_{W_1+W_2} = \dim_{W_1} + \dim_{W_2} - \dim_{W_1 \cap W_2}$.
     \end{proof}
+\end{frame}
 
+\subsection{Coordinates}
+
+\begin{frame}{.}
+    \begin{definition}
+        If $V$ is a finite-dimensional vector space, an \tb{ordered basis} for $V$ is a finite sequence of vectors which is linearly independent and spans $V$
+    \end{definition}
+    Suppose $V$ is a finite-dimensional vector space over the field $F$ and that 
+    \[
+    \mc{B} = \{\alpha_1, \alpha_2, \dots, \alpha_n\}
+    \]
+    is an ordered basis for $V$. Given $\alpha$ in $V$, there is a unique $n$-tuple $(x_1, x_2, \dots, x_n)$ of scalars such that 
+    \[
+    \alpha = \sum_{i=1}^n x_i \alpha_i
+    \]
+    The $n$-tuple is unique, becaus if we also have 
+    \[
+    \alpha = \sum_{i=1^n}y_i \alpha_i
+    \]
+    Then 
+    \[
+    \alpha = \sum_{i=1}^n (x_i - y_i)\alpha_i = 0
+    \]
+    And this implies $x_i = y_i$. We call $x_i$, the $i$th \tb{coordinate of }$\alpha$ \tb{relative to the ordered basis} $\mc{B}$
+\end{frame}
+
+\begin{frame}{.}
+    Frequently, it will be more convenient for us to use the \tb{coordinate matrix of }$\alpha$ \tb{to the ordered basis }$\beta$ rather than $n$-tuple $(x_1, \dots, x_n)$ of coordinates.
+
+    To indicate the dependence of this coordinate marix on the basis, we shall use the symbol
+    \[
+    X = \left[\begin{matrix} x_1 \\ \vdots \\ x_n \end{matrix}\right] = [\alpha]_{\mc{B}}
+    \]
+
+    \bigskip
+
+    Suppose there exists two basis $\mc{B} = \{\alpha_1, \dots, \alpha_n \}$ and $\mc{B}^\prime = \{\alpha^\prime_1, \dots, \alpha^\prime_n\}$. There exists unique scalars $\forall i, j, 1\leq i,j \leq n, P_{ij}$ s.t. $\alpha^\prime_j = \sum_{i=1}^n P_{ij} \alpha_i$. 
+    
+    Let $x_1^\prime, \dots, x^\prime_n$ be the coordinate of a given vector $\alpha \in V$ in the ordered basis $\mc{B}^\prime$. Then $\alpha = \sum_{j=1}^n x^\prime_j \alpha^\prime_j = \sum^n_{j=1} x^\prime_j \sum_{i=1}^n P_{ij} \alpha_i = \sum_{i=1}^n \sum_{j=1}^n (P_{ij} x^\prime_j) \alpha_i$. And also, there exists $x_1, \dots, x_n$, the coordinate of $\alpha$ in the ordered basis $\mc{B}$ and $\alpha = \sum_{i=1}^n x_i \alpha_i$ holds.
+
+    This implies $x_i = \sum_{j}^n P_{ij} x^\prime_j (X = PX^\prime)$.
+    
+    \smallskip
+
+    Note that since $\mc{B}$ and $\mc{B}^\prime$ are lin. ind., $X = 0 \iff X^\prime = 0$.
 
 
 \end{frame}
