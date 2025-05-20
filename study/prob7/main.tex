@@ -1,0 +1,361 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+
+% 발표 제목, 저자, 날짜 설정
+\title{Probability: Joint Distributions}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+\subsection{Joint, marginal and conditional}
+
+\begin{frame}{.}
+    \begin{definition}[Joint PDF]
+        The \ti{joint} CDF of r.v.s $X$ and $Y$ is the function $F_{X,Y}$ given by
+        \[
+            F_{X,Y} (x,y) = P(X\leq x, Y \leq y)
+        \]
+        The joint CDF of $n$ r.v.s is defined analogously
+    \end{definition}
+
+    \begin{definition}[Joint PMF]
+        The \ti{joint} PMF of discrete r.v.s $X$ and $Y$ is the function 
+        \[p_{X,Y}(x,y) = P(X=x,Y=y)\]
+        The joint PMF of $n$ r.v.s is defined analogously
+    \end{definition}
+
+    \begin{itemize}
+        \item for all $x$ and $y$,  $0 \leq P(X=x,Y=y) \leq 1$
+        \item $\sum_x \sum_y P(X=x,Y=y) = 1$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}[Marginal PMF]
+        For discrete r.v.s $X$ and $Y$, the \ti{marginal} PMF of $X$ is 
+        \[
+            P(X=x) = \sum_y P(X=x,Y=y)
+        \]
+    \end{definition}
+    Another way to obtain marginal PMF is using the joint CDF
+    \[
+        F_X(x) = P(X \leq x) = \lim_{y \rightarrow \infty} P(X\leq x, Y\leq y) = \lim_{y \rightarrow \infty} F_{X,Y} (x,y)
+    \]
+
+    \begin{definition}[Conditional PMF]
+        For discrete r.v.s $X$ and $Y$, the \ti{conditional} PMF of $Y$ given $X = x$ is 
+        \[
+        P(Y=y |X=x) = \frac{P(X=x,Y=y)}{P(X=x)}
+        \]
+    \end{definition}
+
+    Note that by Bayes' rule:
+    \[
+    P(Y=y|X=x) = \frac{P(X=x|Y=y) P(Y=y)}{P(X=x)}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}[Independence of r.v.s]
+        Random variables $X$ and $Y$ are \ti{independent} if for all $x$ and $y$,
+        \[
+            F_{X,Y} (x,y) = F_X(x) F_Y(y)
+        \]
+        If $X$ and $Y$ are discrete, this is equivalent to the conditions
+        \[
+        \begin{gathered}
+            P(X=y,Y=y) = P(X=x)P(Y=y)\\
+            P(X=x|Y=y) = P(X=x) \quad (P(Y=y) > 0)
+        \end{gathered}
+        \]
+    \end{definition}
+    \begin{example}[Chicken-egg]
+        Suppose a chicken lays a random number of eggs, $N$, where $N\sim \mypois{\lambda}$. Each egg independently hatches with probability $p$ and fails to hatch with probability $q= 1 - p$. Let $X$ be the number of eggs that hatch and $Y$ the number that do not hatch, so $X+Y = N$. What is the joint PMF of $X$ and $Y$?
+    \end{example}
+
+    $X|N \sim \mybin{n}{p}$ and $Y|N \sim \mybin{n}{q}$. $P(X=i,Y=j) = \sum_{n=0}^\infty P(X=i,Y=j|N=n)P(N=n) = P(X=i,Y=j) = P(X=i,Y=j|N=i+j)P(N=i+j) = P(X=i|N=i+j)P(N=i+j)$.
+
+    $P(X=i,Y=j) = P(X=i|N=i+j)P(N=i+j) = \binom{i+j}{i} p^i q^j e^{-\lambda} \lambda^{i+j} / (i+j)! = (e^{-\lambda p} (\lambda p)^i / i!)\cdot (e^{-\lambda q} (\lambda q)^{j} / j!) \implies X \sim \mypois{\lambda p}, Y \sim \mypois{\lambda q}$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $X\sim \mypois{\lambda p}, Y\sim \mypois{\lambda q}$, then $N=X+Y \sim \mypois{\lambda}$ and $X|N \sim \mybin{n}{p}$
+    \end{theorem}
+    \begin{theorem}
+        If $N \sim \mypois{\lambda}$ and $X|N = n \sim \mybin{n}{p}$, then $X\sim \mypois{\lambda p }, Y = N-X \sim \mypois{\lambda q}$, and $X$ and $Y$ are independent
+    \end{theorem}
+    \begin{definition}[Joint PDF]
+        If $X$ and $Y$ are continuous with joint CDF $F_{X,Y}$, their \ti{joint} PDF is the derivative of the joint CDF with respect to $x$ and $y$
+        \[
+            f_{X,Y}(x,y) = \frac{\partial^2}{\partial x \partial y} F_{X,Y}(x,y)
+        \]
+        $f_{X,Y} (x,y)$ should satisfy
+        \begin{itemize}
+            \item $f_{X,Y} (x,y) \geq 0$
+            \item $\int_{-\infty}^\infty \int_{-\infty}^\infty f_{X,Y}(x,y) dx dy =1$
+        \end{itemize}
+    \end{definition}
+    For a general region $A \subseteq \mbb{R}^2$, $P((X,Y)\in A) = \iint_{A} f_{X,Y} (x,y) dx dy$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}[Marginal PDF]
+        For continuous r.v.s $X$ and $Y$ with joint PDF $f_{X,Y}$, the \ti{marginal} PDF of $X$ is 
+        \[
+            f_X(x) = \int_{-\infty}^\infty f_{X,Y} (x,y) dx dy
+        \]
+    \end{definition}
+
+    \begin{definition}[Conditional PDF]
+        For continuous r.v.s $X$ and $Y$ with joint PDF $f_{X,Y}$, the \ti{conditional} PDF of $Y$ given $X=x$ is 
+        \[
+        \begin{cases}
+            f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)}  = \frac{f_{X,Y}(x,y)}{\int_{-\infty}^\infty f_{X,Y}(x,y) dy} &\quad (f_X(x) > 0) \\ 
+            f_{Y|X}(y|x) = 0 &\quad (f_X(x) = 0)
+        \end{cases}
+        \]
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}[Continuous form of Bayes' rule and LOTP]
+        For continuous r.v.s $X$ and $Y$, we have the following continuous form of Bayes' rule:
+        \[
+            f_{Y|X}(y|x) = \frac{f_{X|Y}(x|y)f_Y(y)}{f_X(x)} \quad (f_X(x)>0)
+        \]
+        And we have the following continuous form of the law of total probability
+        \[
+        f_X(x) = \int_{-\infty}^\infty f_{X|Y}(x|y) f_Y(y)dy
+        \]
+    \end{theorem}
+
+    \begin{definition}[Independence of continuous r.v.s]
+        Random variables $X$ and $Y$ are \ti{independent} if for all $x$ and $y$,
+        \[
+        F_{X,Y} (x,y) = F_X(x)F_Y(y)
+        \]
+        If $X$ and $Y$ are continuous with joint PDF $f_{X,Y}$, this is equivalent to
+        \[
+        \begin{gathered}
+            f_{X,Y} = f_X(x)f_Y(y) \\
+            f_{Y|X} = f_Y(y) \quad (f_X(x) > 0)
+        \end{gathered}
+        \]
+    \end{definition}
+
+    
+\end{frame}
+
+\begin{frame}{.}
+    \begin{proposition}
+        Suppose the joint PDF $f_{X,Y}$ of $X$ and $Y$ factors as 
+        \[
+        f_{X,Y}(x,y) = g(x) h(y)
+        \]
+        for all $x$ and $y$, where $g$ and $h$ are nonnegative functions.
+        Then $X$ and $Y$ are independent.
+    \end{proposition}
+    \begin{proof}
+        \[
+    \begin{gathered}
+        f_X(x) = g(x) \int_{-\infty}^\infty h(y) dy \\
+        f_Y(y) = h(y) \int_{-\infty}^\infty g(x) dx \\
+        f_X(x) f_Y(y) = g(x) h(y) \iint_{-\infty}^\infty g(x) h(y) dx dy = g(x) h(y) = f_{X,Y} (x,y)
+    \end{gathered}
+    \]
+    \end{proof} 
+
+    Note that $f_X(x) = \frac{g(x)}{\int_{-\infty}^\infty g(x)dx}$ and $f_Y(y) = \frac{h(y)}{\int_{-\infty}^\infty h(y) dy}$
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+    Let $(X,Y)$ be a completely random point in the unit disk $\{(x,y): x^2 + y^2 \leq 1\}$ with PDF 
+    \[
+    f_{X,Y}(x,y) =
+    \begin{cases}
+        \frac{1}{\pi}  & \text{if } x^2 + y^2 \leq 1\\
+        0 & \text{otherwise}
+    \end{cases}
+    \]
+    \begin{itemize}
+        \item $X$ and $Y$ are not independent since $f_{X,Y}(\frac{\sqrt{3}}{2}, \frac{\sqrt{3}}{2}) = 0$ and $f_Y(\frac{\sqrt{3}}{2})f_Y(\frac{\sqrt{3}}{2})\neq 0$.
+        \item $X$ and $Y$ are not independent, since larger value $\abs{X}$ restricts $Y$ to be a smaller range
+        \item $f_X(x) = \int_{-\sqrt{1 - x^2}}^{\sqrt{1 - x^2}}\frac{1}{\pi} dy= \frac{2}{\pi} \sqrt{1 - x^2}, -1 \leq x \leq 1$. $f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)} = \frac{1/\pi}{2\sqrt{1 - x^2} /\pi} = \frac{1}{2\sqrt{1 - x^2}}, -\sqrt{1 - x^2} \leq y \leq \sqrt{1 - x^2}$ $\implies$ the fact that conditional PDF $f_{Y|X}(y|x)$ is not free of $x$ means $Y$ is not independent with $X$.
+    \end{itemize}
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Comparing Exponentials of different rates]
+        Let $T_1 \sim \myexpo{\lambda_1}$ and $T_2 \sim \myexpo{\lambda_2}$ be independent. 
+        Find $P(T_1 < T_2)$. For example, $T_1$ could be the lifetime of a refrigerator and $T2$ could be the lifetime of a stove (if we are willing to assume Exponential distributions for these), and then $P(T_1<T_2)$ is the probability that the refrigerator fails before the stove. 
+        We know that $\min{T_1, T_2} \sim \myexpo{\lambda_1 + \lambda_2}$, which tells us about \ti{when} the first appliance failure will occur, but we may also want to know about \ti{which} appliance will fail first.
+    \end{example}
+    \[
+        \begin{aligned}
+            P(T_1< T_2) &= \int_{0}^\infty \int_0^{t_2} \lambda_1e^{-\lambda_1 t_1} \lambda_2 e^{-\lambda_2 t_2} dt_1 dt_2 
+            = \int_0^\infty (1 - e^{-\lambda_1 t_2}) \lambda_2 e^{-\lambda_2 t_2} dt_2 \\
+            &= 1 - \lambda_2\int_0^\infty e^{-(\lambda_1 + \lambda_2)t_2} dt_2 = 1- \frac{\lambda_2}{\lambda_1 + \lambda_2} = \frac{\lambda_1}{\lambda_1 + \lambda_2}
+        \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Cauchy PDF]
+        Let $X$ and $Y$ be i.i.d. $\mathcal{N}(0,1)$, and let $T = X/Y$. (We can define $T$ arbitrary in the case $Y=0$; the choice of how to define $T$ in that case has no effect on the distribution of $T$, since $P(Y=0)=0$.) The distribution of $T$ is a famous named distribution called the \tb{Cauchy} distribution. Find the PDF of $T$.
+    \end{example}
+    Note that $P\left(\frac{X}{Y} \leq t\right) = P(X \leq tY, Y>0) + P(X \geq tY, Y<0) = P(X\leq tY, Y>0) + P(X \leq -tY, Y<0) = P(X\leq t\abs{Y})$.
+    \[
+    \begin{aligned}
+        F_T(t) &= P(T\leq t) = P\left(\frac{X}{Y} \leq t\right) = P(X \leq tY, Y>0) + P(X \geq tY, Y<0) \\
+        &= \int_0^\infty \int_{-\infty}^{ty} \frac{1}{\sqrt{2\pi}} e^{-x^2/2}  dx \frac{1}{\sqrt{2\pi}}e^{-y^2/2}dy \\
+        &+ \int_{-\infty}^0 \int_{ty}^{\infty} \frac{1}{\sqrt{2\pi}}e^{-x^2/2} dx \frac{1}{\sqrt{2\pi}} e^{-y^2/2} dy \\ 
+        &= \int_{-\infty}^\infty \int_{-\infty}^{t\abs{y}} \frac{1}{\sqrt{2\pi}}e^{-x^2/2} dx \frac{1}{\sqrt{2\pi}} e^{-y^2/2} dy = \frac{2}{\sqrt{2\pi}}\int_0^\infty \Phi(ty)  e^{-y^2/2} dy
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \[
+    \begin{aligned}
+        f_T(t) &= F_T^\prime(t) = \frac{2}{\sqrt{2\pi}} \int_0^\infty \frac{\partial}{\partial t} \Phi(ty) e^{-y^2/2} dy \\
+        &=  \frac{2}{\sqrt{2\pi}} \int_0^\infty y \frac{1}{\sqrt{2\pi}}e^{-(ty)^2/2} e^{-y^2/2} dy = \frac{1}{\pi} \int_0^\infty y e^{-(t^2 +1)y^2/2} dy \\
+        &= \frac{1}{\pi (1+t^2)} \left[ e^{-(t^2 +1)y^2/2} \right]^0_\infty = \frac{1}{\pi (1+t^2)}
+    \end{aligned}
+    \]
+    And $F_T(t) = \int_{-\infty}^t \frac{1}{\pi(1+t^2)} = \frac{1}{\pi} \operatorname{arctan}(t) + \frac{1}{2}$.
+
+    An interesting fact about cauchy distribution is that although the PDF is symmetric about $0$, its expected value does not exist, since the integral $\int_{-\infty}^\infty \frac{t}{\pi(1+t^2)}dt$ diverges. For large $t$, $\frac{t}{1+t^2} \approx \frac{1}{t}$, and $\int^\infty_1 \frac{1}{t} dt = \infty$
+
+\end{frame}
+
+\begin{frame}{.}
+
+    Suppose $X$ is \ti{discrete} r.v and $Y$ is \ti{continuous} r.v. Then \ti{marginal} distribution is defined by
+    \[
+        \begin{gathered}
+            P(X=x) = \int_{-\infty}^\infty f_{X,Y}(X=x,y) dy\\
+            f_Y(y) = \sum_x f_{X,Y}(X=x,y)
+        \end{gathered}
+    \]
+    Conditional r.v. $X|Y$ and $Y|X$ are defined by
+    \[
+        \begin{gathered}
+            P(X=x|y) = \frac{f_{X,Y}(X=x,y)}{\sum_x f_{X,Y} (X=x, y)} = \frac{f_{X,Y} (X=x,y)}{f_Y(y)} \\
+            f_{Y|X} (y|X=x) = \frac{f_{X,Y}(X=x,y)}{\int_{-\infty}^\infty f_{X,Y}(X=x,y) dy} = \frac{f_{X,Y}(X=x,y)}{P(X=x)}
+        \end{gathered}
+    \]
+    Bayes' rules are defined by 
+    \[
+        \begin{gathered}
+            P(X=x|y) = \frac{f_{Y|X}(X=x,y) P(X=x)}{f_Y(y)}\\
+            f_{Y|X}(y|X=x) = \frac{P(X=x|y)f_Y(y)}{P(X=x)}
+        \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+      A lightbulb was manufactured by one of two companies. 
+      Bulbs that are made by Company 0 last an $\myexpo{\lambda_0}$ amount of time, and bulbs made by Company 1 last an $\myexpo{\lambda_1}$ amount of time, with $\lambda_0 < \lambda_1$. 
+      The bulb of interest here was made by Company 0 with probability $p_0$ and by Company 1 with probability $p_1 = 1 - p_0$, but from inspecting the bulb we don't know which company made it.
+
+      Let $T$ be how long the bulb lasts, and $I$ be the indicator of it having been made by Company 1.
+      \begin{enumerate}
+        \item Find the CDF and PDF of $T$.
+        \item Does $T$ have the memoryless property?
+        \item Find the conditional distribution of $I$ given $T=t$. What happens to this as $t \rightarrow \infty$?
+      \end{enumerate}
+    \end{example}
+    1. $F_{T}(t) = P(T\leq t) = P(T\leq t|I=0)P(I=0) + P(T\leq t|I=1)P(I=1) = p_0 (1 - e^{-\lambda_0 t} )   + p_1 ( 1- e^{\lambda_1 t} ) = 1 - p_0 e^{-\lambda_0 t} - p_1 e^{-\lambda_1 t}, \forall t>0$. 
+    $f_T(t) = \lambda_0 p_0 e^{-\lambda_0 t} + \lambda_1 p_1 e^{-\lambda_1 t}, \forall t>0$.
+
+    2. No. because the distribution of $T$ is not Exponential.
+
+    3.$P(I=1|t) = \frac{f_{T|I}(t|I=1) P(I=1)}{f_T(t)} = \frac{\lambda_1 p_1 e^{-\lambda_1 t}}{\lambda_0 p_0 e^{-\lambda_0 t} + \lambda_1 p_1 e^{-\lambda_1 t}}$. $t\rightarrow \infty$, then $P(I=1|t) \rightarrow 0$, which implies that the longer the bulb lasts, the more confident we will be that it was made by company 0
+\end{frame}
+
+\subsection{2D Lotus}
+
+\end{document}
