@@ -51,10 +51,10 @@
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
 \newcommand{\ti}[1]{\textit{#1}}
-\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
 
 \newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
-\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
 \newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
 \newcommand{\myexp}[1]{\exp{\left(#1\right)}}
 \newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
@@ -70,6 +70,8 @@
 \newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
 \newcommand{\intinfty}{\int_{-\infty}^\infty}
 \newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+
 
 % 발표 제목, 저자, 날짜 설정
 \title{Probability: Joint Distributions}
@@ -151,20 +153,20 @@
         \]
     \end{definition}
     \begin{example}[Chicken-egg]
-        Suppose a chicken lays a random number of eggs, $N$, where $N\sim \mypois{\lambda}$. Each egg independently hatches with probability $p$ and fails to hatch with probability $q= 1 - p$. Let $X$ be the number of eggs that hatch and $Y$ the number that do not hatch, so $X+Y = N$. What is the joint PMF of $X$ and $Y$?
+        Suppose a chicken lays a random number of eggs, $N$, where $N\sim \Pois{\lambda}$. Each egg independently hatches with probability $p$ and fails to hatch with probability $q= 1 - p$. Let $X$ be the number of eggs that hatch and $Y$ the number that do not hatch, so $X+Y = N$. What is the joint PMF of $X$ and $Y$?
     \end{example}
 
-    $X|N \sim \mybin{n}{p}$ and $Y|N \sim \mybin{n}{q}$. $P(X=i,Y=j) = \sum_{n=0}^\infty P(X=i,Y=j|N=n)P(N=n) = P(X=i,Y=j) = P(X=i,Y=j|N=i+j)P(N=i+j) = P(X=i|N=i+j)P(N=i+j)$.
+    $X|N \sim \Bin{n}{p}$ and $Y|N \sim \Bin{n}{q}$. $P(X=i,Y=j) = \sum_{n=0}^\infty P(X=i,Y=j|N=n)P(N=n) = P(X=i,Y=j) = P(X=i,Y=j|N=i+j)P(N=i+j) = P(X=i|N=i+j)P(N=i+j)$.
 
-    $P(X=i,Y=j) = P(X=i|N=i+j)P(N=i+j) = \binom{i+j}{i} p^i q^j e^{-\lambda} \lambda^{i+j} / (i+j)! = (e^{-\lambda p} (\lambda p)^i / i!)\cdot (e^{-\lambda q} (\lambda q)^{j} / j!) \implies X \sim \mypois{\lambda p}, Y \sim \mypois{\lambda q}$
+    $P(X=i,Y=j) = P(X=i|N=i+j)P(N=i+j) = \binom{i+j}{i} p^i q^j e^{-\lambda} \lambda^{i+j} / (i+j)! = (e^{-\lambda p} (\lambda p)^i / i!)\cdot (e^{-\lambda q} (\lambda q)^{j} / j!) \implies X \sim \Pois{\lambda p}, Y \sim \Pois{\lambda q}$
 \end{frame}
 
 \begin{frame}{.}
     \begin{theorem}
-        If $X\sim \mypois{\lambda p}, Y\sim \mypois{\lambda q}$, then $N=X+Y \sim \mypois{\lambda}$ and $X|N \sim \mybin{n}{p}$
+        If $X\sim \Pois{\lambda p}, Y\sim \Pois{\lambda q}$, then $N=X+Y \sim \Pois{\lambda}$ and $X|N \sim \Bin{n}{p}$
     \end{theorem}
     \begin{theorem}
-        If $N \sim \mypois{\lambda}$ and $X|N = n \sim \mybin{n}{p}$, then $X\sim \mypois{\lambda p }, Y = N-X \sim \mypois{\lambda q}$, and $X$ and $Y$ are independent
+        If $N \sim \Pois{\lambda}$ and $X|N = n \sim \Bin{n}{p}$, then $X\sim \Pois{\lambda p }, Y = N-X \sim \Pois{\lambda q}$, and $X$ and $Y$ are independent
     \end{theorem}
     \begin{definition}[Joint PDF]
         If $X$ and $Y$ are continuous with joint CDF $F_{X,Y}$, their \ti{joint} PDF is the derivative of the joint CDF with respect to $x$ and $y$
@@ -536,6 +538,112 @@
         \Corr{M}{L} = \frac{\Var{L}}{\sqrt{\Var{M}}\Var{L}} = \frac{\sqrt{\Var{L}}}{\sqrt{\Var{M}}} = \frac{1}{\sqrt{5}}
     \]
 
+\end{frame}
+
+\subsection{Multinomial}
+
+\begin{frame}{.}
+    Each of $n$ objects is independently placed into one of $k$ categories. An object is placed into category $j$ with probability $p_j$. Let $X_1$ be the number of objects in category 1, $X_2$ the number of objects in category 2, etc., so that $X_1 + \cdots + X_k = n$. Then $\mb{X} = (X_1, \dots, X_k)$ is said to have the \tb{Multinomial distribution} with parameters $n$ and $\mb{p} = (p_1, \dots, p_k)$. We write this as $\mb{X} \sim \Mult{k}{n}{\mb{p}}$.
+
+    We call $\mb{X}$ a \tb{random vector} because it is a vector of random variables.
+
+    \begin{theorem}[Multinomial joint PMF]
+        If $\mb{X} \sim \Mult{k}{n}{\mb{p}}$, then the joint PMF of $mb{X}$ is 
+        \[
+        P(X_1 = n_1, \dots, X_k=n_k) = \frac{n!}{n_1! n_2!,\dots, n_k!}\cdot p_1^{n_1} p_2^{n_2} \cdots p_k^{n_k}
+        \]
+        Where $n_1 + \cdots + n_k = n$.
+    \end{theorem}
+
+    \begin{theorem}[Multinomial marginals]
+        The marginals of a Multinomial are Binomial. Specifically, if $\mb{X} \sim \Mult{k}{n}{\mb{p}}$, then $X_j \sim \Bin{n}{p_j}$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}[Multinomial lumping]
+        \begin{itemize}
+            \item If $\mb{X} \sim \Mult{k}{n}{\mb{p}}$, then for any distinct $i$ and $j$, $X_i + X_j \sim \Bin{n}{p_i + p_j}$.
+            \item The random vector of counts obtained from merging categories $i$ and $j$ is still Multinomial. For example, merging categories $1$ and $2$ gives
+            \[
+                (X_1 +X_2, X_3, \dots, X_k) \sim \Mult{k-1}{n}{(p_1+ p_2, p_3, \dots, p_k)}
+            \]
+        \end{itemize}
+    \end{theorem}
+
+    Suppose $X_1 = n_1$ is observed. In that situation, what is the probability of $X_2 =n_2, \dots, X_k = n_k$?
+
+    \[
+        P(X_2 = n_2, \dots, X_k = n_k| X_1 = n_1) = \frac{P(X_1=n_1, \dots, X_k=n_k)}{P(X_1 = n_1)}
+    \]
+
+    What is the probability that one is in category $j$ given it is not in category $1$?
+    \[
+    P(\text{in category }j|\text{not in category }1) = \frac{P(\text{in category }j)}{P(\text{not in category }1)}
+    \]
+    \begin{theorem}[Multinomial conditioning]
+        If $\mb{X} \sim \Mult{k}{n}{\mb{p}}$, then 
+        \[
+            (X_2, \dots, X_k)|X_1 =n_1 \sim \Mult{k}{n-n_1}{(p_2/z, \dots, p_k/z)}
+        \]
+        Where $z = p_2 + \cdots + p_k$
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    We already know that components within a Multinomial random vectors are dependent since $X_1 + \cdots + X_k = n$.
+    \begin{theorem}[Covariance in a Multinomial]
+        Let $(X_1, \dots, X_k) \sim \Mult{k}{n}{\mb{p}}$. For $i\neq j, \Cov{X_i}{X_j} = -n p_i p_j$ 
+    \end{theorem}
+    \begin{proof}
+        $\forall i, j, i \neq j, X_i \sim \Bin{n}{p_i},X_j \sim \Bin{n}{p_j}, X_i +X_j \sim \Bin{n}{p_i + p_j}$. 
+        \[
+        \begin{aligned}
+            &\Var{X_i + X_j} = \Var{X_i} + \Var{X_j} + 2\Cov{X_i}{X_j} \\
+            \implies& n (p_i + p_j) (1 - p_i - p_j) = n p_i (1- p_i) + n p_j (1- p_j) + 2\Cov{X_i}{X_j} \\
+            \implies&   -np_i p_j = \Cov{X_i}{X_j}
+        \end{aligned}
+        \]
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Statwoman]
+        The superhero Statwoman uses probability and statistics to fight crime. She has battled with countless foes, sometimes even fighting several at the same time. For simplicity though, assume that each of her battles is with exactly one of the following adversaries: the Confounder, the Extrapolator, and the Overfitter.
+
+        Suppose that Statwoman will have $n$ battles next year (with $n$ a positive integer), and that each battle is with the Confounder with probability $p_1$, the Extrapolator with probability $p_2$, and the Overfitter with probability $p_3$, independently. Let $X_1, X_2, X_3$ be the numbers of battles Statwoman will have with the Confounder, the Extrapolator, and the Overfitter next year, respectively.
+
+        \begin{itemize}
+        \item Suppose for this part only that the parameters $p_1, p_2, p_3$ are \ti{unknown}, $n=360$, and it is observed that exactly $36$ of Statwoman's battles are with the Overfitter. A natural way to estimate $p_3$ is the value of $p_3$ that makes the observed data, $X_3 = 36$, as likely as possible. That is, the MLE is the value of $p_3$ that maximizes $P(X_3=36)$. Show that the MLE is the natural to estimate, 0.1.
+        \end{itemize}
+
+        $X_3 \sim \Bin{n}{p_3}, P(X_3 = x) = \binom{n}{x} p_3^x (1-p_3)^{n-x} = \frac{n!}{x! (n-x)!}p_3^x (1-p_3)^{n-x}$. 
+        $\log{P(X_3=x)} = \log{n!} - \log{x!} - \log{(n-x)!} + x\log{p_3} + (n-x)\log{(1-p_3)}$
+
+        $\frac{d \log{P(X_3=x)}}{dp_3} = \frac{x}{p_3} - \frac{n-x}{1-p_3}$. 
+        Since $\frac{d^2 log{P(X_3=x)}}{dp_3^2} = -\frac{x}{p_3^2} - \frac{n-x}{(1-p_3)^2} < 0$,  $\hat{p_3}$ s.t. $\frac{x}{\hat{p_3}} - \frac{n-x}{1 - \hat{p_3}}= 0$ maximizes $P(X_3=x)$. By putting $x=36, n=360$, $\frac{36}{\hat{p_3}} - \frac{360 - 36}{1 - \hat{p_3}} = 0 \implies p_3 = 0.1$
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begingroup
+        \setbeamercolor{itemize item}{fg=OliveGreen}
+        \begin{itemize}
+            \item Now suppose that, instead of the number of battles being a constant $n$, the number of battles is $N \sim \Pois{\lambda}$. Find the joint distribution of $X_1, X_2, X_3$.
+        \end{itemize}
+    \endgroup
+
+    \[
+    \begin{aligned}
+        &P(X_1=n_1, X_2=n_2, X_3=n_3) \\
+        &= \sum_{n=0}^\infty P(X_1=n_1, X_2=n_2, X_3=n_3 | N=n)p(N=n) \\
+        &=P(X_1=n_1, X_2=n_2, X_3=n_3 | N=n_1+n_2+n_3)p(N=n_1+n_2+n_3) \\
+        &=\frac{(n_1 + n_2 + n_3)!}{n_1! n_2! n_3!} p_1^{n_1} p_2^{n_2} p_3^{n_3} \frac{\lambda^{(n_1 + n_2 + n_3)}}{(n_1 + n_2 + n_3)!} e^{-\lambda} \\
+        &= \frac{\lambda^{n_1}}{n_1!} p^{n_1}e^{-\lambda p_1} \frac{\lambda^{n_2}}{n_2!} p_2^{n_2}e^{-\lambda p_2} \frac{\lambda^{n_3}}{n_3!} p_3^{n_3} e^{-\lambda p_3} \\
+        &= e^{-\lambda p_1} \frac{(\lambda p_1)^{n_1}}{n_1!} \cdot e^{-\lambda p_2} \frac{(\lambda p_2)^{n_2}}{n_2!} \cdot e^{-\lambda p_3} \frac{(\lambda p_3)^{n_3}}{n_3!}
+    \end{aligned}
+    \]
+    The result is a Multinomial extension of the chicken-egg story
 \end{frame}
 
 \end{document}
