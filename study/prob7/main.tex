@@ -59,14 +59,17 @@
 \newcommand{\myexp}[1]{\exp{\left(#1\right)}}
 \newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
 \newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
-\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
 \newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
-\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
 \newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
 \newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
 \newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
 \newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
 
 % 발표 제목, 저자, 날짜 설정
 \title{Probability: Joint Distributions}
@@ -268,9 +271,9 @@
 
 \begin{frame}{.}
     \begin{example}[Comparing Exponentials of different rates]
-        Let $T_1 \sim \myexpo{\lambda_1}$ and $T_2 \sim \myexpo{\lambda_2}$ be independent. 
+        Let $T_1 \sim \Expo{\lambda_1}$ and $T_2 \sim \Expo{\lambda_2}$ be independent. 
         Find $P(T_1 < T_2)$. For example, $T_1$ could be the lifetime of a refrigerator and $T2$ could be the lifetime of a stove (if we are willing to assume Exponential distributions for these), and then $P(T_1<T_2)$ is the probability that the refrigerator fails before the stove. 
-        We know that $\min{T_1, T_2} \sim \myexpo{\lambda_1 + \lambda_2}$, which tells us about \ti{when} the first appliance failure will occur, but we may also want to know about \ti{which} appliance will fail first.
+        We know that $\min{T_1, T_2} \sim \Expo{\lambda_1 + \lambda_2}$, which tells us about \ti{when} the first appliance failure will occur, but we may also want to know about \ti{which} appliance will fail first.
     \end{example}
     \[
         \begin{aligned}
@@ -338,7 +341,7 @@
 \begin{frame}{.}
     \begin{example}
       A lightbulb was manufactured by one of two companies. 
-      Bulbs that are made by Company 0 last an $\myexpo{\lambda_0}$ amount of time, and bulbs made by Company 1 last an $\myexpo{\lambda_1}$ amount of time, with $\lambda_0 < \lambda_1$. 
+      Bulbs that are made by Company 0 last an $\Expo{\lambda_0}$ amount of time, and bulbs made by Company 1 last an $\Expo{\lambda_1}$ amount of time, with $\lambda_0 < \lambda_1$. 
       The bulb of interest here was made by Company 0 with probability $p_0$ and by Company 1 with probability $p_1 = 1 - p_0$, but from inspecting the bulb we don't know which company made it.
 
       Let $T$ be how long the bulb lasts, and $I$ be the indicator of it having been made by Company 1.
@@ -357,5 +360,182 @@
 \end{frame}
 
 \subsection{2D Lotus}
+
+\begin{frame}{.}
+    \begin{theorem}[2D LOTUS]
+        Let $g$ be a function that $g: \mbb{R}^2 \rightarrow \mbb{R}$. If $X$ and $Y$ are discrete, then 
+        \[
+            \expec{g(X,Y)} = \sum_x \sum_y g(x,y) P(X=x,Y=y)
+        \]
+        If $X$ and $Y$ are continuous with joint PDF $f_{X,Y}$, then
+        \[
+            \expec{g(X,Y)} = \int_{-\infty}^\infty \int_{-\infty}^\infty g(x,y) f_{X,Y} (x,y) dx dy
+        \]
+    \end{theorem}
+
+    \begin{example}
+        Let $X$ and $Y$ be i.i.d. $\myunif{0}{1}$ r.v.s. Find $\expec{\abs{X-Y}}$
+    \end{example}
+    \[
+    \begin{aligned}
+        \expec{\abs{X-Y}} &= \int_0^1 \int_0^1 \abs{x-y} dx dy = \int_0^1 \int_y^1 (x-y)dx dy + \int_0^1 \int_0^y (y-x) dx dy \\
+        &= 2 \int_0^1 \int_y^1 (x-y) dx dy = \frac{1}{3}
+    \end{aligned}
+    \]
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For $X, Y \overset{\text{i.i.d}}{\sim} \mc{N}(0,1)$. Find $\expec{\abs{X-Y}}$.
+    \end{example}
+    \[
+    \expec{\abs{X-Y}} = \int_{-\infty}^\infty \int_{-\infty}^\infty \abs{x-y} \frac{1}{2\pi} e^{-(x^2 +y^2)/2}dxdy
+    \]
+    Calculate this. or another simple solution is using $X-Y = \sqrt{2}Z \sim \mc{N}(0, 2) (\because X+Y \sim \mc{N}(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)) $.
+
+    \[
+        \expec{\abs{X-Y}} = \sqrt{2}\expec{\abs{Z}} = \frac{2}{\pi}
+    \]
+
+    \begin{proposition}[Linearity via 2D LOTUS]
+        Let $X$ and $Y$ be continuous r.v.s (the analogous method also works in the discrete case). By 2D LOTUS,
+        \[
+        \begin{aligned}
+            \expec{(X+Y)} &= \int_{-\infty}^\infty (x+y)f_{X,Y}(x,y)dx dy \\
+            &=\int_{-\infty}^\infty \int_{-\infty}^\infty x f_{X,Y}(x,y) dxdy + \int_{-\infty}^\infty \int_{-\infty}^\infty y f_{X,Y} dxdy \\ 
+            &= \int^{\infty}_{-\infty} x \int_{-\infty}^\infty f_{X,Y} (x,y) dy dx + \int_{-\infty}^\infty y \int^{\infty}_{-\infty} f_{X,Y} (x,y) dx dy \\
+            &= \expec{X} + \expec{Y}
+        \end{aligned}
+        \]
+    \end{proposition}
+\end{frame}
+\subsection{Covariance and correlation}
+
+\begin{frame}{.}
+    \begin{definition}[Covariance]
+        The \tb{covariance} between r.v.s $X$ and $Y$ is 
+        \[
+            \Cov{X}{Y} = \expec{(X - \expec{X})(Y - \expec{Y})} = \expec{XY} - \expec{X}\expec{Y}
+        \]
+        \begin{itemize}
+            \item If $X$ and $Y$ are independent, then their covariance is zero. 
+            \item We say that r.v.s with zero covariance are \tb{uncorrelated} $(\expec{XY} = \expec{X}\expec{Y})$.
+        \end{itemize}
+    \end{definition}
+
+    \begin{theorem}
+        If $X$ and  $Y$ are independent, then they are uncorrelated. (Converse is false)
+    \end{theorem}
+
+    \begin{proof}
+        \[
+        \begin{aligned}
+            \expec{XY} &= \int_{-\infty}^\infty \int_{-\infty}^\infty xy f_{X,Y}(x,y) dx dy = \int_{-\infty}^\infty xy f_X(x)f_Y(y) dx dy \\
+            &= \intinfty y f_Y(y) \left(\intinfty x f_X(x) dx \right) dy = \intinfty xf_X(x) dx \intinfty y f_Y(y) dy\\
+            &=\expec{X}\expec{Y}
+        \end{aligned}
+        \]
+
+        Converse is false. Let $Y = X^2, X \sim \mc{N}(0,1)$. Then $\expec{XY} = \expec{X^3} = 0$ and $\expec{x}\expec{y}= 0$. But $X$ and $Y$ are dependent.
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            Covariance is a measure of \tb{linear association}, so r.v.s can be dependent in nonlinear ways and still have zero covariance like in example $Y = X^2, X \sim \mc{N}(0,1)$
+            \begin{itemize}
+                \item $X$ and $Y$ is dependent in nonlinear ways and still have zero covariance.
+                \item Bottom right plot of figure shows draws from the joint distribution of $X$ and $Y$.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{figure}
+                \includegraphics[width=1.0\textwidth]{CorrelateFigures.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{.}
+    Covariance has the following key properties
+
+    \begin{enumerate}
+        \item $\Cov{X}{X} = \Var{X}$
+        \item $\Cov{X}{Y} = \Cov{Y}{X}$
+        \item $\Cov{X}{c} = 0, \forall c \in \mbb{R}$
+        \item $\Cov{aX}{Y} = a\Cov{X}{Y}, \forall a \in \mbb{R}$
+        \item $\Cov{X+Y}{Z}=\Cov{X}{Z}+\Cov{Y}{Z}$
+        \item $\Cov{X+Y}{Z+W} = \Cov{X}{Z}+\Cov{Y}{Z}+\Cov{X}{W}+\Cov{Y}{W}$
+        \item $\Var{X+Y} = \Var{X}+\Var{Y}+2\Cov{X}{Y}$
+        $= \Cov{X+Y}{X+Y} = \Cov{X}{X}+ \Cov{Y}{Y} + 2\Cov{X}{Y}$
+    \end{enumerate}
+
+    \begin{proposition}
+        For independent r.v.s, the variance of the sum is the sum of the variances
+        \[
+            \Var{\sum_{j=1}^n X_j} = \sum_{j=1}^n \Var{X_j} 
+        \]
+    \end{proposition}
+    \[
+    \Cov{\sum_{j=1}^n X_j}{\sum_{i=1}^n X_j} = \sum_{j=1}^n \sum_{i=1}^n\Cov{X_j}{X_i} = \sum_{j=1}^n \Cov{X_j}{X_j}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}[Correlation]
+        The \tb{correlation} between r.v.s $X$ and $Y$ is
+        \[
+            \Corr{X}{Y} = \frac{\Cov{X}{Y}}{\sqrt{\Var{X} \Var{Y}}}
+        \]
+        This is only defined when $\Var{X} \neq 0$ and $\Var{Y} \neq 0$.
+    \end{definition}
+    For any constant $c$,
+        \[
+            \Corr{cX}{Y} = \frac{c\Cov{X}{Y}}{\sqrt{c^2 \Var{X}}{\Var{Y}}} = \Corr{X}{Y}
+        \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}[Correlation bounds]
+        For any r.v.s $X$ and $Y$,
+        \[
+        -1 \leq \Corr{X}{Y} \leq 1
+        \]
+    \end{theorem}
+    \begin{proof}
+        Let $X$ and $Y$ be r.v.s s.t. $\Var{X} =1$ and $\Var{Y} =1$. Let $\rho = \Corr{X}{Y} = \Cov{X}{Y}$
+        \[
+        \begin{aligned}
+            \Var{X+Y} \geq 0 \implies \Var{X} + \Var{Y} + 2\rho \geq 0 \implies -1\leq \rho\\
+            \Var{X-Y} \geq 0 \implies \Var{X}+\Var{Y} - 2\rho \geq 0 \implies \rho \leq 1 \\
+            \therefore -1 \leq \rho \leq 1
+        \end{aligned}
+        \]
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Exponential max and min]
+        Let $X$ and $Y$ be i.i.d. $\Expo{1}$ r.v.s. Find the correlation between $\max{(X,Y)}$ and $\min{(X,Y)}$.
+    \end{example}
+
+    Let $M = \max{(X,Y)}$ and $L = \min{(X,Y)}$. $L \sim \Expo{2}$ because $P(L \leq t) = P(X < t) + P(Y\leq t) = 1 - P(X>t, Y>t) = 1 - e^{-t} e^{-t} = 1- e^{-2t}, P(L = t) = 2e^{-2t}\implies L \sim \Expo{2}$.
+
+    By memoryless property, $M-L \sim \Expo{1}$.
+
+    \[
+        \Cov{M}{L} = \Cov{M-L + L}{L} = \Cov{M-L}{L} + \Var{L} = \Var{L} =\frac{1}{4}
+    \]
+    \[
+        \Var{M} = \Var{M-L+L} = \Var{M-L} + \Var{L} = 1+ \frac{1}{4} = \frac{5}{4}
+    \]
+
+    \[
+        \Corr{M}{L} = \frac{\Var{L}}{\sqrt{\Var{M}}\Var{L}} = \frac{\sqrt{\Var{L}}}{\sqrt{\Var{M}}} = \frac{1}{\sqrt{5}}
+    \]
+
+\end{frame}
 
 \end{document}
