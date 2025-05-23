@@ -492,9 +492,8 @@
     \[
     \begin{aligned}
         P(X=k|X+Y=n) &= \frac{P(X+Y=n|X=k)P(X=k)}{P(X+Y=n)} \\
-        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-\lambda_1 + \lambda_2}(\lambda_1 + \lambda_2)^{n}} \\
+        &= \frac{e^{-\lambda_2}\lambda_2^{n-k}}{(n-k)!} \frac{e^{-\lambda_1} \lambda_1^{k}}{k!} \frac{n!}{e^{-(\lambda_1 + \lambda_2)}(\lambda_1 + \lambda_2)^{n}} \\
         &= \binom{n}{k} \frac{\lambda_2^{n-k}\lambda_1^{k}}{(\lambda_1 +\lambda_2)^{n}} = \binom{n}{k} \left(\frac{\lambda_2}{\lambda_1+\lambda_2}\right)^{n-k} \left(\frac{\lambda_1}{\lambda_1 + \lambda_2}\right)^k
-    
     \end{aligned}
     \]
 \end{frame}
