@@ -646,4 +646,94 @@
     The result is a Multinomial extension of the chicken-egg story
 \end{frame}
 
+\subsection{Multivariate Normal}
+
+\begin{frame}{.}
+    \begin{definition}[Multivariate Normal distribution]
+        A $k$-dimensional random vector $\mb{X}=(X_1, \dots, X_k)$ is said to have a \ti{Multivariate Normal (MVN)} distribution if every linear combination of the $X_j$ has a Normal distribution. That is, we require
+        \[
+            t_1 X_1 + \cdots + t_k X_k
+        \]
+        to have a Normal distribution for any constants $t_1, \dots, t_k$.
+    \end{definition}
+
+    \begin{itemize}
+        \item If $(X_1, \dots, X_k)$ is MVN, then the marginal distribution of $X_j$ is Normal, since we can take $t_j$ to be $1$ and all other $t_i, i \neq j$ to be $0$.
+        \item The converse is false; it is possible to have Normally distributed r.v.s $X_1, \dots, X_k$ s.t. $(X_1, \dots, X_k)$ is not Multivariate Normal.
+    \end{itemize}
+
+    \begin{example}[Non-example of MVN]
+        Let $X \sim \mc{N}(0,1)$ and let
+        \[
+            S = \begin{cases}
+                1 & \text{with probability } 1/2 \\
+                -1 & \text{with probability } 1/2
+            \end{cases}
+        \]
+        Let $Y = SX$ then $Y$ is a standard Normal r.v. Although each marginal distributin o f $X$ and $Y$ is Normal, distribution of $(X,Y)$ is not a Bivariate Normal distribution since $P(X+Y=0) = P(S=-1)= 1/2$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $(X_1,X_2, X_3)$ is Multivariate Normal, then so is the subvector $(X_1, X_2)$.
+    \end{theorem}
+    \begin{proof}
+        Since $(X_1, X_2, X_3)$ is Multivariate Normal, for every $t_1, t_2$, $t_1 X_1 + t_2 X_2 + 0 X_3$ is also Normal distribution. This implies $(X_1, X_2)$ is Multivariate Normal.
+    \end{proof}
+
+    \begin{theorem}
+        If $\mb{X} = (X_1, \dots, X_n)$ and $\mb{Y} = (Y_1, \dots, Y_m)$ are Multivariate Normal random vectors with $\mb{X}$ independent of $\mb{Y}$, then the concatenated random vector $\mb{W}=(X_1, \dots, X_n, Y_1, \dots, Y_m)$ is Multivariate Normal.
+    \end{theorem}
+    \begin{definition}[Joint MGF]
+        The \tb{joint moment generating function} (joint MGF) of a random vector $\mb{X} = (X_1, \dots, X_k)$ is the function $M$ defined by $(\mb{t} = (t_1, \dots, t_k))$
+        \[
+            M(\mb{t}) = \expec{e^{\mb{t}^\top \mb{X}}} = \expec{e^{t_1 X_1 + \cdots + t_k X_k}}
+        \]
+        if expectation $\expec{e^{\mb{t}^\top \mb{X}}}$ is finite in a box containing the origin $\mb{0} \in \mbb{R}^k$, then MGF exists. Otherwise, MGF does not exist.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    For Multivariate Normal vector $\mb{X}$, $\mb{t}^\top \mb{X}$ is Normal.
+    \[
+    \begin{aligned}
+        M(\mb{t}) = e^{\expec{\mb{t}^\top \mb{X}}+ \frac{1}{2}\Var{\mb{t}^\top \mb{X}}}
+    \end{aligned}
+    \]
+
+    \bigskip
+    We know that in general, independence is more stronger condition than uncorrelated.
+    But specially in Multivariate Normal, uncorrelated $\iff$ independence.
+
+    \begin{theorem}
+        Within an MVN random vector, uncorrelated implies independent. That is, if $\mb{X} \sim \text{MVN}$ can be written as $\mb{X} = (X_1, X_2)$, where $X_1$ and $X_2$ are subvectors, and every component of $X_1$ is uncorrelated with every component of $X_2$ then $X_1$ and $X_2$ are independent.
+    \end{theorem}
+
+    \begin{proof}
+        Let only consider $k=2$ case. Let $(X_1,X_2)$ be Bivariate Normal with $\Corr{X_1}{X_2} = \rho$. The joint MGF is $M(\mb{t}) = \exp{(t_1 \expec{X_1} + t_2 \expec{X_2} + \frac{1}{2}\Var{t_1 X_1 + t_2 X_2})}$. $\rho = 0 \implies M(\mb{t}) = \exp{\left((t_1 \expec{X_1}) + t_2 \expec{X_2} + \frac{1}{2}(\Var{t_1 X_1}+ \Var{t_2 X_2})\right)}$
+        This MGF is same with MGF of $(Z, W)$ s.t. $M_Z(t) = M_{X_1}(t), M_W(t) = M_{X_2}(t)$, $Z$ and $W$ are independent. Therefore, $X_1$ and $X_2$ are independent.
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Independence of sum and difference]
+        Let $X,Y \overset{\text{i.i.d}}{\sim} \mc{N}(0, 1)$. Find the joint distribution $(X+Y, X-Y)$.
+    \end{example}
+    Note that $(X+Y, X-Y)$ has Bivariate Normal distribution. $(\because t_1(X+Y) + t_2 (X -Y) = (t_1 + t_2)X + (t_1 - t_2)Y = t^\prime_1 X + t^\prime_2 Y)$.
+    \[
+    \begin{aligned}
+        \Cov{X+Y}{X-Y} = \Cov{X}{X} + \Cov{Y}{X} + \Cov{X}{-Y} + \Cov{Y}{-Y} = 0
+    \end{aligned}
+    \]
+    Since $(X+Y, X-Y)$ is Bivariate Normal and $\Cov{X+Y}{X-Y} = 0 \implies \Corr{X+Y}{X-Y} = 0$, $X+Y$ is independent of $X-Y$.
+
+    \bigskip
+    \tb{Unique characteristic of Normal}
+    \begin{itemize}
+        \item It can be shown that the independence of the sum and difference is a unique characteristic of Normal! That is, if $X$ and $Y$ are i.i.d. and $X+Y$ is independent of $X-Y$, then $X$ and $Y$ must have Normal distributions.
+    \end{itemize}
+\end{frame}
+
+
 \end{document}
