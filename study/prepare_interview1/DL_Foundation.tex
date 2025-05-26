@@ -14,6 +14,14 @@
   \hrule
 }
 
+\usepackage[
+  backend=biber,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../references.bib}
+
+
 % 테마 선택 (선택 사항)
 % \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
 % \font{serif}
@@ -87,8 +95,83 @@
     \titlepage
 \end{frame}
 
+
+\section{Regularization}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+
+\subsection{Weight Decay}
+\begin{frame}{.}
+    Weight decay prohibit that each parameter has too large value.
+    In L2 regularization, By adding $\sum_i \theta_i^2$ to loss, regularizes each parameter value.
+\end{frame}
+
+\subsection{Batch Normalization}
+
+
+\begin{frame}{.}
+    %\cite{Understanding_Batch_Normalization_nips_2018}
+
+    \begin{block}{Batch Normalization}
+        For $4$-dimension input tensor, $I_{b,c,h,w}$ and $4$-dimension output tensor, $O_{b,c,h,w}$, Batch normalization layer is defined by
+        \[
+            O_{b,c,h,w} = \gamma_c \frac{I_{b,c,h,w} - \mu_c}{\sqrt{\sigma^2_c + \epsilon}} + \beta_c
+        \]
+        where $\mu_c = \frac{1}{\abs{BHW} } \sum_{b,h,w} I_{b,c,h,w}$, $\sigma_c = \frac{1}{\abs{BHW}} \sum_{b,h,w} (I_{b,c,h,w} - \mu_c)^2$ is calculated for each mini-batch. $\gamma_c$ and $\beta_c$ is trained parameter in BN layer.
+
+        \smallskip
+        Moving average mean and variance is updated by $\hat{\mu_c} \leftarrow (1-t)\mu_c + t\hat{\mu_c}$, $\hat{\sigma_c} \leftarrow (1-t) \sigma_c + t \hat{\sigma_c}$ and stored in training phase. These stored moving average statistics is used for applying inear transform in inference phase.
+        \[
+            O_{b,c,h,w} = \frac{\hat{\gamma_c}}{\sqrt{\hat{\sigma_c}^2}+ \epsilon} I_{b,c,h,w} + \left(\beta_c  - \frac{\hat{\gamma_c}}{\sqrt{\hat{\sigma^2} + \epsilon}}\hat{\mu_c}\right)
+        \]
+    \end{block}
+
+
+    \footcite{Understanding_Batch_Normalization_nips_2018,ioffe2015batch}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item Batch Normalization enables higher learning rate.
+        \item Generally, adapting Batch Normalization preceded before activation (e.g. ReLU) is preferred.
+    \end{itemize}
+\end{frame}
+
+\subsection{Layer Normalization}
+
+\begin{frame}{.}
+    Layer Normalization similar normalization technique with batch normalizaition but instead applied to non-channel dimension, ($h,w$ in image domain and $d$ in language domain).
+    \begin{itemize}
+        \item Batch Normalization is dependent on mini-batch size. Extremely speaking, if batch size is $1$, then BN practically does not work well.
+        \item Batch Normalization is ambiguous to apply in RNN
+    \end{itemize}
+
+    \begin{block}{Layer Normalization}
+        For $4$-dimensional input $I_{b,c,h,w}$, $\mu_b = \frac{1}{\abs{C H W}}\sum_{c,h,w} I_{b,c,h,w}$ and $\sigma_b = \frac{1}{\abs{C H W}} \sum_{c,h,w} (I_{b,c,h,w} - \mu_b)^2$. Output $O_{b,c,h,w}$ is calculated by
+        \[
+            O_{b,c,h,w} = \gamma_b \frac{I_{b,c,h,w} - \mu_b}{\sqrt{\sigma_c^2 + \epsilon}} + \beta_b
+        \]
+
+        For $3$-dimensional input $I_{b,s,d}$, $\mu_b = \frac{1}{\abs{S D}}\sum_{s,d} I_{b,s,d}$ and $\sigma_b = \frac{1}{\abs{S D}} \sum_{s,d} (I_{b,s,d} - \mu_b)^2$. Output $O_{b,s,d}$ is calculated by
+        \[
+            O_{b,s,d} = \gamma_b \frac{I_{b,s,d} - \mu_b}{\sqrt{\sigma_b^2 + \epsilon}} + \beta_b
+        \]
+    \end{block}
+\end{frame}
+
+
 \section{Loss}
-\subsection{Contrastive Loss}
 
 \begingroup
     \setbeamertemplate{frametitle}{%
@@ -104,6 +187,46 @@
     \end{frame}
 \endgroup
 
+\subsection{L1, L2 Loss}
+
+\begin{frame}{.}
+    If there exists function $f: \mbb{R}^d \to \mbb{R}$ with parameter $\theta$, then L1 and L2 loss of batch input $x_{b,d}$ and target $y_{b}$ is defined by
+    \[
+    L_1(x,y) = \frac{1}{\abs{B}}\sum_{b}\abs{f_\theta(x_{b,d}) - y_{b}}
+    \]
+    \[
+    L_2(x,y) = \frac{1}{\abs{B}}\sum_{b} (f_\theta(x_{b,d}) - y_{b})^2
+    \]
+
+    \begin{itemize}
+        \item L2 loss is efficient to get rid of outliers. L1 loss is relatively less efficient to remove outliers.
+        \item L2 loss converges slower than L1 loss when $\abs{f_\theta(x_{b,d}) - y_b} < 1$
+    \end{itemize}
+
+    Huber loss is is defined by
+    \[
+        L(x,y)=\sum_b \frac{1}{\abs{B}}\begin{cases}
+            \abs{f_\theta(x_{b,d}) - y_b} & \text{if } \abs{f_\theta(x_{b,d}) - y_b} > 1 \\
+            (f_\theta(x_{b,d}) - y_b)^2 & \text{else} 
+        \end{cases}
+    \]
+    \begin{itemize}
+        \item Huber loss takes advantage of both methods and reduce disadvantages
+    \end{itemize}
+\end{frame}
+
+\subsection{Cross Entropy Loss}
+
+\begin{frame}{.}
+    If there exists function $f$ with paramtere $\theta$, then cross entropy loss for category $C$, input $x_{b,d}$, target category $y_{b}$ is defined by
+    \[
+        L(x,y) = \frac{1}{\abs{B}} \sum_{c \in C, b} \mb{1}(c = y_b) \log{( \operatorname{Softmax}(f_\theta(x_{b, :}))_{c})}
+    \]
+    Where $\operatorname{Softmax}$ turns logits to probability distribution for categories $C$.
+\end{frame}
+
+\subsection{Contrastive Loss}
+
 \begin{frame}{.}
     Object of contrastive learning: In embedding space, make datas from same category more closer and datas from different categories move away.
 
@@ -111,5 +234,169 @@
     Suppose there exists two categories, $c_1, c_2$ and there exists dataset corresponding to each category, $\mc{D}_1, \mc{D}_2$.
 \end{frame}
 
+
+
+\section{Optimization}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+\subsection{SGD, Momentum}
+
+\begin{frame}{.}
+    Given mini-batch input tensor $x_{b,d}$, function $f_\theta$, target $y_b$ and loss function $L_\theta$, Stochastic Gradient Descent is defined by
+    \[
+        \theta \leftarrow \theta - \alpha \nabla_\theta L (\theta; x, y)
+    \]
+    where $\alpha$ is called learning rate and adjusted manually.
+
+    \bigskip
+    Momentum is defined by
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + \alpha \nabla_\theta L(\theta;x,y) \\
+        \theta \leftarrow \theta  - m
+    \end{gathered}
+    \]
+    Where $\alpha$ is learning rate and $\beta$ is hyperparameter which determines how much velocity will be keep. $\alpha$ is usually set around to $0.9$.
+    \begin{itemize}
+        \item In momentum, previous velocity is keeped by moving average.
+        \item Parameter update is occured with updated velocity.
+        \item Momentum can reduce oscillation exists in SGD.
+    \end{itemize}
+\end{frame}
+
+\subsection{Nestrov accelerated gradient}
+\begin{frame}{.}
+    Similar with Momentum but utilize gradient of one-step further.
+
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + \alpha \nabla_\theta L(\theta - m) \\
+        \theta \leftarrow \theta - m
+    \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adagrad}
+\begin{frame}{.}
+    \begin{itemize}
+        \item Adagrad pin points that infrequently updated parameters should be updated with larger step size and frequently updated parameters should be updated with smaller step size.
+        \item With this intuition, Adagrad adjusts different step-size per each parameters.
+    \end{itemize}
+
+    Let denote $i$-th parameter as $\theta_{i}$. In Adagrad, per each parameters $\theta_i$, keeps track the sum of squared gradient of $\theta_{i}$ in every time step, $g_{i, t} = \sum_t (\nabla_{\theta_{i,t}} L(\theta_{:, t}))^2 $.
+
+    \[
+        \begin{gathered}
+            g_{i} \leftarrow g_{i} + (\nabla_{\theta_{i}} L(\theta))^2 \\
+            \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{g_i + \epsilon}} \nabla_{\theta_i} L(\theta)
+        \end{gathered}
+    \]
+
+    \begin{itemize}
+        \item By scaling general learning rate $\alpha$ by $\frac{1}{\sqrt{g_i + \epsilon}}$, Adagrad updates infrequently updated parameters with more larger step and frequently updated parameters with more smaller step.
+        \item But since $g_i$ only increases, learning rate becomes more smaller and smaller. At some point learning rate is infinitely small, update not occured practically.
+    \end{itemize}
+\end{frame}
+
+\subsection{RMSprop}
+\begin{frame}{.}
+    RMSprop fix the drawback of Adagrad, in which update rate shrink. Instead of adding square of gradients, RMSprop calculates exponentially decaying average of squared of gradient.
+    \[
+        \begin{gathered}
+            g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2 \\
+            \theta \leftarrow \theta - \frac{\alpha}{\sqrt{g_i + \epsilon}} \nabla_{\theta_i} L(\theta)
+        \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adadelta}
+\begin{frame}{.}
+    Main idea of Adadelta is same with RMSprop, but Adadelta also consider the unit of update values.
+    In RMSprop, unit of update vector is $\frac{L}{\theta}$. (Unit of $\frac{\alpha}{\sqrt{g_i + \epsilon}}$ is  $\frac{1}{\theta}$ and unit of $\nabla_{\theta_i} L(\theta)$ is $L$.)
+
+    To match the scale of update term with parameters, it also track the difference of parameter $\Delta \theta^2$ by exponentially decaying average.
+
+    \[
+    \begin{gathered}
+        g_{i,t} = \gamma g_{i,t-1} + (1- \gamma) (\nabla_{\theta_{i,t}} L(\theta_{:, t}))^2 \\
+        \theta_{i,t+1} = -\frac{\sqrt{h_{i,t-1} + \epsilon}}{\sqrt{g_{i, t} + \epsilon}} \nabla_{\theta_{i,t}} L(\theta_{:,t}) \\
+        h_{i,t} = \gamma h_{i,t-1} + (1-\gamma) (\theta_{i,t} - \theta_{i,t-1})^2 \\
+    \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adam}
+\begin{frame}{.}
+    Adam combines Momentum and RMSprop.
+    \begin{itemize}
+        \item Momentum estimates first moment, $\nabla_\theta L(\theta)$ by exponentially decaying average and RMSprop estimates second moment, $(\nabla_\theta L(\theta))^2$ by exponentially decaying average.
+        \item Adam naming comes from Adaptive Moment Estimation.
+        \item Adam updates recently infrequently updated parameters with more larger velocity and recently frequently updated parameters with smaller velocity.
+        \item velocity is also keeped by exponentially decaying average, like in Momentum.
+    \end{itemize}
+
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + (1- \beta) \nabla_{\theta} L(\theta) \\
+        g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2\\
+        \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{g_i + \epsilon}} m
+    \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item But in this setting, $m$ and $g$ are initialized by $0$. so in initial timesteps of training, $m$ and $g$ are biased to $0$.
+        \item So this should be corrected. $\hat{m} = \frac{m}{1 - \beta^t}$ and $\hat{g} = \frac{g}{1 - \gamma^t}$.
+        \item This fixed bias term $\hat{m}$ and $\hat{g}$ incrases $m$ and $g$ when time step $t$ is small, and as $t$ increases, $\hat{m} \rightarrow m$ and $\hat{g} \rightarrow g$.
+    \end{itemize}
+
+    \[
+        \begin{gathered}
+        m \leftarrow \beta m + (1- \beta) \nabla_{\theta} L(\theta) \\
+        g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2\\
+        \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{\hat{g}_i} + \epsilon}\hat{m}
+    \end{gathered}
+    \]
+
+    Authors propose default value of $\beta, \gamma, \epsilon$ as $0.9, 0.999, 10^{-8}$
+\end{frame}
+
+\section{Architecture}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+\subsection{Transformer}
+
+
+\subsection{Diffusion}
+
+\begin{frame}{.}
+
+\end{frame}
 
 \end{document}
