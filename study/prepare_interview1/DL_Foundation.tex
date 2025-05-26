@@ -74,7 +74,7 @@
 \newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
 \newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
-\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
 \newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
 \newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
 \newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
@@ -142,6 +142,80 @@
     Augmentation inflates as if there exists more larger dataset than real dataset we have.
 
     There exists several augmentation techniques, and various technique is used in each domain.
+\end{frame}
+
+\subsection{Initialization}
+\begin{frame}{.}
+    \begin{block}{He initialization (\cite{he2015delving})}
+        Let consider in $l$-th layer layer, $y_l = W_l x_{l} + b_l$, where $x_l$ is post-activated (with ReLU). 
+        \begin{itemize}
+            \item $W_l \in \mbb{R}^{d_{l+1} \times d_{l}}, x_l \in \mbb{R}^{d_{l}}, b_l \in \mbb{R}^{d_{l+1}}$.
+            \item $x_l = f(y_{l-1})$ where $f$ is ReLU.
+            \item Each element $w_l$ of matrix $W^l$ shares same distribution and mutually independent.
+            \item $w_l$ have symmetric distribution around zero.
+        \end{itemize}
+        Which initialization method for $W_l, b_l$ is good?
+    \end{block}
+
+
+    $\Var{y_l} = d_l \Var{w_l x_l}$.
+
+    Let $\expec{w_l} = 0 (\Var{w_l} = \expec{w_l^2})$ and $w_l$ is independent of $x_l$.
+
+    Then $\Var{w_l x_l} = \expec{w_l^2} \expec{x_l^2} - \expec{w_l}^2 \expec{x_l}^2 = \expec{w^2_l} \expec{x^2_l}(=\Var{w_l}\expec{x^2_l})$.
+
+    So, $\Var{y_l} = d_l \Var{w_l}\expec{x^2_l}$.
+
+    Note that $\expec{x_l^2} = \frac{1}{2} \Var{y_{l-1}}$ because $\expec{y_{l-1}} = 0$ and $y_{l-1}$ has symmetric distribution around zero.
+
+    This turns to $\Var{y_l} = \frac{d_l}{2} \Var{w_l} \Var{y_{l-1}}$.
+
+    To keep variance constantly over several layers, we need to set 
+    \[\frac{d_l}{2} \Var{w_l} = 1 \implies \Var{w_l} = \frac{2}{d_l}\]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Zero initialization}
+        What happend in linear transform $y_{l} = W_l x_l + b_l$, all element of $W_l$ has zero value??
+    \end{block}
+
+    In forward pass, all elements of $y_l$ has $0$.
+
+    After forward pass, in backward pass, in each layer, loss for each element of $W_l$, $w$ is $\frac{\partial L}{\partial w} = \frac{\partial L}{\partial y} \frac{\partial y}{\partial w} = \frac{\partial L}{\partial y} x_l = 0$. How about first layer? $\frac{\partial L}{\partial y_2} \frac{\partial y_2}{\partial x_2} \frac{\partial x_2}{\partial x_1} = \frac{\partial L}{\partial y_2} w_2 \frac{\partial x_2}{\partial x_1} = 0$.
+
+    How about bias? Bias of last layer will be update, but other layers will not.
+
+    \begin{block}{Symmetric initializaiton}
+        How about initializing $w_l$ as same values instead of zero value?
+    \end{block}
+
+    Then in first layer, symmetricity broken in first gradient descent since $\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial y_1} \frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial y_1} x_1$. Although $\frac{\partial L}{\partial y_1}$ is symmetric, input tensor $x_1$ is not symmetric. Thus, symmetricity of $w_1$ will be broken. And repeatedly symmetricity of $w_2, w_3, \dots, w_L$ will be broken. 
+
+\end{frame}
+
+\subsection{Gradient Exploding, Vanishing}
+\begin{frame}{.}
+
+    \begin{block}{Gradient Vanishing}
+        Before the introduction of ReLU, the sigmoid was the most widely used activation function.
+        \[
+            f(x) = \frac{1}{1 + e^{-x}}
+        \]
+        But the derivative of sigmoid is 
+        \[
+            f^\prime(x) = \frac{e^{-x}}{(1+ e^{-x})^2}
+        \]
+        $f^\prime(x)$ has maximum value $0.25$ at $x=0$.
+
+        So, in backward pass, $\frac{\partial L}{\partial y_l} = \frac{\partial L}{\partial x_{l+1}}\frac{\partial x_{l+1}}{\partial y_l} = \frac{\partial L}{\partial x_{l+1}}\frac{\partial f(y_l)}{\partial y_l} \implies \frac{1}{4}\abs{\frac{\partial L}{\partial x_{l+1}}} \geq \abs{\frac{\partial L}{\partial y_l}}$.
+
+        This implies the gradient becomes smaller each time it passes through a layer.
+    \end{block}
+
+    \begin{block}{Gradient Exploding}
+        If absolute value of some element of $W_l$ is greater than 1, then it is possible to become gradient larger. For example, suppose there exists $10$ layer and in each layer every element $w_l = 2$. Then after backpropagation progress through $10$ layer, then gradient becomes about $2^{10} = 1024$ times bigger than before passing.
+    \end{block}
+
 \end{frame}
 
 \section{Regularization}
@@ -219,6 +293,20 @@
 \end{frame}
 
 
+\begin{frame}{.}
+
+    Dropout layer randomly zeroes some of the elements of the input tensor with probability $p$.
+
+    By doing so,
+    \begin{itemize}
+        \item prevents \ti{overfitting} in training.
+        \item prevent model to depend on specific value of neurons.
+        \item help some neurons which have row effect to predict output to be trained better.
+    \end{itemize}
+
+    In backward pass, neurons selected to become zero transfers $0$ gradient to precedent layers.
+\end{frame}
+
 \section{Loss}
 
 \begingroup
@@ -280,6 +368,12 @@
 
     \bigskip
     Suppose there exists two categories, $c_1, c_2$ and there exists dataset corresponding to each category, $\mc{D}_1, \mc{D}_2$.
+
+    \begin{block}{InfoNCE[\cite{oord2018representation}]}
+        \[
+            \mc{L}()
+        \]
+    \end{block}
 \end{frame}
 
 
@@ -440,7 +534,6 @@
 \endgroup
 \subsection{Transformer}
 
-\subsection{Diffusion}
 
 \begin{frame}{.}
     For input tensor $x_{b,s,d}$, output $o_{b,s,d}$ of scaled-dot product attention is defined by 
@@ -453,6 +546,15 @@
     Where $W^Q \in \mbb{R}^{1 \times d_k \times d}, W^K \in \mbb{R}^{1 \times d_k \times d}, W^V \in \mbb{R}^{1\times d_v \times d}$ and $\circ$ represents batch matrix multiplication operator. Output $Q \in \mbb{R}^{b\times s \times d_v}$
 
     \bigskip
+    Why $Q \circ K^\top$ is scaled by $\sqrt{d_k}$?
+    \begin{itemize}
+        \item Suppose $q_i, k_i \sim \mc{N}(0,1)$ and $q_i$ is independent with $k_i$.
+        \item $\Var{q \cdot k} = \Var{\sum_{i=1}^{d_k} q_i k_i} = d_k (\because \Var{q_i k_i}=1)$. By dividing with $\sqrt{d_k}$, $Q\circ K^\top$ preserves variance.
+        \item Also, in \cite{vaswani2017attention}, scaling with $\sqrt{d_k}$ is shown to be practically efficient. Without it, 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
     Multi-head attention is defined by 
     \[
     \begin{gathered}
@@ -460,7 +562,15 @@
         \text{head}_i = \Attention{W^Q_i, W^K_i, W^V_i, x}
     \end{gathered}
     \]
-    where $W^O \in \mbb{R}^{1 \times d\times hd_v}$
+    where $W^O \in \mbb{R}^{1 \times d\times hd_v}$.
+
+    \cite{vaswani2017attention} shows multi-head attention achieves better performance than just using single attention.
+\end{frame}
+
+\subsection{Diffusion}
+
+\begin{frame}{.}
+
 \end{frame}
 
 \end{document}
