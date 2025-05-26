@@ -83,6 +83,11 @@
 \newcommand{\argmin}[1]{\operatorname{arg min}_{#1}}
 \newcommand{\nll}[1]{\operatorname{NLL}\!\left(#1\right)}
 \newcommand{\rss}[1]{\operatorname{RSS}\!\left(#1\right)}
+\newcommand{\Softmax}[1]{\operatorname{Softmax}\!\left(#1\right)}
+\newcommand{\Attention}[1]{\operatorname{Attention}\!\left(#1\right)}
+\newcommand{\MultiHead}[1]{\operatorname{MultiHead}\!\left(#1\right)}
+\newcommand{\Concat}[1]{\operatorname{Concat}\!\left(#1\right)}
+
 
 % 발표 제목, 저자, 날짜 설정
 \title{DL Foundation}
@@ -95,6 +100,49 @@
     \titlepage
 \end{frame}
 
+\section{Training}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+\subsection{Overfitting, Underfitting}
+\begin{frame}{.}
+    Overfitting refers situation in which because of too many parameters, network trains to memorize all input-target data pairs $(x,y)$ without considering general inference ability, leading to drop performance for test case.
+
+    Underfitting refers situation in which because of too small parameters, network has hard to train from data pairs $(x,y)$.
+
+
+    \begin{block}{How to solve underfitting?}
+        \begin{itemize}
+            \item Train with larger network
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{How to solve overfitting?}
+        \begin{itemize}
+            \item Train with smaller network
+            \item Add data augmentation
+            \item Train network with regularization techniques
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\subsection{Augmentation}
+
+\begin{frame}{.}
+    Augmentation inflates as if there exists more larger dataset than real dataset we have.
+
+    There exists several augmentation techniques, and various technique is used in each domain.
+\end{frame}
 
 \section{Regularization}
 \begingroup
@@ -220,7 +268,7 @@
 \begin{frame}{.}
     If there exists function $f$ with paramtere $\theta$, then cross entropy loss for category $C$, input $x_{b,d}$, target category $y_{b}$ is defined by
     \[
-        L(x,y) = \frac{1}{\abs{B}} \sum_{c \in C, b} \mb{1}(c = y_b) \log{( \operatorname{Softmax}(f_\theta(x_{b, :}))_{c})}
+        L(x,y) = \frac{1}{\abs{B}} \sum_{c \in C, b} \mb{1}(c = y_b) \log{( \Softmax{f_\theta(x_{b, :})}_{c})}
     \]
     Where $\operatorname{Softmax}$ turns logits to probability distribution for categories $C$.
 \end{frame}
@@ -392,11 +440,27 @@
 \endgroup
 \subsection{Transformer}
 
-
 \subsection{Diffusion}
 
 \begin{frame}{.}
+    For input tensor $x_{b,s,d}$, output $o_{b,s,d}$ of scaled-dot product attention is defined by 
+    \[
+    \begin{gathered}
+        Q = W^Q \circ x, \quad K = W^K \circ x,\quad V = W^V \circ x \\
+        \Attention{W^Q, W^K, W^V, x} = \Softmax{\frac{Q \circ (K^\top)}{\sqrt{d_k}}} \circ V
+    \end{gathered}
+    \]
+    Where $W^Q \in \mbb{R}^{1 \times d_k \times d}, W^K \in \mbb{R}^{1 \times d_k \times d}, W^V \in \mbb{R}^{1\times d_v \times d}$ and $\circ$ represents batch matrix multiplication operator. Output $Q \in \mbb{R}^{b\times s \times d_v}$
 
+    \bigskip
+    Multi-head attention is defined by 
+    \[
+    \begin{gathered}
+        \operatorname{MultiHead}(x) = W^O \circ \Concat{\text{head}_1, \dots, \text{head}_h} \\
+        \text{head}_i = \Attention{W^Q_i, W^K_i, W^V_i, x}
+    \end{gathered}
+    \]
+    where $W^O \in \mbb{R}^{1 \times d\times hd_v}$
 \end{frame}
 
 \end{document}
