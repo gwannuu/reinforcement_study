@@ -15,7 +15,7 @@
 }
 
 \usepackage[
-  backend=biber,
+  backend=bibtex,
   style=authoryear,   % or numeric
   citestyle=authoryear
 ]{biblatex}
@@ -87,6 +87,7 @@
 \newcommand{\Attention}[1]{\operatorname{Attention}\!\left(#1\right)}
 \newcommand{\MultiHead}[1]{\operatorname{MultiHead}\!\left(#1\right)}
 \newcommand{\Concat}[1]{\operatorname{Concat}\!\left(#1\right)}
+\newcommand{\expe}{\operatorname{E}}
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -110,8 +111,10 @@
         \hrule
     }
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{Overfitting, Underfitting}
@@ -228,8 +231,10 @@
         \hrule
     }
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 
@@ -318,8 +323,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 
@@ -388,8 +395,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{SGD, Momentum}
@@ -518,6 +527,25 @@
     Authors propose default value of $\beta, \gamma, \epsilon$ as $0.9, 0.999, 10^{-8}$
 \end{frame}
 
+\subsection{Sharpness Aware Minimization}
+\begin{frame}{.}
+    Let denote $\mc{S} \triangleq \cup_{i=1}^n \{(x_i, y_i)\}$ training set and  $\mc{D}$ is the distribution of real. 
+    And for parameter $w$, we can define per datapoint loss $l: \mc{W} \times \mc{X} \times \mc{Y}\to \mbb{R}_{+}$. 
+
+    Loss for training dataset is defined by $L_\mc{S}(w) \triangleq \frac{1}{n} \sum_{i=1}^n l(w, x_i, y_i) $ and the population loss by $L_\mc{D}(w) \triangleq \mbb{E}_{(x,y) \sim \mc{D}}[ l(w, x, y) ]$.
+
+    It is known that flat minima increases generalization performance. So in SAM, they consider objective function like below
+    \[
+        \begin{gathered}
+            \min_{w} L^{SAM}_{\mc{S}}(w) + \lambda \abs{w}^2_2 \\
+            L^{SAM}_{\mc{S}}(w) \triangleq \max_{\abs{\epsilon}_p \leq \rho } L_{\mc{S}}(w+ \epsilon)
+        \end{gathered}
+    \]
+
+    It is shown that $p=2$ shows emperically good performance.
+
+\end{frame}
+
 \section{Architecture}
 \begingroup
     \setbeamertemplate{frametitle}{%
@@ -528,8 +556,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{Transformer}
@@ -567,10 +597,215 @@
     \cite{vaswani2017attention} shows multi-head attention achieves better performance than just using single attention.
 \end{frame}
 
+\begin{frame}{.}
+    In case of RNN based networks, order of words in sequence is represented by timestep.
+    But in transformer, sequence is processed simultaneously, in which the order of words in sequence can be ignored.
+
+    Thus, in transformer, they directly add order information to embedding tensor, which is named \tb{Positional Encoding}.
+
+    Positional encoding tensor $pe \in \mbb{R}^{s \times d}$, where $s$ is the sequence length and $d$ is the embedding dimension of language model.
+
+    \[
+    \begin{gathered}
+        pe_{i,2j} = \sin{\frac{i}{10000^{2j/d}}} \\
+        pe_{i,2j+1} = \cos{\frac{i}{10000^{2j/d}}}
+    \end{gathered}
+    \]
+
+    The wave length form a geometric frequency from $2\pi$ to $10000 \cdot 2\pi $.
+\end{frame}
+
+\begin{frame}{.}
+    In encoder, there only exists self-attention.
+    In the decoder, masked cross-attention differs in that the query comes from the decoder, while the key and value come from the encoder.
+
+    In masked cross attention, each $Q$, $K$, $V$ is obtained by $Q = W^Q \circ x_e$, $K = W^K \circ x_e$, $v = W^V \circ x_d$, where $w_e$ comes from encoder and $w_d$ comes from decoder.
+
+    Before pass the logit $\frac{QK^\top}{\sqrt{d_k}}$, masking that replaces $\left(\frac{QK^\top}{\sqrt{d_k}}\right)_{ij} = -\infty, \forall i<j$ is adopted.
+    This makes $j$-th weights of weighted sum $O_i = \sum_{j=1}^d \Softmax{\operatorname{Mask}(\frac{QK^\top}{\sqrt{d_k}})}_{i,j} V_{j,:}$ as $0$.
+
+    This prevents that decoder refers information from later sequences.
+
+\end{frame}
+
+\subsection{Variational Auto Encoder}
+
+\begin{frame}{.}
+    In Deep Latent Variable Models, assume that there exists latent variables of models, not of real distribution $P_{real}(X)$. Typically denote $z$ as latent variables of model.
+
+    \begin{block}{Example}
+        Let assume $x$ is binary data, i.e. $x \in \{0, 1\}$. Set distribution of $z$ as $\mc{N}(0, I)$.
+
+        There exists parameter $\theta$, which is used to produce $P_\theta(x|z)$. 
+        $P_\theta (x|z)$ means that 
+        \[
+            \log{P_\theta(x|z)} = \log{\operatorname{Bern}(x; f_\theta(z))} = x\log{f_\theta(z)} + (1-x) \log{(1 - f_\theta(z))}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    Let assume that there exists underlying latent variables $z$ for random variable $x$ and the distribution of $z$, $P(z)$ is called the prior distribution. Typically, it is usually set to $P(z) = \mc{N}(0, I)$.
+    \bigskip
+
+    Let denote $f_\theta(z)$ as generative function $f$ with parameter $\theta$ and got input $z$.
+    And $P_\theta(x|z)$ denotes the probability that generated result of $f_\theta(z)$ is matched with $x$.
+    let define $\mc{D} = \{x_1, \dots, x_N\}$ where $x_n \sim P_{real}(X)$, each $x_n$ is collected from real distribution.
+    Then we can denote our training object as $J(\theta) = \sum_{n=1}^N \log{P_\theta(x_n)}$.
+
+    But $P_\theta (z|x)$ is intractable. so let estimate $P_\theta (z|x)$ as $Q_\phi (z|x)$ with parameter $\phi$. Let define $Q_\phi(z|x)$ as PDF of distribution $\mc{N}(\mu_\phi(x),\Sigma_\phi(x))$, i.e. $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Variational Lower Bound (Evidence Lower Bound, ELBO)}
+        \[
+            \begin{aligned}
+                \log P_\theta (x) &= \expe_{Q_\phi(z|x)} \left[ \log \frac{p_\theta (x,z)}{p_\theta (z|x)} \right] \\
+                &= \expe_{Q_\phi (z|x)} \left[\log \frac{P_\theta(x,z)}{Q_\phi (z|x)}\right] + \expe_{Q_\phi (z|x)} \left[ \log \frac{Q_\phi(z|x)}{P_\theta(z|x)} \right]\\ 
+                &= \mc{L}_{\theta, \phi}(x) + D_{KL}(Q_\phi(z|x) || P_\theta (z|x))
+            \end{aligned}
+        \]
+    \end{block}
+
+    $\mc{L}_{\theta, \phi}(x)$ is called ELBO. ELBO becomes lower bound of $log P_\theta (x)$ because $D_{KL} \geq 0$ holds.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Reparametrization Trick}
+        It is easy to calculate $\nabla_\theta \mc{L}_{\theta, \phi}(x) = \expe_{Q_\phi (z|x)}[\nabla_\theta \log{P_\theta (x,z)}]$. Then we can easily estimate $\nabla_\theta \mc{L}_{\theta, \phi}(x)$ with Monte Carlo estimator, $\nabla_\theta \mc{L}_{\theta, \phi}(x) \simeq \nabla_\theta \log P_\theta(x,z)$.
+
+        \bigskip
+        But how can we calculate $\nabla_\phi \expe_{Q_\phi (z|x)}[\log P_\theta (x,z) - \log Q_\phi (x|z)]$?
+        By utilizing so called re-parametrization trick, we can calculate.
+        Let define $z = \mu_\phi(x) + \Sigma_\phi (x) \epsilon, \epsilon \sim \mc{N}(0,I)$. Then $z$ satisfies $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+        \bigskip
+
+        Now, ELBO turns to $\mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[\log P_\theta(x,z) - \log Q_\phi(z|x)]$. Then $\nabla_\phi \mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[- \nabla_\phi \log Q_\phi (z|x)]$, which is tractable. Then we can estimate gradient for $\phi$ by Monte Carlo estimator, $\nabla_\phi \mc{L}_{\theta, \phi} (x) \simeq  - \nabla_\phi \log Q_\phi (z|x)$.
+    \end{block}
+
+\end{frame}
+
 \subsection{Diffusion}
 
 \begin{frame}{.}
+    Diffusion Model are latent variable models of the form $P_\theta(x_0) := \int P_\theta (x_{0:T})dx_{1:T}$, where $x_1, \dots, x_T$ are latents of the same dimensionality as the data $x_0 \sim q(x_0)$.
 
+    The joint distribution $P_\theta(x_{0:T})$ is called the \tb{reverse process} and it is definedas a Markov chain with learned Gaussian transitions starting at $p(x_T) = \mc{N}(x_T; 0, I)$.
+    \[
+    \begin{gathered}
+        P_\theta(x_{0:T}) := P_\theta(x_T) \prod_{t=1}^T p_\theta(x_{t-1}|x_{t}) \\
+        P_\theta(x_{t-1}|x_{t}) := \mc{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta (x_t, t))
+    \end{gathered}
+    \]
+
+    The approximate posterior $Q(x_{1:T}|x_0)$, called the \tb{forward pass} or \tb{diffusion pass} is fixed to a Markov chain that gradually adds Gaussiann noise to the data according to a variance schedule $\beta_1, \dots, \beta_T$. Note that this $\beta_t$ is defined by hyperparameter.
+    Diffusion process is defined by
+    \[
+    \begin{gathered}
+        Q(x_{1:T}|x_0) := \prod_{t=1}^T Q(x_t|x_{t-1})\\
+        Q(x_t|x_{t-1}):= \mc{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I)
+    \end{gathered}
+    \]
+
+    In DDPM, $\beta_t = (\beta_T - \beta1)\frac{t}{T} + \beta_1$, $\beta_1 = 0.0001, \beta_T = 0.02$ and $T=1000$.
+\end{frame}
+
+\begin{frame}{.}
+    The boring sampling step from $x_0$ to $x_t$ can be skipped because diffusion process has under property
+    \[
+        Q(x_t|x_0) = \mc{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1- \bar{\alpha}_t)I)
+    \]
+    where $\alpha_t:= 1- \beta_t$ and $\bar{\alpha}_t := \prod_{i=1}^t \alpha_i$.
+
+    $\bar{\alpha} = 0.0064$
+
+\end{frame}
+
+\section{Reinforcement Learning}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+\subsection{Policy Gradient}
+\begin{frame}{.}
+    In MDP, trajectory can be expressed by sequence of state, action and reward, $\tau = (s_0, a_0, r_1, s_1, \dots, s_{T-1}, a_{T-1}, r_{T}, s_{T})$. 
+    Let denote policy with parameter $\theta$ by $P_\theta(\tau) = P(s_0) \Pi_{i=0}^{T-1} \pi(a_i|s_i) P(s_{i+1}| s_i, a_i) $, where $P$ is the transition probability of MDP.
+
+    Let define $r(\tau) = \sum_{i=0}^{T-1} \gamma^t r(s_i, a_i)$. Then our objective function for parameter $\theta$ can be defined as 
+    \[
+    \begin{gathered}
+        J(\theta) = \operatorname{E}_{\tau \sim P_\theta}[r(\tau)] = \int_{\tau} P_\theta(\tau) r(\tau) d\tau \\
+        \begin{aligned}
+            \nabla_{\theta} J(\theta) &= \nabla_\theta \int_\tau P_\theta (\tau) r(\tau) d\tau = \int_\tau \nabla_\theta P_\theta (\tau) r(\tau) d\tau = \int_\tau P_\theta (\tau) \nabla_\theta \log{P_\theta(\tau)} r(\tau) d\tau\\ 
+            &= \operatorname{E}_{\tau \sim P_\theta}[\nabla_\theta \log{P_\theta (\tau)} r(\tau)] 
+        \end{aligned}
+    \end{gathered}
+    \]
+
+    Let's consider about $\nabla_\theta \log{P_\theta (\tau)}$.
+    \[
+        \begin{aligned}
+            \nabla_\theta \log{P_\theta (\tau)} &= \nabla_\theta [\log{P(s_0)} + \sum_{i=0}^{T-1} \log{\pi_\theta (a_i| s_i) P(s_{i+1}| s_i, a_i) } ]\\
+            &= \sum_{i=0}^{T-1} \nabla_\theta \log{\pi_\theta (a_i |s_i)}
+        \end{aligned}
+    \]
+    
+    Thus
+    \[
+        \nabla_\theta J(\theta) = \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right]
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \expe_{\tau \sim P_\theta} 
+        \left[ \left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right) \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i)\right)
+        \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    Note that $\expe_{\tau \sim P_\theta}[\nabla_\theta \log{\pi_\theta}(a_i|s_i) B(s_i)] =0$. Thus,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &=\sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+        \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]\\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \gamma^i \left(  \sum_{j \geq i}^{T-1} \gamma^{j-i}r(s_j, a_j) - B(s_i)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    This $B(s_i)$ can reduce variance of $\sum_{j \geq i }^{T-1} \gamma^{j-i} r(s_j, a_j)$.
+\end{frame}
+
+\begin{frame}{.}
+    By Monte-Carlo estimation,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right] \\
+        &\approx \frac{1}{N} \sum_{n=1}^N \left[ \left(\sum_{}\right) \right]
+    \end{aligned}
+    \]
 \end{frame}
 
 \end{document}
