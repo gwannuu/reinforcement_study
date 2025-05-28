@@ -518,6 +518,25 @@
     Authors propose default value of $\beta, \gamma, \epsilon$ as $0.9, 0.999, 10^{-8}$
 \end{frame}
 
+\subsection{Sharpness Aware Minimization}
+\begin{frame}{.}
+    Let denote $\mc{S} \triangleq \cup_{i=1}^n \{(x_i, y_i)\}$ training set and  $\mc{D}$ is the distribution of real. 
+    And for parameter $w$, we can define per datapoint loss $l: \mc{W} \times \mc{X} \times \mc{Y}\to \mbb{R}_{+}$. 
+
+    Loss for training dataset is defined by $L_\mc{S}(w) \triangleq \frac{1}{n} \sum_{i=1}^n l(w, x_i, y_i) $ and the population loss by $L_\mc{D}(w) \triangleq \mbb{E}_{(x,y) \sim \mc{D}}[ l(w, x, y) ]$.
+
+    It is known that flat minima increases generalization performance. So in SAM, they consider objective function like below
+    \[
+        \begin{gathered}
+            \min_{w} L^{SAM}_{\mc{S}}(w) + \lambda \abs{w}^2_2 \\
+            L^{SAM}_{\mc{S}}(w) \triangleq \max_{\abs{\epsilon}_p \leq \rho } L_{\mc{S}}(w+ \epsilon)
+        \end{gathered}
+    \]
+
+    It is shown that $p=2$ shows emperically good performance.
+
+\end{frame}
+
 \section{Architecture}
 \begingroup
     \setbeamertemplate{frametitle}{%
@@ -567,10 +586,95 @@
     \cite{vaswani2017attention} shows multi-head attention achieves better performance than just using single attention.
 \end{frame}
 
+\begin{frame}{.}
+    In case of RNN based networks, order of words in sequence is represented by timestep.
+    But in transformer, sequence is processed simultaneously, in which the order of words in sequence can be ignored.
+
+    Thus, in transformer, they directly add order information to embedding tensor, which is named \tb{Positional Encoding}.
+
+    Positional encoding tensor $pe \in \mbb{R}^{s \times d}$, where $s$ is the sequence length and $d$ is the embedding dimension of language model.
+
+    \[
+    \begin{gathered}
+        pe_{i,2j} = \sin{\frac{i}{10000^{2j/d}}} \\
+        pe_{i,2j+1} = \cos{\frac{i}{10000^{2j/d}}}
+    \end{gathered}
+    \]
+
+    The wave length form a geometric frequency from $2\pi$ to $10000 \cdot 2\pi $.
+\end{frame}
+
+\begin{frame}{.}
+    In encoder, there only exists self-attention.
+    In the decoder, masked cross-attention differs in that the query comes from the decoder, while the key and value come from the encoder.
+
+    In masked cross attention, each $Q$, $K$, $V$ is obtained by $Q = W^Q \circ x_e$, $K = W^K \circ x_e$, $v = W^V \circ x_d$, where $w_e$ comes from encoder and $w_d$ comes from decoder.
+
+    Before pass the logit $\frac{QK^\top}{\sqrt{d_k}}$, masking that replaces $\left(\frac{QK^\top}{\sqrt{d_k}}\right)_{ij} = -\infty, \forall i<j$ is adopted.
+    This makes $j$-th weights of weighted sum $O_i = \sum_{j=1}^d \Softmax{\operatorname{Mask}(\frac{QK^\top}{\sqrt{d_k}})}_{i,j} V_{j,:}$ as $0$.
+
+    This prevents that decoder refers information from later sequences.
+
+\end{frame}
+
 \subsection{Diffusion}
 
 \begin{frame}{.}
 
+\end{frame}
+
+\section{Reinforcement Learning}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \frametitle{Table of Content}
+        \tableofcontents
+    \end{frame}
+\endgroup
+\subsection{Policy Gradient}
+\begin{frame}{.}
+    In MDP, trajectory can be expressed by sequence of state, action and reward, $\tau = (s_0, a_0, r_1, s_1, \dots, s_{T-1}, a_{T-1}, r_{T}, s_{T})$. 
+    Let denote policy with parameter $\theta$ by $P_\theta(\tau) = P(s_0) \Pi_{i=0}^{T-1} \pi(a_i|s_i) P(s_{i+1}| s_i, a_i) $, where $P$ is the transition probability of MDP.
+
+    Let define $r(\tau) = \sum_{i=0}^{T-1} \gamma^t r(s_i, a_i)$. Then our objective function for parameter $\theta$ can be defined as 
+    \[
+    \begin{gathered}
+        J(\theta) = \operatorname{E}_{\tau \sim P_\theta}[r(\tau)] = \int_{\tau} P_\theta(\tau) r(\tau) d\tau \\
+        \begin{aligned}
+            \nabla_{\theta} J(\theta) &= \nabla_\theta \int_\tau P_\theta (\tau) r(\tau) d\tau = \int_\tau \nabla_\theta P_\theta (\tau) r(\tau) d\tau = \int_\tau P_\theta (\tau) \nabla_\theta \log{P_\theta(\tau)} r(\tau) d\tau\\ 
+            &= \operatorname{E}_{\tau \sim P_\theta}[\nabla_\theta \log{P_\theta (\tau)} r(\tau)] 
+        \end{aligned}
+    \end{gathered}
+    \]
+
+    Let's consider about $\nabla_\theta \log{P_\theta (\tau)}$.
+    \[
+        \begin{aligned}
+            \nabla_\theta \log{P_\theta (\tau)} &= \nabla_\theta [\log{P(s_0)} + \sum_{i=0}^{T-1} \log{\pi_\theta (a_i| s_i) P(s_{i+1}| s_i, a_i) } ]\\
+            &= \sum_{i=0}^{T-1} \nabla_\theta \log{\pi_\theta (a_i |s_i)}
+        \end{aligned}
+    \]
+    
+    Thus
+    \[
+        \nabla_\theta J(\theta) = \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right]
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    By Monte-Carlo estimation,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right] \\
+        &\approx \frac{1}{N} \sum_{i=0}^N 
+    \end{aligned}
+    \]
 \end{frame}
 
 \end{document}
