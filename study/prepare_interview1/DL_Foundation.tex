@@ -111,8 +111,10 @@
         \hrule
     }
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{Overfitting, Underfitting}
@@ -229,8 +231,10 @@
         \hrule
     }
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 
@@ -319,8 +323,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 
@@ -389,8 +395,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{SGD, Momentum}
@@ -548,8 +556,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{Transformer}
@@ -618,9 +628,79 @@
 
 \end{frame}
 
+\subsection{Variational Auto Encoder}
+
+\begin{frame}{.}
+    In Deep Latent Variable Models, assume that there exists latent variables of models, not of real distribution $P_{real}(X)$. Typically denote $z$ as latent variables of model.
+
+    \begin{block}{Example}
+        Let assume $x$ is binary data, i.e. $x \in \{0, 1\}$. Set distribution of $z$ as $\mc{N}(0, I)$.
+
+        There exists parameter $\theta$, which is used to produce $P_\theta(x|z)$. 
+        $P_\theta (x|z)$ means that 
+        \[
+            \log{P_\theta(x|z)} = \log{\operatorname{Bern}(x; f_\theta(z))} = x\log{f_\theta(z)} + (1-x) \log{(1 - f_\theta(z))}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    Let assume that there exists underlying latent variables $z$ for random variable $x$ and the distribution of $z$, $P(z)$ is called the prior distribution. Typically, it is usually set to $P(z) = \mc{N}(0, I)$.
+    \bigskip
+
+    Let denote $f_\theta(z)$ as generative function $f$ with parameter $\theta$ and got input $z$.
+    And $P_\theta(x|z)$ denotes the probability that generated result of $f_\theta(z)$ is matched with $x$.
+    let define $\mc{D} = \{x_1, \dots, x_N\}$ where $x_n \sim P_{real}(X)$, each $x_n$ is collected from real distribution.
+    Then we can denote our training object as $J(\theta) = \sum_{n=1}^N \log{P_\theta(x_n)}$.
+
+    But $P_\theta (z|x)$ is intractable. so let estimate $P_\theta (z|x)$ as $Q_\phi (z|x)$ with parameter $\phi$. Let define $Q_\phi(z|x)$ as PDF of distribution $\mc{N}(\mu_\phi(x),\Sigma_\phi(x))$, i.e. $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Variational Lower Bound (Evidence Lower Bound, ELBO)}
+        \[
+            \begin{aligned}
+                \log P_\theta (x) &= \expe_{Q_\phi(z|x)} \left[ \log \frac{p_\theta (x,z)}{p_\theta (z|x)} \right] \\
+                &= \expe_{Q_\phi (z|x)} \left[\log \frac{P_\theta(x,z)}{Q_\phi (z|x)}\right] + \expe_{Q_\phi (z|x)} \left[ \log \frac{Q_\phi(z|x)}{P_\theta(z|x)} \right]\\ 
+                &= \mc{L}_{\theta, \phi}(x) + D_{KL}(Q_\phi(z|x) || P_\theta (z|x))
+            \end{aligned}
+        \]
+    \end{block}
+
+    $\mc{L}_{\theta, \phi}(x)$ is called ELBO. ELBO becomes lower bound of $log P_\theta (x)$ because $D_{KL} \geq 0$ holds.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Reparametrization Trick}
+        It is easy to calculate $\nabla_\theta \mc{L}_{\theta, \phi}(x) = \expe_{Q_\phi (z|x)}[\nabla_\theta \log{P_\theta (x,z)}]$. Then we can easily estimate $\nabla_\theta \mc{L}_{\theta, \phi}(x)$ with Monte Carlo estimator, $\nabla_\theta \mc{L}_{\theta, \phi}(x) \simeq \nabla_\theta \log P_\theta(x,z)$.
+
+        \bigskip
+        But how can we calculate $\nabla_\phi \expe_{Q_\phi (z|x)}[\log P_\theta (x,z) - \log Q_\phi (x|z)]$?
+        By utilizing so called re-parametrization trick, we can calculate.
+        Let define $z = \mu_\phi(x) + \Sigma_\phi (x) \epsilon, \epsilon \sim \mc{N}(0,I)$. Then $z$ satisfies $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+        \bigskip
+
+        Now, ELBO turns to $\mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[\log P_\theta(x,z) - \log Q_\phi(z|x)]$. Then $\nabla_\phi \mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[- \nabla_\phi \log Q_\phi (z|x)]$, which is tractable. Then we can estimate gradient for $\phi$ by Monte Carlo estimator, $\nabla_\phi \mc{L}_{\theta, \phi} (x) \simeq  - \nabla_\phi \log Q_\phi (z|x)$.
+    \end{block}
+
+\end{frame}
+
 \subsection{Diffusion}
 
 \begin{frame}{.}
+    Diffusion Model are latent variable models of the form $P_\theta(x_0) := \int P_\theta (x_{0:T})dx_{1:T}$, where $x_1, \dots, x_T$ are latents of the same dimensionality as the data $x_0 \sim q(x_0)$.
+
+    The joint distribution $P_\theta(x_{0:T})$ is called the \tb{reverse process} and it is definedas a Markov chain with learned Gaussian transitions starting at $p(x_T) = \mc{N}(x_T; 0, I)$.
+    \[
+    \begin{gathered}
+        P_\theta(x_{0:T}) = P_\theta(x_T) \prod_{t=1}^T p_\theta(x_{t-1}|x_{t}) \\
+        P_\theta(x_{t-1}|x_{t}) = \mc{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta (x_t, t))
+    \end{gathered}
+    \]
+
+    The approximate
 
 \end{frame}
 
@@ -634,8 +714,10 @@
         \hrule
     }%
     \begin{frame}
-        \frametitle{Table of Content}
-        \tableofcontents
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
     \end{frame}
 \endgroup
 \subsection{Policy Gradient}

@@ -63,6 +63,7 @@
 \newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
 \newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\expe}{\operatorname{E}}
 \newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
 \newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
 \newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
@@ -173,5 +174,35 @@
   \end{block}
 \end{frame}
 
+
+\subsection{Bayesian Statistics}
+\begin{frame}{.}
+  For dataset $\mc{D}$ and parameter $\theta$, $P(\theta)$ is called prior distribution and $P(\mc{D}|\theta)$ is called likelihood and $P(\theta|\mc{D})$ is called posterior in Bayesian statistics.
+
+  \bigskip
+  MLE finds theta that makes likelihood maximizes $\theta^\ast = \argmax{\theta} P(\mc{D}|\theta)$, but Maximum A Posteriori(MAP) maximises posterior probability, $\theta^\ast = \argmax{\theta} P(\theta | \mc{D})$.
+
+  \[
+  \begin{gathered}
+    P(\theta | \mc{D}) = \frac{P(\mc{D}|\theta)P(\theta)}{P(\mc{D})} \propto P(\mc{D}|\theta) P(\theta) \\
+    \implies \log{P(\theta |\mc{D})} \propto \log{P(\mc{D}|\theta)} + \log{P(\theta)}
+  \end{gathered}
+  \]
+
+  \bigskip
+  As bigger as $N$, $\abs{\log{P(\mc{D}|\theta)}}$ increases and relatively $\abs{\log{P(\theta)}}$ becomes smaller. So with large datasets, We only utilize MLE instead of MAP.
+\end{frame}
+
+\subsection{Monte Carlo estimator}
+
+\begin{frame}{.}
+  Suppose we want to know the value $\expe_{z \sim p}[f(z)]$. We can estimate this value by 
+  \begin{enumerate}
+    \item Choice $N$ samples $z_is$ from i.i.d. $z \sim p$
+    \item Calculate $\frac{1}{N}\sum_{i=1}^N f(z_i)$.
+  \end{enumerate}
+
+  According to Monte Carlo estimator, $\frac{1}{N}\sum_{i=1}^N f(z_i)$ is unbiased estimator for $\expe_{z \sim p}[f(z)]$.
+\end{frame}
 
 \end{document}
