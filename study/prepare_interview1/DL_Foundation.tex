@@ -15,7 +15,7 @@
 }
 
 \usepackage[
-  backend=biber,
+  backend=bibtex,
   style=authoryear,   % or numeric
   citestyle=authoryear
 ]{biblatex}
@@ -87,6 +87,7 @@
 \newcommand{\Attention}[1]{\operatorname{Attention}\!\left(#1\right)}
 \newcommand{\MultiHead}[1]{\operatorname{MultiHead}\!\left(#1\right)}
 \newcommand{\Concat}[1]{\operatorname{Concat}\!\left(#1\right)}
+\newcommand{\expe}{\operatorname{E}}
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -668,11 +669,40 @@
 \end{frame}
 
 \begin{frame}{.}
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \expe_{\tau \sim P_\theta} 
+        \left[ \left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right) \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i)\right)
+        \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    Note that $\expe_{\tau \sim P_\theta}[\nabla_\theta \log{\pi_\theta}(a_i|s_i) B(s_i)] =0$. Thus,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &=\sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+        \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]\\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \gamma^i \left(  \sum_{j \geq i}^{T-1} \gamma^{j-i}r(s_j, a_j) - B(s_i)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    This $B(s_i)$ can reduce variance of $\sum_{j \geq i }^{T-1} \gamma^{j-i} r(s_j, a_j)$.
+\end{frame}
+
+\begin{frame}{.}
     By Monte-Carlo estimation,
     \[
     \begin{aligned}
         \nabla_\theta J(\theta) &= \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right] \\
-        &\approx \frac{1}{N} \sum_{i=0}^N 
+        &\approx \frac{1}{N} \sum_{n=1}^N \left[ \left(\sum_{}\right) \right]
     \end{aligned}
     \]
 \end{frame}
