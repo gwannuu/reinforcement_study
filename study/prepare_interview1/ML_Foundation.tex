@@ -205,4 +205,18 @@
   According to Monte Carlo estimator, $\frac{1}{N}\sum_{i=1}^N f(z_i)$ is unbiased estimator for $\expe_{z \sim p}[f(z)]$.
 \end{frame}
 
+\subsection{Computer Vision}
+\begin{frame}{.}
+  \begin{block}{Template Matching}
+    Traversing the whole image feature with small 2-D window, calculate how similarity the template and image window is matched. Score is calculated by one of belows
+    \[
+    \begin{gathered}
+      R(y,x) = \sum_{h,w} (T(h, w) - I(y+h, x+w))^2 \\
+      R(y,x) = \sum_{h,w} (T())
+    \end{gathered}
+    \]
+  \end{block}
+\end{frame}
+
+
 \end{document}
