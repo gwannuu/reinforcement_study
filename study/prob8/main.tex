@@ -1,0 +1,307 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Probability: Transformations}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\subsection{Change of variables}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+% % 목차 슬라이드
+
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item There are so many situations in which we may be interested in non linear transformations
+        \item Turning $X_1, \dots, X_n$ into the sum $T = X_1 + \cdots + X_n$ or sample mean $\bar{X}_n = T / n$ is a transformation from $\mbb{R}^n$ to $\mbb{R}$.
+        \item The term for a sum of independent random variables is convolution, which are based on the law of total probability.
+        \item Transformation that sorts observations turning $X_1, \dots, X_n$ into the order statistics $\min (X_1, \dots, X_n), \dots, \max (X_1, \dots, X_n)$ is a transformation from $\mbb{R}^n$ to $\mbb{R}^n$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    For some function $g$, how can we get the distribution of $g(X)$?
+
+    \begin{itemize}
+        \item Discrete case
+
+            We can get PMF of $g(X) = Y$ by
+            \[
+                P(g(X) = Y) = \sum_{x:g(x) = y} P(X =x)
+            \]
+
+            Also, if $g$ is one-to-one function,
+
+            \[
+                P(g(X)=Y) = P(X = g^{-1}(y))
+            \]
+        \item Continuous Case
+
+            If $g$ is strictly increasing,
+            \[
+                F_{g(X)}(y) = P(g(X) \leq y) = P(X \leq g^{-1}(y)) = F_X(g^{-1}(y))
+            \]
+
+            If $g$ is strictly decreasing,
+            \[
+                F_{g(X)} (y) = P(g(X) \leq y) = P(X > g^{-1}(y)) = 1 - F_X(g^{-1}(y))
+            \]
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{theorem}{Change of variables in one dimension}
+        Let $X$ be a continuous r.v. with PDF $f_x$, and $y = g(X)$, where $g$ is differentiable and strictly increasing (or strictly decreasing). Then the PDF of $Y$ is given by
+        \[
+        f_Y (y) = f_X (x) \abs{\frac{dx}{dy}}
+        \]
+        where $x = g^{-1}(y)$. The support of $Y$ is all $g(x)$ with $x$ in the support of $X$.
+    \end{theorem}
+
+    \begin{proof}
+        Let $g$ be strictly increasing. The CDF of $Y$ is 
+        \[
+            F_Y(y) = P(Y \leq y) = P(g(X) \leq y) = P(X \leq g^{-1}(y)) = F_X(g^{-1}(y)) = F_X(x)
+        \]
+        So by the chain rule, the PDF of $Y$ is $f_Y(y) = f_X(x)\frac{dx}{dy}$.
+
+        If $G$ be strictly decrasing, The CDF of $Y$ is 
+        \[
+            F_Y(y) = 1- F_X(g^{-1}(y))
+        \]
+        and PDF of $Y$ is $- f_X(x) \frac{dx}{dy} = f_X(x) \abs{\frac{dx}{dy}}$.
+    \end{proof}
+    It is easy to remember with $f_Y(y) dy = f_X(x)dx$ when $g$ is strictly increasing.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}{Log-Normal PDF}
+        Let $X \sim \mc{N}(0,1)$, $Y = e^X$. Let's find the PDF of $Y$. Let $g(x) = e^x$, which is strictly increasing. The PDF of $X$ is $f_X(x) = \frac{1}{\sqrt{2\pi}} \exp{(x^2/2)}$. Then by the Change of variable theorem, $f_Y(y) = \frac{1}{\sqrt{2\pi}} \exp{(\log^2 y / 2)}\frac{1}{y}, \forall y \geq 0$.
+
+        Also, we can obtain PDF of $Y$ via CDF.
+        \[
+        \begin{gathered}
+            F_Y (y) = P(Y \leq y) = P(X \leq \log{y}) = \Phi(\log{y}) \\
+            f_Y (y) = \varphi(\log (y)) \frac{1}{y}
+        \end{gathered}
+        \]
+    \end{example}
+
+    \begin{example}{Chi-Square PDF}
+        Let $X \sim \mc{N}(0,1), Y = X^2$. The distribution of $Y$ is an example of a \tb{Chi-Square} distribution.
+
+        \[
+        \begin{gathered}
+            F_Y(y) = P(X^2 \leq y) = P(-\sqrt{y} \leq X \sqrt{y}) = 2 \Phi(y) - 1 \\
+            f_Y(y) = 2 \varphi(\sqrt{y}) \cdot \frac{1}{2} y^{-\frac{1}{2}}, \forall y>0
+        \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Lighthouse]
+        Let $U \sim \Unif{-\frac{\pi}{2}}{\frac{\pi}{2}}$. Then the variable $X$ is defined by $X = \tanh{U}$. Find the distribution of $X$.
+
+        By the Change of Variable, \[f_X(x) = f_U(u) \frac{du}{dx} = \frac{1}{\pi} \frac{1}{1+ x^2}\] which is same with Cauchy distribution.
+    \end{example}
+
+    \begin{theorem}[Change of Variables]
+        Let $\mb{X} = (X_1, \dots ,X_n)$ be a continuous random vector with joint PDF $f_X$. Let $g: A_0 \to B_0$ and invertible function , where $A_0$ and $B_0$ are open subsets of $\mbb{R}^n$, $A_0$ contains the support of $\mb{X}$, and $B_0$ is the range of $g$.
+
+        Let $\mb{Y} = g(\mb{X})$, and mirror this by letting $\mb{y} = g(\mb{X})$. Since $g$ is invertible, we also have $\mb{X} = g^{-1}(\mb{Y})$ and $\mb{x} = g^{-1}(\mb{y})$.
+
+        Suppose that all the partial derivatives $\frac{\partial x_i}{\partial y_j}$ exists and are continuous. Assume that the determinant of this Jacobian matrix is never $0$. Then the joint PDF of $\mb{Y}$ is 
+        \[
+            f_{\mb{Y}}(\mb{y}) = f_{\mb{X}}(\mb{x}) (g^{\mb{-1}}(\mb{y})) \cdot \vert \abs{\frac{\partial \mb{x}}{\partial \mb{y}}} \vert
+        \]
+        And $0$ if determinant of jacobian is $0$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}[Box-Muller]
+        Let $U \sim \Unif{0}{2\pi}$ and let $T \sim \Expo{1}$ be independent of $U$.
+        Define
+        \[
+            X = \sqrt{2T} \cos{U}, Y = \sqrt{2T} \sin{U}
+        \]
+        Find the joint PDF of $(X,Y)$. Are they independent? What are their marginal distributions?
+
+        Because $U$ and $T$ are independent, $f_{U,T}(u,t) = \frac{1}{2\pi}e^{-t}$.
+        For $u \in (0, 2\pi)$ and $t >0$, 
+        \[
+            X^2 + Y^2 = 2T (\cos^2 U + \sin^2 U) = 2T
+        \]
+
+        Thus, $(X,Y)$ is expressed by cartesian coordinate from $(U,\sqrt{2T})$, polar coordinate.
+        For vector $\mb{X} = (X,Y)$ and $\mb{Y} = (U,T)$, jacobian matrix $\frac{\partial \mb{x}}{\partial \mb{y}}$ is defined by 
+        \[
+        \frac{\partial \mb{x}}{\partial \mb{y}} = 
+        \left(
+            \begin{matrix}
+                - \sqrt{2t} \sin u & \frac{1}{\sqrt{2t}} \cos u \\
+                \sqrt{2t} \cos u & \frac{1}{\sqrt{2t}} \sin u
+            \end{matrix}
+        \right)
+        \]
+        And the determinant of Jacobian $\abs{\frac{\partial \mb{x}}{\partial \mb{y}}} = 1$
+        \[
+            f_{X,Y}(x,y) = f_{U,T} (u,t) = \frac{1}{2\pi} e^{-t} \vert \abs{\frac{\partial \mb{y}}{\partial \mb{x}}}\vert = \frac{1}{2\pi}e^{-t} = \frac{1}{\sqrt{2\pi}}e^{-x^2/2} \cdot \frac{1}{\sqrt{2\pi}} e^{-y^2/2}
+        \]
+        This result is called the \tb{Box-Muller} method for generating Normal r.v.s.
+    \end{example}
+\end{frame}
+
+\subsection{Convolution}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{theorem}[Convolution sums and integrals]
+        Let $X$ and $Y$ be independent r.v.s and $T=X+Y$ be their sum. If $X$ and $Y$ are discrete, then the PMF of $T$ is 
+        \[
+            P(T=t) = \sum_x P(Y=t-x) P(X=x) = \sum_y P(X=t-y)P(Y=y)
+        \]
+
+        If $X$ and $Y$ are continuous then the PDF of $T$ is
+        \[
+            f_T(t) = \int_{-\infty}^\infty f_Y(t-x) f_X(x) dx = \int_{-\infty}^\infty f_X(t-y) f_Y(y) dy
+        \]
+    \end{theorem}
+
+    Proof for discrete
+    \[
+    \begin{aligned}
+        P(T=t) &= \sum_x P(X+Y=t|X=x)P(X=x) \\
+        &= \sum_x P(Y = t-x|X=x) P(X=x) \\
+        &= \sum_x P(Y=t-x) P(X=x)
+    \end{aligned}
+    \]
+\end{frame}
+
+
+\begin{frame}{.}
+
+    Proof for continuous
+
+    \[
+    \begin{aligned}
+        F_T(t) &= P(X+Y \leq t) =\int_{-\infty}^\infty P(X+Y\leq t |X=x)f_X(x) dx \\
+        &= \int_{-\infty}^\infty P(Y \leq t-x)f_X(x) dx = \int_{-\infty}^\infty F_Y(t-x)f_X(x)dx
+    \end{aligned}
+    \]
+    
+    PDF of $T$ can be obtained from above equation.
+    \[
+        f_T(t) = \int_{-\infty}^\infty f_Y(t-x)f_X(x)dx
+    \]
+\end{frame}
+
+\end{document}
