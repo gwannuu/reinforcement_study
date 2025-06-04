@@ -1,0 +1,811 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{titlebig}%
+  \insertsectionhead
+  \usebeamerfont{framesubtitlefont}
+  \!:\insertsubsectionhead
+  \par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule
+}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../references.bib}
+
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\argmax}[1]{\operatorname{arg max}_{#1}}
+\newcommand{\argmin}[1]{\operatorname{arg min}_{#1}}
+\newcommand{\nll}[1]{\operatorname{NLL}\!\left(#1\right)}
+\newcommand{\rss}[1]{\operatorname{RSS}\!\left(#1\right)}
+\newcommand{\Softmax}[1]{\operatorname{Softmax}\!\left(#1\right)}
+\newcommand{\Attention}[1]{\operatorname{Attention}\!\left(#1\right)}
+\newcommand{\MultiHead}[1]{\operatorname{MultiHead}\!\left(#1\right)}
+\newcommand{\Concat}[1]{\operatorname{Concat}\!\left(#1\right)}
+\newcommand{\expe}{\operatorname{E}}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{DL Foundation}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{Training}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+\subsection{Overfitting, Underfitting}
+\begin{frame}{.}
+    Overfitting refers situation in which because of too many parameters, network trains to memorize all input-target data pairs $(x,y)$ without considering general inference ability, leading to drop performance for test case.
+
+    Underfitting refers situation in which because of too small parameters, network has hard to train from data pairs $(x,y)$.
+
+
+    \begin{block}{How to solve underfitting?}
+        \begin{itemize}
+            \item Train with larger network
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{How to solve overfitting?}
+        \begin{itemize}
+            \item Train with smaller network
+            \item Add data augmentation
+            \item Train network with regularization techniques
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\subsection{Augmentation}
+
+\begin{frame}{.}
+    Augmentation inflates as if there exists more larger dataset than real dataset we have.
+
+    There exists several augmentation techniques, and various technique is used in each domain.
+\end{frame}
+
+\subsection{Initialization}
+\begin{frame}{.}
+    \begin{block}{He initialization (\cite{he2015delving})}
+        Let consider in $l$-th layer layer, $y_l = W_l x_{l} + b_l$, where $x_l$ is post-activated (with ReLU). 
+        \begin{itemize}
+            \item $W_l \in \mbb{R}^{d_{l+1} \times d_{l}}, x_l \in \mbb{R}^{d_{l}}, b_l \in \mbb{R}^{d_{l+1}}$.
+            \item $x_l = f(y_{l-1})$ where $f$ is ReLU.
+            \item Each element $w_l$ of matrix $W^l$ shares same distribution and mutually independent.
+            \item $w_l$ have symmetric distribution around zero.
+        \end{itemize}
+        Which initialization method for $W_l, b_l$ is good?
+    \end{block}
+
+
+    $\Var{y_l} = d_l \Var{w_l x_l}$.
+
+    Let $\expec{w_l} = 0 (\Var{w_l} = \expec{w_l^2})$ and $w_l$ is independent of $x_l$.
+
+    Then $\Var{w_l x_l} = \expec{w_l^2} \expec{x_l^2} - \expec{w_l}^2 \expec{x_l}^2 = \expec{w^2_l} \expec{x^2_l}(=\Var{w_l}\expec{x^2_l})$.
+
+    So, $\Var{y_l} = d_l \Var{w_l}\expec{x^2_l}$.
+
+    Note that $\expec{x_l^2} = \frac{1}{2} \Var{y_{l-1}}$ because $\expec{y_{l-1}} = 0$ and $y_{l-1}$ has symmetric distribution around zero.
+
+    This turns to $\Var{y_l} = \frac{d_l}{2} \Var{w_l} \Var{y_{l-1}}$.
+
+    To keep variance constantly over several layers, we need to set 
+    \[\frac{d_l}{2} \Var{w_l} = 1 \implies \Var{w_l} = \frac{2}{d_l}\]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Zero initialization}
+        What happend in linear transform $y_{l} = W_l x_l + b_l$, all element of $W_l$ has zero value??
+    \end{block}
+
+    In forward pass, all elements of $y_l$ has $0$.
+
+    After forward pass, in backward pass, in each layer, loss for each element of $W_l$, $w$ is $\frac{\partial L}{\partial w} = \frac{\partial L}{\partial y} \frac{\partial y}{\partial w} = \frac{\partial L}{\partial y} x_l = 0$. How about first layer? $\frac{\partial L}{\partial y_2} \frac{\partial y_2}{\partial x_2} \frac{\partial x_2}{\partial x_1} = \frac{\partial L}{\partial y_2} w_2 \frac{\partial x_2}{\partial x_1} = 0$.
+
+    How about bias? Bias of last layer will be update, but other layers will not.
+
+    \begin{block}{Symmetric initializaiton}
+        How about initializing $w_l$ as same values instead of zero value?
+    \end{block}
+
+    Then in first layer, symmetricity broken in first gradient descent since $\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial y_1} \frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial y_1} x_1$. Although $\frac{\partial L}{\partial y_1}$ is symmetric, input tensor $x_1$ is not symmetric. Thus, symmetricity of $w_1$ will be broken. And repeatedly symmetricity of $w_2, w_3, \dots, w_L$ will be broken. 
+
+\end{frame}
+
+\subsection{Gradient Exploding, Vanishing}
+\begin{frame}{.}
+
+    \begin{block}{Gradient Vanishing}
+        Before the introduction of ReLU, the sigmoid was the most widely used activation function.
+        \[
+            f(x) = \frac{1}{1 + e^{-x}}
+        \]
+        But the derivative of sigmoid is 
+        \[
+            f^\prime(x) = \frac{e^{-x}}{(1+ e^{-x})^2}
+        \]
+        $f^\prime(x)$ has maximum value $0.25$ at $x=0$.
+
+        So, in backward pass, $\frac{\partial L}{\partial y_l} = \frac{\partial L}{\partial x_{l+1}}\frac{\partial x_{l+1}}{\partial y_l} = \frac{\partial L}{\partial x_{l+1}}\frac{\partial f(y_l)}{\partial y_l} \implies \frac{1}{4}\abs{\frac{\partial L}{\partial x_{l+1}}} \geq \abs{\frac{\partial L}{\partial y_l}}$.
+
+        This implies the gradient becomes smaller each time it passes through a layer.
+    \end{block}
+
+    \begin{block}{Gradient Exploding}
+        If absolute value of some element of $W_l$ is greater than 1, then it is possible to become gradient larger. For example, suppose there exists $10$ layer and in each layer every element $w_l = 2$. Then after backpropagation progress through $10$ layer, then gradient becomes about $2^{10} = 1024$ times bigger than before passing.
+    \end{block}
+
+\end{frame}
+
+\section{Regularization}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+
+\subsection{Weight Decay}
+\begin{frame}{.}
+    Weight decay prohibit that each parameter has too large value.
+    In L2 regularization, By adding $\sum_i \theta_i^2$ to loss, regularizes each parameter value.
+\end{frame}
+
+\subsection{Batch Normalization}
+
+
+\begin{frame}{.}
+    %\cite{Understanding_Batch_Normalization_nips_2018}
+
+    \begin{block}{Batch Normalization}
+        For $4$-dimension input tensor, $I_{b,c,h,w}$ and $4$-dimension output tensor, $O_{b,c,h,w}$, Batch normalization layer is defined by
+        \[
+            O_{b,c,h,w} = \gamma_c \frac{I_{b,c,h,w} - \mu_c}{\sqrt{\sigma^2_c + \epsilon}} + \beta_c
+        \]
+        where $\mu_c = \frac{1}{\abs{BHW} } \sum_{b,h,w} I_{b,c,h,w}$, $\sigma_c = \frac{1}{\abs{BHW}} \sum_{b,h,w} (I_{b,c,h,w} - \mu_c)^2$ is calculated for each mini-batch. $\gamma_c$ and $\beta_c$ is trained parameter in BN layer.
+
+        \smallskip
+        Moving average mean and variance is updated by $\hat{\mu_c} \leftarrow (1-t)\mu_c + t\hat{\mu_c}$, $\hat{\sigma_c} \leftarrow (1-t) \sigma_c + t \hat{\sigma_c}$ and stored in training phase. These stored moving average statistics is used for applying inear transform in inference phase.
+        \[
+            O_{b,c,h,w} = \frac{\hat{\gamma_c}}{\sqrt{\hat{\sigma_c}^2}+ \epsilon} I_{b,c,h,w} + \left(\beta_c  - \frac{\hat{\gamma_c}}{\sqrt{\hat{\sigma^2} + \epsilon}}\hat{\mu_c}\right)
+        \]
+    \end{block}
+
+
+    \footcite{Understanding_Batch_Normalization_nips_2018,ioffe2015batch}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item Batch Normalization enables higher learning rate.
+        \item Generally, adapting Batch Normalization preceded before activation (e.g. ReLU) is preferred.
+    \end{itemize}
+\end{frame}
+
+\subsection{Layer Normalization}
+
+\begin{frame}{.}
+    Layer Normalization similar normalization technique with batch normalizaition but instead applied to non-channel dimension, ($h,w$ in image domain and $d$ in language domain).
+    \begin{itemize}
+        \item Batch Normalization is dependent on mini-batch size. Extremely speaking, if batch size is $1$, then BN practically does not work well.
+        \item Batch Normalization is ambiguous to apply in RNN
+    \end{itemize}
+
+    \begin{block}{Layer Normalization}
+        For $4$-dimensional input $I_{b,c,h,w}$, $\mu_b = \frac{1}{\abs{C H W}}\sum_{c,h,w} I_{b,c,h,w}$ and $\sigma_b = \frac{1}{\abs{C H W}} \sum_{c,h,w} (I_{b,c,h,w} - \mu_b)^2$. Output $O_{b,c,h,w}$ is calculated by
+        \[
+            O_{b,c,h,w} = \gamma_b \frac{I_{b,c,h,w} - \mu_b}{\sqrt{\sigma_c^2 + \epsilon}} + \beta_b
+        \]
+
+        For $3$-dimensional input $I_{b,s,d}$, $\mu_b = \frac{1}{\abs{S D}}\sum_{s,d} I_{b,s,d}$ and $\sigma_b = \frac{1}{\abs{S D}} \sum_{s,d} (I_{b,s,d} - \mu_b)^2$. Output $O_{b,s,d}$ is calculated by
+        \[
+            O_{b,s,d} = \gamma_b \frac{I_{b,s,d} - \mu_b}{\sqrt{\sigma_b^2 + \epsilon}} + \beta_b
+        \]
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{.}
+
+    Dropout layer randomly zeroes some of the elements of the input tensor with probability $p$.
+
+    By doing so,
+    \begin{itemize}
+        \item prevents \ti{overfitting} in training.
+        \item prevent model to depend on specific value of neurons.
+        \item help some neurons which have row effect to predict output to be trained better.
+    \end{itemize}
+
+    In backward pass, neurons selected to become zero transfers $0$ gradient to precedent layers.
+\end{frame}
+
+\section{Loss}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+
+\subsection{L1, L2 Loss}
+
+\begin{frame}{.}
+    If there exists function $f: \mbb{R}^d \to \mbb{R}$ with parameter $\theta$, then L1 and L2 loss of batch input $x_{b,d}$ and target $y_{b}$ is defined by
+    \[
+    L_1(x,y) = \frac{1}{\abs{B}}\sum_{b}\abs{f_\theta(x_{b,d}) - y_{b}}
+    \]
+    \[
+    L_2(x,y) = \frac{1}{\abs{B}}\sum_{b} (f_\theta(x_{b,d}) - y_{b})^2
+    \]
+
+    \begin{itemize}
+        \item L2 loss is efficient to get rid of outliers. L1 loss is relatively less efficient to remove outliers.
+        \item L2 loss converges slower than L1 loss when $\abs{f_\theta(x_{b,d}) - y_b} < 1$
+    \end{itemize}
+
+    Huber loss is is defined by
+    \[
+        L(x,y)=\sum_b \frac{1}{\abs{B}}\begin{cases}
+            \abs{f_\theta(x_{b,d}) - y_b} & \text{if } \abs{f_\theta(x_{b,d}) - y_b} > 1 \\
+            (f_\theta(x_{b,d}) - y_b)^2 & \text{else} 
+        \end{cases}
+    \]
+    \begin{itemize}
+        \item Huber loss takes advantage of both methods and reduce disadvantages
+    \end{itemize}
+\end{frame}
+
+\subsection{Cross Entropy Loss}
+
+\begin{frame}{.}
+    If there exists function $f$ with paramtere $\theta$, then cross entropy loss for category $C$, input $x_{b,d}$, target category $y_{b}$ is defined by
+    \[
+        L(x,y) = \frac{1}{\abs{B}} \sum_{c \in C, b} \mb{1}(c = y_b) \log{( \Softmax{f_\theta(x_{b, :})}_{c})}
+    \]
+    Where $\operatorname{Softmax}$ turns logits to probability distribution for categories $C$.
+\end{frame}
+
+\subsection{Contrastive Loss}
+
+\begin{frame}{.}
+    Object of contrastive learning: In embedding space, make datas from same category more closer and datas from different categories move away.
+
+    \bigskip
+    Suppose there exists two categories, $c_1, c_2$ and there exists dataset corresponding to each category, $\mc{D}_1, \mc{D}_2$.
+
+    \begin{block}{InfoNCE[\cite{oord2018representation}]}
+        \[
+            \mc{L}()
+        \]
+    \end{block}
+\end{frame}
+
+
+
+\section{Optimization}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+\subsection{SGD, Momentum}
+
+\begin{frame}{.}
+    Given mini-batch input tensor $x_{b,d}$, function $f_\theta$, target $y_b$ and loss function $L_\theta$, Stochastic Gradient Descent is defined by
+    \[
+        \theta \leftarrow \theta - \alpha \nabla_\theta L (\theta; x, y)
+    \]
+    where $\alpha$ is called learning rate and adjusted manually.
+
+    \bigskip
+    Momentum is defined by
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + \alpha \nabla_\theta L(\theta;x,y) \\
+        \theta \leftarrow \theta  - m
+    \end{gathered}
+    \]
+    Where $\alpha$ is learning rate and $\beta$ is hyperparameter which determines how much velocity will be keep. $\alpha$ is usually set around to $0.9$.
+    \begin{itemize}
+        \item In momentum, previous velocity is keeped by moving average.
+        \item Parameter update is occured with updated velocity.
+        \item Momentum can reduce oscillation exists in SGD.
+    \end{itemize}
+\end{frame}
+
+\subsection{Nestrov accelerated gradient}
+\begin{frame}{.}
+    Similar with Momentum but utilize gradient of one-step further.
+
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + \alpha \nabla_\theta L(\theta - m) \\
+        \theta \leftarrow \theta - m
+    \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adagrad}
+\begin{frame}{.}
+    \begin{itemize}
+        \item Adagrad pin points that infrequently updated parameters should be updated with larger step size and frequently updated parameters should be updated with smaller step size.
+        \item With this intuition, Adagrad adjusts different step-size per each parameters.
+    \end{itemize}
+
+    Let denote $i$-th parameter as $\theta_{i}$. In Adagrad, per each parameters $\theta_i$, keeps track the sum of squared gradient of $\theta_{i}$ in every time step, $g_{i, t} = \sum_t (\nabla_{\theta_{i,t}} L(\theta_{:, t}))^2 $.
+
+    \[
+        \begin{gathered}
+            g_{i} \leftarrow g_{i} + (\nabla_{\theta_{i}} L(\theta))^2 \\
+            \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{g_i + \epsilon}} \nabla_{\theta_i} L(\theta)
+        \end{gathered}
+    \]
+
+    \begin{itemize}
+        \item By scaling general learning rate $\alpha$ by $\frac{1}{\sqrt{g_i + \epsilon}}$, Adagrad updates infrequently updated parameters with more larger step and frequently updated parameters with more smaller step.
+        \item But since $g_i$ only increases, learning rate becomes more smaller and smaller. At some point learning rate is infinitely small, update not occured practically.
+    \end{itemize}
+\end{frame}
+
+\subsection{RMSprop}
+\begin{frame}{.}
+    RMSprop fix the drawback of Adagrad, in which update rate shrink. Instead of adding square of gradients, RMSprop calculates exponentially decaying average of squared of gradient.
+    \[
+        \begin{gathered}
+            g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2 \\
+            \theta \leftarrow \theta - \frac{\alpha}{\sqrt{g_i + \epsilon}} \nabla_{\theta_i} L(\theta)
+        \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adadelta}
+\begin{frame}{.}
+    Main idea of Adadelta is same with RMSprop, but Adadelta also consider the unit of update values.
+    In RMSprop, unit of update vector is $\frac{L}{\theta}$. (Unit of $\frac{\alpha}{\sqrt{g_i + \epsilon}}$ is  $\frac{1}{\theta}$ and unit of $\nabla_{\theta_i} L(\theta)$ is $L$.)
+
+    To match the scale of update term with parameters, it also track the difference of parameter $\Delta \theta^2$ by exponentially decaying average.
+
+    \[
+    \begin{gathered}
+        g_{i,t} = \gamma g_{i,t-1} + (1- \gamma) (\nabla_{\theta_{i,t}} L(\theta_{:, t}))^2 \\
+        \theta_{i,t+1} = -\frac{\sqrt{h_{i,t-1} + \epsilon}}{\sqrt{g_{i, t} + \epsilon}} \nabla_{\theta_{i,t}} L(\theta_{:,t}) \\
+        h_{i,t} = \gamma h_{i,t-1} + (1-\gamma) (\theta_{i,t} - \theta_{i,t-1})^2 \\
+    \end{gathered}
+    \]
+
+\end{frame}
+
+\subsection{Adam}
+\begin{frame}{.}
+    Adam combines Momentum and RMSprop.
+    \begin{itemize}
+        \item Momentum estimates first moment, $\nabla_\theta L(\theta)$ by exponentially decaying average and RMSprop estimates second moment, $(\nabla_\theta L(\theta))^2$ by exponentially decaying average.
+        \item Adam naming comes from Adaptive Moment Estimation.
+        \item Adam updates recently infrequently updated parameters with more larger velocity and recently frequently updated parameters with smaller velocity.
+        \item velocity is also keeped by exponentially decaying average, like in Momentum.
+    \end{itemize}
+
+    \[
+    \begin{gathered}
+        m \leftarrow \beta m + (1- \beta) \nabla_{\theta} L(\theta) \\
+        g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2\\
+        \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{g_i + \epsilon}} m
+    \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item But in this setting, $m$ and $g$ are initialized by $0$. so in initial timesteps of training, $m$ and $g$ are biased to $0$.
+        \item So this should be corrected. $\hat{m} = \frac{m}{1 - \beta^t}$ and $\hat{g} = \frac{g}{1 - \gamma^t}$.
+        \item This fixed bias term $\hat{m}$ and $\hat{g}$ incrases $m$ and $g$ when time step $t$ is small, and as $t$ increases, $\hat{m} \rightarrow m$ and $\hat{g} \rightarrow g$.
+    \end{itemize}
+
+    \[
+        \begin{gathered}
+        m \leftarrow \beta m + (1- \beta) \nabla_{\theta} L(\theta) \\
+        g_i \leftarrow \gamma g_i  + (1- \gamma) (\nabla_{\theta_i} L(\theta))^2\\
+        \theta_i \leftarrow \theta_i - \frac{\alpha}{\sqrt{\hat{g}_i} + \epsilon}\hat{m}
+    \end{gathered}
+    \]
+
+    Authors propose default value of $\beta, \gamma, \epsilon$ as $0.9, 0.999, 10^{-8}$
+\end{frame}
+
+\subsection{Sharpness Aware Minimization}
+\begin{frame}{.}
+    Let denote $\mc{S} \triangleq \cup_{i=1}^n \{(x_i, y_i)\}$ training set and  $\mc{D}$ is the distribution of real. 
+    And for parameter $w$, we can define per datapoint loss $l: \mc{W} \times \mc{X} \times \mc{Y}\to \mbb{R}_{+}$. 
+
+    Loss for training dataset is defined by $L_\mc{S}(w) \triangleq \frac{1}{n} \sum_{i=1}^n l(w, x_i, y_i) $ and the population loss by $L_\mc{D}(w) \triangleq \mbb{E}_{(x,y) \sim \mc{D}}[ l(w, x, y) ]$.
+
+    It is known that flat minima increases generalization performance. So in SAM, they consider objective function like below
+    \[
+        \begin{gathered}
+            \min_{w} L^{SAM}_{\mc{S}}(w) + \lambda \abs{w}^2_2 \\
+            L^{SAM}_{\mc{S}}(w) \triangleq \max_{\abs{\epsilon}_p \leq \rho } L_{\mc{S}}(w+ \epsilon)
+        \end{gathered}
+    \]
+
+    It is shown that $p=2$ shows emperically good performance.
+
+\end{frame}
+
+\section{Architecture}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+\subsection{Transformer}
+
+
+\begin{frame}{.}
+    For input tensor $x_{b,s,d}$, output $o_{b,s,d}$ of scaled-dot product attention is defined by 
+    \[
+    \begin{gathered}
+        Q = W^Q \circ x, \quad K = W^K \circ x,\quad V = W^V \circ x \\
+        \Attention{W^Q, W^K, W^V, x} = \Softmax{\frac{Q \circ (K^\top)}{\sqrt{d_k}}} \circ V
+    \end{gathered}
+    \]
+    Where $W^Q \in \mbb{R}^{1 \times d_k \times d}, W^K \in \mbb{R}^{1 \times d_k \times d}, W^V \in \mbb{R}^{1\times d_v \times d}$ and $\circ$ represents batch matrix multiplication operator. Output $Q \in \mbb{R}^{b\times s \times d_v}$
+
+    \bigskip
+    Why $Q \circ K^\top$ is scaled by $\sqrt{d_k}$?
+    \begin{itemize}
+        \item Suppose $q_i, k_i \sim \mc{N}(0,1)$ and $q_i$ is independent with $k_i$.
+        \item $\Var{q \cdot k} = \Var{\sum_{i=1}^{d_k} q_i k_i} = d_k (\because \Var{q_i k_i}=1)$. By dividing with $\sqrt{d_k}$, $Q\circ K^\top$ preserves variance.
+        \item Also, in \cite{vaswani2017attention}, scaling with $\sqrt{d_k}$ is shown to be practically efficient. Without it, 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    Multi-head attention is defined by 
+    \[
+    \begin{gathered}
+        \operatorname{MultiHead}(x) = W^O \circ \Concat{\text{head}_1, \dots, \text{head}_h} \\
+        \text{head}_i = \Attention{W^Q_i, W^K_i, W^V_i, x}
+    \end{gathered}
+    \]
+    where $W^O \in \mbb{R}^{1 \times d\times hd_v}$.
+
+    \cite{vaswani2017attention} shows multi-head attention achieves better performance than just using single attention.
+\end{frame}
+
+\begin{frame}{.}
+    In case of RNN based networks, order of words in sequence is represented by timestep.
+    But in transformer, sequence is processed simultaneously, in which the order of words in sequence can be ignored.
+
+    Thus, in transformer, they directly add order information to embedding tensor, which is named \tb{Positional Encoding}.
+
+    Positional encoding tensor $pe \in \mbb{R}^{s \times d}$, where $s$ is the sequence length and $d$ is the embedding dimension of language model.
+
+    \[
+    \begin{gathered}
+        pe_{i,2j} = \sin{\frac{i}{10000^{2j/d}}} \\
+        pe_{i,2j+1} = \cos{\frac{i}{10000^{2j/d}}}
+    \end{gathered}
+    \]
+
+    The wave length form a geometric frequency from $2\pi$ to $10000 \cdot 2\pi $.
+\end{frame}
+
+\begin{frame}{.}
+    In encoder, there only exists self-attention.
+    In the decoder, masked cross-attention differs in that the query comes from the decoder, while the key and value come from the encoder.
+
+    In masked cross attention, each $Q$, $K$, $V$ is obtained by $Q = W^Q \circ x_e$, $K = W^K \circ x_e$, $v = W^V \circ x_d$, where $w_e$ comes from encoder and $w_d$ comes from decoder.
+
+    Before pass the logit $\frac{QK^\top}{\sqrt{d_k}}$, masking that replaces $\left(\frac{QK^\top}{\sqrt{d_k}}\right)_{ij} = -\infty, \forall i<j$ is adopted.
+    This makes $j$-th weights of weighted sum $O_i = \sum_{j=1}^d \Softmax{\operatorname{Mask}(\frac{QK^\top}{\sqrt{d_k}})}_{i,j} V_{j,:}$ as $0$.
+
+    This prevents that decoder refers information from later sequences.
+
+\end{frame}
+
+\subsection{Variational Auto Encoder}
+
+\begin{frame}{.}
+    In Deep Latent Variable Models, assume that there exists latent variables of models, not of real distribution $P_{real}(X)$. Typically denote $z$ as latent variables of model.
+
+    \begin{block}{Example}
+        Let assume $x$ is binary data, i.e. $x \in \{0, 1\}$. Set distribution of $z$ as $\mc{N}(0, I)$.
+
+        There exists parameter $\theta$, which is used to produce $P_\theta(x|z)$. 
+        $P_\theta (x|z)$ means that 
+        \[
+            \log{P_\theta(x|z)} = \log{\operatorname{Bern}(x; f_\theta(z))} = x\log{f_\theta(z)} + (1-x) \log{(1 - f_\theta(z))}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    Let assume that there exists underlying latent variables $z$ for random variable $x$ and the distribution of $z$, $P(z)$ is called the prior distribution. Typically, it is usually set to $P(z) = \mc{N}(0, I)$.
+    \bigskip
+
+    Let denote $f_\theta(z)$ as generative function $f$ with parameter $\theta$ and got input $z$.
+    And $P_\theta(x|z)$ denotes the probability that generated result of $f_\theta(z)$ is matched with $x$.
+    let define $\mc{D} = \{x_1, \dots, x_N\}$ where $x_n \sim P_{real}(X)$, each $x_n$ is collected from real distribution.
+    Then we can denote our training object as $J(\theta) = \sum_{n=1}^N \log{P_\theta(x_n)}$.
+
+    But $P_\theta (z|x)$ is intractable. so let estimate $P_\theta (z|x)$ as $Q_\phi (z|x)$ with parameter $\phi$. Let define $Q_\phi(z|x)$ as PDF of distribution $\mc{N}(\mu_\phi(x),\Sigma_\phi(x))$, i.e. $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Variational Lower Bound (Evidence Lower Bound, ELBO)}
+        \[
+            \begin{aligned}
+                \log P_\theta (x) &= \expe_{Q_\phi(z|x)} \left[ \log \frac{p_\theta (x,z)}{p_\theta (z|x)} \right] \\
+                &= \expe_{Q_\phi (z|x)} \left[\log \frac{P_\theta(x,z)}{Q_\phi (z|x)}\right] + \expe_{Q_\phi (z|x)} \left[ \log \frac{Q_\phi(z|x)}{P_\theta(z|x)} \right]\\ 
+                &= \mc{L}_{\theta, \phi}(x) + D_{KL}(Q_\phi(z|x) || P_\theta (z|x))
+            \end{aligned}
+        \]
+    \end{block}
+
+    $\mc{L}_{\theta, \phi}(x)$ is called ELBO. ELBO becomes lower bound of $log P_\theta (x)$ because $D_{KL} \geq 0$ holds.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Reparametrization Trick}
+        It is easy to calculate $\nabla_\theta \mc{L}_{\theta, \phi}(x) = \expe_{Q_\phi (z|x)}[\nabla_\theta \log{P_\theta (x,z)}]$. Then we can easily estimate $\nabla_\theta \mc{L}_{\theta, \phi}(x)$ with Monte Carlo estimator, $\nabla_\theta \mc{L}_{\theta, \phi}(x) \simeq \nabla_\theta \log P_\theta(x,z)$.
+
+        \bigskip
+        But how can we calculate $\nabla_\phi \expe_{Q_\phi (z|x)}[\log P_\theta (x,z) - \log Q_\phi (x|z)]$?
+        By utilizing so called re-parametrization trick, we can calculate.
+        Let define $z = \mu_\phi(x) + \Sigma_\phi (x) \epsilon, \epsilon \sim \mc{N}(0,I)$. Then $z$ satisfies $z \sim \mc{N}(\mu_\phi(x), \Sigma_\phi(x))$.
+
+        \bigskip
+
+        Now, ELBO turns to $\mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[\log P_\theta(x,z) - \log Q_\phi(z|x)]$. Then $\nabla_\phi \mc{L}_{\theta, \phi} (x) = \expe_{p(\epsilon)}[- \nabla_\phi \log Q_\phi (z|x)]$, which is tractable. Then we can estimate gradient for $\phi$ by Monte Carlo estimator, $\nabla_\phi \mc{L}_{\theta, \phi} (x) \simeq  - \nabla_\phi \log Q_\phi (z|x)$.
+    \end{block}
+
+\end{frame}
+
+\subsection{Diffusion}
+
+\begin{frame}{.}
+    Diffusion Model are latent variable models of the form $P_\theta(x_0) := \int P_\theta (x_{0:T})dx_{1:T}$, where $x_1, \dots, x_T$ are latents of the same dimensionality as the data $x_0 \sim q(x_0)$.
+
+    The joint distribution $P_\theta(x_{0:T})$ is called the \tb{reverse process} and it is definedas a Markov chain with learned Gaussian transitions starting at $p(x_T) = \mc{N}(x_T; 0, I)$.
+    \[
+    \begin{gathered}
+        P_\theta(x_{0:T}) := P_\theta(x_T) \prod_{t=1}^T p_\theta(x_{t-1}|x_{t}) \\
+        P_\theta(x_{t-1}|x_{t}) := \mc{N}(x_{t-1}; \mu_\theta(x_t, t), \Sigma_\theta (x_t, t))
+    \end{gathered}
+    \]
+
+    The approximate posterior $Q(x_{1:T}|x_0)$, called the \tb{forward pass} or \tb{diffusion pass} is fixed to a Markov chain that gradually adds Gaussiann noise to the data according to a variance schedule $\beta_1, \dots, \beta_T$. Note that this $\beta_t$ is defined by hyperparameter.
+    Diffusion process is defined by
+    \[
+    \begin{gathered}
+        Q(x_{1:T}|x_0) := \prod_{t=1}^T Q(x_t|x_{t-1})\\
+        Q(x_t|x_{t-1}):= \mc{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I)
+    \end{gathered}
+    \]
+
+    In DDPM, $\beta_t = (\beta_T - \beta1)\frac{t}{T} + \beta_1$, $\beta_1 = 0.0001, \beta_T = 0.02$ and $T=1000$.
+\end{frame}
+
+\begin{frame}{.}
+    The boring sampling step from $x_0$ to $x_t$ can be skipped because diffusion process has under property
+    \[
+        Q(x_t|x_0) = \mc{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1- \bar{\alpha}_t)I)
+    \]
+    where $\alpha_t:= 1- \beta_t$ and $\bar{\alpha}_t := \prod_{i=1}^t \alpha_i$.
+
+    $\bar{\alpha} = 0.0064$
+
+\end{frame}
+
+\section{Reinforcement Learning}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+        \vskip1ex
+        \usebeamerfont{frametitle}%
+        \insertframetitle\par
+        \vskip1ex
+        \hrule
+    }%
+    \begin{frame}
+        \begin{multicols}{2}
+            \frametitle{Table of Content}
+            \tableofcontents
+        \end{multicols}
+    \end{frame}
+\endgroup
+\subsection{Policy Gradient}
+\begin{frame}{.}
+    In MDP, trajectory can be expressed by sequence of state, action and reward, $\tau = (s_0, a_0, r_1, s_1, \dots, s_{T-1}, a_{T-1}, r_{T}, s_{T})$. 
+    Let denote policy with parameter $\theta$ by $P_\theta(\tau) = P(s_0) \Pi_{i=0}^{T-1} \pi(a_i|s_i) P(s_{i+1}| s_i, a_i) $, where $P$ is the transition probability of MDP.
+
+    Let define $r(\tau) = \sum_{i=0}^{T-1} \gamma^t r(s_i, a_i)$. Then our objective function for parameter $\theta$ can be defined as 
+    \[
+    \begin{gathered}
+        J(\theta) = \operatorname{E}_{\tau \sim P_\theta}[r(\tau)] = \int_{\tau} P_\theta(\tau) r(\tau) d\tau \\
+        \begin{aligned}
+            \nabla_{\theta} J(\theta) &= \nabla_\theta \int_\tau P_\theta (\tau) r(\tau) d\tau = \int_\tau \nabla_\theta P_\theta (\tau) r(\tau) d\tau = \int_\tau P_\theta (\tau) \nabla_\theta \log{P_\theta(\tau)} r(\tau) d\tau\\ 
+            &= \operatorname{E}_{\tau \sim P_\theta}[\nabla_\theta \log{P_\theta (\tau)} r(\tau)] 
+        \end{aligned}
+    \end{gathered}
+    \]
+
+    Let's consider about $\nabla_\theta \log{P_\theta (\tau)}$.
+    \[
+        \begin{aligned}
+            \nabla_\theta \log{P_\theta (\tau)} &= \nabla_\theta [\log{P(s_0)} + \sum_{i=0}^{T-1} \log{\pi_\theta (a_i| s_i) P(s_{i+1}| s_i, a_i) } ]\\
+            &= \sum_{i=0}^{T-1} \nabla_\theta \log{\pi_\theta (a_i |s_i)}
+        \end{aligned}
+    \]
+    
+    Thus
+    \[
+        \nabla_\theta J(\theta) = \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right]
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \expe_{\tau \sim P_\theta} 
+        \left[ \left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right) \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i)\right)
+        \right] \\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    Note that $\expe_{\tau \sim P_\theta}[\nabla_\theta \log{\pi_\theta}(a_i|s_i) B(s_i)] =0$. Thus,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &=\sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+        \nabla_\theta \log{\pi_\theta (a_i|s_i)} \gamma^i \left(\sum_{j\geq i}^{T-1} \gamma^{j-i}r(s_j, a_j)\right)
+        \right]\\
+        &= \sum_{i=0}^{T-1} \expe_{\tau \sim P_\theta} \left[
+            \nabla_\theta \log{\pi_\theta(a_i|s_i)} \gamma^i \left(  \sum_{j \geq i}^{T-1} \gamma^{j-i}r(s_j, a_j) - B(s_i)\right)
+        \right]
+    \end{aligned}
+    \]
+
+    This $B(s_i)$ can reduce variance of $\sum_{j \geq i }^{T-1} \gamma^{j-i} r(s_j, a_j)$.
+\end{frame}
+
+\begin{frame}{.}
+    By Monte-Carlo estimation,
+    \[
+    \begin{aligned}
+        \nabla_\theta J(\theta) &= \operatorname{E}_{\tau \sim P_\theta}\left[\left(\sum_{i=0}^{T-1}\nabla_\theta \log{\pi_\theta}(a_i|s_i)\right) \left(\sum_{i=0}^{T-1} \gamma^i r(s_i, a_i) \right)\right] \\
+        &\approx \frac{1}{N} \sum_{n=1}^N \left[ \left(\sum_{}\right) \right]
+    \end{aligned}
+    \]
+\end{frame}
+
+\end{document}

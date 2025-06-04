@@ -1,0 +1,222 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Mult}[1]{\operatorname{Mult}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\expe}{\operatorname{E}}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\argmax}[1]{\operatorname{arg max}_{#1}}
+\newcommand{\argmin}[1]{\operatorname{arg min}_{#1}}
+\newcommand{\NLL}[1]{\operatorname{NLL}\!\left(#1\right)}
+\newcommand{\rss}[1]{\operatorname{RSS}\!\left(#1\right)}
+\newcommand{\Softmax}[1]{\operatorname{Softmax}\!\left(#1\right)}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{ML Foundation}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\subsection{Linear Regression}
+
+
+\begin{frame}{.}
+  Suppose we had collected $n$ data points $\{(x_i, y_i) \mid 1\leq i \leq n, x_i \in \mbb{R}^d, y\in \mbb{R}\}$ and elements of $(x_i, y_i)$ seems like having linear relationship with each other. How can we estimate underlying linear relationship?
+
+  \bigskip
+
+  Let assume $\mbb{E}[y|x] = w^\top x + \beta$ where $w \in \mbb{R}^{d}, \beta \in \mbb{R}$ and $y_i = w^\top x_i + \beta + \epsilon_i$ where $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, in which assume there exists some observation noise for observing $y_i$. Our \tb{goal} is to \tb{find best paramters} $w, \beta$ that best explains the relationship between $x_i$ and $y_i$.
+
+  Then $y_i - w^\top x_i - \beta \sim \mathcal{N}(0, \sigma^2)$. $P(y_i|x_i) = \frac{1}{\sqrt{2\pi}\sigma} \exp{\left(-\frac{(y_i - w^\top x_i - \beta)^2}{2 \sigma^2}\right)}$.
+
+  The better our estimate of parameter $w, \beta$ is, The greater $\prod_{i=1}^{n} P(y_i|x_i)$ becomes. So, our goal tunrs to find $\argmax{w, \beta} \prod_{i=1}^n P(y_i|x_i)$.
+  And to find $\argmax{w, \beta} \prod_{i=1}^n P(y_i|x_i)$ is same with $\argmin{w, \beta} \sum_{i=1}^n -\log{P(y_i|x_i)}$.
+
+  \[
+    -\log{P(y_i|x_i)} = \log{\sqrt{2\pi}\sigma} + \frac{(y_i - w^\top x_i - \beta)^2}{2\sigma^2}
+  \]
+  This finding $\argmin{w, \beta} \sum_{i=1}^n - \log{P(y_i|x_i)}$ strategy is called \tb{Maximum Likelihood Principle (MLP)} and $-\log{P(y_i|x_i)}$ is called \tb{Negative Log-Likelihood (NLL)} for parameter $w, \beta$.
+\end{frame}
+
+\begin{frame}{.}
+  $\NLL{w, \beta} = n \log{\sqrt{2\pi}\sigma} + \sum_{i=1}^n \frac{(y_i - w^\top x_i - \beta)^2}{2\sigma^2}$ and since $\NLL{w, \beta}$ is \ti{convex function} for $w, \beta$, $w^\ast, \beta^\ast := \argmin{w, \beta} \NLL{w, \beta}$ satisfies $\nabla \NLL{w^\ast, \beta^\ast} = 0$.
+
+  In this case $\nabla_{w, \beta} \rss{w^\ast, \beta^\ast} = 0$ where $\rss{w, \beta} = \frac{1}{2}\sum_{i=1}^n (y_i - w^\top x_i - \beta)^2$.
+
+  \bigskip
+  Let $\forall j, 1 \leq j \leq n, Y_j = y_j \leq n$ and $X_{ij} = x_i, \forall 1 \leq i\leq n, \forall 1 \leq j \leq d$ and $X_{*(d+1)} = \mb{1}$ (so, $Y \in \mbb{R}^{n}$ and $X \in \mbb{R}^{n \times (d+1)}$). Let $\bar{w} = \left[\begin{matrix} w_1 \\ \vdots \\ w_d \\ \beta  \end{matrix}\right]$ Then we can write $\rss{\bar{w}} = \frac{1}{2} (X\bar{w} - Y)^\top (X\bar{w} - Y) =\frac{1}{2}\abs{X\bar{w} - Y}^2_2, \nabla_{\bar{w}}\rss{\bar{w}} = \sum_{i=1}^n (X_{i*} \bar{w} - Y_i) X_{i*}$
+\end{frame}
+
+\subsection{Maximum Likelihood Estimation(MLE)}
+
+\begin{frame}{.}
+  MLE is defined by
+  \[
+    \theta^\ast = \argmax{\theta} P(\mc{D}|\theta) = \argmax{\theta} \Pi_{n=1}^N P(y_n| x_n; \theta) (\text{i.i.d. assumption})
+  \]
+  Find $\theta^\ast = \argmax{\theta} P(\mc{D}|\theta)$ is same with finding $\theta^\ast = \argmax{\theta} \log{P(\mc{D}|\theta)} = \argmax{\theta} \sum_{n=1}^N \log{P(y_n|x_n; \theta)}$.
+
+  Or $\theta^\ast = \argmin{\theta} \NLL{\theta} = - \sum_{n=1}^N \log{P(y_n|x_n;\theta)}$.
+\end{frame}
+
+\begin{frame}{.}
+  \begin{block}{Multinomial Logistic Regression}
+    \href{https://hcnoh.github.io/2019-06-03-cross-entropy}{https://hcnoh.github.io/2019-06-03-cross-entropy}
+    \smallskip
+
+    Suppose there exists dataset $\mc{D} = \{(x_n,y_n)| 1\leq n \leq N\}$ where $y_n \in \{1, \dots, C\}$.
+
+    We want to train multinomial classification problem with function that can be parametrized by $\theta$. 
+    In this setting, we will predict class of $x_n$ as $i$ using probability obtained by $P_\theta (\hat{Y}_n = i|x_n)$. 
+    In other words, with probability of $P_\theta (\hat{Y}_n = i |x_n)$, class of $x_n$ is predicted as $i$.
+
+    \smallskip
+    Then $\mc{L}((x,y)) = \Pi_{i=1}^C P_\theta(\hat{Y}=i|x)^{\delta_{iy}}$ is the likelihood for dataset $(x,y)$ ($\delta$ is kroneker-delta).
+    For $\mc{D}$, likelihood is defined by $\mc{L}(\mc{D}) = \Pi_{n=1}^N \Pi_{i=1}^C P_\theta(\hat{Y}=i|x_n)^{\delta_{iy_n}}$. NLL is defined by $\NLL{\mc{D};\theta} = \sum_{n=1}^N \sum_{i=1}^C \delta_{i y_n} \log{P_\theta (\hat{Y}=i | x_n)}$.
+
+    \smallskip
+    Now, $\sum_{i=1}^C \delta_{i y_n} \log{P_\theta(\hat{Y}=i| x_n)}$ is shown to be equal to $\mc{H}( P_D(Y|x), P_\theta(\hat{Y}|x))$. First, In $\mc{D}$, there exists unique $y$ for input $x$. Thus, $\delta_{iy_n} = P_D(Y=i|x)$. Then $\NLL{\mc{D};\theta} = \sum_{n=1}^N \sum_{i=1}^C P_D(Y=i| x_n) \log{P_\theta (\hat{Y}=i|x_n)} = \sum_{n=1}^N\mc{H}(P_D(Y|x_n), P_\theta (\hat{Y}|x_n))$.
+
+    \bigskip
+    Thus for multinomial classification task, NLL is cross-entropy between true distribution $(P_D(Y|x_n))$ and predict distribution $(P_\theta(Y|x_n))$.
+
+  \end{block}
+\end{frame}
+
+\begin{frame}{.}
+  \begin{block}{Why use CE loss for classification instead of MSE?}
+    \begin{itemize}
+      \item It is natural to use  Cross Entropy Loss because it maximizes likelihood.
+      \item Gradient of CE - Softmax is more natural than MSE - Softmax.
+
+      Let $z$ be logit which is input for softmax and $\hat{y}$ be probability for each category obtained by $\hat{y} = \Softmax{z}$. In case of cross entropy loss, by chain-rule, we get \[\frac{\partial L}{\partial z_j} = \sum_{i=1}^C \frac{\partial L}{\partial \hat{y}_i}\frac{\partial \hat{y}_i}{\partial z_j} = \sum_{i=1}^C \frac{-y_i}{\hat{y}_i} (-\hat{y}_i \hat{y}_j + \delta_{ij} \hat{y}_i) =  \left[-y_j + \sum_{i=1}^C y_i \hat{y}_j \right] = \hat{y_j} - y_j\]
+      Thus,
+      \[\frac{\partial L}{\partial z} = \hat{y} - y\]
+
+      In this time, Let's consider the combination of MSE loss and softmax loss. Let define $L = \sum_{i=1}^C (\hat{y}_i - y_i)^2$. Then
+      \[
+        \frac{\partial L}{\partial z_j} = \sum_{i=1}^C \frac{\partial L}{\partial \hat{y}_i}\frac{\partial y_i}{\partial z_j} = \sum_{i=1}^C 2(\hat{y}_i - y_i)(-\hat{y_i}\hat{y_j} + \delta_{ij} \hat{y}_i)
+      \]
+      Which is more unnatural than Cross Entropy.
+    \end{itemize}
+
+  
+  \end{block}
+\end{frame}
+
+
+\subsection{Bayesian Statistics}
+\begin{frame}{.}
+  For dataset $\mc{D}$ and parameter $\theta$, $P(\theta)$ is called prior distribution and $P(\mc{D}|\theta)$ is called likelihood and $P(\theta|\mc{D})$ is called posterior in Bayesian statistics.
+
+  \bigskip
+  MLE finds theta that makes likelihood maximizes $\theta^\ast = \argmax{\theta} P(\mc{D}|\theta)$, but Maximum A Posteriori(MAP) maximises posterior probability, $\theta^\ast = \argmax{\theta} P(\theta | \mc{D})$.
+
+  \[
+  \begin{gathered}
+    P(\theta | \mc{D}) = \frac{P(\mc{D}|\theta)P(\theta)}{P(\mc{D})} \propto P(\mc{D}|\theta) P(\theta) \\
+    \implies \log{P(\theta |\mc{D})} \propto \log{P(\mc{D}|\theta)} + \log{P(\theta)}
+  \end{gathered}
+  \]
+
+  \bigskip
+  As bigger as $N$, $\abs{\log{P(\mc{D}|\theta)}}$ increases and relatively $\abs{\log{P(\theta)}}$ becomes smaller. So with large datasets, We only utilize MLE instead of MAP.
+\end{frame}
+
+\subsection{Monte Carlo estimator}
+
+\begin{frame}{.}
+  Suppose we want to know the value $\expe_{z \sim p}[f(z)]$. We can estimate this value by 
+  \begin{enumerate}
+    \item Choice $N$ samples $z_is$ from i.i.d. $z \sim p$
+    \item Calculate $\frac{1}{N}\sum_{i=1}^N f(z_i)$.
+  \end{enumerate}
+
+  According to Monte Carlo estimator, $\frac{1}{N}\sum_{i=1}^N f(z_i)$ is unbiased estimator for $\expe_{z \sim p}[f(z)]$.
+\end{frame}
+
+\subsection{Computer Vision}
+\begin{frame}{.}
+  \begin{block}{Template Matching}
+    Traversing the whole image feature with small 2-D window, calculate how similarity the template and image window is matched. Score is calculated by one of belows
+    \[
+    \begin{gathered}
+      R(y,x) = \sum_{h,w} (T(h, w) - I(y+h, x+w))^2 \\
+      R(y,x) = \sum_{h,w} (T())
+    \end{gathered}
+    \]
+  \end{block}
+\end{frame}
+
+
+\end{document}
