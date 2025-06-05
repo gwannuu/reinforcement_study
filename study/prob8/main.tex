@@ -43,8 +43,16 @@
 \usepackage{multicol}  % 여러 열 나누기
 \usepackage{ulem} % 취소선 및줄 나누기
 \usepackage{mathtools} % dcases
+%\usepackage{xparse} % NewDocumentCommand
 
 
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
 
 \newcommand{\mrm}[1]{\mathrm{#1}}
 \newcommand{\mbb}[1]{\mathbb{#1}}
@@ -74,6 +82,9 @@
 \newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
 \newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
 \newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -411,8 +422,50 @@
 \begin{frame}{.}
     \begin{theorem}
         The $\HGeom{w}{b}{n}$ and $\HGeom{n}{w+b-n}{w}$ distributions are identical. That is, if $X \sim \HGeom{w}{b}{n}$, and $Y \sim \HGeom{n}{w+b-n}{w}$, then $X$ and $Y$ have the same distribution.
-    
     \end{theorem}
+    \begin{proof}
+        We can proof this theorem with using the story. In $\HGeom{w}{b}{n}$, there exists two categories. White/Black and Sampled/Not-sampled. 
+        \begin{itemize}
+            \item  In first term $\HGeom{w}{b}{n}$, in total $w+b$ balls, first divide into white/black categories with $w$ number of white and $b$ number of black
+            \item And second divide into sampled/not-sapmled categories with $n$ number of sampled and $w+b-n$ number of not-sampled.
+            \item In the other hand, in $\HGeom{n}{w+b-n}{w}$, first divide into sampled/not-sampled categories, with $n$ number of sampled and $w+b-b$ number of not-sampled.
+            \item And second divide into white/black cateogires with $w$ number of white and $b$ number of black.
+        \end{itemize}
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    Another proof is algebraic proof.
+
+     \[
+        \begin{gathered}
+            P(X=k) = \frac{\binom{w}{k}\binom{b}{n-k}}{\binom{w+b}{n}} = \frac{w!b! n! (w+b-n)!}{k! (w-k)! (n-k)! (b-n+k)! (w+b)!} \\
+            P(Y=k) = \frac{\binom{n}{k}\binom{w+b-n}{w-k}}{\binom{w+b}{w}} = \frac{w!b! n! (w+b-n)!}{k! (w-k)! (n-k)! (b-n+k)! (w+b)!}
+        \end{gathered}
+    \]
+
+    \begin{definition}[Negative Hypergeometric distribution]
+        An urn contains $w$ white balls and $b$ black balls, which are randomly drawn one by one \ti{without replacement}, until $r$ white balls have been obtained. 
+        The number of black balls drawn before drawing the $r$th white ball has a \tb{Negative Hypergeometric} distribution with parameters $w, b, r$.
+
+        We denote this distribution by $\NHGeom{w}{b}{r}$ ($r \leq w$).
+        For example, if we shuffle a deck of cards and deal them one at a time, the number of cards dealt before uncovering the first ace is $\NHGeom{4}{48}{1}$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    $X=K$ means that before the $r+k$th black ball is drawn, $k$ black balls and $r-1$ white balls are drawn.
+    So, the PMF of $X \sim \NHGeom{w}{b}{r}$ is given by
+    \[
+        P(X=k)= \frac{\binom{w}{r-1} \binom{b}{k}}{\binom{w+b}{r+k-1}} \cdot \frac{w-r+1}{w+b-r-k+1}
+    \]
+
+    Another story for obtaining $P(X=k)$ is below. Imagine sort the $w$ white balls and $b$ black balls in oneline and draw balls one by one in the sorted order. Then among first $r+k-1$ balls there should exist $r-1$ white ball and $k$ black balls. Then among the last $w+b-r-k$ balls there should exist $w-r$ white balls.
+    So the PMF is also given by
+    \[
+        P(X=k) = \frac{\binom{r+k-1}{r-1} \binom{w+b-r-k}{w-r}}{\binom{w+b}{w}}
+    \]
+
 \end{frame}
 
 \subsection{Beta}
@@ -480,7 +533,7 @@
 \begin{frame}{.}
     Generally, $\beta(a,b)$ needs some calculus to derive a general formula. But specially, if $a$ and $b$ are positive integers, we can easily calculate $\beta(a,b)$.
 
-    \begin{block}{Story for $\beta(a,b)$}
+    \begin{block}{Story for $\beta(a,b)$ (Baye's billiards)}
         If $a,b$ are positive integers, then we can calculate $\beta(a,b)$ easier.
 
         Suppose there exists $n$ white balls and $1$ black balls.
@@ -511,9 +564,14 @@
     \end{gathered}
     \]
 
-    By above equation, for positive integers $a,b$
+    By above equation, for positive integers $a,b$, with just replacing $k = a-1$ and $n-k = b-1$,
     \[
         \beta(a,b) = \int_0^1 x^{a-1} (1-x)^{b-1} = \frac{(a-1)! (b-1)!}{(a+b-1)!}
+    \]
+
+    So, when the $a,b$ are positive integers, then the PDF of $X$ is
+    \[
+        f_X(x) = \frac{(a-1)!(b-1)!}{(a+b-1)!} x^{a-1} (1-x)^{b-1}
     \]
 \end{frame}
 
@@ -539,7 +597,186 @@
 \end{frame}
 
 \begin{frame}{.}
+    By the Bayesian approach, since $X|p \sim \Bin{n}{p}$ and $p \sim \Beta{a}{b}$,
+    \[
+        f(p|X=k) = \frac{P(X=k|p)f(p)}{P(X=k)} = \frac{\binom{n}{k}p^{k} (1-p)^{n-k} \cdot \frac{1}{\beta(a,b)}p^{a-1} (1-p)^{b-1}}{P(X=k)}
+    \]
 
+    $P(X=k)$ can be obtained by marginalization.
+
+    \[
+        \begin{aligned}
+        &P(X=k) = \int_{0}^1 P(X=k|p)f(p) dp= \int_0^1 \binom{n}{k} p^k (1-p)^{n-k} f(p) dp \\
+        &= 
+        \begin{dcases}
+            \int_0^1 \binom{n}{k} p^k (1-p)^{n-k} dp = \frac{1}{n+1} & \text{if } a=1, b=1\\
+           \NHGeom{}{}{} & \text{if } a,b \text{ are positive integers} 
+        \end{dcases}
+        \end{aligned}
+    \]
+
+    How can we calculate $f(p|X=k)$ when $a,b$ are real?
+    Note that $f(p|X=k) \propto p^{a+k-1} (1-p)^{b+n-k-1}$.
+
+    $\therefore p|X=k \sim \Beta{a+k}{b+n-k}$.
+
+    Also, posterior $p|X=k$ becomes beta distribution.  From starting beta prior for r.v. $p$, and given binomial distribution for conditional r.v. $X=k|p$, Also we conclude that posterior distribution for r.v. $p|X=k$ is beta distribution. 
+
+    This is called \tb{the Beta is the conjugate prior of the Binomial}.
+
+\end{frame}
+
+\subsection{Gamma}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{itemize}
+        \item The Gamma distribution is a continuous distribution on the positive real line
+        \item It is a generalization of the Exponential distribution
+        \item While an Exponential r.v. represents the waiting time for the first success under conditions of memorylessness, we shall see that a Gamma r.v. represents the total waiting time for multiple successees.
+    \end{itemize}
+
+    Before writing down the PDF, let introduce \tb{gamma function}, a very famous function in mathematics that extends the factorial function beyond the realm of nonnegative integers.
+
+    \begin{definition}[Gamma function]
+        The \tb{Gamma function} $\Gamma$ is defined by
+        \[
+            \Gamma(a) = \int_0^\infty x^a e^{-x} \frac{dx}{x}, \forall a > 0
+        \]
+    \end{definition}
+
+    Two important properties of gamma function
+    \begin{itemize}
+        \item $\Gamma(a+1) = a \Gamma(a), \forall a > 0$. $\Gamma(a+1) = \int_0^\infty x^a e^{-x} dx = \left[-x e^{-x}\right]^{-\infty}_0 + a \int_0^\infty x^{a-1} e^{-x} dx  \implies \Gamma(a+1) = a \Gamma(a)$
+        \item $\Gamma(n) = (n-1)!$ if $n$ is a positive integer. Note that $\Gamma(1) = \int_0^\infty e^{-x} dx = 1$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    From the gamma function, we can get
+    \[
+        1 = \int_{0}^{\infty} \frac{1}{\Gamma(a)} x^a e^{-x} \frac{dx}{x}
+    \]
+    Which is the valid PDF because integral for PDF satisfies $1$. We say that $X$ has $\GammaDist{a}{1}$ distribution if PDF $f_X(x) = \frac{1}{\Gamma(a)} x^{a}e^{-x}\frac{1}{x}, \forall x>0$.
+
+    Let define $Y = X / \lambda$. Then by change of variable, 
+    \[
+        f_Y(y) = f_X(x) \abs{\frac{dx}{dy}} = \frac{1}{\Gamma(a)} (\lambda y)^a e^{-\lambda y} \frac{1}{\lambda y} \lambda = \frac{1}{\Gamma{a}} (\lambda y)^a e^{-\lambda y} \frac{1}{y}, \forall y >0
+    \]
+
+    \begin{definition}[Gamma distribution]
+        An r.v. $Y$ is said to have the \tb{Gamma distribution} with parameters $a$ and $\lambda$ where $a >0$ and $\lambda >0$, if its PDF is
+        \[
+            f(y) = \frac{1}{\Gamma(a)} (\lambda y)^a e^{-\lambda y} \frac{1}{y}
+        \]
+    \end{definition}
+
+    Taking $a=1$, then PDF of $Y \sim \GammaDist{1}{\lambda}$ becomes $f(y) = \lambda e^{-\lambda y}$, which is same PDF of $\Expo{\lambda}$. So $\GammaDist{1}{\lambda} = \Expo{\lambda}$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{GammaDistShapes.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+    We can easily obtain moments of Gamma distribution.
+
+    Let $X \sim \GammaDist{a}{1}$.
+
+    \[
+    \begin{gathered}
+        \expec{X} = \int_0^\infty \frac{1}{\Gamma(a)} x^{a+1} e^{-x} \frac{dx}{x} = \frac{\Gamma(a+1)}{\Gamma(a)} = a \\
+        \expec{X^2} = \int_0^\infty \frac{1}{\Gamma(a)} x^{a+2} e^{-x} \frac{dx}{x} = \frac{\Gamma(a+2)}{\Gamma(a)} = (a+1)a \\
+        \Var{X} = \expec{X^2} - {\expec{X}}^2 = a^2 + a - a^2 = a \\
+        \expec{X^c} = \int_0^\infty \frac{1}{\Gamma(a)} x^{a+c}e^{-x} \frac{dx}{x} = \frac{\Gamma(a+c)}{\Gamma(a)}, c>-a
+    \end{gathered}
+    \]
+
+    Let $Y \sim \GammaDist{a}{\lambda}$
+
+    \[
+        \begin{gathered}
+            \expec{Y} = \frac{1}{\lambda} \expec{X} = \frac{a}{\lambda} \\
+            \Var{Y} = \frac{1}{\lambda^2} \Var{X} = \frac{a}{\lambda^2} \\
+            \expec{Y^c} = \frac{1}{\lambda^c} \expec{X} = \frac{1}{\lambda^c}\frac{\Gamma(a+c)}{\Gamma(a)}, c>-a
+        \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}[allowframebreaks]{.}
+    \begin{theorem}\label{thm:1}
+        Let $X_1, \dots, X_n$ be i.i.d. $\Expo{\lambda}$. Then
+        \[
+            X_1 + \cdots + X_n \sim \GammaDist{n}{\lambda}
+        \]
+    \end{theorem}
+
+    \begin{proof}
+        The $\Expo{\lambda}$ MGF is $\frac{\lambda}{\lambda -t}, t<\lambda$, So the MGF of $X_1 + \cdots + X_n$ is $M_n(t) = (\frac{\lambda}{\lambda- t})^n$.
+
+        Let $Y \sim \GammaDist{n}{\lambda}$.
+
+        Then 
+        \[
+            \begin{aligned}
+                \expec{e^{tY}}&=\int_0^\infty e^{ty} \frac{1}{\Gamma(n)} (\lambda y)^n e^{-\lambda y} \frac{dy}{y}\\
+                &=\left(\frac{\lambda}{\lambda -t}\right)^n \int_0^\infty \frac{1}{\Gamma(n)} e^{-(\lambda -t)y} ((\lambda -t)y)^n \frac{dy}{y} \\
+                &= \left(\frac{\lambda}{\lambda -t}\right)^n
+            \end{aligned}
+        \]
+
+        So, MGF for $X_1 + \cdots + X_n$ and $Y$ are same.
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    There exists another proof for theorem \ref{thm:1}.
+
+    \begin{proof}
+        Alternatively, we can compute the convolution integral inductively. 
+        It suffices to consider the case $\lambda =1$.
+        Let $T_n = X_1 + \cdots + X_n$.
+        For $n=1$, $T_1 \sim \GammaDist{1}{1}$.
+        Now suppose that $n=k, T_k \sim \GammaDist{k}{1}$ holds. Then
+        $T_{k+1} = T_k +X_{n+1}$ and by convolutional integral
+
+        \[
+        \begin{aligned}
+            \int_0^\infty f_{T_k}(x) f_{X_n}(t-x) dx&= \frac{1}{\Gamma(k)} \int_0^t x^{k-1} e^{-x} e^{-(t-x)} dx = \frac{e^t}{\Gamma(k)} \int_0^t x^{k-1} dx \\
+            &= \frac{t^k e^{-t}}{\Gamma(k+1)}
+        \end{aligned}
+        \]
+    \end{proof}
+
+    So, below equations hold.
+    \[
+    \begin{gathered}
+        \expec{Y} = \expec{X_1 + \cdots + X_a} = a \expec{X_1} = \frac{a}{\lambda} \\
+        \Var{Y} = \Var{X_1 + \cdots + X_a} = a \Var{X_1} = \frac{a}{\lambda^2}
+    \end{gathered}
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    In the Chapter 5, Poission Process of each arrival time
+
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{ExpoAndGamma.png}
+    \end{figure}
 \end{frame}
 
 \end{document}
