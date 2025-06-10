@@ -1,0 +1,238 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+\usepackage{mathtools} % dcases
+%\usepackage{xparse} % NewDocumentCommand
+
+
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\NBin}[2]{\operatorname{NBin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+\newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
+\newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Linear algebra: Linear Transformations}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\subsection{Linear Transformations}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+% % 목차 슬라이드
+
+\begin{frame}{.}
+    \begin{definition}[Linear Transformation]
+        Let $V$ and $W$ be vector spaces over the field $F$. A \tb{linear transformation from $V$ to $W$} is a funtion $T$ from $V$ into $W$ such that
+        \[
+            T(c\alpha + \beta) = c (T\alpha) + T\beta
+        \]
+        for all $\alpha$ and $\beta$ in $V$ and all scalars $c$ in $F$.
+    \end{definition}
+
+    \begin{example}
+        If $V$ is any vector space, the \tb{identity transformation} $I$, defined by $I\alpha = \alpha$, is a linear transformation from $V$ into $V$.
+        The \tb{zero transformation} 0, defined by $0 \alpha = 0$, is a linear transformation from $V$ into $V$.
+    \end{example}
+
+    \begin{example}
+        Let $F$ be a field and let $V$ be the space of polynomial functions $f$ from $F$ into $F$, given by
+        \[
+            f(x) = c_0 + c_1 x + \cdots + c_k x^k
+        \]
+        Let 
+        \[
+            (Df) (x) = c_1 + 2 c_2 x + \cdots + k c_k x^{k-1}
+        \]
+        Then $D$ is a linear transformation from $V$ into $V$ the differentiation transformation.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $A$ be a fixed $m \times n$ matrix with entries in the field $F$. The function $T$ defined by $T(X) = AX$ is a linear transformation from $F^
+        {n\times 1}$ into $F^{m \times 1}$. The function $U$ defined by $U(\alpha) = \alpha A$ is a linear transformation from $F^m$ into $F^n$
+    \end{example}
+
+    \begin{example}
+        Let $P$ be a fixed $m \times m$ matrix with entries in the field $F$ and let $Q$ be a fixed $n \times n$ matrix over $F$. Define a function $T$ from the space $F^{m \times n}$ into itself by $T(A) = PAQ$. Then $T$ is a linear transformation from $F^{m \times n}$ into $F^{m \times n}$, because
+        \[
+            T(cA + B) = P(cA + B)Q = cPAQ + PBQ = cT(A) + T(B)
+        \]
+    \end{example}
+
+    \begin{example}
+        Let $V$ be the space of all functions from $\mbb{R}$ to $\mbb{R}$ which are continuous. Define $T$ by 
+        \[
+            (Tf) (x) = \int_0^x f(t) dt
+        \]
+        Then $T$ is a linear transformation from $V$ to $V$.
+        The function $Tf$ is not only continuous but has a continuous first derivative.
+        The linearity of integration is one of its fundamental properties.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    Let $V$ and $W$ be the vector space and $T$ is a linear transformation from $V$ into $W$.
+    Then $T(0) = 0$.
+    \[
+        T(0) = T(0 + 0) = T(0) + T(0) \implies T(0) = 0
+    \]
+    \smallskip
+
+    Also, linear transformation $T$ preserves linear combination,
+    \[
+        T(c_1\alpha_1 + \cdots + c_n \alpha_n) = c_1 T(\alpha_1) + \cdots + c_n T(\alpha_n)
+    \]
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}\label{th:1}
+        Let $V$ be a finite-dimensional vector space over the field $F$ and let $\{\alpha_1, \dots, \alpha_n\}$ be an ordered basis for $V$.
+        Let $W$ be a vector space over the same field $F$ and let $\beta_1, \dots, \beta_n$ be any vectors in $W$. Then there is precisely one linear transformation $T$ from $V$ into $W$ such that
+        \[
+            T(\alpha_j) = \beta_j, j=1, \dots, n
+        \]
+    \end{theorem}
+    \begin{proof}
+        For any vector $a \in V$, We can express $a = x_1 \alpha_1 + \cdots x_n \alpha_n$ for some scalars $x_i$.
+        Let function $T$ from $V$ into $W$ s.t. $T(a) = T(x_1 \alpha_1 + \cdots + x_n \alpha_n) = x_1 \beta_1 + \cdots + x_n \beta_n$.
+        Note that by assumption, $T(\alpha_j) = \beta_j$.
+        Clames are 1. $T$ is linear transformation, 2. $T$ is unique.
+
+        \begin{enumerate}
+            \item For any $a_1, a_2 \in V$, let $a_1 = x_1 \alpha_1 + \cdots + x_n \alpha_n, a_2 = y_1 \alpha_1 + \cdots + x_n \alpha_n$. 
+            Then for any scalar $c \in F, ca_1 + a_2 = (cx_1 + y_1)\alpha_1 + \cdots (cx_n + y_n) \alpha_n$ and $T(ca_1 + a_2) = (cx_1 + y_1)\beta_1 + \cdots + (cx_n + y_n)\beta_n$ by assumption.
+            But also, $cT(a_1) = cx_1 \alpha_1 + \cdots + cx_n \alpha_n$ and $T(a_2) = y_1 \alpha_1 + \cdots + y_n \alpha_n$ thus $cT(a_1) + T(a_2) = (cx_1 + y_1) \alpha_1 + (cx_n + y_n) \alpha_n$.
+            $\therefore T(ca_1 + a_2) = cT(a_1) + T(a_2)$ and this implies $T$ is linear transformation.
+            \item Suppose there exists another linear transformation $U$ ($U(\alpha_j) = \beta_j$) , for which $\exists a \in V$ s.t. $U(a) \neq T(a)$. $a$ can be expressed by $a = x_1 \alpha_1 + \cdots x_n \alpha_n$ for some scalars $x_1, \dots, x_n$. Then $U(a) = x_1 \beta_1 + \cdots x_n \beta_n$ and $T(a) = x_1 \beta_1 + \cdots x_n \beta_n$. So $T(a) = U(a)$ and the assumption is wrong. So, $T$ is unique.
+        \end{enumerate}
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        The vectors $\alpha_1 = (1,2), \alpha_2=(3,4)$ are linearly independent and therefore form a basis for $\mbb{R}^2$. According to Theorem \ref{th:1}, there is a unique linear transformation from $\mbb{R}^2$ into $\mbb{R}^3$ such that $T \alpha_1 = (3,2,1), T \alpha_2 = (6,5,4)$.
+
+        For standard basis $\epsilon_1 = (1,0)$, there exists some scalars $c_1 (1,2) + c_2 (3,4) = (1,0) \implies c_1=-2, c_2=1$.
+        Thus $T(1,0) = -2 (3,2,1) + (6,5,4) = (0,1,2)$
+    \end{example}
+
+    \begin{example}
+        Let $T$ be a linear transformation from the $F^m$ into the $F^n$. Theorem \ref{th:1} tells us that $T$ is uniquely determined by the sequence of vectors $\beta_1, \dots, \beta_m$ where $\beta_i = T \epsilon_i, i=1, \dots, m$. For any $\alpha =(x_1, \dots, x_m)\in F^m$, $T \alpha = x_1 \beta_1 + \cdots + x_m \beta_m$.
+
+        If $B$ is the $m \times n$ matrix which has row vectors $\beta_1, \dots, \beta_m$, this says that 
+        \[
+            \begin{gathered}
+                T \alpha = \alpha B \\
+                T (x_1, \dots, x_m) = \left[\begin{matrix} x_1 & \cdots & x_m \end{matrix}\right] \left[\begin{matrix}
+                    B_{11} & \cdots & B_{1n} \\
+                    \vdots & \empty & \vdots \\
+                    B_{m1} & \cdots & B_{mn}
+                \end{matrix}\right]
+            \end{gathered}
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    For any linear transformation $T$, we can consider about $\ker{(T)} := \{\alpha | T(\alpha) = 0\}$.
+\end{frame}
+
+\end{document}
