@@ -76,7 +76,7 @@
 \newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
 \newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
 \newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
-\newcommand{\Span}[1]{\operatorname{Span}\!\left(#1\right)}
+\newcommand{\Span}{\operatorname{Span}}
 \newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
 \newcommand{\intinfty}{\int_{-\infty}^\infty}
 \newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
@@ -86,6 +86,8 @@
 \newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
 \newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
 %\DefThreeOp{PHGeom}
+
+\newcommand{\im}{\operatorname{im}}
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -233,6 +235,574 @@
 
 \begin{frame}{.}
     For any linear transformation $T$, we can consider about $\ker{(T)} := \{\alpha | T(\alpha) = 0\}$.
+
+    This $\ker (T)$ is subspace of $V$. Let $T$ be the linear transformation from $V$ into $W$.
+    \begin{itemize}
+        \item For $T(\alpha_1) = 0, T(\alpha_2) =0, \alpha_1, \alpha_2 \in V$, $T(\alpha_1 + \alpha_2) = T(\alpha_1) + T(\alpha_2) = 0 \in \ker (T)$
+        \item $T(c\alpha_1) = cT(\alpha_1)  = 0 \in \ker (T)$
+        \item $T(0) = 0$. So $ 0 \in \ker (T)$. Note that $\{0\} \subset \ker (T)$.
+    \end{itemize}
+
+    This \tb{Kernel space} is also called by \tb{Null space}.
+    \tb{Nullity} means the dimension of kernel space $\dim \ker (T)$.
+
+    \bigskip
+
+    If $V$ is finite-dimensional, the \tb{image}  $\im (T)$ (or also called \tb{range}) is defined by $\im (T) = \{ f(\alpha) | \alpha \in V\}$.
+    This image $\im(T)$ is subspace of $W$.
+    \begin{itemize}
+        \item $T(0) =0$, so $0 \in \im (T)$
+        \item Let $T(\alpha_1) = \beta_1$ and $T(\alpha_2) = \beta_2$. By the property of linear transformation, $T(c\alpha_1 + \alpha_2) = cT(\alpha_1) + T(\alpha_2) = c\beta_1 + \beta_2$. This $c\beta_1 +\beta_2 \in W$ because $W$ is vector space.
+    \end{itemize}
+
+    \tb{Rank} means the dimension of image space $\dim \im(T)$. 
+    
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}\label{th:2}
+        Let $V$ and $W$ be vector space over the field $F$ and let $T$ be a linear transformation from $V$ into $W$. 
+        Suppose that $V$ is finite-dimensional. 
+        Then
+        \[
+            \dim \im(T) + \dim \ker(T) = \dim V 
+        \]
+    \end{theorem}
+
+    \begin{proof}
+    Let $\{\alpha_1 , \dots, \alpha_k\}$ be the basis of $\ker (T)$, i.e. $T(\alpha_i) = 0, \forall i=1, \dots, k$. We can extend this to $\{\alpha_1, \dots, \alpha_n\}$, the basis of $V$. Then $\dim \ker (T) =k$ and $\dim V =n$.
+
+    \smallskip
+    Now for any vectory $\alpha \in V$, there exists some $x_1, \dots, x_n \in F$ s.t. $\alpha = x_1 \alpha_1 + \cdots +  x_n \alpha_n$.
+    Let $T(\alpha) = 0 $ then $T(\alpha) = x_{k+1} T(\alpha_{k+1}) + \cdots x_{n} T(\alpha_n) = 0 \implies T(x_{k+1} \alpha_{k+1} + \cdots + x_n \alpha_n) = 0$. But $\alpha_i \notin \ker (T), \forall i=k+1, \dots n$ so $x_{k+1} = \cdots = x_n = 0$. This implies $\{T(\alpha_{k+1}), \dots, T(\alpha_{n})\}$ is lin. ind.
+
+    \smallskip
+    Also, for any $\beta \in \Span \{ T(\alpha_{k+1}), \dots, T(\alpha_n)\}$, $\beta \in \im(T)$. Thus, $\{T(\alpha_{k+1}), \dots, T(\alpha_n)\}$ consists basis for $\im(T)$. So $\dim \im(T) = n -k$.
+
+    $\therefore \dim \im(T) + \dim \ker (T) = n-k + k = n = \dim V$.
+    \end{proof}
+    
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $A$ is an $m \times n$ matrix with entries in the field $F$, then
+        \[
+            row\ rank(A) = column\ rank(A)
+        \]
+    \end{theorem}
+    \begin{proof}
+        Let define linear transform $T(X):= AX$, where $T$ is the transformation from $F^{n \times 1}$ to $F^{m \times 1}$.
+        By the Theorem \ref{th:2}, $\dim \ker(T) + \dim \im(T) = \dim F^{n \times 1}$ holds.
+
+        \smallskip
+        $\im(T) = \{T(X)| X \in F^{n\times 1}\}$. $T(X) = AX = x_1 A_{:, 1} + \cdots + x_n A_{:, n}$, and this implies $\im(T) = column\ rank(A)$. So $\dim \ker(T) + column\ rank (T) = n $ holds.
+
+        \smallskip
+        $\ker(T) = \{X|AX = 0 \}$ and dimension of solution space $AX =0$ is known as $n- row\ rank(A)$. Thus, $\ker(T) = n - row\ rank(A)$.
+
+        \smallskip
+        So, $n - row\ rank(A) + column\ rank(A) =n$ holds and this implies $row\ rank(A) = column\ rank(A)$.
+
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.1.13}
+        Let $V$ be a vector space and $T$ a linear transformation from $V$ into $V$. Prove that the following two statements about $T$ are equivalent.
+        \begin{enumerate}
+            \item The intersection of the $\ker(T)$ and $\im(T)$ is zero subspace of $V$
+            \item if $T(T(\alpha)) = 0$, then $T(\alpha) = 0$
+        \end{enumerate}
+    \end{block}
+    \begin{itemize}
+        \item ($\implies$) Assume 1. holds. if $T(T(\alpha)) = 0$, then $T(\alpha) \in \ker (T)$. Also, $T(\alpha) \in \im(T)$. Thus $T(\alpha) \in (\ker(T) \cap \im(T))$ and by the assumption, $T(\alpha) = 0$.
+        \item ($\impliedby$) Assume 2. holds. Let $\alpha \in (\ker(T) \cap \im(T))$. Then $\exists \alpha^\prime \in \im(T)$ s.t. $T(\alpha^\prime) = \alpha$. Also, $T(\alpha) = 0$ holds. Thus, $T(T(\alpha^\prime)) =0$ holds. By the assumption, $T(\alpha^\prime) = \alpha = 0$.
+        This implies $\{0\} = (\ker(T) \cap \im(T))$.
+    \end{itemize}
+\end{frame}
+
+\subsection{The Algebra of Linear Transformation}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    Let $V$ and $W$ be vector spaces over the field $F$. Let $T$ and $U$ be linear transformations from $V$ into $W$. Let $c$ is any element of $F$.
+
+    \begin{itemize}
+        \item The function $(T+U)$ is defined by $(T+U)(\alpha):= T(\alpha) + U(\alpha)$
+        \item The function $(cT)$ is defined by $(cT)(\alpha):= cT(\alpha)$
+    \end{itemize}
+
+    \begin{theorem}
+        The set of all linear transformations from $V$ into $W$, together with the addition and scalar multiplication defined above, is a vector space over the field $F$.
+    \end{theorem}
+
+    We shall denote the space of linear transformations from $V$ into $W$ by $L(V,W)$. Note that $L(V,W)$ only can be defined when $V$ and $W$ are vector sapces over the same field.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:5}
+        Let $V$ be an $n$-dimensional vector space over the field $F$, and $W$ be an $m$-dimensional vector space over $F$. Then the space $L(V,W)$ is finite-dimensional and has dimension $mn$.
+    \end{theorem}
+
+    \ti{Proof.} Let $\mc{B} = \{\alpha_1, \cdots, \alpha_n\}$ and $\mc{B}^\prime = \{\beta_1, \cdots, \beta_n\}$ be ordered basis for $V$ and $W$, respectively.
+
+    For each pair of integers $(p,q), \forall 1 \leq p \leq m, 1 \leq q \leq n$, we can define linear transformation $T_{p,q}$ s.t. maps $q$-th element of $\mc{B}$, $\alpha_q$, to  $p$-th element of $\mc{B}^\prime$, $\beta_p$. i.e., $T_{p,q}(\alpha_i) = \delta_{iq} \beta_p$ (where $\delta$ is kroneker-delta). By Theorem \ref{th:1}, each $T_{p,q}$ is unique transformation.
+
+    Clam: This $\mc{T} = \{T_{p,q}| 1\leq p \leq m, q \leq q \leq n\}$ forms the basis of vector space $L(V,W)$.
+    \begin{itemize}
+        \item Span $L(V,W)$: For any transformation $K \in L(V,W)$, $\forall 1\leq p \leq m, 1 \leq q \leq n, \exists A_{p,q}$ s.t. $K(\alpha_j) = \sum_{p=1}^m A_{pj} \beta_p$. $\implies K(\alpha_j) = \sum_{p=1}^m A_{pj} T_{p,j}(\alpha_j) \implies K(\alpha_j) = \sum_{p=1}^m A_{pj} \sum_{q=1}^n T_{p,q}(\alpha_q) = \sum_{p=1}^m \sum_{q=1}^n A_{p,q} T_{p,q} (\alpha_q) = \sum_{p=1}^m \sum_{q=1}^n A_{p,q} \delta_{p,q}\alpha_q$. This implies $K = \sum_{p=1}^m \sum_{q=1}^n A_{p,q} T_{p,q}$, $K \in \Span \mc{T}$.
+        \item $\mc{T}$ is lin. ind.: For scalars $A_{p,q}, 1\leq p \leq m, 1 \leq q \leq n $, let assume transformation $K \in L(V,W), K = \sum_p \sum_q A_{p,q} T_{p,q}$ satisfies $K = 0$, zero transformation. Then for any $1\leq j \leq n$, $K(\alpha_j) = \sum_{p}\sum_q A_{p,q} T_{p,q} (\alpha_j) = \sum_p A_{p,j} T_{p,j} (\alpha_j) = \sum_p A_{p,j} \beta_p= 0$. But $\sum_p A_{p,j} \beta_p \in \Span \mc{B}^\prime$ and $\mc{B}^\prime$ is basis, so $A_{p,j}=0$ and this implies lin. ind. $\qedsymbol$
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$, $W$, and $Z$ be vector spaces over the field $F$. Let $T$ be a linear transformation from $V$ into $W$ and $U$ a linear transformation from $W$ into $Z$. Then the composed function $UT$ defined by $(UT)(\alpha) := U(T(\alpha))$ is a linear transformation from $V$ into $Z$.
+
+        \ti{Proof.}
+        \[
+            (UT) (c\alpha + \beta) = U [T (c \alpha + \beta)] = U[cT(\alpha) + T(\beta)] = c(UT)(\alpha) + (UT)(\beta)
+        \] 
+    \end{theorem}
+
+    \begin{definition}
+        If $V$ is a vector space over the $F$, a \tb{linear operator on} $V$ is a linear transformation from $V$ into $V$.
+    \end{definition}
+
+    Let $V$ be a vector space over the field $F$; let $U$, $T_1$ and $T_2$ be linear operators on $V$; let $c$ be an element of $F$
+    \begin{enumerate}
+        \item $U = UI = U$
+        \item $U(T_1+T_2) = UT_1 +UT_2$
+        \item $(T_1 + T_2)U = T_1U + T_2U$
+        \item $c(UT_1) = (cU)T_1 = U(cT_1)$
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{definition}
+        The function $T$ from $V$ into $W$ is called \tb{invertible} if there exists a function $U$ from $W$ into $V$ s.t. $UT = I$, identity functionon $V$ and $TU = I$, identity function on $W$. If $T$ is invertible, the function $U$ is unique and is denoted by $T^{-1}$.
+    \end{definition}
+
+    The concepts of injective(one-to-one), surjective(onto), and bijective(one-to-one correspondence) are
+    \begin{itemize}
+        \item $T$ is one-to-one (or called injective), that is, $T\alpha = T\beta \implies \alpha =\beta$.
+        \item $T$ is onto (or called surjective), that is, the range of $T$ is (all of $W$) (surjective). More concretely, $\forall w \in W, \exists v \in V$ s.t. $T(v) = w$.
+        \item If $T$ is both injective and surjective, then $T$ is bijective.
+    \end{itemize}
+
+    $T$ is invertible if and only if $T$ is bijective.
+
+    \begin{theorem}{.}
+        Let $V$ and $W$ be vector spaces over the field $F$ and let $T$ be a linear transformation from $V$ into $W$. If $T$ is invertible, then the inverse function $T^{-1}$ is a linear transformation from $W$ onto $V$.
+    \end{theorem}
+    \ti{Proof.} Let $T(\alpha_1) = \beta_1, T(\alpha_2) = \beta_2$. Then $\alpha_1 = T^{-1}(\beta_1) \implies c\alpha_1 = c T^{-1}(\beta_1)$, $\alpha_2 = T^{-1}(\beta_2)$. And from $T(c\alpha_1 + \alpha_2) = c\beta_1 + \beta_2$, $c\alpha_1 + \alpha_2 = c T^{-1}(\beta_1) + T^{-1}(\beta_2)$ holds. $\therefore T^{-1}(c\beta_1 + \beta_2) = cT^{-1}(\beta_1) + T^{-1}(\beta_2)$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Linear transformation $T$ is \tb{non-singular} if $T\gamma = 0 \implies \gamma = 0$. i.e., $\ker(T) = \{0\}$.
+
+        \begin{theorem} \label{th:3}
+            Let $T$ be a linear transformation from $V$ into $W$. Then $T$ is non-singular if and only if $T$ carries each linearly independent subset of $V$ onto a lienarly independent subset of $W$.
+        \end{theorem}
+        \ti{Proof.}
+        \begin{itemize}
+            \item $(\implies)$: Let $\{\alpha_1, \dots, \alpha_s\}$ be lin. ind. set.
+            For any $\alpha \in V$, $\exists c_1, \dots, c_s \in F$ s.t. $\alpha = c_1 \alpha_1 + \cdots + c_n \alpha_s$.
+            Claim is $\{T(\alpha_1), \dots, T(\alpha_s)\}$ is lin. ind.
+            Let $T(\alpha) = T(c_1\alpha_1 + \cdots + c_s \alpha_s) = c_1 T(\alpha_1) + \cdots + c_s T(\alpha_s)= 0$.
+            Then by the assumption, $T(c_1\alpha_1 + \cdots + c_s \alpha_s) = 0$ implies $c_1\alpha_1 + \cdots + c_s \alpha_s = 0$.
+            By lin. lid. of $\{\alpha_1, \dots, \alpha_s\}$, $c_1 = \cdots = c_s = 0$.
+            $\therefore \{T(\alpha_1),\dots, T(\alpha_s)\}$ is lin. ind.
+            \item $(\impliedby)$: Before proof, note that $\{0\}$ is not lin. ind. since $c \cdot 0 = 0$ does not implies $c = 0$.
+            There exists $c \neq 0$ s.t. $c \cdot 0 = 0$. For example, $1 \cdot 0 = 0$.
+            For non-zero $\alpha \in V$, $\{\alpha\}$ is lin. ind.
+            By the assumption, $\{T(\alpha)\}$ is lin. ind. Because $\{T(\alpha)\}$ is lin. ind. $T(\alpha) \neq 0$. This implies $\alpha \neq 0 \implies T(\alpha) \neq 0$ and $T(\alpha) = 0 \implies \alpha = 0$. $\therefore T$ is non-singluar (i.e. $\ker(T) = \{0\}$).
+        \end{itemize}
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}\label{th:4}
+        Let $V$ and $W$ be finite-dimensional vector space over the field $F$ such that $\dim V = \dim W$. If $T$ is a linear transformation from $V$ into $W$, the following are equivalent
+        \begin{enumerate}
+            \item $T$ is invertible
+            \item $T$ is non-singular ($\ker(T) = \{0\}$)
+            \item $T$ is surjective (onto) ($\im(T) = W$)
+        \end{enumerate}
+
+        \ti{Proof.}
+        \begin{itemize}
+            \item (2. $\iff$ 3): Note that $\dim \ker (T) + \dim \im (T) = \dim V = \dim W$. $\im(T) \subseteq W$ and $\dim \im(T) = \dim W \implies \im(T) = W$ holds.
+
+            So $\im(T) = W \iff \dim \im(T) = \dim W \iff \dim \ker (T) = 0 \iff \ker (T) = \{0\}$. So, for any $T \in L(V,W)$, $T$ is non-singular $\iff$ $T$ is surjective.
+            \item (1. $\implies$ 2.): Assume 1. holds. Then $\exists! \alpha \in V$ s.t. $T(\alpha) = 0$. Because $T$ is linear transformation, $T(0) = 0$. Thus $\ker(T) =\{0\}$
+            \item (1. $\impliedby$ 2.): Assume 2. holds. Let assume $\alpha_1, \alpha_2 \in V$ satisfy $T(\alpha_1) = T(\alpha_2)$. Then $T(\alpha_1 - \alpha_2) =0$ and since $\ker(T) = \{0\}$, $\alpha_1 = \alpha_2$. Thus $T$ is injective $\impliedby$ 2. From the fact $T$ is surjective $\impliedby$ 2., 1. $\impliedby$ 2.
+        \end{itemize}
+        Therefore, 1. $\iff$ 2. $\iff$ 3  $\qed$
+
+        Notice the meaning of non-singuarity for $T$. If $T$ is non-singular, then for the basis of $V$, $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$, $T(\mc{B}) = \{T(\alpha_1), \dots, T(\alpha_n)\}$ consists basis for $W$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    The set of invertible linear operator on a space $V$, with the operation of composition, provides a nice example of what is known in algebra as a \tb{group}.
+
+    \begin{definition}
+        A \tb{group} consists of the following
+        \begin{itemize}
+            \item A set $G$
+            \item A rule (or operation) which associates with each pair of elements $x, y$ in $G$ an element $xy$ in $G$ in such a way that
+            \begin{itemize}
+                \item $x(yz) = (xy)z, \forall x,y,z \in G$
+                \item There is an element $e$ in $G$ s.t. $ex=xe=x$, for every $x$ in $G$
+                \item to each element $x$ in $G$ there corresponds an element $x^{-1}$ in $G$ s.t. $x x^{-1} = x^{-1}x = e$
+            \end{itemize}
+        \end{itemize}
+
+        A group is called \tb{commutative} if it satisfies the condition $xy = yx$ for each $x$ and $y$.
+    \end{definition}
+
+    A field can be described as a set with two operations, called addition and multiplication, which is a commutative group under addition and in which the non-zero elements form a commutative group under multiplication, with the distributive law $x(y+z) = xy + xz$ holding.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.2.6}
+        Let $T$ be a linear transformation from $\mbb{R}^3$ into $\mbb{R}^2$, and let $U$ be a linear transformation from $\mbb{R}^2$ into $\mbb{R}^3$. Prove that the transformation $UT$ is not invertible. Generalize the theorem.
+    \end{block}
+
+    Let assume $\{\epsilon_1, \epsilon_2, \epsilon_3\}$ be the basis of $\mbb{R}^3$. $\{T(\epsilon_1), T(\epsilon_2), T(\epsilon_3)\}$ is not lin. ind. because $\dim \mbb{R}^2 = 2$. 
+    Let assume $T(\epsilon_3) = x_1 T(\epsilon_1) + x_2 T(\epsilon_2)$. Then $(UT)(\epsilon_3) = x_1 (UT)(\epsilon_1) + x_2 (UT)(\epsilon_2) = (UT)(x_1 \epsilon_1 + x_2 \epsilon_2)$.
+
+    $\epsilon_3 \neq x_1 \epsilon_1 + x_2 \epsilon_2, (UT)(\epsilon_3) = (UT)(x_1  \epsilon_1 + x_2 \epsilon_2) \implies UT$ is not invertible. 
+
+    \begin{block}{Exercise 3.2.7}
+        Find two linear operators $T$ and $U$ on $\mbb{R}^2$ such that $TU =0$ but $UT \neq 0$.
+    \end{block}
+    Let $U(1,0) := (0, 0), U(0,1) := (1, 0)$ and $T(1,0) := (0, 0), T(0, 1) := (0, 1)$. Then $(TU)(1, 0) = (0,0),(TU)(0, 1) = (0, 0) \implies TU = 0$ and $(UT)(1,0) = (0, 0), (UT) (0,1) = (1,0) \implies UT \neq 0$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.2.10}
+        Let $A$ be an $m \times n$ matrix with entries in $F$ and let $T$ be the linear transformation from $F^{n \times 1}$ into $F^{m \times 1}$ defined by $T(X) = AX$.
+        Show that if $m < n$ it may happen that $T$ is onto without being non-singular.
+        Similarly, show that if $m > n$ we may have $T$ non-singular but not onto.
+    \end{block}
+    Let $\mc{B} = \{\epsilon_1, \dots, \epsilon_n\}$.
+    Then $T(\mc{B}) = \{T(\epsilon_1), \dots, T(\epsilon_n)\}$.
+    If $m <n$, then $T(\mc{B})$ is not lin. ind. Let assume $\{T(\epsilon_1), \dots, T(\epsilon_m)\}$ is lin. ind. 
+    This implies $\Span\{T(\epsilon_1), \dots, T(\epsilon_m)\} = F^{m \times 1}$ so $T$ is onto.
+    But $T(\mc{B})$ is not lin. ind. and this implies there exists some non-zero components $x_i$ s.t. $x_1T(\epsilon_1) + \cdots + x_n T(\epsilon_n) =T(x_1 \epsilon_1 + \cdots + x_n\epsilon_n)= 0$ and this implies some element in $F^{n \times 1}$, $x_1 \epsilon_1 + \cdots + x_n \epsilon_n \in \ker T$ and $T$ becomes singular.
+
+    If $m >n$, let assume each $\mc{B} = \{\epsilon_1, \dots, \epsilon_n\}$ and $\mc{B}^\prime = \{\epsilon_1^\prime, \dots, \epsilon_m^\prime\}$ becomes basis of $F^{n \times 1}$ and $F^{m \times 1}$ and $T$ is defined by $T(\epsilon_1) = \epsilon_1^\prime, \dots, T(\epsilon_n) = \epsilon_n^\prime$.
+    Then by Theorem \ref{th:3}, $T$ becomes non-singular but there exists $\epsilon_{n+1}^\prime, \dots, \epsilon_m \notin \im (T)$, which implies $T$ is not onto.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{$\star$ Exerciese 3.2.11}
+        Let $V$ be a finite-dimensional vector space and let $T$ be a linear operator on $V$.
+        Suppose that $\dim \im (T^2) = \dim \im (T)$.
+        Prove that the range and null space of $T$ are disjoint, i.e., have only the zero vector in common.
+    \end{block}
+
+    By the rank-nullity theorem, $\dim V = \dim \ker (T^2) + \dim \im (T^2)$ and $\dim V = \dim \ker (T) + \im (T)$ holds.
+    $\implies \dim V  -  \dim \ker (T^2) = \dim V - \dim \ker (T) \implies \dim \ker(T^2) = \dim \ker (T)$.
+
+    % Let $\{\alpha_1, \dots, \alpha_n\}$ be basis for $V$. 
+    % For $k < n$, Let $\Span{\alpha_1, \dots, \alpha_k} = \ker (T)$.
+    % Then $\Span{T(\alpha_{k+1}), \dots, T(\alpha_n)} = \im(T)$.
+    % Because $\dim \ker(T^2) = \dim \ker(T)$, $T(\alpha_{k+1}), \dots T(\alpha_n) \in \Span{\alpha_{k+1}, \dots, \alpha_n} \implies \Span{T(\alpha_{k+1}), \dots, T(\alpha_n)} = \im(T) = \Span{\alpha_{k+1}, \dots, \alpha_n}$.
+    % Then $\Span{T(T(\alpha_{k+1})), \dots, T(T(\alpha_n))} = \Span{\alpha_{k+1}, \dots, \alpha_{n}}$ also holds.
+
+    % $\therefore \ker(T) = \Span{\alpha_1, \dots, \alpha_k} \cap \Span{\alpha_{k+1}, \dots, \alpha_n}= \im(T) = \{0\}$.
+
+    Let $\dim \ker (T) = k$ and $\ker (T) = \Span \{\alpha_1, \dots, \alpha_k\}$ and $\{\alpha_1, \dots, \alpha_k\}$ is lin. ind.
+    For lin. ind. set $\{\alpha_{k+1}, \dots, \alpha_n\}$, $T(\alpha_{k+1}), \dots, T(\alpha_n) \in \im(T)$.
+
+    Let assume $\exists \alpha \in \Span \{\alpha_{k+1}, \dots, \alpha_n\}$ s.t. $T(T(\alpha)) = 0$ holds.
+    Then $T(\alpha) \in \ker (T)$ and $\alpha \in \ker (T^2)$. 
+    But $\alpha \notin \ker(T)$. 
+    So $\dim \ker(T^2) > \dim \ker(T)$.
+
+    But by the condition $\dim \im (T^2) = \dim \im (T)$, $\dim \ker (T^2) = \dim \ker (T)$ should be hold.
+    So our assumption $\exists \alpha \in \Span \{\alpha_{k+1}, \dots \alpha_n\}$ s.t. $T(T(\alpha)) = 0$ is wrong.
+
+    This implies $\forall \alpha \in \Span \{\alpha_{k+1}, \dots, \alpha_n\}, T(\alpha) \notin \ker(T)$.
+
+    In summarize, for any $\alpha \in \Span \{\alpha_1, \dots, \alpha_k\}, T(T(\alpha)) = 0$ and for any $\beta \in \Span \{\alpha_{k+1}, \dots, \alpha_n\}$, $T(T(\beta)) \neq 0$. 
+    $\therefore \ker(T) \cap \im(T) = \{0\}$.
+
+\end{frame}
+
+\subsection{Isomorphism}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{definition}
+        If $V$ and $W$ are vector spaces over the field $F$, any one-one linear transformation $T$ of $V$ onto $W$ is called \tb{isomorphism of $V$ onto $W$}.
+        If there exists an isomorphism of $V$ onto $W$, we say that $V$ is \tb{isomorphic} to $W$.
+    \end{definition}
+    \begin{itemize}
+        \item $V$ is trivially isomorphic to itself, $V$, with the identity operator begin an isomorhpism of $V$ onto $V$.
+        \item If $V$ is isomorphic to $W$ via an isomorphism $T$, then $W$ is isomorphic to $V$, because $T^{-1}$ is an isomorphism of $W$ onto $V$.
+        \item If $V$ is isomorphic to $W$ and $W$ is isomorphic to $Z$, then $V$ is isomorphic to $Z$.
+    \end{itemize}
+    \begin{theorem}
+        Every $n$-dimensional vector space over the field $F$ is isomorphic to the space $F^n$.
+    \end{theorem}
+
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ the basis of $V$.
+    We can consider linear map $T$ that maps $\alpha =x_1 \alpha_1 + \cdots + x_n \alpha_n $ to $(x_1, \dots, x_n)$.
+    Then this $T$ is one-to-one (invertible) map and $V$ and $F^n$ are isomorphic.
+    $\qedsymbol$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.3.6}
+        Let $V$ and $W$ be finite-dimensional vector spaces over the field $F$. Prove that $V$ and $W$ are isomorphic if and only if $\dim V = \dim W$
+    \end{block}
+    \begin{itemize}
+        \item ($\implies$): Let $T$ is isomorphism from $V$ onto $W$.
+        Then $T$ is invertible.
+        Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ be the basis of $V$.
+        Claim is $\{T(\alpha_1), \dots, T(\alpha_n)\}$ basis of $W$.
+        For any $\beta \in W$, $\exists! \alpha \in V$ s.t. $T(\alpha) = \beta$.
+        There exists $x_1, \dots, x_n$ s.t. $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n \implies x_1 T(\alpha_1) + \cdots + x_n T(\alpha_n) = \beta \implies \beta \in \Span \{T(\alpha_1) ,\dots, T(\alpha_n)\}$.
+        Also, $\{T(\alpha_1), \dots, T(\alpha_n)\}$ is lin. ind. Let $x_1 T(\alpha_1) + \cdots + x_n T(\alpha_n) = 0$. Then $T(x_1 \alpha_1 + \cdots + x_n \alpha_n) = 0 $ and since $\ker (T) = \{0\}$, $x_1 \alpha_1 + \cdots + x_n \alpha_n$.
+        Since $\{\alpha_1, \dots, \alpha_n\}$ is lin. ind., $x_1 = \cdots = x_n = 0$.
+        So, $\{T(\alpha_1), \dots, T(\alpha_n)\}$ is lin. ind.
+        $\therefore \{T(\alpha_1), \dots, T(\alpha_n)\}$ is basis of $W$ and $\dim W = \dim V = n$.
+        \item ($\impliedby$): Let $\dim W = \dim V = n$ and each $\{\alpha_1, \dots, \alpha_n\}$ and $\{\beta_1, \dots, \beta_n\}$ becomes basis of $V$ and $W$. Let $T$ be the linear map from $V$ onto $W$ s.t. $T(\alpha_i) = \beta_i$. Let $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n \in V$ satisfies $T(\alpha) = 0$.
+        Then $x_1 \beta_1 + \cdots + x_n \beta_n = 0$. Then $x_1 = \cdots = x_n =0 $. So $T(\alpha) = 0 \implies \alpha = 0$ and $\ker (T) = 0 \implies T$ is invertible.
+        $\therefore T$ is isomorpism from $V$ onto $W$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3,3.7}
+        Let $V$ and $W$ be vector spaces over the field $F$ and let $U$ be an isomorphism of $V$ onto $W$.
+        Prove that $T \to UT U^{-1}$ is an isomorphism of $L(V,V)$ onto $L(W,W)$.
+    \end{block}
+
+    Note that $L(V,V)$ and $L(W,W)$ are vector spaces and $T \in L(V,V), U T U^{-1} \in L(W,W)$.
+    Let $\{\alpha_1, \dots, \alpha_n\}$ be the basis of $V$.
+    For any $T \in L(V,V)$, we can consider basis of $L(V,V)$ as $\{T_{11}, \dots, T_{1n}, \dots, T_{mn}\}$ where $T_{pq}(\alpha_j) = \delta_{qj} \alpha_p$.
+
+    For any $\alpha \in V$, there exists scalars $x_i$ such that $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$. Then $T(\alpha) = $
+
+
+\end{frame}
+
+\subsection{Representation of Transformations by Matrices}
+
+\begin{frame}{.}
+    Let $V$ be an $n$-dimensional vector space over the field $F$ and let $W$ be an $m$-dimensional vector space over $F$.
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ be an ordered basis for $V$ and $\mc{B}^\prime = \{\beta_1, \dots, \beta_m\}$ an ordered basis for $W$.
+    If $T$ is any linear transformation from $V$ into $W$, then $T$ is determined by its action on the vectors $\alpha_j$.
+    Each of the $n$ vectors $T(\alpha_j)$ is uniquely expressible as a linear combination
+    \[
+        T(\alpha_j) = \sum_{i=1}^m A_{i,j} \beta_i
+    \]
+    of the $\beta_i$, the scalars $A_{1,j}, \dots, A_{m,j}$, being the coordinates of $T(\alpha_j)$ in the ordered basis $\mc{B}^\prime$.
+
+    Accordingly, the transformation $T$ is determined by the $mn$ scalars $A_{i,j}$ via the upper equation.
+    The $m \times n$ matrix $A$ defined by $A(i,j) = A_{i,j}$ is called 
+    \begin{itemize}
+        \item \tb{the matrix of $T$ relative to the pair of ordered bases $\mc{B}$ and $\mc{B}^\prime$}.
+        \item \tb{A matrix associated with linear map $T$}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    For convenience of denoting, let introduce some symbols.
+    \begin{definition}
+        For linear map $T \in L(V,W)$ and basis $\mc{B}, \mc{B}^\prime$, each of which is basis of $V$ and $W$, let define $[T]^{\mc{B}}_{\mc{B}^\prime}$ as
+        \[
+            [T]^{\mc{B}}_{\mc{B}^\prime} := \left[\begin{matrix}
+                A_{1,1} & \cdots & A_{1,n} \\ \vdots & \empty & \vdots \\ A_{m,1} & \cdots & A_{m,n}
+            \end{matrix}\right]
+        \]
+        s.t. $ T(\alpha_j) = \left[\begin{matrix} \beta_1 & \cdots & \beta_m \end{matrix}\right] \left[\begin{matrix}
+            A_{1,j} \\ \vdots \\ A_{m,j}
+        \end{matrix}\right]$.
+
+        Let $\Psi : F^{m \times n} \to L(V,W)$ the mapping from matrix space $F^{m \times n}$ to linear mapping space. 
+        Then $\Psi(A) = T$.
+        Let $\Phi : L(V,W) \to F^{m \times n}$ the mapping from linear mapping space to matrix space.
+        Then $\Phi(T) = A$.
+
+    \end{definition}
+    \begin{example}
+        Let $A \in F^{m \times n}$.
+        Let $T \in L(F^{n \times 1}, F^{m \times 1})$ defined by $T(X) = AX$.
+        If we set $\mc{B} = \{\epsilon_1, \dots, \epsilon_n\}, \mc{B}^\prime = \{\epsilon^\prime_1, \dots, \epsilon^\prime_m\}$ where $\epsilon_j$ is the $j$-th standard basis of $F^{n \times 1}$ and $\epsilon^\prime_i$ is the $i$-th standard basis of $F^{m \times 1}$.
+        Find $[T]^{\mc{B}}_{\mc{B}^\prime}$.
+    \end{example}
+    
+    $T(\epsilon_j) = A_{:,j} = \sum_{i=1}^m A_{i,j} \epsilon^\prime_{i} \implies [T]^{\mc{B}}_{\mc{B}^\prime} = A$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ be an $n$-dimensional vector space over the field $F$ and $W$ an $m$-dimensional vector space over $F$.
+        Let $\mc{B}$ be an ordered basis for $V$ and $\mc{B}^\prime$ be an ordered basis for $W$. For each linear transformation $T$ from $V$ into $W$, there is an $m\times n$ matrix $A$ with entries in $F$ such that
+        \[
+            [T(\alpha)]_{\mc{B}^\prime} =[T]^{\mc{B}}_{\mc{B}^\prime}[\alpha]_{\mc{B}} = A [\alpha]_{\mc{B}}
+        \]
+        for every vector $\alpha$ in $V$.
+        Furthermore, $T\to A$ is a one-one correspondence between the set of all linear transformations from $V$ into $W$ and the set of all $m \times n$ matrices over the field $F$.
+    \end{theorem}
+
+    \ti{Proof.} Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ and $\mc{B}^\prime = \{\beta_1, \dots, \beta_m\}$ be the basis of $V$ and $W$.
+    \[
+        T(\alpha) = T\left(\sum_{j=1}^n x_j \alpha_j \right) = \sum_{j=1}^n x_j T(\alpha_j) = \sum_{j=1}^n x_j \sum_{i=1}^m A_{ij} \beta_i = \sum_{i=1}^m \left(\sum_{j=1}^n A_{ij}x_j\right)\beta_i
+    \]
+    \qed
+\end{frame}
+
+\begin{frame}{.}
+    Proof in matrix viewpoint.
+    \[
+    \begin{aligned}
+        T\left( \left[\begin{matrix} \alpha_1 & \cdots & \alpha_n \end{matrix}\right] \left[\begin{matrix} x_1 \\ \vdots \\ x_n \end{matrix} \right]\right) &= \left[\begin{matrix} T(\alpha_1) & \cdots & T(\alpha_n) \end{matrix}\right] \left[\begin{matrix} x_1 \\ \vdots \\ x_n \end{matrix}\right] \\
+        &= \left[\begin{matrix} \beta_1 & \cdots & \beta_m \end{matrix}\right] \left[\begin{matrix} A_{11} & \cdots & A_{1n} \\ \vdots & \empty & \vdots \\ A_{m1} & \cdots & A_{mn}\end{matrix}\right] \left[\begin{matrix} x_1 \\ \vdots \\ x_n\end{matrix}\right]
+    \end{aligned}
+    \]
+    The matrix $A$ which is associated with $T$ is called the \tb{matrix of $T$ relative to the ordered bases $\mc{B}, \mc{B}^\prime$}.
+    Note that it says that $A$ is the matrix whose columns $A_1, \dots, A_n$ are given by
+    \[
+        A_j = [T(\alpha_j)]_{\mc{B}^\prime}
+    \]
+\end{frame}
+
+
+\begin{frame}{.}
+    Note that this matrix that associated with linear map is linear.
+    Let $T, U \in L(V,W)$.
+    For $j =1,\dots, n$, there uniquely exists column matrices $A, B \in F^{m \times n}$ such that $T(\alpha_j) = \left[\begin{matrix} \beta_1 & \cdots & \beta_m \end{matrix}\right] \left[\begin{matrix} A_{1,j} \\ \vdots \\ A_{m,j} \end{matrix}\right]$, $U(\alpha_j) = \left[\begin{matrix} \beta_1 & \cdots & \beta_m \end{matrix}\right] \left[\begin{matrix} B_{1,j} \\ \vdots \\ B_{m,j} \end{matrix}\right]$. Note that $cA + B$ is the matrix of $cT + U$ relative to $\mc{B}, \mc{B}^\prime$ because $\left[\begin{matrix}
+    \beta_1 & \cdots & \beta_m
+    \end{matrix}\right] \left(c \left[\begin{matrix}
+        A_{1,j} \\ \vdots \\ A_{m,j}
+    \end{matrix}\right] + \left[\begin{matrix}
+        B_{1,j} \\ \vdots \\ B_{m,j}
+    \end{matrix}\right]\right) = (cT + U)(\alpha_j)$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ be an $n$-dimensional vector space over the field $F$ and let $W$ be an $m$-dimensional vector space over $F$.
+        For each pair of ordered bases $\mc{B}$, $\mc{B}^\prime$ for $V$ and $W$ respectively,
+        Let define $\Phi$ as $\Phi : L(V,W) \to F^{m \times n}$.
+        Then the map $\Phi$ is isomorphism between $L(V,W)$ and $F^{m \times n}$.
+    \end{theorem}
+
+    \ti{Proof.}
+    \begin{itemize}
+        \item (Linearity): Let $T, U \in L(V,W)$ and $A = [T]^{\mc{B}}_{\mc{B}^\prime}, B = [T]^{\mc{B}}_{\mc{B}^\prime}$.
+        For $j$th element of basis $\mc{B}, \alpha_j$, $T(\alpha_j) = \left[\begin{matrix}
+            \beta_1 & \cdots & \beta_m
+        \end{matrix}\right] \left[\begin{matrix}
+            A_{1,j} \\ \vdots \\ A_{m,j}
+        \end{matrix}\right] = \mc{B}^\prime A_{:,j}$, $U(\alpha_j) = \mc{B}^\prime B_{:,j}$.
+        $(cT + U)(\alpha_j) = cT(\alpha_j) + U(\alpha_j) = \mc{B}^\prime (cA_{:,j} + B_{:,j})$.
+        This implies $\Phi(cT + U) = (cA + B) = cA + B = c\Phi(T) + \Phi(U)$ and $\Phi$ is linear map.
+        \item (Invertible [one-to-one correspondence]): By Theorem \ref{th:1}, zero mapping $0$ has unique associated zero matrix $0$. i.e., $\exists! 0 \in L(V,W)$ s.t. $\Phi(0) = 0$. So $\ker \Phi = \{0\}$.
+        By Theorem \ref{th:5}, $\dim L(V,W) = \dim F^{m \times n} = mn$.
+        By theorem \ref{th:4}, $\Phi$ is invertible.
+    \end{itemize}
+    \qed
+\end{frame}
+
+\begin{frame}{.}
+    Let focus on matrix of linear operator.
+
+    \begin{definition}
+        Let $\mc{B}$ be the basis of $V$. And $T \in L(V,V)$.
+        Then it is most convenient to use the same ordered basis in each case, that is, to take $\mc{B} = \mc{B}^\prime$.
+        We shall then call the representing matrix simply the \tb{matrix of $T$ relative to the ordered basis $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$}.
+    
+        \smallskip
+        We can simply denote this by
+        \[
+            [T(\alpha)]_{\mc{B}} = [T]^{\mc{B}}_{\mc{B}}[\alpha]_{\mc{B}} = [T]_{\mc{B}}[\alpha]_{\mc{B}} = A[\alpha]_{\mc{B}}
+        \]
+        where $A = \Phi(T) \in F^{n \times n}$.
+    \end{definition}
+
+    \begin{example}
+        Let $V$ be the vector space and $I \in L(V,V)$, the identity operator. For the basis of $V$, $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$, Find $[I]^{\mc{B}}_{\mc{B}}$.
+    \end{example}
+    Let $A = [T]^{\mc{B}}_{\mc{B}}$.
+    $I(\alpha_j) = \alpha_j \implies A_{:, j} = \left[\begin{matrix}
+    0 \\ \vdots \\ 1 \\ \vdots \\ 0
+    \end{matrix}\right] \implies A = I$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V, W$, and $Z$ be finite-dimensional vector spaces over the field $F$.
+        Let $T \in L(V,W), U \in L(W,Z)$.
+        Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}, \mc{C} = \{\beta_1, \dots, \beta_m\}, \mc{D} = \{\gamma_1, \dots, \gamma_p\}$ are ordered bases for the spaces $V, W$ and $Z$, respectively.
+        Let $[T]^{\mc{B}}_{\mc{C}} = A, [U]^{\mc{C}}_{\mc{D}} = B$.
+        Then the matrix of the composition $UT$ relative to the pair $\mc{B}, \mc{D}$ is the product matrix $BA$. i.e., $C = [UT]^{\mc{B}}_{\mc{D}} = [U]^{\mc{C}}_{\mc{D}} [T]^{\mc{B}}_{\mc{C}} = BA$.
+    \end{theorem}
+
+    \ti{Proof.}
+    \[  
+        \begin{aligned}
+            (UT) (\alpha_j) &= U (T(\alpha_j)) = U \left( \sum_{k=1}^m A_{kj} \beta_k \right) = \sum_{k=1}^m A_{kj} U(\beta_k) \\
+            &=\sum_{k=1}^m A_{kj} \sum_{i=1}^p B_{ik} \gamma_i = \sum_{i=1}^p \sum_{k=1}^m B_{ik} A_{kj} \gamma_i
+        \end{aligned}
+    \]
+    Thus, $C_{ij} = \sum_{k=1}^m B_{ik} A_{kj}$.
+\end{frame}
+
+\begin{frame}{.}
+    Let assume that vector space $V$ has basis $\mc{B} =\{\alpha_1, \dots, \alpha_n\}$.
+    For linear operator $T, U \in L(V,V)$, and idnetity operator $I$, $UT =TU = I$ holds.
+    Then $I = [I]^{\mc{B}}_{\mc{B}} = [UT]^{\mc{B}}_{\mc{B}} = [U]^{\mc{B}}_{\mc{B}} [T]^{\mc{B}}_{\mc{B}} = [T]^{\mc{B}}_{\mc{B}} [U]^{\mc{B}}_{\mc{B}}$ holds.
+    This implies ${[T]^{\mc{B}}_{\mc{B}}}^{-1} = [U]^{\mc{B}}_{\mc{B}}$.
+
+    Also for the operator $T,U$, if $U T = T U = I$ holds, then $U$ is called \tb{invert operator of $T$} and denoted by $T^{-1}$.
+    We can re-write as follows, $[T^{-1}]_{\mc{B}} = [T]_{\mc{B}}^{-1}$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ be a finite-dimensional vector space over the field $F$, and let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ and $\mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ be ordered basis of $V$.
+        Suppose $T$ is a linear operator on $V$.
+        If $P$
+    \end{theorem}
 \end{frame}
 
 \end{document}
