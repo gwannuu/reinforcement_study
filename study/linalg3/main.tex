@@ -87,6 +87,8 @@
 \newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
 %\DefThreeOp{PHGeom}
 
+\newcommand{\im}{\operatorname{im}}
+
 
 % 발표 제목, 저자, 날짜 설정
 \title{Linear algebra: Linear Transformations}
@@ -233,6 +235,92 @@
 
 \begin{frame}{.}
     For any linear transformation $T$, we can consider about $\ker{(T)} := \{\alpha | T(\alpha) = 0\}$.
+
+    This $\ker (T)$ is subspace of $V$. Let $T$ be the linear transformation from $V$ into $W$.
+    \begin{itemize}
+        \item For $T(\alpha_1) = 0, T(\alpha_2) =0, \alpha_1, \alpha_2 \in V$, $T(\alpha_1 + \alpha_2) = T(\alpha_1) + T(\alpha_2) = 0 \in \ker (T)$
+        \item $T(c\alpha_1) = cT(\alpha_1)  = 0 \in \ker (T)$
+        \item $T(0) = 0$. So $ 0 \in \ker (T)$. Note that $\{0\} \subset \ker (T)$.
+    \end{itemize}
+
+    This \tb{Kernel space} is also called by \tb{Null space}.
+    \tb{Nullity} means the dimension of kernel space $\dim \ker (T)$.
+
+    \bigskip
+
+    If $V$ is finite-dimensional, the \tb{image}  $\im (T)$ (or also called \tb{range}) is defined by $\im (T) = \{ f(\alpha) | \alpha \in V\}$.
+    This image $\im(T)$ is subspace of $W$.
+    \begin{itemize}
+        \item $T(0) =0$, so $0 \in \im (T)$
+        \item Let $T(\alpha_1) = \beta_1$ and $T(\alpha_2) = \beta_2$. By the property of linear transformation, $T(c\alpha_1 + \alpha_2) = cT(\alpha_1) + T(\alpha_2) = c\beta_1 + \beta_2$. This $c\beta_1 +\beta_2 \in W$ because $W$ is vector space.
+    \end{itemize}
+
+    \tb{Rank} means the dimension of image space $\dim \im(T)$. 
+    
 \end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}\label{th:2}
+        Let $V$ and $W$ be vector space over the field $F$ and let $T$ be a linear transformation from $V$ into $W$. 
+        Suppose that $V$ is finite-dimensional. 
+        Then
+        \[
+            \dim \im(T) + \dim \ker(T) = \dim V 
+        \]
+    \end{theorem}
+
+    \begin{proof}
+    Let $\{\alpha_1 , \dots, \alpha_k\}$ be the basis of $\ker (T)$, i.e. $T(\alpha_i) = 0, \forall i=1, \dots, k$. We can extend this to $\{\alpha_1, \dots, \alpha_n\}$, the basis of $V$. Then $\dim \ker (T) =k$ and $\dim V =n$.
+
+    \smallskip
+    Now for any vectory $\alpha \in V$, there exists some $x_1, \dots, x_n \in F$ s.t. $\alpha = x_1 \alpha_1 + \cdots +  x_n \alpha_n$.
+    Let $T(\alpha) = 0 $ then $T(\alpha) = x_{k+1} T(\alpha_{k+1}) + \cdots x_{n} T(\alpha_n) = 0 \implies T(x_{k+1} \alpha_{k+1} + \cdots + x_n \alpha_n) = 0$. But $\alpha_i \notin \ker (T), \forall i=k+1, \dots n$ so $x_{k+1} = \cdots = x_n = 0$. This implies $\{T(\alpha_{k+1}), \dots, T(\alpha_{n})\}$ is lin. ind.
+
+    \smallskip
+    Also, for any $\beta \in \Span{\{ T(\alpha_{k+1}), \dots, T(\alpha_n)\}}$, $\beta \in \im(T)$. Thus, $\{T(\alpha_{k+1}), \dots, T(\alpha_n)\}$ consists basis for $\im(T)$. So $\dim \im(T) = n -k$.
+
+    $\therefore \dim \im(T) + \dim \ker (T) = n-k + k = n = \dim V$.
+    \end{proof}
+    
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        If $A$ is an $m \times n$ matrix with entries in the field $F$, then
+        \[
+            row\ rank(A) = column\ rank(A)
+        \]
+    \end{theorem}
+    \begin{proof}
+        Let define linear transform $T(X):= AX$, where $T$ is the transformation from $F^{n \times 1}$ to $F^{m \times 1}$.
+        By the Theorem \ref{th:2}, $\dim \ker(T) + \dim \im(T) = \dim F^{n \times 1}$ holds.
+
+        \smallskip
+        $\im(T) = \{T(X)| X \in F^{n\times 1}\}$. $T(X) = AX = x_1 A_{:, 1} + \cdots + x_n A_{:, n}$, and this implies $\im(T) = column\ rank(A)$. So $\dim \ker(T) + column\ rank (T) = n $ holds.
+
+        \smallskip
+        $\ker(T) = \{X|AX = 0 \}$ and dimension of solution space $AX =0$ is known as $n- row\ rank(A)$. Thus, $\ker(T) = n - row\ rank(A)$.
+
+        \smallskip
+        So, $n - row\ rank(A) + column\ rank(A) =n$ holds and this implies $row\ rank(A) = column\ rank(A)$.
+
+    \end{proof}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.1.13}
+        Let $V$ be a vector space and $T$ a linear transformation from $V$ into $V$. Prove that the following two statements about $T$ are equivalent.
+        \begin{enumerate}
+            \item The intersection of the $\ker(T)$ and $\im(T)$ is zero subspace of $V$
+            \item if $T(T(\alpha)) = 0$, then $T(\alpha) = 0$
+        \end{enumerate}
+    \end{block}
+    \begin{itemize}
+        \item ($\implies$) Assume 1. holds. if $T(T(\alpha)) = 0$, then $T(\alpha) \in \ker (T)$. Also, $T(\alpha) \in \im(T)$. Thus $T(\alpha) \in (\ker(T) \cap \im(T))$ and by the assumption, $T(\alpha) = 0$.
+        \item ($\impliedby$) Assume 2. holds. Let $\alpha \in (\ker(T) \cap \im(T))$. Then $\exists \alpha^\prime \in \im(T)$ s.t. $T(\alpha^\prime) = \alpha$. Also, $T(\alpha) = 0$ holds. Thus, $T(T(\alpha^\prime)) =0$ holds. By the assumption, $T(\alpha^\prime) = \alpha = 0$.
+        This implies $\{0\} = (\ker(T) \cap \im(T))$.
+    \end{itemize}
+\end{frame}
+
 
 \end{document}
