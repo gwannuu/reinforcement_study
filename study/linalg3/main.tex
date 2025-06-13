@@ -452,13 +452,41 @@
         \begin{itemize}
             \item (2. $\iff$ 3): Note that $\dim \ker (T) + \dim \im (T) = \dim V = \dim W$. $\im(T) \subseteq W$ and $\dim \im(T) = \dim W \implies \im(T) = W$ holds.
 
-            So $\im(T) = W \iff \dim \im(T) = \dim W \iff \dim \ker (T) = 0 \iff \ker (T) = \{0\}$.
-            \item So, for any $T \in L(V,W)$ s.t. $T$ is non-singular $\iff$ $T$ is surjective. 
+            So $\im(T) = W \iff \dim \im(T) = \dim W \iff \dim \ker (T) = 0 \iff \ker (T) = \{0\}$. So, for any $T \in L(V,W)$, $T$ is non-singular $\iff$ $T$ is surjective.
+            \item (1. $\implies$ 2.): Assume 1. holds. Then $\exists! \alpha \in V$ s.t. $T(\alpha) = 0$. Because $T$ is linear transformation, $T(0) = 0$. Thus $\ker(T) =\{0\}$
+            \item (1. $\impliedby$ 2.): Assume 2. holds. Let assume $\alpha_1, \alpha_2 \in V$ satisfy $T(\alpha_1) = T(\alpha_2)$. Then $T(\alpha_1 - \alpha_2) =0$ and since $\ker(T) = \{0\}$, $\alpha_1 = \alpha_2$. Thus $T$ is injective $\impliedby$ 2. From the fact $T$ is surjective $\impliedby$ 2., 1. $\impliedby$ 2.
         \end{itemize}
+        Therefore, 1. $\iff$ 2. $\iff$ 3  $\qed$
 
         Notice the meaning of non-singuarity for $T$. If $T$ is non-singular, then for the basis of $V$, $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$, $T(\mc{B}) = \{T(\alpha_1), \dots, T(\alpha_n)\}$ consists basis for $W$.
     \end{theorem}
 \end{frame}
 
+\begin{frame}{.}
+    The set of invertible linear operator on a space $V$, with the operation of composition, provides a nice example of what is known in algebra as a \tb{group}.
+
+    \begin{definition}
+        A \tb{group} consists of the following
+        \begin{itemize}
+            \item A set $G$
+            \item A rule (or operation) which associates with each pair of elements $x, y$ in $G$ an element $xy$ in $G$ in such a way that
+            \begin{itemize}
+                \item $x(yz) = (xy)z, \forall x,y,z \in G$
+                \item There is an element $e$ in $G$ s.t. $ex=xe=x$, for every $x$ in $G$
+                \item to each element $x$ in $G$ there corresponds an element $x^{-1}$ in $G$ s.t. $x x^{-1} = x^{-1}x = e$
+            \end{itemize}
+        \end{itemize}
+
+        A group is called \tb{commutative} if it satisfies the condition $xy = yx$ for each $x$ and $y$.
+    \end{definition}
+
+    A field can be described as a set with two operations, called addition and multiplication, which is a commutative group under addition and in which the non-zero elements form a commutative group under multiplication, with the distributive law $x(y+z) = xy + xz$ holding.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.2.6}
+        Let $T$ be a linear transformation from $\mbb{R}^3$ into $\mbb{R}^2$, and let $U$ be a linear transformation from $\mbb{R}^2$ into $\mbb{R}^3$. Prove that the transformation $UT$ is not invertible. Generalize the theorem.
+    \end{block}
+\end{frame}
 
 \end{document}
