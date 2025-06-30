@@ -619,10 +619,24 @@
 
     For any $\alpha \in V$, there exists scalars $x_i$ such that $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$. Then $T(\alpha) = $
 
-
+    \textcolor{red}{To be done..}
 \end{frame}
 
 \subsection{Representation of Transformations by Matrices}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
 
 \begin{frame}{.}
     Let $V$ be an $n$-dimensional vector space over the field $F$ and let $W$ be an $m$-dimensional vector space over $F$.
@@ -788,21 +802,362 @@
 \end{frame}
 
 \begin{frame}{.}
-    Let assume that vector space $V$ has basis $\mc{B} =\{\alpha_1, \dots, \alpha_n\}$.
+    Let assume that vector space $V$ has ordered basis $\mc{B} =\{\alpha_1, \dots, \alpha_n\}$.
     For linear operator $T, U \in L(V,V)$, and idnetity operator $I$, $UT =TU = I$ holds.
     Then $I = [I]^{\mc{B}}_{\mc{B}} = [UT]^{\mc{B}}_{\mc{B}} = [U]^{\mc{B}}_{\mc{B}} [T]^{\mc{B}}_{\mc{B}} = [T]^{\mc{B}}_{\mc{B}} [U]^{\mc{B}}_{\mc{B}}$ holds.
     This implies ${[T]^{\mc{B}}_{\mc{B}}}^{-1} = [U]^{\mc{B}}_{\mc{B}}$.
 
     Also for the operator $T,U$, if $U T = T U = I$ holds, then $U$ is called \tb{invert operator of $T$} and denoted by $T^{-1}$.
-    We can re-write as follows, $[T^{-1}]_{\mc{B}} = [T]_{\mc{B}}^{-1}$.
+    We can re-write as follows, 
+
+
 \end{frame}
+
+\begin{frame}{.}
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}, \mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ both be the ordered basis for vector space $V$.
+    There exists \ti{unique} operator $U$ s.t. $U(\alpha_j) = \alpha_j^\prime, j=1, \dots, n$.
+    Theorem $\ref{th:3}$ says that linear transformation $U$ is invertible since it carris $\mc{B}$ onto $\mc{B}^\prime$.
+
+    \smallskip
+    $[U]^{\mc{B}}_{\mc{B}^\prime} = I$ by definition.
+    Then what is the value of $[U]_{\mc{B}}$?
+    % For the two bases $\mc{B}$ and $\mc{B}^\prime$, there exists matrix $P$ such that $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}^\prime}$ where $\alpha \in V$.
+    % This implies $[\alpha_j]_{\mc{B}} = \left[\begin{matrix}
+    %     \delta_{1j} \\ \vdots \\ \delta_{nj}
+    % \end{matrix}\right] = P $
+    % Also, Let $A = [U]_{\mc{B}}$ s.t. $U(\alpha_j) = \left[ \begin{matrix}
+    %     \alpha_1 & \cdots & \alpha_n
+    % \end{matrix}\right] A_{:, j}$.
+    Let $P = [U]_{\mc{B}}$.
+    For the two bases $\mc{B}$ and $\mc{B}^\prime$, $U(\alpha_j) = \left[ \begin{matrix}
+        \alpha_1 & \cdots & \alpha_n
+    \end{matrix}\right] P_{:, j} = \alpha^\prime_j$ holds.
+    $\left[ \begin{matrix}
+        \alpha_1 & \cdots & \alpha_n
+    \end{matrix}\right] P_{:, j} = \alpha^\prime_j
+    \implies P_{:, j} = [\alpha_j^\prime]_{\mc{B}}$.
+    % Let denote equation, $U(\alpha_j) = \left[ \begin{matrix}
+    %     \alpha_1 & \cdots & \alpha_n
+    % \end{matrix}\right] P_{:, j} = \alpha^\prime_j$, as $U(\alpha_j) = [\mc{B}] P_{:, j}$ for simplicity.
+
+    Then for any $\alpha \in V$,$\alpha = \left[\begin{matrix}
+        \alpha_1^\prime & \cdots & \alpha_n^\prime 
+    \end{matrix}\right] [\alpha]_{\mc{B}^\prime}$.
+    Let $[\alpha]_{\mc{B}^\prime} = \left[\begin{matrix}
+        x_1 \\ \vdots \\ x_n
+    \end{matrix}\right]$.
+    Then $\alpha = \left[\begin{matrix}
+    \alpha_1^\prime & \cdots & \alpha_n^\prime
+    \end{matrix}\right]\left(x_1 \left[\begin{matrix}
+        1 \\ \vdots \\ 0
+    \end{matrix}\right] + \cdots + x_n \left[\begin{matrix}
+        0 \\ \vdots \\ 1
+    \end{matrix}\right]\right) = \left[\begin{matrix}
+    \alpha_1 & \cdots & \alpha_n
+    \end{matrix}\right] \left( x_1 P_{:, 1} + \cdots + x_n P_{:, n}\right) = \left[\begin{matrix}
+    \alpha_1 & \cdots & \alpha_n
+    \end{matrix}\right] P \left[\begin{matrix}
+    x_1 \\ \vdots \\ x_n
+    \end{matrix}\right]$.
+    This implies $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}^\prime} = [U]_{\mc{B}}[\alpha]_{\mc{B}^\prime}$.
+
+    \smallskip
+    So this linear operator $U$ is called \tb{the change of basis from $\mc{B}$ to $\mc{B}^\prime$}.
+
+\end{frame}
+
+% \begin{frame}{.}
+%     Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}, \mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ both be the ordered basis for vector space $V$.
+%     There exists \ti{unique} matrix $P$ that satisfies $[\alpha_j^\prime]_{\mc{B}} = P_{:, j}$ (i.e. $[\alpha^\prime_j]_{\mc{B}} = P [\alpha^\prime_j]_{\mc{B}^\prime}$).
+%     We call this matrix $P$ as the \tb{change of basis from $\mc{B}$ to $\mc{B}^\prime$}.
+%     This matrix transforms from coordinate of $\mc{B}^\prime$ to coordinate of $\mc{B}$.
+%     For example,
+%     $ [\alpha^\prime_1]_{\mc{B}} = P [\alpha_1^\prime]_{\mc{B}^\prime} \implies \alpha_1^\prime 
+%     = \left[\begin{matrix}
+%         \alpha_1^\prime & \cdots & \alpha_n^\prime
+%     \end{matrix}\right] \left[\begin{matrix}
+%     1 \\ 0 \\ \vdots \\ 0
+%     \end{matrix}\right] 
+%     = \left[\begin{matrix}
+%         \alpha_1 & \cdots & \alpha_n
+%     \end{matrix}\right] P \left[\begin{matrix}
+%         1 \\ 0 \\ \vdots \\ 0
+%     \end{matrix}\right] = \left[\begin{matrix}
+%         \alpha_1 & \cdots & \alpha_n
+%     \end{matrix}\right] \left[\begin{matrix}
+%         P_{11} \\ P_{21} \\ \vdots \\ P_{n1}
+%     \end{matrix}\right]$.
+%     Let denote this equation as $\alpha^\prime_1 = [\mc{B}^\prime][\alpha_1^\prime]_{\mc{B}^\prime} = [\mc{B}]P[\alpha^\prime_1]_{\mc{B}^\prime} = [\mc{B}]P_{:, 1}$ simply.
+
+%     \bigskip
+%     For any $\alpha \in V$, there exists some coordinates $[\alpha]_{\mc{B}^\prime} = \left[ \begin{matrix}
+%         y_1 \\ \vdots \\ y_n
+%     \end{matrix}\right]$ that satisfies $\alpha = [\mc{B}^\prime][\alpha]_{\mc{B}^\prime}$.
+%     Then $\alpha = [\mc{B}^\prime]\left( y_1 [\alpha^\prime_1]_{\mc{B}^\prime} + \cdots + y_n  [\alpha^\prime_n]_{\mc{B}^\prime} \right) = y_1 [\mc{B}]P_{:, 1} + \cdots + y_n [\mc{B}]P_{:, n} = [\mc{B}]\left( y_1 P_{:, 1} + \cdots + y_n P_{:, n}\right) = [\mc{B}]P [\alpha]_{\mc{B}^\prime}$.
+
+%     So for the same vector $\alpha \in V$, we obtain both coordinates $P[\alpha]_{\mc{B}^\prime}$ and $[\alpha]_{\mc{B}}$ for different bases $\mc{B}^\prime$ and $\mc{B}$ and there exists relationship $[\alpha]_{\mc{B}} = P [\alpha]_{\mc{B}^\prime}$.
+%     This is why the matrix $P$ is called change of basis.
+% \end{frame}
 
 \begin{frame}{.}
     \begin{theorem}
         Let $V$ be a finite-dimensional vector space over the field $F$, and let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ and $\mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ be ordered basis of $V$.
         Suppose $T$ is a linear operator on $V$.
-        If $P$
+        If $P = \left[\begin{matrix}
+         | & \cdots & | \\ P_{:,1} & \cdots & P_{:, n} \\ | & \empty & | 
+        \end{matrix}\right]$ is the $n \times n$ matrix where $P_{:, j} = [\alpha_j^\prime]_\mc{B}$, then $[T]_{\mc{B}^\prime} = P^{-1}[T]_{\mc{B}}P$.
+        Alternatively, if $U$ is the invertible operator on $V$ defined by $U(\alpha_j) = \alpha_j^\prime, j=1,\dots, n$, then $[T]_{\mc{B}^\prime} = [U]_{\mc{B}}^{-1}[T]_{\mc{B}}[U]_{\mc{B}}$.
     \end{theorem}
+    \ti{Proof.}
+
+    Because $U$ is change of basis from $\mc{B}$ to $\mc{B}^\prime$, $[U]_{\mc{B}} = P$ and $[\alpha]_{\mc{B}} = [U]_{\mc{B}} [\alpha]_{\mc{B}^\prime}$.
+
+    For any $\alpha \in V$, $[T(\alpha)]_{\mc{B}} = [T]_{\mc{B}} [\alpha]_{\mc{B}} = [T]_{\mc{B}} [U]_{\mc{B}} [\alpha]_{\mc{B}^\prime}$.
+    Also $[T(\alpha)]_{\mc{B}} = [U]_{\mc{B}}[T(\alpha)]_{\mc{B}^\prime}$.
+    Thus, $[U]_{\mc{B}} [T(\alpha)]_{\mc{B}^\prime} = [T]_{\mc{B}}[U]_{\mc{B}}[\alpha]_{\mc{B}^\prime} \implies [T(\alpha)]_{\mc{B}^\prime} = [U]_{\mc{B}}^{-1}[T]_{\mc{B}} [U]_{\mc{B}} [\alpha]_{\mc{B}^\prime}$ holds.
+
+    By the definition, $[T(\alpha)]_{\mc{B}^\prime} = [T]_{\mc{B}^\prime} [\alpha]_{\mc{B}^\prime}$. This implies $[T]_{\mc{B}^\prime} = [U]^{-1}_{\mc{B}} [T]_{\mc{B}} [U]_{\mc{B}}$. $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $T$ be the linear operator on $\mbb{R}^2$ defined by $T(x_1, x_2) = (x_1, 0)$. Let $\mc{B} = \{\epsilon_1, \epsilon_2\}$ be the basis of $\mbb{R}^2$ where $\epsilon$ is standard basis of $\mbb{R}^2$, and $\mc{B}^\prime = \{(1,1), (2,1)\}$ be the another basis of $V$. Find $[T]_{\mc{B}^\prime}$.
+    \end{example}
+
+    First, $[T]_{\mc{B}} = \left[\begin{matrix}
+        1 & 0 \\ 0 & 0
+    \end{matrix}\right]$.
+
+    Let $U$ be the linear operator that is change of basis from $\mc{B}$ to $\mc{B}^\prime$. Then $U(\epsilon_1) = (1,1) = \epsilon_1 + \epsilon_2, U(\epsilon_2) = (2,1) = 2 \epsilon_1 + \epsilon_2$. This implies $[U]_{\mc{B}} = \left[\begin{matrix}
+    1 & 2 \\ 1 & 1
+    \end{matrix}\right]$.
+
+    Then by $[T]_{\mc{B}^\prime} = [U]_{\mc{B}}^{-1}[T]_{\mc{B}}[U]_{\mc{B}}$, $[T]_{\mc{B}^\prime} = \left[\begin{matrix}
+    -1 & 2 \\ 1 & 1
+    \end{matrix}\right]\left[ \begin{matrix}1 & 0 \\ 0 & 0\end{matrix}\right]\left[\begin{matrix}
+    1 & 2\\ 1 & 1
+    \end{matrix}\right] = \left[\begin{matrix}
+        -1 & -2 \\ 1 & 2
+    \end{matrix}\right]$ 
+
+    We can easily check this by
+
+    $T(1, 1) = (1, 0) = - \epsilon_1^\prime + \epsilon_2^\prime, T(2, 1) = (2, 0) = -2 \epsilon_1^\prime + 2 \epsilon_2^\prime$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $A$ and $B$ be $n\times n$ (square) matrices over the field $F$. We say that \ti{$B$ is similar to $A$ over $F$} if there is an invertible $n \times n$ matrix $P$ over $F$ such that $B = P^{-1}AP$.
+    \end{definition}
+    \begin{block}{Exercise 3.4.4}
+        Let $V$ be a two-dimensional vector space over the field $F$, and let $\mc{B}$ be an ordered basis for $V$.
+        If $T$ is a linear operator on $V$ and $[T]_{\mc{B}} = \left[\begin{matrix}
+            a & b \\ c & d
+        \end{matrix}\right]$.
+        Prove that $T^2 - (a+d)T + (ad - bc)I$ = 0.
+    \end{block}
+
+    For any $\alpha \in V$, $[T(\alpha)]_{\mc{B}} = [T]_{\mc{B}} [\alpha]_{\mc{B}}$ and $[T(T(\alpha))]_{\mc{B}} = [T]_{\mc{B}}^2 [\alpha]_{\mc{B}}$ and $[I(\alpha)]_{\mc{B}} = [\alpha]_{\mc{B}}$.
+    Then $[T^2(\alpha)]_{\mc{B}} = \left[\begin{matrix}
+    a & b\\ c & d
+    \end{matrix}\right]^2 [\alpha]_{\mc{B}} = \left[\begin{matrix}
+        a^2 + bc & ab + bd \\ ac + dc & bc + d^2
+    \end{matrix}\right] [\alpha]_{\mc{B}}$.
+    $(a+d)[T(\alpha)]_{\mc{B}} = \left[\begin{matrix}
+    a^2 + ad & ab + bd \\ ac + cd & ad + d^2
+    \end{matrix}\right] [\alpha]_{\mc{B}}$.
+    $(ad -bc)[I(\alpha)]_{\mc{B}} = \left[\begin{matrix}
+        ad - bc & 0 \\ 0 & ad -bc
+    \end{matrix}\right][\alpha]_{\mc{B}}$.
+
+    This implies $[(T^2 - (a+d)T + (ad-bc)I)(\alpha)]_{\mc{B}} = \left[\begin{matrix}
+    0 & 0 \\ 0 & 0
+    \end{matrix}\right][\alpha]_{\mc{B}}$.
+    Therefore, for any $\alpha \in V$, $(T^2 - (a+d)T + (ad - bc)I) (\alpha) = 0$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.4.5}
+        Let $T$ be the linear operator on $\mbb{R}^3$, the matrix of which in the standard ordered basis is $A = \left[\begin{matrix}
+            1 & 2&1 \\0&1&1\\-1&3&4
+        \end{matrix}\right]$.
+        Find a basis for the range of $T$ and a basis for the null space of $T$.
+    \end{block}
+
+    For any $\alpha \in \mbb{R}^3$, $[T(\alpha)]_{\mc{B}} = A [\alpha]_{\mc{B}}$.
+    Let $\mc{B} = \{\epsilon_1, \epsilon_2, \epsilon_3\}$ and $[\alpha]_{\mc{B}} = \left[\begin{matrix}
+    x_1 \\ x_2 \\ x_3
+    \end{matrix}\right]$.
+    Then $T(\alpha) = [T(\alpha)]_{\mc{B}} = A \left[\begin{matrix}
+    x_1 \\ x_2 \\ x_3
+    \end{matrix}\right] = 
+    \left[\begin{matrix}
+        1 \\ 0 \\ -1
+    \end{matrix}\right]x_1 +
+    \left[\begin{matrix}
+    2 \\ 1 \\ 3
+    \end{matrix}\right]x_2 +
+    \left[\begin{matrix}
+    1 \\ 1\\ 4
+    \end{matrix}\right]x_3 =
+    \left[\begin{matrix}
+    1 \\ 0 \\-1
+    \end{matrix}\right](x_1 + x_2) +
+    \left[\begin{matrix}
+    1\\1\\4
+    \end{matrix}\right](x_2 + x_3)$.
+
+    Then the basis of range of $T$ is $\left[\begin{matrix}
+    1 \\ 0 \\ -1
+    \end{matrix}\right]$ and $\left[\begin{matrix}
+    1 \\ 1 \\ 4
+    \end{matrix}\right]$.
+
+    The null space is $\forall x_2 \in \mbb{R}, -x_1 = x_2 = -x_3$.
+    So the basis of null space of $T$ is $\left[\begin{matrix}
+    -1 \\ 1 \\ -1
+    \end{matrix}\right]$.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.4.8}
+        Let $\theta$ be a real number.
+        Prove that the following two matrices are similar over the field of complex numbers
+        \[
+            \left[\begin{matrix}
+                \cos \theta & -\sin \theta \\ \sin \theta & \cos \theta
+            \end{matrix}\right],
+            \left[\begin{matrix}
+                e^{i \theta} & 0 \\ 0 & e^{-i \theta}
+            \end{matrix}\right]
+        \]
+    \end{block}
+    By taylor series, $e^{i \theta} = 1 + \frac{i\theta}{1!} - \frac{\theta^2}{2!} - \frac{i\theta^3}{3!} + \frac{\theta^4}{4!} + \cdots = \left(1 - \frac{\theta^2}{2!} + \frac{\theta^4}{4!} - \cdots \right) + i\left(\frac{\theta}{1!} - \frac{\theta^3}{3!} + \frac{\theta^5}{5!} - \cdots \right) = \cos \theta + i \sin \theta$.
+    Note that $\cos \theta = 1  - \frac{\theta}{2!} + \frac{\theta^2}{4!} -  \cdots $ and $\sin \theta =  \frac{\theta}{1!} - \frac{\theta^3}{3!} + \frac{\theta^5}{5!} - \cdots$.
+    Similarly $e^{-i \theta} = \cos \theta - i \sin \theta$.
+    Let $\mc{B} = \{ \left[\begin{matrix}
+     1 \\ 0
+    \end{matrix}\right], \left[\begin{matrix}
+    0 \\ 1
+    \end{matrix}\right] \}$ and $\mc{C} = \{\begin{bmatrix}
+    1 \\ -i
+    \end{bmatrix}, \begin{bmatrix}
+    1 \\ i
+    \end{bmatrix}\}$ be the ordered basis.
+    Let $T$ be the linear operator in $\mbb{C}^2$ defined by $T(\alpha) = \begin{bmatrix}
+        \cos \theta & - \sin \theta \\ \sin \theta & \cos \theta
+    \end{bmatrix} \alpha$, for any $\alpha \in \mbb{C}^2$.
+    Then $[T]_{\mc{B}} = \begin{bmatrix}
+        \cos \theta & - \sin \theta \\ \sin \theta & \cos \theta
+    \end{bmatrix}$ and
+    $[T]_{\mc{C}} = \begin{bmatrix}
+       e^{i \theta} & 0 \\ 0 & e^{-i \theta}
+    \end{bmatrix}$.
+    Let $U$ be the change of basis from $\mc{B}$ to $\mc{C}$. Then $[U]_{\mc{B}} = \begin{bmatrix}
+     1 & 1 \\ -i & i
+    \end{bmatrix}$ and $[U]_{\mc{B}}^{-1} = 1/2 \begin{bmatrix}
+        1 & i \\ 1 &-i
+    \end{bmatrix}$.
+
+    Then $[T]_{\mc{C}} = [U]_{\mc{B}}^{-1}[T]_{\mc{B}}[U]_{\mc{B}}$ holds.
+    Therefore, $\begin{bmatrix}
+    \cos \theta & - \sin \theta \\ \sin \theta & \cos \theta
+    \end{bmatrix}$ and $\begin{bmatrix}
+        e^{i \theta} & 0 \\ 0 & e^{-i \theta}
+    \end{bmatrix}$ are similar.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{$\star$ Exercise 3.4.9}
+        Let $V$ be a finite-dimensional vector space over the field $F$ and let $S$ and $T$ be linear operator on $V$. We ask: When do there exist ordered bases $\mc{B}$ and $\mc{B}^\prime$ for $V$ such that $[S]_{\mc{B}} = [T]_{\mc{B}^\prime}$?
+        Prove that such bases exist if and only if there is an invertible linear operator $U$ on $V$ such that $T = U S U^{-1}$.
+    \end{block}
+    
+    ($\implies$): Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ and $\mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ be the ordered basis of $V$.
+    Let assume $[S]_{\mc{B}} = [T]_{\mc{B}^\prime}$ holds.
+    Let $U$ be the change of basis from $\mc{B}$ onto $\mc{B}^\prime$.
+    % For any $1 \leq j \leq n$, $[S(\alpha_j)]_{\mc{B}} = [T(\beta_j)]_{\mc{C}}$. Also
+    Note that $[U]_{\mc{B}^\prime}^{\mc{B}} = I$ and $[U^{-1}]_{\mc{B}}^{\mc{B}^\prime}=I$.
+    For any $\alpha \in V$, $[T(\alpha)]_{\mc{B}^\prime} = [T]_{\mc{B}^\prime}[\alpha]_{\mc{B}^\prime} = [S]_{\mc{B}}[\alpha]_{\mc{B}^\prime} = [U]^{\mc{B}}_{\mc{B}^\prime} [S]_{\mc{B}} [U^{-1}]_{\mc{B}}^{\mc{B}^\prime} [\alpha]_{\mc{B}} = [U S U^{-1}]_{\mc{B}^\prime} [\alpha]_{\mc{B}}$.
+    $[T]_{\mc{B}^\prime} = [U S U^{-1}]_{\mc{B}^\prime} \implies T = U S U^{-1}$.
+
+    % ($\impliedby$): Let $[S]_{\mc{B}} = A, [T]_{\mc{B}^\prime}, [U]^{\mc{B}}_{\mc{B}^\prime} = C,  [U^{-1}]_{\mc{B}}^{\mc{B}^\prime} = C^{-1}$.
+    % By the assumption, $TU = US$ holds.
+    % For any $\alpha \in V$, $\alpha = x_1\alpha_1 + \cdots + x_n \alpha_n$.
+    % Then $(TU)(\alpha) = (US)(\alpha)$.
+
+    % In left side, $(TU)(\alpha) = (TU)(x_1\alpha_1 + \cdots + x_n \alpha_n) = T ( \sum_{i=1}^n x_i \sum_{j=1}^n C_{j,i}\alpha_{j}^\prime) = T(\sum_{j=1}^n \sum_{i=1}^n x_i C_{j,i}\alpha_j^\prime) = \sum_{j=1}^n \sum_{i=1}^n x_i C_{j,i} T(\alpha_j^\prime) = \sum_{j=1}^n \sum_{i=1}^n x_i C_{j,i} \sum_{k=1}^n B_{k,j} \alpha_k^\prime = \sum_{j=1}^n \sum_{i=1}^n \sum_{k=1}^n B_{k,j} C_{j,i} x_i \alpha_k^\prime$.
+
+    % Also in right side, $(US)(\alpha) = (US)(x_1 \alpha_1 + \cdots + x_n \alpha_n) = U ( \sum_{i=1}^n x_i \sum_{j=1}^n A_{j,i} \alpha_j) = \sum_{j=1}^n \sum_{i=1}^n A_{j,i} x_i U(\alpha_j) = \sum_{i=1}^n \sum_{j=1}^n \sum_{k=1}^n C_{k,j}A_{j,i} x_i \alpha^\prime_k$.
+
+    % Thus, $\sum_{j=1}^n C_{k,j} A_{j,i} = \sum_{j=1}^n B_{k,j} C_{j,i} \implies CA = BC$ holds.
+
+    ($\impliedby$): Let $\mc{B} = \{\alpha_1, \dots , \alpha_n\}$ be the ordered basis of $V$ and $\mc{B}^\prime = \{\alpha_1^\prime, \dots, \alpha_n^\prime\}$ be its image under $U$. Then $[T]_{\mc{B^\prime}} = [USU^{-1}]_{\mc{B}^\prime} = [U]_{\mc{B}^\prime}^{\mc{B}} [S]_{\mc{B}} [U^{-1}]_{\mc{B}}^{\mc{B}^\prime}$ holds and $[U]^{\mc{B}}_{\mc{B}^\prime} =[U^{-1}]^{\mc{B}^\prime}_{\mc{B}}= I$. Thus, $[T]_{\mc{B}^\prime} = [S]_{\mc{B}}$ holds.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{$\star$ Exercise 3.4.11}
+        Let $W$ be the space of $n \times 1$ column matrices over a field $F$.
+        If $A$ is an $n \times n$ matrix over $F$, then $A$ defines a linear operator $L_A$ on $W$ through left multiplication: $L_A (X) = AX$.
+        Prove that every linear operator on $W$ is left-multiplication by some $n\times n$ matrix, i.e., is $L_A$ for some $A$.
+
+        Now suppose $V$ is an $n$-dimensional vector space over the field $F$, and let $\mc{B}$ be an ordered basis for $V$. For each $\alpha$ in $V$, define $U(\alpha) =[\alpha]_{\mc{B}}$.
+        Prove that $U$ is an isomorphism of $V$ onto $W$.
+        If $T$ is a linear operator on $V$, then $UTU^{-1}$ is a linear operator on $W$. Accordingly, $UTU^{-1}$ is left multiplication by some $n\times n$ matrix $A$.
+        What is $A$?
+    \end{block}
+
+    Let $\mc{B} = \{\epsilon_1, \dots, \epsilon_n\}$ be the ordered standard basis on $W$. Then for any linear operator $T$ onto $V$, image of $\mc{B}$ by $T$ is unique. i.e., $\{T(\epsilon_1), \dots, T(\epsilon_n)\}$ is unique.
+    Let $A_{:, j} = T(\epsilon_j)$.
+    Then $L_A(\epsilon_j) = A_{:, j} = T(\epsilon_j)$.
+    Then for any $\alpha \in W$, let $\alpha = x_1 \epsilon_1 + \cdots + x_n \epsilon_n$.
+    $L_{A}(\alpha) = x_1 L_A(\epsilon_1) + \cdots + x_n L_A(\epsilon_n) = AX$.
+    Also, $T(\alpha) = x_1 T(\epsilon_1) + x_n T(\epsilon_n) = AX$.
+    Therefore $L_A = T$.
+    $\qed$
+
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$. For any $\beta_1, \beta_2 \in V$ and $c \in F$, there exists scalars $x_i, y_i$ s.t. $\beta_1 = x_1 \alpha_1 + \cdots + x_n \alpha_n, \beta_2 = y_1 \alpha_1 + \cdots + x_n \alpha_n$.
+    Then $U(\beta_1) = [x_1, \dots, x_n]^{-1}, U(\beta_2) = [y_1, \dots, y_n]^{-1}$.
+    $U(c\beta_1 + \beta_2) = c [y_1, \dots , y_n]^{-1} + [x_1, \dots , x_n]^{-1} = c U(\beta_1) + U(\beta_2)$.
+    Thus, $U$ is linear.
+
+    Also, for any $\alpha \in V$, $U(\alpha) = 0 \implies \alpha = 0$.
+    Thus $\ker U = \{0\}$ and $U$ is invertible.
+    Therefore $U$ is isomorphism of $V$ onto $W$.
+    $\qed$
+
+    Note that $U(\alpha_j) = \epsilon_j$ where $\epsilon_j$ is $j$-th standard basis of $W$.
+    Let $[T]_{\mc{B}} = M$.
+    Then $(UTU^{-1}) (\epsilon_j) = UT (\alpha_j) = U(M_{1j} \alpha_1 + \cdots + M_{nj} \alpha_n) = M_{;, j}$.
+    This implies $UTU^{-1} = L_{[T]_{\mc{B}}}$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{$\star$ Exercise 3.4.12}
+        Let $V$ be an $n$-dimensional vector space over the field $F$, and let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ be an ordered basis for $V$.
+        \begin{enumerate}
+            \item According to Theorem \ref{th:1}, there is a unique linear operator $T$ on $V$ s.t. $T(\alpha_j) = \alpha_{j+1}, j=1, \dots, n-1,T(\alpha_n) = 0$.
+            What is the matrix $A$ of $T$ in the ordered basis $\mc{B}$?
+            \item Prove that $T^n = 0$ but $T^{n-1} \neq 0$.
+            \item Let $S$ be any linear operator on $V$ s.t. $S^n = 0$ but $S^{n-1} \neq 0$.
+            Prove that there is an ordered basis $\mc{B}^\prime$ for $V$ s.t. the matrix of $S$ in the ordered basis $\mc{B}^\prime$ is the matrix $A$ of (1.).
+            \item Prove that if $M$ and $N$ are $n \times n$ matrices over $F$ such that $M^n = N^n = 0$ but $M^{n-1} \neq 0 \neq N^{n-1}$, then $M$ and $N$ are similar.
+        \end{enumerate}
+    \end{block}
+    (1.): $[T]_{\mc{B}} = \begin{bmatrix}
+     | & \cdots &| & | \\ \epsilon_2 & \cdots &\epsilon_n & 0 \\ | & \cdots & | &|
+    \end{bmatrix}$.
+
+    (2.): $[T]^n_{\mc{B}} = 0$ but $[T]^{n-1}_{\mc{B}} = \begin{bmatrix}
+        0 & \cdots & 0 & 1 \\ 0 & \cdots & 0 & 0 \\ \vdots & \empty & \vdots & \vdots \\ 0 & \cdots & 0 & 0
+    \end{bmatrix}$.
+    For any $\alpha \in V$, $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$ and $[T^n (\alpha)]_{\mc{B}} = [T]^n_{\mc{B}} [\alpha]_{\mc{B}} = 0 \implies T^n = 0$.
+    But $[T^{n-1}(\alpha_1)]_{\mc{B}} = [T]^{n-1}_{\mc{B}} [\alpha_1]_{\mc{B}} = [0, \cdots, 0, 1]^{-1} \implies T^{n-1} \neq 0$.
+\end{frame}
+
+\begin{frame}{.}
+    (3.):
 \end{frame}
 
 \end{document}
