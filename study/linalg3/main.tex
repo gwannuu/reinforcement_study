@@ -88,6 +88,7 @@
 %\DefThreeOp{PHGeom}
 
 \newcommand{\im}{\operatorname{im}}
+\newcommand{\tr}{\operatorname{tr}}
 
 
 % 발표 제목, 저자, 날짜 설정
@@ -1157,7 +1158,814 @@
 \end{frame}
 
 \begin{frame}{.}
-    (3.):
+    (3.): \textcolor{red}{to be continue}
+    (4.): 
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.4.13}
+        Let $V$ and $W$ be finite-dimensional vector spaces over the field $F$ and let $T$ be a linear transformation from $V$ into $W$.
+        If $\mc{B} = \{\alpha_1, \dots, \alpha_n\}, \mc{B}^\prime = \{\beta_1, \dots, \beta_m\}$ are ordered bases for $V$ and $W$, respectively, define the linear transformations $E^{p,q}$ as $E^{p,q}(\alpha_i) = \delta_{iq} \beta_p$.
+        Then the $E^{p,q}, 1 \leq p \leq m, 1 \leq q \leq n$, form a basis for $L(V,W)$ and so $T = \sum_{p=1}^n \sum_{q=1}^m A_{p,q} E^{p,q}$ for certain scalars $A_{p,q}$ (the coordinates of $T$ in this basis for $L(V,W)$).
+        Show that the matrix $A$ with entries $A_{p,q}$ is precisely the matrix of $T$ relative to the pair $\mc{B}, \mc{B}^\prime$.
+    \end{block}
+
+    $T(\alpha_j) = \sum_{p=1}^m A_{p,j} E^{p,j}(\alpha_j) = \sum_{p=1}^m A_{p,j} \beta_p$.
+    This implies $([T]^{\mc{B}}_{\mc{B}^\prime})_{:, j} = A_{:, j}$.
+    Since each column of $([T])_{\mc{B}^\prime}^{\mc{B}}$ and $A$ are same, $[T]_{\mc{B}^\prime}^{\mc{B}} = A$.
+    $\qed$.
+\end{frame}
+
+\subsection{Linear Functionals}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    If $V$ is a vector space over the field $F$, a linear transformation $f$ from $V$ into the scalar field $F$ is also called a \tb{linear functional} on $V$.
+    If we start from scratch, this means that $f$ is a function from $V$ into $F$ such that
+    \[
+        f(c \alpha + \beta) = c f(\alpha) + f(\beta)
+    \]
+    for all vectors $\alpha$ and $\beta$ in $v$ and all scalars $c$ in $F$.
+    The concept of linear functional is important in the study of finite-dimensional spaces because it helps to organize and clarify the discussion of subspaces, linear equations, and coordinates.
+
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $F$ be a field and let $a_1, \dots, a_n$ be scalars in $F$.
+        Define a function $f$ on $F^n$ by
+        \[
+            f(x_1, \dots, x_n) = a_1 x_1 + \cdots + a_n x_n
+        \]
+        Then $f$ is a linear functional on $F^n$ (dot product, standard inner product).
+        It is the linear functional which is represented by the matrix $[a_1 \cdots a_n]$ relative to the standard ordered basis for $F^n$ and the basis $\{1\}$ for $F$:
+        \[
+            a_j = f(\epsilon_j), j=1, \dots, n
+        \]
+        Every linear functional on $F^n$ is of this form, for some scalars $a_1, \dots, a_n$.
+        That is immediate from the definition of linear functional because we define $a_j = f(\epsilon_j)$ and use the linearity
+        \[
+            f(x_1, \dots, x_n) = f\left(\sum_j x_j \epsilon_j \right) =\sum_j x_j f(\epsilon_j) = \sum_j a_j x_j
+        \]
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Here is an important example of a linear functional.
+        Let $n$ be a positive integer and $F$ a field.
+        If $A$ is an $n \times n$ matrix with entries in $F$, the \tb{trace} of $A$ is the scalar
+        \[
+        \tr A \coloneq A_{1,1} + \cdots + A_{n, n}
+        \]
+        The trace function is a linear functional on the matrix space $F^{n \times n}$ because
+        \[
+            \tr (cA +B)= \sum_{i=1}^n (cA_{i,i} + B_{i,i}) = c \tr A + \tr B
+        \]
+    \end{example}
+
+    \begin{itemize}
+        \item Note that for matrix $A,B \in F^{n \times n}$, $\tr(AB) = \tr(BA)$
+        \item For similar matrix $A,B \in F^{n \times n}$, $\tr(A) = \tr(PBP^{-1}) = \tr(BPP^{-1}) = \tr(B)$
+    \end{itemize}
+
+    \begin{example}
+        Let $[a,b]$ be a closed interval on the real line and let $C([a,b])$ be the space of continuous real-valued functions on $[a,b]$.
+        Then
+        \[L(g) = \int_a^b g(t) dt\]
+        defines a linear functional $L$ on $C([a,b])$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    If $V$ is a vector space, the collection of all linear functionals on $V$ forms a vector space in a natural way.
+    It is the space $L(V,F)$.
+    We denote this space by $V^\ast$ and call it the \tb{dual space} of $V$.
+    \[
+        V^\ast \coloneq L(V,F)
+    \]
+    Note that the basis of $F$ is $\{1\}$.
+    If $V$ is finite-dimensional, then because of Theorem \ref{th:5}, \[\dim V = \dim V^\ast\] 
+
+    \bigskip
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ be a basis of $V$.
+    By theorem \ref{th:1}, there exists unique $n$ linear functionals on $V$ s.t.
+    \[
+        f_i (\alpha_j) = \delta_{ij}
+    \]
+    This linear functionals $\mc{B}^\ast = \{f_1, \dots , f_n\}$ consists basis of $V^\ast$.
+    Below is the proof.
+    First, $\Span \mc{B^\ast} = V^\ast$.
+    For any $f \in V^\ast$, $f(\alpha_j) = c_j$ for some scalars $c_j$ by theorem \ref{th:1}.
+    Then $f = (c_1 f_1 + \cdots + c_n f_n)$ because $(c_1 f_1 + \cdots + c_n f_n)(\alpha_j) = c_1 \delta_{1j} + \cdots + c_n \delta_{nj} = c_j$.
+    This implies $\Span \mc{B}^\ast = V^\ast$.
+
+    \smallskip
+    Second, $\mc{B}^\ast$ is lin. ind.
+    %Let $f = c_1 f_1 + \cdots c_n f_n \in V^\ast$.
+    Let $(c_1 f_1 + \cdots + c_n f_n) = 0$. Then $\forall 1 \leq j \leq n, (c_1 f_1 + \cdots + c_n f_n)(\alpha_j) = 0 \implies c_j = 0 \implies \mc{B}^\ast$ is lin. ind.
+
+    \smallskip
+    Therefore, $\mc{B}^\ast$ is basis of $V^\ast$.
+    This $\mc{B}^\ast$ is called \tb{dual basis} of $\mc{B}$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ be a finite-dimensional vector space over the field $F$, and let $\mc{B} =\{\alpha_1, \dots, \alpha_n\}$ be a basis for $V$.
+        Then there is a unique dual basis $\mc{B}^\ast = \{f_1, \dots, f_n \}$ for $V^\ast$ s.t. $f_i ( \alpha_j ) = \delta_{ij}$.
+        For each linear functional $f \in V$ we have $f = \sum_{i=1}^n f(\alpha_i) f_i$ and for each vector $\alpha$ in $V$ we have $\alpha = \sum_{i=1}^n f_i (\alpha) \alpha_i$
+    \end{theorem}
+
+    \ti{Proof.}
+    We already know that $\mc{B}^\ast$ is a unique dual basis which is \tb{dual to $\mc{B}$}.
+    Because $\mc{B}^\ast$ is basis, $f \in V^\ast$ can be expressed by $f = c_i f_1 + \cdots + c_n f_n$ for some scalars $c_i$.
+    Then $f(\alpha_j) = c_1 \delta_{1j} + \cdots + c_n \delta_{nj} = c_j$.
+    Thus, $f = f(\alpha_1)f_1 + \cdots + f(\alpha_n) f_n$ holds.
+
+    \smallskip
+    For any $\alpha \in V$, there are some scalars $x_i$ s.t. $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$.
+    Then $f_i(\alpha) = x_1 f_i (\alpha_1) + \cdots + x_n f_i (\alpha_n) = x_i$.
+    Thus $\alpha = f_1(\alpha) \alpha_1 + \cdots + f_n (\alpha) \alpha_n$.
+    $\qed$
+
+    \bigskip
+    \begin{itemize}
+        \item Equation $\alpha = \sum_{i=1}^n f_i (\alpha) \alpha_i$ provides us with a nice way of describing what the dual basis is.
+        It says, if $\mc{B} = \{\alpha_1, \dots, \alpha_n \}$ is ordered basis for $V$ and $\mc{B}^\ast = \{f_1, \dots, f_n \}$ is the dual basis of $\mc{B}$, then $f_i$ is precisely the function which assigns to each vector $\alpha$ in $V$ the $i$th coordinate of $\alpha$ relative to the ordered basis $\mc{B}$. Thus we may also call the $f_i$, the coordinate functions for $\mc{B}$.
+        \item For $f \in V^\ast$, ther exists some scalars $a_i$ s.t. $f(\alpha_i) = a_i$.
+        For $\alpha \in V$, $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$.
+        Then $f(\alpha) = x_1 a_1 + \cdots + x_n a_n$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $V$ be the vector space of all polynomial functions from $\mbb{R}$ to $\mbb{R}$ which have degree less than $3$.
+        For some $t_1, t_2, t_3 \in \mbb{R}$ and $p \in V$, define $L_{i}(p) \coloneq p(t_i), i=1,2,3$.
+        Then $L_i$ becomes linear functional on $V$ because $L_i \in L(V, \mbb{R})$.
+        Note that $\dim V = 3$.
+
+        \smallskip
+        For any scalar $c_1, c_2, c_3 \in \mbb{R}$, let $c_1 L_1 + c_2 L_2 + c_3 L_3 = 0$.
+        Then for $1, x, x^2$, which are the elements of $V$, $c_1 + c_2 + c_3 = 0, t_1 c_1 + t_2 c_2 + t_3 c_3 =0 , t_1^2 c_1 + t_2^2 c_2 + t_3 ^2 c_3 = 0$ holds.
+        Rewriting, $\begin{bmatrix}
+        1 & 1 & 1 \\ t_1 & t_2 & t_3 \\ t_1^2 & t_2^2 & t_3^2
+        \end{bmatrix} \begin{bmatrix}
+         c_1 \\ c_2 \\c_3
+        \end{bmatrix} = 0$.
+        Since $t_1 \neq t_2 \neq t_3$, so the matrix $\begin{bmatrix}
+        1 & 1 & 1 \\ t_1 & t_2 & t_3 \\ t_1^2 & t_2^2 & t_3^2
+        \end{bmatrix}$ is invertible, $c_1 = c_2 = c_3 = 0$ and $\{L_1, L_2, L_3\}$ lin. ind. and $| \{L_1, L_2, L_3 \}| = \dim V$, $\mc{B}^\ast = \{L_1, L_2, L_3\}$ is basis of $V^\ast$.
+
+        Then what is the basis for $V$, of which $\mc{B}^\ast$ is the dual? basis of $V$, $\mc{B} = \{p_1, p_2, p_3\}$, which is the dual of $\mc{B}^\ast$ should satisfy $L_i(p_j) = p_j(t_i) = \delta_{ij}$.
+        $p_1(x) = \frac{(x - t_2 )(x - t_3)}{(t_1 - t_2)(t_1 - t_3)}, p_2(x) = \frac{(x - t_1)(x - t_3)}{(t_2 - t_1)(t_2 - t_3)}, p_3(x) = \frac{(x - t_1)(x - t_2)}{(t_3 - t_1)(t_3 - t_2)}$ is the basis to which $\mc{B}^\ast$ is dual.
+
+        \smallskip
+        Thus $\forall p \in V, p = p(t_1)p_1 + p(t_2)p_2 + p(t_3)p_3$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        If $V$ is a vector space over the field $F$ and $S$ is a subset of $V$, the \tb{annihilator} of $S$ is the set $S^0$ of linear functionals $f$ on $V$ s.t. $f(\alpha) = 0$ for every $\alpha$ in $S$.
+    \end{definition}
+    \begin{itemize}
+        \item It should be clear that $S^0$ is a subspace of $V^\ast$, whether $S$ is a subspace of $V$ or not.
+        \item If $S$ is the set consisting of the zero vector alone, then $S^0 = V^\ast$.
+        \item If $S =V$, then $S^0$ is the zero subspace of $V^\ast$.
+    \end{itemize}
+
+    \begin{theorem} \label{th:6}
+        Let $V$ be a finite-dimensional vector space over the field $F$, and let $W$ be a subspace of $V$.
+        Then
+        \[
+            \dim W + \dim W^0 = \dim V
+        \]
+    \end{theorem}
+
+    \ti{Proof.}
+    Let $k$ be the dimension of $W$ and $\{\alpha_1, \dots, \alpha_k\}$.
+    We can extend toward basis of $V$, $\{\alpha_1, \dots, \alpha_n\}$.
+    Then there exists unique dual basis $\mc{B}^\ast = \{f_1, \dots, f_n\}$ for $V^\ast$.
+
+    \underline{Claim: $\{f_{k+1}, \dots, f_k\}$ is the basis of $W^0$}.
+    Note that $i>k, j \leq k$, $f_{i}(\alpha_j) = 0$.
+    For any $f \in W^0$, there exists some scalars $c_i$ such that $f(\alpha_j) = 0$ and $f(\alpha_i) = c_i$, where $i >k, j \leq k$.
+    Then $f = c_{k+1} f_{k+1} + \cdots + c_n f_{n}$ because $(c_{k+1} f_{k+1} + \cdots +c_n f_n)(\alpha_j) = 0$ and $(c_{k+1} f_{k+1} + \cdots + c_n f_n)(\alpha_i) = c_i$.
+    Thus, $\Span \{f_{k+1}, \dots, f_n\} = W^0$.
+
+    $\therefore \dim W + \dim W^0 = k + (n-k) = n = \dim V$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    In a vector space of dimension $n$, a subspace of dimension $n-1$ is called a \tb{hyperspace}.
+    Such spaces are sometimes called hyperplanes of subspaces of codimmension $1$.
+
+    \begin{itemize}
+        \item Note that this hyperspace is the null space (kernel) of some linear functionals $f \in V^\ast$.
+        Let hyperspace $W \subset V$ has basis $\{\alpha_1, \dots, \alpha_{n-1}\}$ where basis of $V$ is $\{\alpha_1, \dots, \alpha_n\}$.
+        Then for any $f \in V^\ast$ s.t. $f(\alpha_1) =0, \dots, f(\alpha_{n-1}) = 0, f(\alpha_n) \neq 0$, $\ker f = \Span \{\alpha_1, \dots, \alpha_{n-1}\}= W$.
+    \end{itemize}
+
+    \begin{corollary} \label{cor:1}
+        If $W$ is a $k$-dimensional subspace of an $n$-dimensional vector space $V$, then $W$ is the intersection of $(n-k)$ hyperspaces in $V$.
+    \end{corollary}
+
+    \ti{Proof.}
+    Let basis of $W$ be $\{\alpha_1, \dots, \alpha_k\}$ and basis of $V$ is $\{\alpha_1, \dots, \alpha_n\}$, which is extended basis of $W$.
+    Let $\{f_1, \dots, f_n\}$ be the dual basis of $V$.
+    By theorem \ref{th:6}, $\{f_{k+1}, \dots, f_{n}\}$ is the basis of $W^0$.
+
+    Note that for each $f_i, \forall i>k$, $\ker f_i$ consists individual hyperspace $S_i$ of $V$.
+    Basis of $S_i$ is $\{\alpha_1, \dots, \alpha_{i-1}, \alpha_{i+1}, \dots \alpha_n\}$.
+    Then basis of $\bigcap_{i={k+1}}^n S_i$ is $\{\alpha_1, \dots, \alpha_k\}$
+    So $\bigcap_{i={k+1}}^n S_i$ has same basis with $W$ and therefore $\bigcap_{i={k+1}^n} S_i = W$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{corollary}
+        If $W_1$ and $W_2$ are subspaces of a finite-dimensional vector space, then $W_1 = W_2$ if and only if $W_1^0 = W_2^0$
+    \end{corollary}
+    \ti{Proof.} If $W_1 = W_2$ then $W_1^0 = W_2^0$ is obvious.
+    If $W_1 \neq W_2$, suppose there exists $\alpha$ s.t. $\alpha \in W_1, \alpha \notin W_2$.
+    By Corollary \ref{cor:1}, there exists hyperspace $S$ and functional $f$ s.t. 
+    $f(\alpha) \neq 0$  and $\forall \beta \in S, f(\beta) = 0$.
+    This $f \in W_2^0$ but $f \notin W_1^0$.
+    Thus $W^0_1 \neq W^0_2$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Here are three linear funtionals on $R^4$:
+
+        \[
+        \begin{aligned}
+            &f_1 (x_1, x_2, x_3, x_4) = x_1 + 2x_2 + 2x_3 + x_4\\
+            &f_2 (x_1, x_2, x_3, x_4) = 2x_2 + x_4\\
+            &f_3 (x_1, x_2, x_3, x_4) = -2x_1 -4x_3 + 3x_4
+        \end{aligned}
+        \]
+
+        The subspace $W$ which $f_1, f_2, f_3$ annihilate is same with solution space of $AX = \begin{bmatrix}
+            1 & 2 & 2 & 1 \\ 0 & 2 & 0 & 1 \\ -2 &0 & -4 & 3
+        \end{bmatrix} \begin{bmatrix}
+        x_1 \\ x_2 \\ x_3
+        \end{bmatrix} = 0$.
+
+        We can get solution space easily with by calculate $R = \begin{bmatrix}
+        1 & 0 & 2 &0 \\ 0 &1 & 0 & 0 \\ 0 & 0 & 0& 1
+        \end{bmatrix}$, row-reduced echelon form of $A$.
+        This implies three linear functionals
+        \[
+        \begin{aligned}
+            &g_1(x_1, x_2, x_3, x_4) = x_1 + 2x_3 \\
+            &g_2(x_1, x_2, x_3, x_4) = x_2 \\
+            &g_3(x_1, x_2, x_3, x_4) = x_4
+        \end{aligned}
+        \]
+        span the same subspace of $(R^4)^\ast$ and annihilate the same subspace of $R^4$.
+
+        The subspace annihilated by both $\{f_1, f_2, f_3\}$ and $\{g_1, g_2, g_3\}$ consists of the vectors with $x_1 = -2 x_3, x_2=x_4 =0$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.5.4}
+        Let $V$ be the vector space of all polynomial functions $p$ from $\mbb{R}$ into $\mbb{R}$ which have degree $2$ or less: $p(x)= c_0 + c_1 x + c_2 x^2$.
+        Define three linear functionals on $V$ by $f_1(p) = \int_0^1 p(x) dx, f_2(p) = \int_0^2 p(x) dx, f_3(p) = \int_0^{-1} p(x) dx$.
+        Show that $\{f_1, f_2, f_3\}$ is a basis for $V^\ast$ by exhibiting the basis for $V$ of which it is the dual.
+
+        \smallskip
+        Let $\{p_1, p_2, p_3\}$ be the ordered basis of $V$ and $\{f_1, f_2, f_3\}$ be the dual basis of $\{p_1, p_2, p_3\}$.
+        Let $p_1(x) = c_0 + c_1 x + c_2 x^2$. Then $f_1(p_1) = c_0 + 1/2c_1 + 1/3 c_2 = 1,f_2(p_1) = 2c_0 + 2c_1 + 8/3 c_2 = 0 ,f_3(p_1) = -c_0 +1/2 c_1 - 1/3 c_2 = 0,  \implies c_0 = 1, c_1=1, c_2 = -3/2$.
+        Thus $p_1(x) = 1 + x -3/2 x^2$.
+        Similarly, $p_2(x) = -1/6 + 1/2x^2, p_3(x) = 1/3 -x + 1/2x^2$.
+    \end{block}
+
+    \begin{block}{Exercise 3.5.5}
+        If $A,B$ are $n\times n $ complex matrices, show that $AB -BA = I$ is impossible.
+
+        \smallskip
+        Note that for matrix $A,B, \tr (A+B) = \tr(A) + \tr(B)$.
+        $\tr(AB - BA) = \tr(AB) - \tr(AB) = 0 \neq n = \tr(I)$.
+        $\qed$
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.5.6}
+        Let $m$ and $n$ be positive integers and $F$ a field.
+        Let $f_1, \dots, f_m$ be linear functionals on $F^n$.
+        For $\alpha \in F^n$ define $T(\alpha) \coloneq (f_1(\alpha), \dots, f_m(\alpha))$.
+        Show that $T$ is a linear transformations from $F^n$ into $F^m$.
+        Then show that every linear transformation from $F^n$ into $F^m$ is of the above form, for some $f_1, \dots, f_m$.
+
+        \smallskip
+        For $\alpha_1, \alpha_2 \in F^n$ and $c \in F$, $T(c\alpha_1 + \alpha_2) = (f_1(c\alpha_1 + \alpha_2), \dots, f_m(c\alpha_1 + \alpha_2)) = c( f_1(\alpha_1), \dots, f_m(\alpha_1)) + (f_1(\alpha_2), \dots, f_m(\alpha_2)) = cT(\alpha_1) + T(\alpha_2)$.
+        Thus $T \in L(F^n, F^m)$.
+
+        Let $\{\epsilon_1, \dots, \epsilon_n\}$ be the ordered standard basis of $F^n$.
+        For any $K \in L(F^n, F^m)$ and $1 \leq j \leq n$, there exists scalars $\beta_{ij} \in F, 1 \leq i \leq m$ s.t. $K(\epsilon_j) = (\beta_{1j}, \dots, \beta_{mj})$.
+        Let $f_i(\epsilon_j) \coloneq \beta_{ij}$.
+        For any $\alpha = c_1 \epsilon_1 + \cdots + c_n \epsilon_n \in F^n$, $K(\alpha) = c_1 K(\epsilon_1) + \cdots + c_n = (\sum_{j=1}^n c_j \beta_{1j}, \cdots, \sum_{j=1}^n c_j \beta_{mj}) = (f_1(\alpha), \cdots, f_m(\alpha))$.
+        $\qed$
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.5.11}    
+        Let $W_1$ and $W_2$ be subspaces of a finite-dimensional vector space $V$.
+        \begin{itemize}
+            \item Prove that $(W_1 + W_2)^0 = W_1^0 \cap W^0_2$
+            \item Prove that $(W_1 \cap W_2)^0 = W_1^0 + W^0_2$
+        \end{itemize}
+        \textcolor{red}{to be continue...}
+    \end{block}
+    \begin{block}{Exercise 3.5.12}
+        Let $V$ be a finite-dimensional vector space over the field $F$ and let $W$ be a subspace of $V$. If $f$ is a linear functional on $W$, prove that there is a linear functional $g$ on $V$ s.t. $g(\alpha) = f(\alpha)$ for each $\alpha$ in the subspace $W$.
+    
+        \textcolor{red}{to be continue...}
+    \end{block}
+
+    \begin{block}{Exercise 3.5.13}
+        Let $F$ be a subfield of the field of complex numbers and let $V$ be any vector space over $F$.
+        Suppose that $f$ and $g$ are linear functionals on $V$ such that the function $h$ defined by $h(\alpha) = f(\alpha) g(\alpha)$ is also linear functional on $V$.
+        Prove that either $f=0$ or $g=0$.
+
+        \textcolor{red}{to be continue...}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Exercise 3.5.14}
+    \begin{block}{Exercise 3.5.14}
+        Let $F$ be a field of characteristic zero and let $V$ be a finite-dimensional vector space over $F$.
+        If $\alpha_1, \dots, \alpha_m$ are finitely many vectors in $V$, each different from the zero vector, prove that there is a linear functional $f$ on $V$ such that $f(\alpha_i) \neq 0, i=1, \dots, m$.
+
+        \textcolor{red}{to be continue...}
+    \end{block}
+
+    \begin{block}{Exercise 3.5.15}
+        It is true that similar matrices have the same trace.
+        Thus we can define the trace of a linear operator on a finite-dimensional space to be the trace of any matrix which represents the operator in an ordered basis.
+        This is well-defined since all such representing matrices for one operator are similar.
+
+        Now let $V$ the space of all $2\times 2$ matrices over the field $F$ and let $P$ be a fixed $2 \times 2$ matrix.
+        Let $T$ be the linear operator on $V$ defined by $T(A) =PA$.
+        Prove that $\tr(T) = 2 \tr(P)$.
+
+        \smallskip
+        Let call $\epsilon_{11} = \begin{bmatrix}
+        1 & 0 \\ 0 & 0
+        \end{bmatrix}, \epsilon_{12} = \begin{bmatrix}
+        0 & 1 \\ 0 & 0
+        \end{bmatrix}, \epsilon_{21} = \begin{bmatrix}
+        0 & 0 \\ 1 & 0
+        \end{bmatrix}, \epsilon_{22} = \begin{bmatrix}
+        0 & 0 \\ 0 & 1
+        \end{bmatrix}$ as standard basis of $F^{2 \times 2}$.
+        $\mc{B} = \{\epsilon_{11}, \epsilon_{21}, \epsilon_{12}, \epsilon_{22}\}$ is ordered basis of $V$.
+        Then $[T]_{\mc{B}} = \begin{bmatrix}
+        P_{11} & P_{12} & 0 & 0 \\P_{21} & P_{22} & 0 & 0 \\ 0 & 0 & P_{11} & P_{12} \\ 0 & 0 & P_{21} & P_{22}
+        \end{bmatrix}$.
+        Thus $\tr (T) = \tr ([T]_{\mc{B}}) = 2(P_{11} + P_{22}) = 2\tr(P)$.
+        $\qed$
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{block}{Exercise 3.5.16}    
+        Show that the trace functional on $n \times n$ matrices is unique in the following sense.
+        If $W$ is the space of $n \times n$ matrices over the field $F$ and if $f$ is a linear functional on $W$ such that $f(AB) = f(BA)$ for each $A$ and $B$ in $W$, then $f$ is a scalar multiple of the trace function.
+        If, in addition, $f(I) = n$, then $f$ is the trace function.
+
+        \smallskip
+        $\mc{B} = \{\epsilon_{11}, \dots, \epsilon_{n1}, \epsilon_{21}, \dots, \epsilon_{n2}, \dots, \epsilon_{nn}\}$ is ordered basis of $W$ where $\epsilon_{ij}$ is the $ij$-th standard basis of $F^{n \times n}$.
+        Let $\{f_{11}, \dots, f_{nn}\}$ be the dual basis of $\mc{B}$.
+        Note that $\forall A \in W, f_{ij}(A) = A_{ij}$.
+        For any linear functional $f \in W^\ast$, $f$ can be expressed by some scalars $c_{ij}$ s.t. $f = c_{11}f_{11} + \cdots +c_{nn} f_{nn}$.
+        % Then $f(AB) = c_{11} (\sum_{k=1}^n A_{1k} B_{k1}) + \cdots + c_{nn} (\sum_{k=1}^n A_{nk} B_{kn}) = f(BA) = c_{11} (\sum_{k=1}^n B_{1k}A_{k1}) + \cdots + c_{nn}( \sum_{k=1}^n B_{nk}A_{kn})$.
+        Then $f(AB) = c_{11} f_{11}(AB) + \cdots + c_{nn} f_{nn}(AB) = f(BA) = c_{11} f_{11}(BA) + \cdots + c_{nn} f_{nn}(BA)$.
+        This implies $c_{11} f_{11} (AB - BA) + \cdots + c_{nn} f_{nn} (AB-BA) = 0$.
+        For $i, j$ s.t. $i \neq j$, $(AB)_{ij} \neq (BA)_{ij}$ generally, thus $c_{ij} = 0$.
+
+        Therefore $f = c_{11}f_{11} + c_{22}f_{22} + \cdots + c_{nn} f_{nn}$.
+
+
+        \textcolor{red}{...}
+    \end{block}
+
+    \begin{block}{Exercise 3.5.17}
+        Let $W$ be the space of $n \times n$ matrices over the field $F$, and let $W_0$ be the subspace spanned by the matrices $C$ of the form $C = AB - BA$.
+        Prove that $W_0$ is exactly the subspace of matrices which have trace zero. 
+    \end{block}
+\end{frame}
+
+\subsection{The Double Dual}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    Let $V$ be the vector space.
+    The double dual is the vector space that is dual space of $V^\ast$.
+    \[
+    V^{\ast \ast} \coloneq L(L(V, F), F)
+    \]
+
+    Let $\alpha \in V$.
+    Define $L_{\alpha}$ as $L_{\alpha}(f) \coloneq f(\alpha)$ where $\forall f \in V^\ast$.
+    Is this $L_{\alpha}$ linear transformation?
+
+    \[
+        \begin{aligned}
+            L_{\alpha} (cf + g) = (cf+g)(\alpha) = cf(\alpha) + g(\alpha) = c L_{\alpha}(f) + L_{\alpha}(g)
+        \end{aligned}
+    \]
+    This implies $L_{\alpha}$ is linear transformation and $L_{\alpha} \in V^{\ast\ast}$.
+    Note that if $V$ is finite-dimensional and $\alpha \neq 0$, then $L_{\alpha} \neq 0$.
+
+    \begin{theorem} \label{th:7}
+        Let $V$ be a finite-dimensional vector space over the field $F$.
+        For each vector $\alpha \in V$ define $L_{\alpha} (f) =f(\alpha), f \in V^\ast$.
+        The mapping $\Phi : V \to V^{\ast\ast}$ is then an isomorphism of $V$ onto $V^{\ast\ast}$.
+    \end{theorem}
+    \ti{proof.}
+
+    \begin{itemize}
+        \item (Linearity):
+        Let $\alpha, \beta \in V$, $c \in F$, and $\gamma = c\alpha + \beta$.
+        $\forall f \in V^\ast, \Phi(c \alpha + \beta)(f) = L_{c \alpha + \beta}(f) = f(c \alpha + \beta) = cf(\alpha) + f(\beta) = c L_{\alpha}(f) + L_{\beta}(f) = c\Phi(\alpha)(f) + \Phi(\beta)(f)$.
+        Thus, $\Phi$ is linear map.
+        \item (Invertible): For $\alpha \in V$, Let assume $\Phi(\alpha) = 0$.
+        Then $L_{\alpha} = 0$ and this implies $\alpha = 0$.
+        Thus, $\ker \Phi =\{0\}$ and $\Phi$ is invertible.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{corollary}
+        Let $V$ be a finite-dimensional vector space over the field $F$.
+        If $L$ is a linear functional on the dual space $V^\ast$ of $V$, then there is a unique vector $\alpha$ in $V$ s.t.
+        \[
+            L(f) = f(\alpha)
+        \]
+        for every $f \in V^\ast$.
+    \end{corollary}
+    \ti{Proof.}
+    Skip.
+    \begin{corollary}
+        Let $V$ be a finite-dimensional vector space over the field $F$.
+        Each basis for $V^\ast$ is the dual of some basis for $V$.
+    \end{corollary}
+    \ti{Proof.}
+    Let $\mc{B}^\ast = \{f_1, \dots, f_n\}$ be a basis for $V^\ast$.
+    Then there is a basis $\{L_1, \dots, L_n\}$ for $V^{\ast\ast}$ s.t. $L_{i} (f_j) = \delta_{ij}$.
+    By Theorem \ref{th:7}, there exists $\alpha_i$ s.t. $L_i(f) = f(\alpha_i)$ for every $f$ in $V^\ast$.
+    Then $L_{i}(f_j) = f_j(\alpha_i) = \delta_{ij}$.
+    Since $\Phi: V \to V^{\ast\ast}$ is isomorphism, by Theorem \ref{th:3}, $\{\alpha_1, \dots, \alpha_n\}$ is basis for $V$.
+    $f_j(\alpha_i) = \delta_{ij}$ implies that $\{f_1, \dots, f_n\}$ is dual basis for $\{\alpha_1, \dots, \alpha_n\}$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $V$ be the vector space. If subspace $N$ of $V$ satisfies under conditions, then $N$ is called by \tb{maximal proper subspace}.
+        \begin{itemize}
+            \item $N \subsetneq V$
+            \item For another subspace $W$, $N \subseteq W \subseteq V \implies W=N$ or $W =V$
+        \end{itemize}
+
+        A \tb{hyperspace} in $V$ is a maximal proper subspace of $V$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+\begin{theorem}
+        If $f$ is a non-zero linear functional on the vector space $V$, then the null space of $f$ is a hyperspace in $V$.
+        Conversely, every hyperspace in $V$ is the null space of a (not unique) non-zero linear functional on $V$.
+    \end{theorem}
+    \ti{Proof.}
+    Let $N_f$ be the kernel space of $f$ and $\alpha$ be a vector in $V$ s.t. $f(\alpha) \neq 0$, i.e., $\alpha \notin N_f$.
+    Let $\beta \in V$.
+    \underline{Claim: $\beta \in \Span N_f \cup \{\alpha\}$.}
+    If $f(\beta) = 0$, then $\beta \in N_f$.
+    So $\beta \in \Span N_f \cup \{\alpha\}$.
+    If $f(\beta) \neq 0$, then $f(\beta) = cf(\alpha)$ where $c \in F$.
+    Then $f(\beta - c \alpha) = 0$ and $\beta - c \alpha \in N_f$.
+    This implies there exists $\gamma \in N_f$ s.t. $
+    \beta - c \alpha = \gamma$ and $\beta \in \Span N_f \cup \{\alpha\}$.
+    So, $V \subseteq \Span N_f \cup \{\alpha\} \subseteq V \implies V = \Span N_f \cup \{\alpha\}$ and $N_f$ is hyperspace of $V$.
+
+    Let $N$ be any hyperspace in $V$.
+    Since $N$ is proper subset of $V$, $\exists \alpha \notin N$. And $\Span N \cup \{\alpha\} = V$ because $N$ is maximal proper subspace.
+    Then for any $\beta \in V$, $\beta = \gamma + c \alpha$. This $\beta$ is uniquely determined by $\gamma$ and $c$.
+    To show that $\gamma$ and $c$ is unique, assume there exists another $\gamma^\prime$ and $c^\prime$ s.t. $\beta = \gamma^\prime + c^\prime \alpha$.
+    Then $\beta = \gamma + c \alpha = \gamma^\prime c^\prime \alpha \implies (c - c^\prime) \alpha = (\gamma - \gamma^\prime)$. If $(c-c^\prime) \neq 0$, then this implies $\alpha \in N$ (Contradict!).
+    Thus, $c = c^\prime, \gamma = \gamma^\prime$.
+    So, for every $\beta \in V$, there exists unique scalar $c$ corresponding to $\beta$ and let define linear functional $g \in L(V, F)$ s.t. $g(\beta) = c$.
+    Then $N = \ker g$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{lemma}
+        Let $f$ and $g$ are linear functionals on a vector space $V$.
+        $g$ is a scalar multiple of $f$ $\iff$ $f(\alpha) = 0 \implies g(\alpha) = 0$ (i.e., $\ker f \subseteq \ker g$).
+    \end{lemma}
+    \ti{Proof.}
+    ($\implies$:) If $f = 0$ then $g = 0$ and for any $c \in F$, $g = c f$.
+    Else if $f \neq 0$, $\exists c$ s.t. $g(\alpha) = c f(\alpha)$ for all $\alpha \in V$.
+    For $\alpha \in \ker f$, $g(\alpha) = c f(\alpha) = 0$.
+    Thus, $\ker f  \subseteq \ker g$.
+    For $\alpha \notin \ker f$, $g(\alpha) = cf(\alpha)$.
+
+    ($\impliedby$:)
+    If $f = 0$ then for any $\alpha \in V$, $f(\alpha) = 0$ and $g(\alpha) = 0$.
+    Else if $f \neq 0$. Then $\ker f$ is hyperplane and there exist some $\alpha$ s.t. $\alpha \notin \ker f, \alpha \in V$ and $\Span \ker f \cup \{\alpha\} = V$.
+    Let define $c$ by $c = g(\alpha)/ f(\alpha)$.
+    Then $cf(\alpha) = g(\alpha)$ holds.
+    So, $\forall \alpha \in V$, $g$ is multiple of $f$.
+    Also, $\forall \gamma \in \ker f$, $c f(\gamma) = 0 = g(\gamma)$ holds.
+    So, $g$ is multiple of $f$ for all element of $V$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $g, f_1, \dots, f_r$ be linear functionals on a vector space $V$ with respective null spaces $N, N_1, \dots, N_r$.
+        Then $g$ is a linear combination of $f_1, \dots, f_r$ if and only if $N$ contains the intersection $N_1 \cap \cdots \cap N_r$.
+    \end{theorem}
+    ($\implies$:) There exists scalars $c_1, \dots, c_r$ s.t. $g = c_1 f_1 + \cdots + c_r f_r$.
+    For any vecor $\alpha \in N_1 \cap \cdots \cap N_r$, $g(\alpha) = c_1f_1(\alpha)+ \cdots + c_r f_r(\alpha) = 0$.
+    Thus, $N_1 \cap \cdots \cap N_r \subseteq N$.
+
+    ($\impliedby$:) For any vector $\alpha \in N_1 \cap \cdots \cap N_r$, $\alpha \in N$.
+    So, $f_1(\alpha) = 0, \dots, f_r(\alpha)=0$ and $g(\alpha) = 0$.
+    The $r=1$ case can be proved by previous Lemma.
+    Suppose $r=k-1$ case holds.
+    Let $\alpha \in N_1 \cap \cdots \cap N_{k}$.
+    Then $g = c_1 f_1 + \cdots + c_{k-1} f_{k-1}$ and $g(\alpha) = c_1 f_1(\alpha) + \cdots + c_{k-1} f_{k-1}(\alpha) = 0$.
+    For fixed $\beta$ s.t.  $\beta \notin N_1 \cap \cdots \cap N_k$ and $\beta \in N_1 \cap \cdots \cap N_{k-1}$, Let consider another linear functional $g^\prime$ s.t. $g^\prime(\beta) = c_k f_k(\beta)$ for a scalar $c_k$ and $g^\prime(\alpha) = 0$.
+    Claim : $g^\prime - c_k f_k = g$.
+
+    \textcolor{red}{To be continue..}
+\end{frame}
+
+\subsection{The Transpose of a Linear Transformation}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ and $W$ be vector spaces over the field $F$.
+        For each linear transformation $T$ from $V$ into $W$, there is a unique linear transformation $T^\top$ from $W^\ast$ into $V^\ast$ such that $(T^\top g) (\alpha) = g(T (\alpha))$ for every $g \in W^\ast$ and $\alpha \in V$.
+    \end{theorem}
+    \ti{Proof.}
+    First, $T^\top$ is linear transformation.
+    For $g_1, g_2 \in L(W, F), c \in F, \alpha \in V$, $T^\top(cg_1 + g_2)(\alpha)=(cg_1 + g_2)(T(\alpha)) = cg_1(T(\alpha)) + g_2 (T(\alpha)) = c(T^\top g_1)(\alpha) + (T^\top g_2) (\alpha)$.
+    So $T^\top (cg_1 + g_2) = c T^\top (g_1) + T^\top (g_2)$ and $T^\top$ is linear transformation.
+
+    Second, $T^\top$ is unique for $T$. Let assume there exists another $U \in L(W^\ast, V^\ast)$ such that $(Ug)(\alpha) = g(T(\alpha))$ for any $g \in L(W^\ast, V^\ast), \alpha \in V$.
+    Then $(Ug)(\alpha) = (T^\top g)(\alpha) =g(T(\alpha)) \implies (Ug -T^\top g)(\alpha) = 0 \implies (U-T^\top)(g) = 0 \implies U = T^\top$.
+    $\qed$
+
+    \bigskip
+    We shall call $T^\top$ the \tb{transpose} of $T$. This transformation $T^\top$ is often called the adjoint of $T$.
+    However, we shell not use this terminology.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ and $W$ be vector spaces over the field $F$, and let $T$ be a linear transformation from $V$ into $W$.
+        The kernel (null space) of $T^\top$ is the annihilator of the range of $T$.
+        If $V$ and $W$ are finite-dimensional, then
+        \begin{enumerate}
+            \item $\dim \im (T^\top) = \dim \im T$
+            \item $\im T^\top$ is the annihilator of the kernel of $T$.
+        \end{enumerate}
+    \end{theorem}
+    \ti{Proof.}
+    For any $g \in W^\ast, \alpha \in V$, $(T^\top g)(\alpha) = g(T(\alpha))$.
+    $\ker T^\top = \{g | (T^\top g)(\alpha) = 0, \forall \alpha \in V\}$.
+    $(\im T)^0 = \{g | g(T(\alpha)) = 0 ,\forall \alpha \in V\}$
+    Thus, \underline{$\ker T^\top = (\im T)^0$}.
+
+    (1.) Let $\dim V = n$ and $\dim W = m$.
+    Let $\dim \im T = r$.
+    Then the $\dim (\im T)^0 = \dim \ker T^\top =  m-r$.
+    $T^\top$ is linear transformation from $W^\ast$ to $V^\ast$.
+    So $\dim W^\ast = \dim \ker T^\top + \dim \im T^\top \implies m = (m-r) + \dim \im T^\top \implies \dim \im T^\top = r$.
+    
+    (2.) Let $f = T^\top g$. For any $\alpha \in \ker T$, $f(\alpha) = (T^\top g)(\alpha) = g(T(\alpha)) = g(0) = 0$.
+    So $f$ is annihilator for $\ker T$.
+    Thus, for any $f = T^\top g$, $f$ is annihilator of $\ker T$ and this implies $\im T^\top \subseteq (\ker T)^0$.
+    And $\dim \ker T = (n-r) \implies \dim (\ker T)^0 = r = \dim \im T^\top$.
+
+    $\therefore \im T^\top = (\ker T)^0$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $V$ and $W$ be finite-dimensional vector spaces over the field $F$.
+        Let $\mc{B}$ be an ordered basis for $V$ with dual basis $\mc{B}^\ast$, and let $\mc{C}$ be an ordered basis for $W$ with dual basis $\mc{C}^\ast$.
+        Let $T$ be a linear transformation from $V$ into $W$.
+        Let $A$ be the matrix of $T$ relative to $\mc{B}$, $\mc{C}$ and let $B$ be the matrix of $T^\top$ relative to $\mc{C}^\top$, $\mc{B}^\ast$.
+        Then $B_{i,j} = A_{j,i}$.
+    \end{theorem}
+
+    \ti{Proof.}
+    Let $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$, $\mc{C} = \{\beta_1. \dots, \beta_m\}$, $\mc{B}^\ast=\{f_1, \dots, f_n\}, \mc{C}^\ast = \{g_1, \dots, g_m\}$.
+    By definition, $T(\alpha_j) = \sum_{i=1}^m A_{i, j} \beta_i$, $T^\top (g_j) = \sum_{i=1}^n B_{i,j} f_i$.
+
+    Then $T^\top (g_j)(\alpha_i) = g_j (T(\alpha_i)) = g_j (\sum_{k=1}^m A_{ki}\beta_k) = \sum_{k=1}^m A_{ki} g_j(\beta_k) = A_{ji}$.
+
+    For any linear functional $f$, $f = \sum_{i=1}^n f(\alpha_i) f_i$.
+    Let $f = T^\top g_j$ then it becomes $T^\top g_j = \sum_{i=1}^m A_{j,i} f_i$.
+    But $T^\top g_j = \sum_{i=1}^n B_{i,j} f_i$ by definition.
+
+    $\therefore A_{j,i} = B_{i,j}$.
+    $\qed$
+
+    \begin{definition}
+        If $A$ is an $m \times n$ matrix over the field $F$, the \tb{transpose} of $A$ is the $n \times m$ matrix $A^\top$ defined by $A^\top_{i,j} = A_{j,i}$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $A$ be any $m\times n$ matrix over the field $F$.
+        Then the row rank of $A$ is equal to the column rank of $A$.
+    \end{theorem}
+    \ti{Proof.}
+    Let $\mc{B}$ be the standard ordered basis for $F^n$ and $\mc{B}^\prime$ the standard ordered basis for $F^m$.
+    Let $T$ be the linear transformation from $F^n$ into $F^m$ such that the matrix of $T$ relative to the pair $\mc{B},\mc{B}^\prime$ is $A$.
+
+    For any $x=(x_1, \dots, x_n) \in F^n, y = (y_1, \dots, y_m) \in F^m$, $y_i = \sum_{j=1}^m A_{ij} x_j$.
+    So, $col A$ = $\dim \im T$.
+    Similarly, $T^\top$ has matrix to the dual basis $\mc{B}^{\prime \ast}$ and $\mc{B}^\ast$, $A^\top$, and this matrix $A^\top$ has column rank same with $\dim \im T^\top = \dim \im T = col A$.
+    $\therefore col A^\top = row A^\top = col A$.
+
+    \begin{definition}
+        If $A$ is $m \times n$ matrix over $F$ and $T$ is the linear transformation from $F^n$ into $F^m$ such that $T(x) = y, x\in F^n, y \in F^m$, then
+        $\dim \im T = row A = col A$ and we call this number simply the \tb{rank} of $A$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}    
+        Let $V$ be an $n$-dimensional vector space over the field $F$, and let $T$ be a linear operator on $V$.
+        Suppose $\mc{B} = \{\alpha_1, \dots, \alpha_n\}$ is an ordered basis for $V$.
+        The matrix of $T$ in the ordered basis $\mc{B}$ is defined to be the $n \times n$ matrix $A$ such that $T(\alpha_j) = \sum_{j=1}^n A_{ij} \alpha_i$.
+        If $\{f_1, \dots, f_n\}$ is the dual basis of $\mc{B}$, this can be stated simply $A_{ij}=f_i (T(\alpha_j))$.
+
+        \smallskip
+        Let us see what happens when we change basis.
+        Suppose $\mc{B}^\prime = \{\alpha^\prime_1, \dots, \alpha^\prime_n\}$ is another ordered basis for $V$, with dual basis $\{f_1^\prime, \dots, f^\prime_n\}$.
+        If $B$ is the matrix of $T$ in the ordered basis $\mc{B}^\prime$, then $T(\alpha_j^\prime) = \sum_{j=1}^n B_{ij} \alpha_i$ and $B_{ij} = f^\prime_i (T(\alpha_j^\prime))$.
+
+        \smallskip
+        Let $U$ be the invertible linear operator such that $U(\alpha_j)= \alpha_j^\prime$.
+        Then the transpose of $U$ is given by $U^\top f^\prime_i = f_i$.
+        It is easy to verify that since $U$ is invertible, so is $U^\top$ and $(U^\top)^{-1}$.
+        Thus $f^\prime_i = (U^{-1})^\top f_i, i=1, \dots, n$.
+        $\therefore B_{ij} = [(U)^{-1}f_i](T(\alpha_j^\prime)) = f_i(U^\{-1\}(T(\alpha^\prime_j))) = f_i(U^{-1} T U(\alpha_j))$.
+
+        \smallskip
+        Now what does this say? $f_i((U^{-1}T U)(\alpha_j))$ is the $i,j$ entry of the matrix of $U^{-1}TU$ in the ordered basis $\mc{B}$.
+        Our computation above shows that this scalar is also the $i,j$ entry of the matrix of $T$ in the ordered basis $\mc{B}^\prime$.
+        In other words, $[T]_{\mc{B}^\prime} = [U^{-1} T U]_{\mc{B}} = [U^{-1}]_{\mc{B}} [T]_{\mc{B}} [U]_{\mc{B}} = [U]_{\mc{B}}^{-1} [T]_{\mc{B}} [U]_{\mc{B}}$ and this is precisely the change-of-basis formula which we derived earlier.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.7.3}
+        Let $V$ be the space of all $n \times n$ matrices over the field $F$ and let $B$ be a fixed $n \times n$ matrix.
+        If $T$ is the linear operator on $V$ defined by $T(A) = AB - BA$, and if $f$ is the trace function, what is $T^\top f$?
+
+        \smallskip
+        By definition, for any $A \in F^{n \times n}$, $T^\top f (A) = f(T(A)) = f(AB-BA) = \tr(AB) -\tr(BA) = 0$.
+        So, $T^\top f = 0$
+    \end{block}
+
+    \begin{block}{Exercise 3.7.4}
+        Let $V$ be a finite-dimensional vector space over the field $F$ and let $T$ be a linear operator on $V$.
+        Let $c$ be a scalar and suppose there is a non-zero vector $\alpha$ in $V$ such that $T(\alpha) = c\alpha$.
+        Prove that there is non-zero linear functional $f$ on $V$ such that $T^\top f = cf$.
+
+        \smallskip
+        Let $f \in V^\ast$ and $f \neq 0$. Then for any $\alpha \in V$, $T^\top f(\alpha) = f(T(\alpha)) = f(c\alpha) = cf(\alpha)$.
+        $\qed$
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Exercise 3.7.5}
+        Let $A$ be an $m \times n$ matrix with \ti{real} entries.
+        Prove that $A =0 \iff \tr(A^\top A) = 0$.
+        ($\implies$:) Trivial.
+
+        ($\impliedby$:) $\sum_{k=1}^m A_{ki} A_{ki} = A_{ki}^2 = 0$ where $i=1, \dots, m$ and this implies $A_{ki} = 0$.
+        So $A =0$.
+    \end{block}
+
+    \begin{block}{Exercise 3.7.7}
+        Let $V$ be finite-dimensional vector space over the field $F$.
+        Show that $\Phi(T) = T^\top$ is an isomorphism of $L(V,V)$ onto $L(V^\ast, V^\ast)$.
+
+        \smallskip
+        (Linearity:) Let $T,S \in L(V,V)$ and $c \in F$.
+        $\Phi(cT +S) = (cT + S)^\top$.
+        For any $\alpha \in V$ and $f \in V^\ast$, $(cT + S)^\top (f) (\alpha) = f((cT + S)(\alpha)) = f(cT(\alpha) + S(\alpha)) = cf(T(\alpha)) + f(S(\alpha)) = c(T^\top f) (\alpha) + (S^\top f)(\alpha)$.
+        This implies $(cT + S)^{\top} = cT^\top + S^\top$ and $\Phi(cT + S) = (cT + S)^\top = c T^\top + S^\top = c\Phi(T) + \Phi(S)$.
+
+        \smallskip
+        (Invertibility:) Let $\Phi(T) = T^\top = 0$. Then for any $f \in V^\ast$ and $\alpha \in V$, $(T^\top f) (\alpha) = f(T(\alpha)) =0$.
+        This implies $T = 0$ and $\ker \Phi = \{0\}$.
+        So, $\Phi$ is bijective and invertible.
+
+        \smallskip
+        $\therefore \Phi$ is an isomorphism.
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{block}{Exercise 3.7.8 $\star$} 
+        Let $V$ be the vector space of $n \times n$ matrices over the field $F$.
+        \begin{enumerate}
+            \item If $B$ is a fixed $n\times n$ matrix, define a function $f_B$ on $V$ by $f_B(A) = \tr(B^\top A)$.
+            Show that $f_B$ is a linear functional on $V$.
+            \item Show that every linear functional on $V$ is of the above form, i.e., is $f_B$ for some $B$.
+            \item Show that $\Phi(B) = f_B$ is an isomorphism of $V$ onto $V^\ast$.
+        \end{enumerate}
+
+        (1.) It is trivial that $f_B: V \to F$.
+        So, if $f_B$ is linear then $f_B$ is linear functional.
+        For any $A^1, A^2 \in V$ and $c \in F$, $f_B(cA +B) = \tr(B^\top(cA^1+A^2))$.
+
+        The $i$-th element of $f_B(cA^1+A^2)$ is $\sum_{i=1}^n \sum_{k=1}^n B_{ki} (cA^1_{ki} + A^2_{ki}) = c\sum_{i=1}^n\sum_{k=1}^n B_{ki}A^1_{ki} + \sum_{i=1}^n\sum_{k=1}^n B_{ki} A^2_{ki} = c\tr(B^\top A^1)+ \tr(B^\top A^2) = cf_B(A^1) +f_B(A^2)$.
+        Therefore, $f_B$ is linear functional on $V$.
+
+        \smallskip
+        (2.) Let $\epsilon_{ij}$ be the standard basis of $F^{n\times n}$.
+        Note that for $B \in F^{n\times n}$, $\tr(B^\top \epsilon_{ij}) = B_{i,j}$.
+        For a $f \in V$, $\exists B_{i,j} \in F$ such that $f(\epsilon_{ij}) = B_{i,j}$.
+        Then $f(\epsilon_{ij}) = B_{i,j} =Tr(B^\top \epsilon_{ij})$ holds.
+        This implies for any $f \in V^\ast$, $\exists B \in F^{n \times n}$ s.t. $f(A) = \tr(B^\top A)$ for any $A \in F^{n \times n}$.
+    \end{block}
+\end{frame}
+
+\begin{frame}{.}
+    \smallskip
+    (3. Linearity) For any $A^1, A^2, B \in V$, $\tr(B^\top(cA^1 + A^2)) = \sum_{i=1}^n \sum_{k=1}^n B_{ki} (cA^1_{ki} A^2_{ki}) = c\sum_{i=1}^n \sum_{k=1}^n B_{ki} A^1_{ki} + \sum_{i=1}^n \sum_{k=1}^n B_{ki} A^2_{ki} = c\tr(B^\top A^1) + \tr(B^\top A^2)$.
+    This implies $\Phi(cA^1 + A^2) = \tr(B^\top(cA^1 + A^2)) = c\tr(B^\top A^1) = \tr(A^2) = c \Phi(A^1) + \Phi(A^2)$ and $\Phi$ is linear.
+
+    (3. Invertibility) Let $\Phi(B) = f_B =0$.
+    Then for any $A \in V$, $f_B(A) = \tr(B^\top A) = 0 = \sum_{i=1}^n \sum_{k=1}^n B_{ki} A_{ki} = 0$.
+    Let $A = e_{ki}$ then $B = 0$.
+    So, $\ker \Phi = \{0\}$ and $\Phi$ is isomorphism.
+
 \end{frame}
 
 \end{document}
