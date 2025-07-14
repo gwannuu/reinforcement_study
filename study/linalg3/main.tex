@@ -609,18 +609,27 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 3,3.7}
+    \begin{block}{Exercise 3.3.7}
         Let $V$ and $W$ be vector spaces over the field $F$ and let $U$ be an isomorphism of $V$ onto $W$.
-        Prove that $T \to UT U^{-1}$ is an isomorphism of $L(V,V)$ onto $L(W,W)$.
+        Prove that $\Phi(T) = UT U^{-1}$ is an isomorphism of $L(V,V)$ onto $L(W,W)$.
     \end{block}
 
-    Note that $L(V,V)$ and $L(W,W)$ are vector spaces and $T \in L(V,V), U T U^{-1} \in L(W,W)$.
-    Let $\{\alpha_1, \dots, \alpha_n\}$ be the basis of $V$.
-    For any $T \in L(V,V)$, we can consider basis of $L(V,V)$ as $\{T_{11}, \dots, T_{1n}, \dots, T_{mn}\}$ where $T_{pq}(\alpha_j) = \delta_{qj} \alpha_p$.
+    (Linearlity:) Let $T, S \in L(V,W)$ and $c \in F$. For any $\beta \in W$, $\Phi(cT+S)(\beta) = (U((cT+S) (U^{-1}(\beta)))) = U(((cT+S)(U^{-1}(\beta)))) = cU(T(U^{-1}(\beta))) + U(S(U^{-1})(\beta)) = c\Phi(T)(\beta) + \Phi(S)(\beta)$.
+    This implies $\Phi(cT+S) = c\Phi(T)+\Phi(S)$ and $\phi$ is linear.
 
-    For any $\alpha \in V$, there exists scalars $x_i$ such that $\alpha = x_1 \alpha_1 + \cdots + x_n \alpha_n$. Then $T(\alpha) = $
+    (Invertibility:) Let $\mc{B} =\{\alpha_1, \dots, \alpha_n\}$ and $\mc{C} = \{\beta_1, \dots, \beta_n\}$ be the ordered basis of $V$ and $W$ s.t. $U(\alpha_j) = \beta_j$.
+    For a $T \in L(V,W)$, Let $\Phi(T) = 0$.
+    Then for any $\beta \in W$, $(UTU^{-1})(\beta) = 0$ holds.
+    Replace $\beta = \beta_j$ then $(UTU^{-1})(\beta_j) = U(T(\alpha_j)) = 0$.
+    Since $U$ is invertible and $\ker U = \{0\}$, $T(\alpha_j) = 0$.
+    For every basis $\alpha_j$, $T$ maps to $0$ so $T = 0$.
 
-    \textcolor{red}{To be done..}
+    In summary, $\forall T, \Phi(T) = 0 \implies T = 0$ and $\ker \Phi = \{0\}$.
+    So $\Phi$ is invertible.
+
+    $\therefore \Phi$ is isomorphism.
+    $\qed$
+
 \end{frame}
 
 \subsection{Representation of Transformations by Matrices}
@@ -1158,8 +1167,20 @@
 \end{frame}
 
 \begin{frame}{.}
-    (3.): \textcolor{red}{to be continue}
-    (4.): 
+    (3.): Claim: $\dim S^k(V) = n-k$.
+    Let assume $\dim S(V) = n$. Then also $\dim S^n(V) = n$ and contradiction.
+    So, $\dim S(V) = n-1$.
+    If $S$ is not circular, then for $k=2, 3, \dots, n$, $\dim S^k(V) = n-1$.
+    Else if $S$ is circular, then $\dim S^k(V) n-k$.
+    Therefore, $\dim S^n(V)=0, \dim S^{n-1}(V) = 1$ and there exists basis $\mc{B}^\prime$ s.t. $[S]_{\mc{B}^\prime} = [T]_{\mc{B}}$.
+
+
+    (4.): Let define $T(x) = Mx$ and $S(x) =Nx$.
+    Then by (3.), $T^n = S^n = 0$ and $T^{n-1} \neq 0 \neq S^{n-1}$.
+    Then there exists ordered basis $\mc{B}$ and $\mc{B}^\prime$ such that $[T]_{\mc{B}}^{n-1}$ is same with (1.) and $[S]_{\mc{B}^\prime}^{n-1}$ is same with (1.).
+    Then $M$ is similar with $[T]_{\mc{B}}$ and $N$ is similar with $[T]_{\mc{B}^\prime}$.
+    Also, $[T]_{\mc{B}}$ and $[S]_{\mc{B}^\prime}$ is similar.
+    So, $M$ and $N$ is similar.
 \end{frame}
 
 \begin{frame}{.}
@@ -1496,12 +1517,39 @@
             \item Prove that $(W_1 + W_2)^0 = W_1^0 \cap W^0_2$
             \item Prove that $(W_1 \cap W_2)^0 = W_1^0 + W^0_2$
         \end{itemize}
-        \textcolor{red}{to be continue...}
+
+        \begin{itemize}
+            \item ($\subseteq$:) For any $\alpha_1 \in W_1$ and $\alpha_2 \in W_2$, Let $f \in V$ s.t. $f(\alpha_1 + \alpha_2) = 0$, i.e., $f \in (W_1 + W_2)^0$.
+            Let $\alpha_1= 0$.
+            Then $\forall \alpha_2 \in W_2, f(\alpha_2) = 0$ and this implies $f \in W^0_2$.
+            Similarly, replace $\alpha_2$ with $0$ leads to $f \in W^0_1$.
+            Therefore, $\forall f \in (W_1 + W_2)^0$, $f \in W_1^0 \cap W_2^0$ and in summary, $(W_1 + W_2)^0 \subseteq W_1^0 \cap W_2^0$.
+            ($\supseteq$:) Let $f \in W_1^0 \cap W_2^0$.
+            Then $\forall \alpha_1 \in W_1, \forall \alpha_2 \in W_2$, $f(\alpha_1) = 0$ and $f(\alpha_2) = 0$.
+            By the linearity of $f$, $f(\alpha_1) + f(\alpha_2) = 0 \implies f(\alpha_1 + \alpha_2) = 0$ and leads to $f \in (W_1 + W_2)^0$.
+            Therefore, $(W_1 + W_2)^0 \supseteq (W_1^0 \cap W_2^0)$.
+            \item ($\subseteq$:) Let $\alpha \in W_1 \cap W_2, \alpha_1 \in W_1 \setminus W_2, \alpha_2 \in W_2 \setminus W_2$.
+            $\forall f \in (W_1 \cap W_2)^0, \exists f_1 \in W_1^0, f_2 \in W_2^0$ s.t. $f(\alpha_1) = f_2(\alpha_1), f(\alpha_2) = f_1(\alpha_2), f = f_1 + f_2$.
+            So $(W_1 \cap W_2)^0 \subseteq W_1^0 + W_2^0$.
+
+            ($\supseteq$:) Let $\alpha \in W_1 \cap W_2$.
+            $\forall f_1 \in W_1^0, \forall f_2 \in W_2^0$ satisfies $f_1(\alpha) = 0$ and $f_2(\alpha) = 0$.
+            Then $(f_1 + f_2)(\alpha) = 0$ by linearity and $(W_1 \cap W_2)^0 \supseteq W_1^0 + W_2^0$ holds.
+        \end{itemize}
     \end{block}
+
+\end{frame}
+
+\begin{frame}{.}
     \begin{block}{Exercise 3.5.12}
         Let $V$ be a finite-dimensional vector space over the field $F$ and let $W$ be a subspace of $V$. If $f$ is a linear functional on $W$, prove that there is a linear functional $g$ on $V$ s.t. $g(\alpha) = f(\alpha)$ for each $\alpha$ in the subspace $W$.
-    
-        \textcolor{red}{to be continue...}
+
+        \smallskip
+        Let $\{\alpha_1, \dots, \alpha_k \}$ be the basis of $W$ and $\{\alpha_1, \dots, \alpha_k , \dots, \alpha_n \}$ be the basis of $V$.
+        Let $\{f_1, \dots, f_n \}$ be the dual basis of $V$.
+        For any $f \in W^\ast$, $\exists c_i \in F$ s.t. $f = c_1 f_1 + \cdots + c_k f_k$.
+        Then letting $g = c_1 f_1 + \cdots + c_k f_k + 0 f_{k+1} + \cdots + 0 f_n$ makes $g(\alpha) = f(\alpha)$ for all $\alpha \in W$.
+        $\qed$
     \end{block}
 
     \begin{block}{Exercise 3.5.13}
@@ -1509,18 +1557,15 @@
         Suppose that $f$ and $g$ are linear functionals on $V$ such that the function $h$ defined by $h(\alpha) = f(\alpha) g(\alpha)$ is also linear functional on $V$.
         Prove that either $f=0$ or $g=0$.
 
-        \textcolor{red}{to be continue...}
+        For any $\alpha \in V$, $h(\alpha) = f(\alpha)g(\alpha)$ holds.
+        Then by linearity, $h(2\alpha) = f(2\alpha)g(2\alpha) \implies 2h(\alpha) = 4h(\alpha)$ holds.
+        This implies $h(\alpha) = 0$ and one of $f(\alpha$) and $g(\alpha)$ should be zero.
+        Thus $f=0$ or $g=0$ holds.
+        $\qed$
     \end{block}
 \end{frame}
 
-\begin{frame}{Exercise 3.5.14}
-    \begin{block}{Exercise 3.5.14}
-        Let $F$ be a field of characteristic zero and let $V$ be a finite-dimensional vector space over $F$.
-        If $\alpha_1, \dots, \alpha_m$ are finitely many vectors in $V$, each different from the zero vector, prove that there is a linear functional $f$ on $V$ such that $f(\alpha_i) \neq 0, i=1, \dots, m$.
-
-        \textcolor{red}{to be continue...}
-    \end{block}
-
+\begin{frame}{.}
     \begin{block}{Exercise 3.5.15}
         It is true that similar matrices have the same trace.
         Thus we can define the trace of a linear operator on a finite-dimensional space to be the trace of any matrix which represents the operator in an ordered basis.
@@ -1551,31 +1596,44 @@
 
 \begin{frame}{.}
 
-    \begin{block}{Exercise 3.5.16}    
+    \begin{block}{Exercise 3.5.16 $\star$}
         Show that the trace functional on $n \times n$ matrices is unique in the following sense.
         If $W$ is the space of $n \times n$ matrices over the field $F$ and if $f$ is a linear functional on $W$ such that $f(AB) = f(BA)$ for each $A$ and $B$ in $W$, then $f$ is a scalar multiple of the trace function.
         If, in addition, $f(I) = n$, then $f$ is the trace function.
 
         \smallskip
-        $\mc{B} = \{\epsilon_{11}, \dots, \epsilon_{n1}, \epsilon_{21}, \dots, \epsilon_{n2}, \dots, \epsilon_{nn}\}$ is ordered basis of $W$ where $\epsilon_{ij}$ is the $ij$-th standard basis of $F^{n \times n}$.
-        Let $\{f_{11}, \dots, f_{nn}\}$ be the dual basis of $\mc{B}$.
-        Note that $\forall A \in W, f_{ij}(A) = A_{ij}$.
-        For any linear functional $f \in W^\ast$, $f$ can be expressed by some scalars $c_{ij}$ s.t. $f = c_{11}f_{11} + \cdots +c_{nn} f_{nn}$.
-        % Then $f(AB) = c_{11} (\sum_{k=1}^n A_{1k} B_{k1}) + \cdots + c_{nn} (\sum_{k=1}^n A_{nk} B_{kn}) = f(BA) = c_{11} (\sum_{k=1}^n B_{1k}A_{k1}) + \cdots + c_{nn}( \sum_{k=1}^n B_{nk}A_{kn})$.
-        Then $f(AB) = c_{11} f_{11}(AB) + \cdots + c_{nn} f_{nn}(AB) = f(BA) = c_{11} f_{11}(BA) + \cdots + c_{nn} f_{nn}(BA)$.
-        This implies $c_{11} f_{11} (AB - BA) + \cdots + c_{nn} f_{nn} (AB-BA) = 0$.
-        For $i, j$ s.t. $i \neq j$, $(AB)_{ij} \neq (BA)_{ij}$ generally, thus $c_{ij} = 0$.
+        Let $A = \epsilon_{ij}, B=\epsilon_{jj}$.
+        Then $AB = \epsilon_{ij}$ and $BA = 0$.
+        So, $f(\epsilon_{ij}) = 0$.
 
-        Therefore $f = c_{11}f_{11} + c_{22}f_{22} + \cdots + c_{nn} f_{nn}$.
+        For any $M \in W$, $M = c_{11} \epsilon_{11} + \cdots + c_{nn} \epsilon_{nn}$ for some scalars $c_{ij}$.
+        Then $f(M) = c_11 f(\epsilon_{11}) + c_22 + f(\epsilon_{22})+ \cdots + c_nn f(\epsilon_nn)$.
+        
+        Now, Let $A = \epsilon_{11} + \epsilon_{i1}$ and $B = \epsilon_{11} + \epsilon_{1i}$ for $i =2, \dots, n$.
+        Then $AB = \epsilon_{11} + \epsilon_{1i} + \epsilon_{i1} + \epsilon_{ii}$ and $BA = 2 \epsilon_{11}$.
+        This implies $f(\epsilon_{11}) + f(\epsilon_{ii}) = 2f(\epsilon_{ii}) \implies f(\epsilon_{11}) = f_{\epsilon_{ii}}$.
+        So, $f(M) = n * c_{11} f(\epsilon_{11})$ and $f$ is scalar multiple of trace.
+        $\qed$
 
-
-        \textcolor{red}{...}
     \end{block}
 
-    \begin{block}{Exercise 3.5.17}
+    \begin{block}{Exercise 3.5.17 $\star$}
         Let $W$ be the space of $n \times n$ matrices over the field $F$, and let $W_0$ be the subspace spanned by the matrices $C$ of the form $C = AB - BA$.
         Prove that $W_0$ is exactly the subspace of matrices which have trace zero. 
     \end{block}
+    Let $W^\prime = \{w | \tr(w) =0, w \in W\}$.
+    Then $W_0 \subseteq W^\prime$ is trivial.
+
+    \underline{Claim : $\dim W^\prime = \dim W_0 = n^2-1$}.
+    First, $\tr$ is functional so $\dim W^\prime +1 = n^2 \implies \dim W^\prime = n^2-1$.
+    Let $E_{ij}$ be the standard basis of $F^{n \times n}$ and $H_{ij} = E_{ii} - E_{ij}$.
+    Let $\mc{B} = \{E_{ij} | i \neq j\} \cup \{H_{1,j} | 2 \leq j \leq n\}$.
+    Then $\mc{B}$ is lin. ind. (trivial).
+    Also, $2E_{ij} = H_{ij}E_{ij} - E_{ij} H_{ij}$ holds and $H_{ij} = E_{ij}E_{ji} - E_{ji}E_{ij}$ holds.
+    So, $E_{ij} \in W_0, H_{ij} \in W_0$.
+    $\abs{\mc{B}} = n^2-1$ so $n^2-1 \leq \dim W_0 \leq n^2-1$ and $\dim W_0 = n^2-1$.
+    $W_0 \subseteq W^\prime$ and $\dim W_0 = \dim W^\prime \implies W_0 = W^\prime$.
+    $\qed$
 \end{frame}
 
 \subsection{The Double Dual}
@@ -1696,7 +1754,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{lemma}
+    \begin{lemma} \label{lem:1}
         Let $f$ and $g$ are linear functionals on a vector space $V$.
         $g$ is a scalar multiple of $f$ $\iff$ $f(\alpha) = 0 \implies g(\alpha) = 0$ (i.e., $\ker f \subseteq \ker g$).
     \end{lemma}
@@ -1727,16 +1785,24 @@
     For any vecor $\alpha \in N_1 \cap \cdots \cap N_r$, $g(\alpha) = c_1f_1(\alpha)+ \cdots + c_r f_r(\alpha) = 0$.
     Thus, $N_1 \cap \cdots \cap N_r \subseteq N$.
 
-    ($\impliedby$:) For any vector $\alpha \in N_1 \cap \cdots \cap N_r$, $\alpha \in N$.
-    So, $f_1(\alpha) = 0, \dots, f_r(\alpha)=0$ and $g(\alpha) = 0$.
+    ($\impliedby$:)
     The $r=1$ case can be proved by previous Lemma.
-    Suppose $r=k-1$ case holds.
-    Let $\alpha \in N_1 \cap \cdots \cap N_{k}$.
-    Then $g = c_1 f_1 + \cdots + c_{k-1} f_{k-1}$ and $g(\alpha) = c_1 f_1(\alpha) + \cdots + c_{k-1} f_{k-1}(\alpha) = 0$.
-    For fixed $\beta$ s.t.  $\beta \notin N_1 \cap \cdots \cap N_k$ and $\beta \in N_1 \cap \cdots \cap N_{k-1}$, Let consider another linear functional $g^\prime$ s.t. $g^\prime(\beta) = c_k f_k(\beta)$ for a scalar $c_k$ and $g^\prime(\alpha) = 0$.
-    Claim : $g^\prime - c_k f_k = g$.
+    Suppose $r=k-1$ case holds (for mathematical induction).
+    This means that for any $g, f_1, \dots, f_{k-1} \in V$, $\exists c_1, \dots, c_{k-1} \in F$ s.t. $g = c_1 f_1 + \cdots + c_{k-1} f_{k-1}$.
 
-    \textcolor{red}{To be continue..}
+    Now Let assume for any $g, f_1, \dots, f_k$, $N_1 \cap \cdots \cap N_k \subseteq N$.
+    Denote $g^\prime, f_1^\prime, \dots, f_{k-1}^\prime$ as the restriction of $g, f_1, \dots, f_{k-1}$ to domain $N_{k}$, which is subspace of $V$.
+    Then by the $r=k-1$ induction assumption, there exists $c_1, \dots, c_{k-1}$ s.t $g^\prime = c_1 f_1^\prime + \cdots +c_{k-1} f^\prime_{k-1}$.
+    Note that $\forall \alpha \in N_1 \cap \cdots \cap N_k$, $g^\prime(\alpha) = g(\alpha)$ and $f_i^\prime(\alpha) = f_i (\alpha), i=1, \dots, k-1$.
+    So, in $V$, $g(\alpha) = (c_1 f_1 + \cdots + c_{k-1} f_{k-1})(\alpha) = 0$ for all $\alpha \in N_1 \cap \cdots \cap N_k$,
+    but may be not for some $\beta \in N_k, \beta \notin N_1 \cap \cdots \cap N_{k-1}$.
+
+    Let $h = g - (c_1 f_1 + \cdots + c_{k-1} f_{k-1})$.
+    Then for all $\alpha \in N_k$, $h(\alpha) = g(\alpha) - (c_1 f_1 + \cdots + c_{k-1} f_{k-1})(\alpha) = 0$.
+    Since for all $\alpha \in N_k$, $h(\alpha) = 0$, by previous Lemma \ref{lem:1}, there exists some scalar $c_k$ s.t $h = c_k f_k$
+    $\therefore g = c_1 f_1 + \cdots + c_k f_k$ and mathematical induction holds.
+    $\qed$
+
 \end{frame}
 
 \subsection{The Transpose of a Linear Transformation}
@@ -1965,6 +2031,7 @@
     Then for any $A \in V$, $f_B(A) = \tr(B^\top A) = 0 = \sum_{i=1}^n \sum_{k=1}^n B_{ki} A_{ki} = 0$.
     Let $A = e_{ki}$ then $B = 0$.
     So, $\ker \Phi = \{0\}$ and $\Phi$ is isomorphism.
+    $\qed$
 
 \end{frame}
 
