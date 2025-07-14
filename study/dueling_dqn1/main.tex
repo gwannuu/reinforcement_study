@@ -146,7 +146,7 @@
     Paper said that $2 > 1$ (2 shows better performance than 1) and $3 \simeq 2$ (3 shows similar performance with 2). In paper all experiments utilize equation $2$.
 \end{frame}
 
-\subsection{Experiment setting}
+\subsection{Experiment 1}
 
 % \begin{frame}{a}
 %     \tableofcontents[currentsubsection]
@@ -158,7 +158,7 @@
         \item Training is based on DQN algorithm and detailed explanation is in [\cite{mnih2015human}]
         \item Buffer size: $0.1M$ (\cite{mnih2015human} algorithm uses $1M$)
         \item behavior policy : $\epsilon$-greedy with annealing $\epsilon : 1 \rightarrow 0.1$ in first $1M$ timestep
-        \item target policy: $\epsilon$-greedy with $\epsilon: 0.5$
+        \item target policy: $\epsilon$-greedy with $\epsilon: 0.05$
         \item Total timestep : $2.5M$ (\cite{mnih2015human} algorithm uses $50M$)
         \item Same CNN structure except $V$ network and $A$ network
         \item Target Network update frequency: $500$ (\cite{mnih2015human} is $10000$)
@@ -202,7 +202,6 @@
     \end{figure}
 \end{frame}
 
-\subsection{Experiment result}
 
 \begin{frame}{.}
     I found that there exists performance drop after about $1M$ timesteps.
@@ -219,6 +218,88 @@
         \item Increase target network frequency $500 \rightarrow 10000$
     \end{itemize}
 \end{frame}
+
+\subsection{Experiment 2}
+\begin{frame}{.}
+    Experiment setting
+    \begin{itemize}
+        \item Training is based on DQN algorithm and detailed explanation is in [\cite{mnih2015human}]
+        \item Buffer size: $0.1M$
+        \item behavior policy : $\epsilon$-greedy with annealing $\epsilon : 1 \rightarrow 0.1$ in first $1M$ timestep
+        \item target policy: $\epsilon$-greedy with $\epsilon: 0.05$
+        \item Total timestep : $10M$ (Experiment 1: $2.5M$)
+        \item Same CNN structure except $V$ network and $A$ network
+        \item Target Network update frequency: $10000$ (Experiment 1: $500$)
+        \item Minibatch size : $256$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    Compared to Experiment 1, the stability considerably increases.
+    Many explosions disappear.
+    Target network frequency 500 is too fast to convergence.
+
+    \begin{itemize}
+        \item Orange: Experiment 2
+        \item Sapphire: Experiment 1
+    \end{itemize}
+    \begin{figure}
+        \includegraphics[width=0.85\textwidth]{Exp2_1.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+        \begin{figure}
+        \includegraphics[width=0.85\textwidth]{Exp2_2.png}
+    \end{figure}
+\end{frame}
+
+\subsection{Experiment 3}
+
+\begin{frame}{.}
+    Experiment settings
+    \begin{itemize}
+        \item Training is based on DQN algorithm and detailed explanation is in [\cite{mnih2015human}]
+        \item Buffer size: $0.1M$
+        \item behavior policy : $\epsilon$-greedy with annealing $\epsilon : 1 \rightarrow 0.2$ in first $1M$ timestep (In Experiment 2, end behavior\_epsilon $0.1$)
+        \item target policy: $\epsilon$-greedy with $\epsilon: 0.05$
+        \item Total timestep : $10M$ (Experiment 1: $2.5M$)
+        \item Same CNN structure except $V$ network and $A$ network
+        \item Target Network update frequency: $10000$
+        \item Minibatch size : $256$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    No more different with result of Experiment 2.
+
+    \begin{itemize}
+        \item Green: Experiment 3
+        \item Orange: Experiment 2
+    \end{itemize}
+
+    \begin{figure}
+        \includegraphics[width=0.85\textwidth]{Exp3_1.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{figure}
+        \includegraphics[width=0.85\textwidth]{Exp3_2.png}
+    \end{figure}
+
+    Result of Experiment 3 show that increasing behavior\_epsilon from $0.1$ to $0.2$ is not useful.
+    So, discard this setting.
+\end{frame}
+
+\begin{frame}{.}
+    To Do
+    \begin{itemize}
+        \item Increase replay buffer size $1M \to 10M$
+        \item Implement original DQN and compare with Dueling DQN
+    \end{itemize}
+\end{frame}
+
 
 \subsection{References}
 \begin{frame}[allowframebreaks]{References}
