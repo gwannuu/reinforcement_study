@@ -1,0 +1,442 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  % \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+
+
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\mypois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\mybin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\myunif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\myexpo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\myvar}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Linear Algebra}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% % 목차 슬라이드
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents
+% \end{frame}
+
+% \subsection{Introduction}
+
+% \begin{frame}
+%     \frametitle{Table of Contents}
+%     \tableofcontents[currentsubsection]
+% \end{frame}
+
+
+\begin{frame}{Field}
+  \begin{definition}[Field]\label{def:field}
+    For $x, y, z \in F$,
+    \begin{itemize}
+      \item Addition is commutative $ x+ y = y + x$
+      \item Addition is associative $x + (y + z) = (x+y) + z$
+      \item There exists identity element for addition. $0$ in $F$
+      \item There exists inverse element for addition. $(-x), \forall x \in F$
+      \item Multiplication is commutative $xy = yx$
+      \item Multipication is associative $x(yz) = (xy)z$
+      \item There exists identity element for multiplication. $1$ in $F$
+      \item There exists inverse element for multiplication. $x^{-1}, \forall x \in F \setminus \{0\}$
+      \item $x(y+z) = xy + xz$
+    \end{itemize}
+    If set $F$ satisfies above conditions for two operators (addition, multiplication), is then called a \tb{field}
+  \end{definition}
+\end{frame}
+
+\begin{frame}{Field}
+  \begin{definition}[Subfield]
+    A subfield of the field $C$ is a set $F$ of complex numbers which is itself a field under the usual operations of addition and multiplication of complex numbers
+  \end{definition}
+
+  \begin{example}
+    \begin{itemize}
+      \item The set of integers is not a subfield of $C$. For an integer $n$, $1/n$ is not an integer (unless $n$ is $1$ or $-1$)
+      \item The set of rational numbers is a subfield of the field $C$
+      \item The set of all complex numbers of the form $x + y \sqrt{2}, x, y \in \mbb{Q}$
+    \end{itemize}
+  \end{example}
+
+  $(x + y \sqrt{2})^{-1} = \frac{x - y \sqrt{2}}{x^2 - 2 y^2}$
+
+  $(x + y \sqrt{2}) + (- x = y \sqrt{2}) = 0$
+
+  \begin{itemize}
+    \item Why we define subfield only for under complex number? Because complex field $\mbb{C}$ is \ti{characteristic zero}
+    \item In $\mbb{C}$, finite sum of $1$, $1 + 1 + \cdots + 1 \neq 0$
+    \item There exists some field $F$ that has characteristic, $1 + 1+ \cdots + 1 = 0$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{System of linear equation}
+  Suppose $F$ is a field. We consider the problem of finding $n$ scalars (elements of $F$) $x_1, \dots, x_n$ which satisfy the conditions of 
+  \begin{equation}\label{eq:1}
+    \begin{array}{ccccc}
+      A_{21}x_1 &+ A_{22}x_2  &+ \cdots &+ A_{2n}x_n & = y_2\\
+      A_{11}x_1 &+ A_{12}x_2  &+ \cdots &+ A_{1n}x_n & = y_1\\
+      \vdots    &  \vdots     &\empty    & \vdots          & \vdots\\
+      A_{m1}x_1 &+ A_{m2}x_2  &+ \cdots &+ A_{mn}x_n & = y_m
+    \end{array}
+  \end{equation}
+
+  where $y_1, \dots, y_m$ and $A_{ij}, 1\leq i\leq m, 1 \leq j \leq n $ are given elements of $F$. This is called a \ti{system of $m$ linear equations in $n$ unknowns}.
+
+  \bigskip
+  If $y_1 = y_2 =  \cdots = y_m = 0$, then this system of equations is called \ti{homogeneous}.
+
+  \bigskip
+  If each equation of system is the \tb{linear combination} of original system of equations, i.e. $(c_1 A_{11} + \dots  c_m A_{m1})x_1 + \cdots +(c_1 A_{1n} + \cdots + c_m A_{mn}  )x_n = c_1 y_1 + \cdots +c_m y_m, \forall c_1, \dots, c_n \in F$, then this new system of equations is \ti{equlvalent} with original system of equations.
+
+  \begin{theorem}
+    Equivalent system of linear equations have exactly the same solution
+  \end{theorem}
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  Equation \ref{eq:1} can be abbreviated by
+  $AX = Y$, where
+  \[
+  A = \left[ \begin{array}{ccc}
+    A_{11} & \cdots & A_{1n} \\
+    \vdots & \empty & \vdots \\
+    A_{m1} & \cdots & A_{mn}
+  \end{array} \right], 
+  X = \left[ \begin{array}{c}
+  x_1 \\ \vdots  \\ x_n
+  \end{array} \right],
+  Y = \left[\begin{matrix}
+    y_1 \\ \vdots \\ y_m
+  \end{matrix} \right]
+  \]
+
+
+  Three \tb{elementary row operations} on an $m \times n$ matrix $A$ over the field $F$ is
+
+  \begin{enumerate}
+    \item multiplication of one row of $A$ by a non-zero scalar $c$
+    \item replacement of the $r$th row of $A$ by row $r$ plus $c$ times row $s$, $c$ any scalar and $r \neq s$
+    \item interchange of two rows of $A$
+
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Matrices and Elementary Row Operations}
+  \begin{theorem}
+    To each elementary row operation $e$ there corresponds an elementary row operation $e_1$, of the same type as $e$, such that $e_1 (e(A)) = e(e_1(A)) = A$ for each $A$. In other words, the inverse operation (function) of an elementary row operation exists and is an elementary row operation of the same type. 
+  \end{theorem}
+  \ti{Proof.} skip
+
+  \begin{definition}
+    If $A$ and $B$ are $m \times n$ matrices over the field $F$, we say that $B$ is \tb{row-equivalent} to $A$ if $B$ can be obtained from $A$ by a finite sequence of elementary row operations.
+  \end{definition}
+
+
+  \begin{theorem}
+    If $A$ and $B$ are row-equivalent $m \times n $ matrices, the homogeneous system of linear equations $AX = 0$ and $BX = 0$ have exactly the same solutions.
+  \end{theorem}
+  \ti{Proof.} skip
+\end{frame}
+
+\begin{frame}{Row-Reduced Echelon Matrices}
+  \begin{definition}
+    An $m \times n$ matrix $R$ is called row-reduced if  
+    \begin{enumerate}
+      \item[a] the first non-zero entry in each non-zero row of $R$ is equal to $1$
+      \item[b] each column of $R$ which contains the leading non-zero entry of some row has all its other entries $0$
+    \end{enumerate}
+  \end{definition}
+
+  \begin{theorem}
+    Every $m \times n$ matrix over the field $F$ is row-equivalent to a row-reduced matrix
+  \end{theorem}
+  \ti{proof} skip
+
+  \begin{definition}
+    An $m \times n$ matrix $R$ is called a \tb{row-reduced echelon matrix} if
+    \begin{itemize}
+      \item $R$ is row-reduced
+      \item every row of $R$ which has all its entries $0$ occurs below every row which has a non-zero entry
+      \item If rows $1, \dots, r$ are the non-zero rows of $R$, and if the leading non-zero entry of row $i$ occurs in column $k_i$, $i=1, \dots, r$ then $k_1< k_2< \cdots < k_r$
+    \end{itemize}
+  \end{definition}
+
+  \begin{theorem}
+    Every $m \times n$ matrix $A$ is row-equivalent to a row-reduced echelon matrix
+  \end{theorem}
+  \ti{proof} skip
+\end{frame}
+
+\begin{frame}{Row-Reduced Echelon Matrices}
+  \begin{theorem}
+    If $A$ is an $m \times n$ matrix and $m < n$, then the homogeneous system of linear equations $AX=0$ has a non-trivial solution.
+  \end{theorem}
+  \ti{Proof} Let $R$ be the row-reduced echelon matrix which is row-equivalent to $A$. Then the sysmtes $AX = 0$ and $RX=0$ have the same solutions. And $r \leq m$ and since $m < n$, $r < n$. ($r$ is the number of non-zero rows of $R$)
+
+  \begin{theorem}\label{th:1}
+    If $A$ is an $n \times n$ matrix, then $A$ is row-equivalent to the $n\times n$ identity matrix if and only if the system of equations $AX = 0$ has only the trivial solution.
+  \end{theorem}
+  \ti{Proof.} 
+  \begin{itemize}
+    \item $\implies$ $AX =0 $and $IX = 0$ has same solution, which is trivial.
+    \item  $\impliedby$  $RX = 0$ has no non-trivial solution, thus $r \geq n$. But number of non-zero rows $r$ should be less or equal to $n$. $\therefore r = n \implies R = I$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Row-Reduced Echelon Matrices}
+  Let's consider about non-homogeneous case, $AX = Y$
+  Then we can form $m \times (n +1)$ matrix $A^\prime$ in which last column is $Y$. And the solution of $AX=Y$ and $RX=Z$ are same, where $Z$ is the last column of $R^\prime$ and $R^\prime$ is row-reduced echelon matrix from $A^\prime$
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  Let $A \in \mbb{R}^{m \times n}$ and $B \in \mbb{R}^{n \times p}$, then $C (= AB) \in \mbb{R}^{m \times p}$ is defined by $C_{i *} = A_{i1}B_{1 *} + A_{i2} B_{2 *} + \cdots + A_{in} B_{n*}$, where $B_{i *}$ is the $i$th row of $B$ and $C_{i*}$ is the $i$th row of $C$.
+
+  \begin{definition}
+    Let $A$ be an $m \times n $ matrix over the field $F$ and let $B$ be an $n \times p$ mtrix over $F$. The product $AB$ is the $m \times p$ matrix $C$ whose $i,j$ entry is
+    \[
+      C_{ij} = \sum_{r=1}^n A_{ir}B_{rj}
+    \]
+  \end{definition}
+
+  \begin{itemize}
+    \item Note that matrix multiplication is defined if and only if the number of columns in the first matrix coincides with the number of rows in the second matrix.
+    \item Note that $j$th column of $AB$, $(AB)_{*j} = AB_{*j}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{theorem}
+    If $A,B,C$ are matrices over the field $F$ such that the products $BC$ and $A(BC)$
+  \end{theorem}
+  \begin{proof}
+    \[
+      \begin{aligned}
+        ((AB)C)_{ij} &= \sum_{k} (AB)_{ik} C_{kj} = \sum_k \left(\sum_l A_{il} B_{lk}\right) C_{kj} \\
+        &= \sum_l A_{il }\sum_k B_{lk} C_{kj} = \sum_l A_{il} (BC)_{lj} \\
+        &= (A(BC))_{ij}
+      \end{aligned}
+    \]
+  \end{proof}
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{definition}
+    An $m \times n$ matrix is said to be an \tb{elementary matrix} if it can be obtained from the $m \times m$ identity matrix by means of single elementary row operation
+  \end{definition}
+
+  For example, under matrices are $2\times 2$ elementary matrix
+  \[  
+  \left[\begin{matrix} 0 & 1 \\ 1 & 0\end{matrix} \right],   \left[\begin{matrix} 1 & c \\ 0 & 1\end{matrix} \right],   \left[\begin{matrix} c & 0 \\ 0 & 1\end{matrix} \right]
+  \]
+
+\end{frame}
+
+\begin{frame}{Matrix Multiplication}
+  \begin{theorem}
+    Let $e$ be an elementary row operation and let $E$ be the $m\times m$ elementary matrix $E = e(I)$. Then, for every $m \times n$ matrix $A$,
+    \[
+    e(A) = EA
+    \]
+  
+  \end{theorem}
+  Let row vector $R_{i} = \left[\begin{matrix}
+    0, \dots, 1, \dots, 0
+  \end{matrix}\right] \in \mbb{R}^m$, where $i$ th element of $R_i$ is $1$ and else $0$.
+  \begin{itemize}
+    \item Suppose $\forall i \text{ s.t. } 1 \leq i \leq m, E_{i*}= c R_i, c \neq 0$ and $E_j = R_j, j \neq i$. Then $(EA)_{i*} = cA_{i*}$ and $(EA)_{j*} = A_{j*}$
+    \item Suppose $\forall i, j \text{ s.t. } 1 \leq i,j \leq m, i \neq j$ and $E_{i*} = R_j, E_{j*} = R_i, E_{k*} = R_k , \forall k \neq i, k \neq j$. Then $(EA)_{i*} = A_{j*}$ and $(EA)_{j*} = A_{i*}$ and $(EA)_{k*} = A_{k*}$
+    \item Suppose $\forall i,j \text{ s.t.} 1 \leq i, j \leq m, E_{i*} = R_i + c * R_j$ and $E_{k*} = R_k, \forall k \neq i$. Then $(EA)_i = A_{i*} + c A_{j*}$ and $(EA)_k = A_{k*}$
+  \end{itemize}
+
+  \begin{corollary}
+    Let $A$ and $B$ be $m \times n$ matrices over the field $F$. Then $B$ is row-equivalent to $A$ if and only if $B = PA$, where $P$ is a product of $m \times n$ elementary matrices
+  \end{corollary}
+
+  \ti{Proof.} skip
+
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  Suppose that $A$ and $B$ is row-equivalent. Then there exists product of elementary matrices $P$ such that $B = PA$. Since $B$ is row-equivalent with $A$, there also exists another product oof elementary matrices $Q$ such that $A = QB$. This implies $A = QPA$ and $QP = I$.
+
+  \begin{definition}[Invertible matrices]
+    Let $A$ be an $n \times n $ matrix over the field $F$. An $n \times n$ matrix $B$ such that $BA = I$ is called a \tb{left inverse} of $A$; an $n \times n$ matrix $B$ such that $AB = I$ is a right inverse of $A$. If $AB = BA = I$, then $B$ is called a \tb{two-sided inverse} of $A$ and $A$ is said to be \tb{invertible}
+  \end{definition}
+
+  Note that it there both exists left inverse of $A$, $B$ and right inverse of $A$, $C$, then $B = C$. 
+  \[
+    BA = I, AC = I \implies B = BI = B(AC) = (BA)C = IC = C
+  \]
+  Thus $B$ and $C$ is simply denoted by $A^{-1}$ is said to the \tb{inverse of} $A$.
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    Let $A$ and $B$ be $n \times n$ matrices over $F$
+    \begin{enumerate}
+      \item If $A$ is invertible, so is $A^{-1}$ and $(A^{-1})^{-1}$
+      \item If both $A$ and $B$ are invertible, so is $AB$ and $(AB)^{-1} = B^{-1}A^{-1}$
+    \end{enumerate}
+  \end{theorem}
+
+  \begin{proof}
+    \begin{itemize}
+      \item $\exists A^{-1}$ such that $A A^{-1} = A^{-1} A = I$. $A A^{-1} = I$ implies $A$ is left inverse of $A^{-1}$ and $A^{-1} A = I$ implies $A$ is right inverse of $A^{-1}$. So, $(A^{-1})^{-1} = A$
+      \item $ I = A B B^{-1} A^{-1} = (A B) (B^{-1} A^{-1}) \implies (AB)^{-1} = (B^{-1}A^{-1})$
+    \end{itemize}
+  \end{proof}
+
+  \begin{corollary}
+      A product of invertible matrices is invertible
+  \end{corollary}
+\end{frame}
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    An elementary matrix is invertible
+  \end{theorem}
+  \begin{example}
+    \[
+    \left[\begin{matrix}
+    0 & 1 \\ 1 & 0 
+    \end{matrix}\right]^{-1} =     \left[\begin{matrix}
+    0 & 1 \\ 1 & 0 
+    \end{matrix}\right]
+    \]
+
+    \[
+    \left[\begin{matrix}
+    1 & c \\ 0 & 1 
+    \end{matrix}\right]^{-1} =      \left[\begin{matrix}
+    1 & -c \\ 0 & 1 
+    \end{matrix}\right]
+    \]
+
+    \[
+      \left[\begin{matrix}
+    c & 0 \\ 0 & 1
+    \end{matrix}\right]^{-1} =       \left[\begin{matrix}
+    c^{-1} & 0 \\ 0 & 1
+    \end{matrix}\right]
+    \]
+  \end{example}
+\end{frame}
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}\label{th:2}
+    If $A$ is an $n \times n$ matrix, the following are equivalent
+    \begin{enumerate}
+      \item $A$ is invertible
+      \item $A$ is row-equivalent to the $n \times n$ identity matrix
+      \item $A$ is a product of elementary matrices
+    \end{enumerate}
+  \end{theorem}
+  \ti{Proof.} skip
+
+  \begin{corollary}
+    \begin{itemize}
+      \item If $A$ is an invertible $n\times n$ matrix and if a sequence of elementary row operations reduces $A$ to the identity, then that same sequence of operations when applied to $I$ yields $A^{-1}$
+      \item Let $A$ and $B$ be $m \times n$ matrices. Then $B$ is row-equivalent to $A$ if and only if $P$ is an invertible $m \times m$ matrix.
+    \end{itemize}
+  \end{corollary}
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  \begin{theorem}
+    For an $n \times n$ matrix $A$, the following are equivalent
+    \begin{enumerate}
+      \item $A$ is invertible
+      \item The homogeneous system $AX=0$ has only the trivial solution $X=0$
+      \item The system of equations $AX=Y$ has a solution $X$ for each $n\times 1$ matrix $Y$
+    \end{enumerate}
+  \end{theorem}
+  \begin{proof}
+    By theorem \ref{th:1}, 2. means that $A$ is row-equivalent to $I$. By theorem \ref{th:2}, each 1. and 2. $\iff$ $A$ is row-equivalent to $I$.
+    3. Let 
+    \[
+    E = \left[\begin{matrix}
+    0 \\ 0 \\ \vdots \\ 1
+    \end{matrix}\right]
+    \] Then $\exists P, Y$, where $P$ is product of elementary row operations, s.t. $RX = PAX = PY = E (\because \forall P : PA = R, \exists Y : Y = P^{-1}E)$. $RX = E$ has solution implies last row of matrix $R$ is non-zero and $R = I$
+  \end{proof}
+\end{frame}
+
+
+\begin{frame}{Invertible Matrices}
+  \begin{corollary}
+     A square matrix with either a left or right inverse is invertible
+  \end{corollary}
+
+  \begin{corollary}
+     Let $A = A_1 A_2 \cdots A_k$ where $A_1, \dots, A_k$ are $n \times n$ matrices. Then $A$ is invertible if and only if each $A_i$ is invertible
+  \end{corollary}
+\end{frame}
+
+\end{document}
