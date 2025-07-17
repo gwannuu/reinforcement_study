@@ -1,0 +1,427 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+\usepackage{mathtools} % dcases
+%\usepackage{xparse} % NewDocumentCommand
+
+
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\NBin}[2]{\operatorname{NBin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}{\operatorname{Span}}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+\newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
+\newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
+
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\tr}{\operatorname{tr}}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Linear algebra: Polynomials}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\subsection{Algebras}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{definition} \label{def:1}
+        Let $F$ be a field. A \tb{linear algebra over the field $F$} is a vector space $\mc{A}$ over $F$ with an additional operation called \tb{multiplication of vectors} which associates with each pair of vectors $\alpha, \beta \in \mc{A}$ a vector $\alpha \beta$ in $\mc{A}$ called the \tb{product} of $\alpha$ and $\beta$ in such a way that 
+        \begin{enumerate}
+            \item multiplication is associative, $\alpha(\beta \gamma) = (\alpha \beta) \gamma$
+            \item multiplication is distributive with respect to addition, $\alpha(\beta + \gamma) = \alpha \beta + \alpha \gamma$, $(\alpha + \beta) \gamma = \alpha \gamma + \beta \gamma$
+            \item for each scalar $c \in F$, $c(\alpha \beta) = (c\alpha)\beta = \alpha(c \beta)$
+        \end{enumerate}
+        If there is an element $1\in \mc{A}$ such that $1\alpha = \alpha 1 = \alpha$ for each $\alpha \in \mc{A}$, we call $\mc{A}$ a \tb{linear algebra with identity over $F$}, and call $1$ the \tb{identity} of $\mc{A}$.
+
+        The algebra $\mc{A}$ is called \tb{commutative} if $\alpha \beta = \beta \alpha$ for all $\alpha, \beta \in \mc{A}$.
+    \end{definition}
+
+    \begin{example}
+        The set of $n \times n$ matrices over a field with the usual operations, is a linear algebra with identity; in particularthe field itself is an algebra with identity.
+        This algebra is not commutative if $n \geq 2$.
+    \end{example}
+
+    \begin{example}
+        The space of all linear operators on a vector space, with composition as the product, is a linear algebra with identity.
+        It is commutative if and only if the space is one-dimensional.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \tb{[Algebra of formal power series]}
+
+    Let $F$ be a field and $S$ the set of non-negative integers.
+    The set of all functions from $S$ into $F$ is vector space.
+    Then we shall denote this vector space by $F^\infty$.
+
+    \smallskip
+    The vectors in $F^\infty$ are therefore infinite sequences $f=(f_0, f_1, f_2, \dots)$ of scalars $f_i \in F$.
+    If $g = (g_0, g_1, g_2, \dots)$, $g_i \in F$, and $a,b \in F$,
+    $af+bg$ is the infinite sequence given by $af+bg = (af_0 + bg_0 , a f_1 + bg_1, a f_2 + b g_2, \dots)$.
+
+    \smallskip
+    Let denote $n$-th element of series as $(f_0, f_1, \dots)_n = f_n$.
+    If we define a product in $F^\infty$ by associating with each pair of vectors $\forall f, g \in F$ by $fg = (f_0 g_0, f_0 g_1 + f_1 g_0, f_0 g_2 + f_1 g_1 + f_2 g_0, \dots), (fg)_n = \sum_{i=0}^n f_i g_{n-i}$, then product of $f, g$ is commutative because $(gf)_n = \sum_{i=0}^n g_i f_{n-i} = \sum_{i=0}^n f_i g_{n-i} = (fg)_n$.
+
+    \smallskip
+    This multiplication is associative.
+    Let $f, g, h \in F^\infty$.
+    Then $((fg)h)_n = \sum_{i=0}^n (fg)_i h_{n-i} = \sum_{i=0}^n \sum_{j=0}^i f_j g_{i-j} h_{n-i} = \sum_{j=0}^n f_j \sum_{i=0}^{n-j} g_i h_{n-i-j} = \sum_{j=0}^n f_j (gh)_{n-j} = (f(gh))_n$
+    Also, this multiplication satisfies (2.) and (3.) of Definition \ref{def:1}.
+    
+    \smallskip
+    This mutiplication has $1 = (1, 0, 0, \dots)$.
+    For any $f \in F^\infty$, $1f = f1 = f = (f_0, f_1, \dots)$.
+    Therefore, $F^\infty$, with the multiplication defined above, is a \underline{commutative linear algebra with identity} over the field $F$.
+\end{frame}
+
+\begin{frame}{.}
+    \underline{We denote $x = (0, 1, 0, \dots)$ throughout this chapter}, rather than an unknown element of field $F$.
+    Note that $x^2 = (0, 0, 1, 0, \dots), x^3 = (0, 0, 0, 1, 0, \dots)$.
+    In concluding this section we observe that the set consisting of $1, x, x^2, dots$ is both independent and infinite.
+    Thus the algebra $F^\infty$ is not finite-dimensional.
+    The element $f=(f_0, f_1, \dots) \in F^\infty$ is frequently written $f = \sum_n^\infty f_n x^n$.
+
+\end{frame}
+
+\subsection{The Algebra of Polynomials}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $F[x]$ be the subspace of $F^\infty$ spanned by the vectors $1, x, x^2, \dots$.
+        An element of $F[x]$ is called a \tb{polynomial over $F$}.
+    \end{definition}
+
+    \begin{itemize}
+        \item Since $F[x]$ consists of all (finite) linear combinations of $x$ and its powers, a non-zero vector $f$ in $F^\infty$ is a polynomial if and only if there is an integer $n \geq 0$ such that $f_n \neq 0$ and such that $f_k =0$ for all integers $k>n$.
+        Then this integer $n$ is obviously unique and is called the \tb{degree} of $f$.
+        We denote the degree of a  polynomial $f$ by $\deg f$, and do not assign a degree to the $0$-polynomial.
+        \item If $f$ is a non-zero polynomial of degree $n$ it follows that $f = f_0 x^0 + f_1 x^1 + f_2 x^2 + \cdots + f_n x^n, f_n \neq 0$.
+        The scalars $f_0, f_1, \dots, f_n$ are sometimes called the \tb{coefficients} of $f$, and we may say that $f$ is a polynomial with coefficients in $F$.
+        We shall call polynomials of the form $cx^0$ \tb{scalar polynomials}, and frequently write $c$ for $cx^0$.
+        \item A non-zero polynomial $f$ of degree $n$ such that $f_n=1$ is said to be a \tb{monic} polynomial.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $f$ and $g$ be non-zero polynomials over $F$.
+        Then
+        \begin{enumerate}
+            \item $fg$ is a non-zero polynomial
+            \item $\deg fg$ = $\deg f + \deg g$
+            \item $fg$ is a monic polynomial if both $f$ and $g$ are monic polynoomials
+            \item $fg$ is a scalar polynomial if and only if both $f$ and $g$ are scalar polynomials
+            \item if $f+g \neq 0$, $\deg (f+g) \leq \max (\deg f, \deg g)$
+        \end{enumerate}
+    \end{theorem}
+    \ti{Proof.}
+    Skip (5.) (trivial).
+
+    Suppose $f$ has degree $m$ and $g$ has degree $n$.
+    If $k$ is a non-negative integer,
+    $(fg)_{m+n+k} = \sum_{i=0}^{m+n+k} f_i g_{m+n+k-i}$.
+    In order that $f_i g_{m+n+k-i} \neq 0$, it is necessary that $i \leq m$ and $m + n + k-i \leq n$.
+    Hence it is necessary that $m+k\leq i \leq m$, which implies $k=0$ and $i=m$.
+
+    Thus, $(fg)_{m+n} = f_m g_n$ and $(fg)_{m+n+k} = 0, k > 0$.
+
+    (1.), (2.), (3.) holds from previous equations and we can obtain conclusion that (4.) holds from the fact that (1.), (2.), (3.) holds.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{corollary}
+        The set of all polynomials over a given $F$ equipped with the operations, addition: $af+bg = (af_0 + bg_0 )$ and multiplication: $fg = (f_0 g_0, f_0 g_1 + f_1 g_0 + f_0 g_2 + f_1 g_1 + f_2 g_0, \dots)$, is a commutative linear algebra with identity over $F$.
+    \end{corollary}
+
+    \begin{corollary}
+        Suppose $f, g, h$ are polynomials over the field $F$ such that $f \neq 0$ and $fg = fh$.
+        Then $g = h$.
+    \end{corollary}
+    \ti{Proof.}
+    Since $fg = fh$, $f(g-h) = 0$ implies $g = h$.
+
+    \bigskip
+    [Product of polynomials]
+
+    Let $f = \sum_{i=0}^m f_i x^i$ and $g=\sum_{j=0}^n g_j x^j$.
+    Then $fg = \sum_{s=0}^{m+n}(\sum_{r=0}^s f_r g_{s-r})x^s$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $\mc{A}$ be a linear algebra with identity over the field $F$.
+        We shall denote the identity of $\mc{A}$ by $1$ and make the convention that $\alpha^0= 1$ for each $\alpha \in \mc{A}$.
+        Then to each polynomial $f = \sum_{i=0}^n f_i x^i$ over $F$ and $\alpha \in \mc{A}$ we associate an element $f(\alpha) \in \mc{A}$ by the rule
+        \[
+            f(\alpha) = \sum_{i=0}^n f_i \alpha^i
+        \]
+    \end{definition}
+
+    \begin{example}
+        Let $C$ be the field of complex numbers and let $f = x^2 +2$.
+        \begin{itemize}
+            \item If $\mc{A} = C$ and $z$ belongs to $C$, $f(z) = z^2 +2$, in particular $f(2) = 6$ and $f(\frac{1+i}{1 - i}) = 1$.
+            \item If $\mc{A}$ is the algebra of all $2 \times 2$ matrices over $C$ and if $B = \begin{bmatrix}
+            1 & 0 \\ -1 & 2
+            \end{bmatrix}$,  then $f(B) = 2\begin{bmatrix}
+            1 & 0 \\ 0 & 1
+            \end{bmatrix} + \begin{bmatrix}
+            1 & 0 \\ -1 & 2
+            \end{bmatrix}^2 = \begin{bmatrix}
+            3 & 0 \\ -3 & 6
+            \end{bmatrix}$.
+            \item If $\mc{A}$ is the algebra of all linear operators on $C^3$ and $T$ is the element of $\mc{A}$ given by $T(c_1, c_2, c_3) = (i \sqrt{2} c_1, c_2, i \sqrt{2} c_3)$, then $f(T)$ is the linear operator on $C^3$ defined by $(-2 c_1, c_2, -2 c_3) + (2c_1, 2c_2, 2c_3) = (0, 3c_2, 0)$
+        \end{itemize}
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        Let $F$ be a field and $\mc{A}$ be a linear algebra with identity over $F$.
+        Suppose $f$ and $g$ are polynomials over $F$, that $\alpha$ is an element of $\mc{A}$, and that $c$ belongs to $F$.
+        Then
+        \begin{enumerate}
+            \item $(cf+g) (\alpha) = cf(\alpha) + g(\alpha)$
+            \item $(fg)(\alpha) = f(\alpha)g(\alpha)$
+        \end{enumerate}
+    \end{theorem}
+    \ti{Proof.}
+    (1.) is trivial.
+
+    Let $f = \sum_{i=0}^m f_i x^i$  and $g = \sum_{j=0}^n g_j x_j$.
+    Then $fg = \sum_{i,j} f_i g_j x^{i+j}$.
+    By (1.), $(fg)(\alpha) = \sum_{i,j} f_i g_j \alpha^{i+j} = (\sum_{i=0}^m f_i \alpha^i)(\sum_{j=0}^n g_j \alpha^j) = f(\alpha) g(\alpha)$.
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{block}{Exercise 4.2.3}
+        Let $A$ be an $n \times n$ diagonal matrix over the field $F$, i.e., a matrix satisfying $A_{ij} =0$ for $i \neq j$.
+        Let $f$ be the polynomial over $F$ defined by $f = (x- A_{11})\cdots (x-A_{nn})$.
+        What is the matrix $f(A)$?
+    \end{block}
+    $f(A) = (A- A_{11}) \cdots (A - A_{nn})$.
+    Note that $(A-A_{ii})_{jj} = 0$ if $i = j$ and $i \neq j$.
+    $f(A)_{ii} = 0$ because $(A - A_{ii})_{ii} = 0$.
+    So, $f(A) = 0$.
+    
+    \begin{block}{Exercise 4.2.4}
+        If $f$ and $g$ are independent polynomials over a field $F$ and $h$ is a non-zero polynomial over $F$, show that $fh$ and $gh$ are independent.
+    \end{block}
+    For any $c_1, c_2 \in F$, $c_1 f + c_2 g = 0$ implies $c_1 = 0$ and $c_2 = 0$.
+    For any $c_1, c_2 \in F$, Let $c_1 fh + c_2 gh = 0$.
+    Then $h(c_1f + c_2g) = 0$ and $h \neq 0$ so $c_1 f + c_2 g = 0$ and $c_1 = c_2 =0$ because $f$ and $g$ are independent.
+
+    $\therefore  f$ and $g$ are independent $\implies$ $fh$ and $gh$ are independent for non-zero $h$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Example 4.2.6}
+        Let $S$ be a set of non-zero polynomials over a field $F$.
+        If no two elements of $S$ have the same degree, show that $S$ is an independent set in $F[x]$.
+    \end{block}
+    Let $S =\{s_1, \dots , s_n \}$ and denote each degree of $s_i$ by $d_i$.
+    For some $c_1, \dots, c_n$, suppose $c_1 s_1 + \cdots + c_n s_n = 0$.
+    Let $\arg \max \{d_1, \dots, d_n\} = k$.
+    Then degree of $c_1 s_1 + \cdots + c_n s_n$ is $d_k$ and $c_s = 0$.
+    Now let just drop $k$-th element.
+    Let denote the index of second greatest degree element by $l$.
+    Then from $c_1 s_1 + \cdots +c_{k-1} s_{k-1} + c_{k+1} s_{k+1} + \cdots + c_n s_n=0$, $c_l = 0$.
+    In this way, all $c_i$ should be zero.
+    $\qed$
+
+    \begin{block}{Example 4.2.7}
+        If $a$ and $b$ are elements of a field $F$ and $a \neq 0$, show that the polynomials $1, ax+b, (ax+b)^2, (ax+b)^3, \dots$ form a basis of $F[x]$.
+    \end{block}
+
+    First, it is trivial that $\mc{B} = \{1, ax+b, (ax+b)^2, \dots \}$ is independent.
+    $x^n \in \Span \mc{B}$.
+    So, $\{1, x, x^2, x^3, \dots\} \subset \Span \mc{B}$, $\Span \mc{B} =F[x]$.
+    $\qed$
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Example 4.2.8 $\star$}
+        If $F$ is a field and $h$ is a polynomial over $F$ of degree $\geq 1$, show that the mapping $f \to f(h)$ is a one-one linear transformation of $F[x]$ into $F[x]$.
+        Show that this transformation is an isomorphism of $F[x]$ onto $F[x]$ if and only if $\deg h = 1$.
+    \end{block}
+
+    For $f_1, f_2 \in F[x]$ let $\deg f_1 = d_1, \deg f_2 = d_2, \deg h = d$.
+    Then $\deg f_1(h) = d_1 h$.
+\end{frame}
+
+
+
+\subsection{Lagrange Interpolation}
+
+\begin{frame}{.}
+    Throughtout this section we shall assume $F$ is a fixed and $t_0, t_1, \dots, t_n$ are $n +1$ \underline{distinct} elements of $F$.
+    Let $V$ be the subspace of $F[x]$ consisting of all polynomials of degree less than or equal to $n$ (together with the $0$-polynomial), and let $L_i$ be the function from $V$ into $F$ defined for $f$ in $V$ by
+    \[L_i(f) = f(t_i), 0 \quad \leq i \leq n\]
+
+    We know that $L_i$ is linear functional on $V$, and one of the things we intend to show is that the set consisting of $L_0, L_1, \dots, L_n$ is a basis for $V^\ast$, the dual space of $V$.
+
+    For basis of $V$, $\mc{B} = \{P_0, \dots, P_n\}$,
+    $L_j(P_i) = P_i(t_j) = \delta_{ij}$ holds, where $\mc{B}^\ast = \{L_0, \dots, L_n\}$ is the dual basis of $\mc{B}$.
+
+    Then the polynomials
+    \[
+        P_i = \frac{(x-t_0)\cdots (x- t_{i-1})(x - t_{i+1})\cdots (x-t_n)}{(t_i - t_0)\cdots(t_i - t_{i-1})(t_i - t_{i+1})\cdots (t_i - t_n)} = \prod_{j\neq i} \left(\frac{x - t_j}{t_i - t_j}\right)
+    \]
+    are of degree $n$, hence belong to $V$.
+
+    If $f = \sum_i c_i P_i$, then for each $j$,  $f(t_j) = \sum_i c_i P_i(t_j) = c_j$.
+    Since the $0$-polynomial has the property that $0(t) =0$ for each $t$ in $F$, the polynomials $P_0, P_1, \dots, P_n$ are linearly independent.
+    The polynomials $1, x, \dots, x^n$ form a basis of $V$ and hence the dimension of $V$ is $(n+1)$.
+    So, the independent set $\{P_0, P_1,\dots, P_n\}$ must also be a basis for $V$.
+    Thus \underline{for each $f$ in $V$, $f = \sum_{i=0}^n f(t_i) P_i$}.
+    The underlined expression is called \tb{Lagrange's interpolation formula}.
+\end{frame}
+
+\begin{frame}{.}
+    Setting $f=x^j$ we can obtain $\sum_{i=0}^n (t_i)^j P_i$.
+    It follows that the matrix $\begin{bmatrix}
+    1 & t_0 & t_0^2 & \dots & t_0^n \\  1 & t_1 & t_1^2 & \cdots & t_1^n \\ \vdots & \vdots &\vdots & \vdots & \vdots \\ 1 & t_n & t_n^2 & \dots & t_n^n
+    \end{bmatrix}$ is invertible.
+    This matrix is called \tb{Vandermonde matrix}.
+
+    \bigskip
+    If $f$ is any polynomial over $F$ we shall, in our present discussion, denote by $\tilde{f}$ the polynomial function from $F$ into $F$ taking each $t$ in $F$ into $f(t)$.
+    By definition every polynomial function arises in this way;
+    However it may happen that $\tilde{f} = \tilde{g}$ for two polynomials $f$ and $g$ such that $f \neq g$.
+    Fortunately, as we shall see, this unpleasant situation only occurs in the case where $F$ is a field having only a finite number of distinct elements.
+    In order to describe in a precise way the relation between polynomials and polynomial functions, we need to define the product of two polynomial functions.
+    If $f$ and $g$ are polynomials over $F$, the product of $\tilde{f}$ and $\tilde{g}$ is the function $\tilde{f}\tilde{g}$ from $F$ into $F$ given by 
+    \begin{equation}
+    \label{eq:1}
+        (\tilde{f}\tilde{g})(t) = \tilde{f}(t) \tilde{g}(t), t \in F
+    \end{equation}
+    So, $(fg)(t) = f(t)g(t)$ and hence $\tilde{(fg)}(t) = \tilde{f}(t) \tilde{g}(t)$ for each $t$ in $F$.
+    Thus $\tilde{f}\tilde{g} = \tilde{(fg)}$, and is a polynomial function.
+    At this point it is a straightforward matter, which we leave to the reader, to verify that the vector space of polynomial functions over $F$ becomes a linear algebra with identity over $F$ if multiplication is defined by equation \ref{eq:1}.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $F$ be a field and let $\mc{A}$ and $\tilde{\mc{A}}$ be a linear algebras over $F$.
+        The algebras $\mc{A}$ and $\mc{A}^\sim$ are said to be \tb{isomorphic} if there is a one-to-one mapping $\alpha \to \alpha^\sim$ of $\mc{A}$ onto $\mc{A}^\sim$ such that
+        \begin{enumerate}
+            \item ${(c\alpha + d \beta)}^\sim = c \tilde{\alpha} + d \tilde{\beta}$
+        \end{enumerate}
+    \end{definition}
+\end{frame}
+
+\end{document}
