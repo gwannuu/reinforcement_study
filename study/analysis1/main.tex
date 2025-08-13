@@ -491,7 +491,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{theorem}[The Bolzano-Weierstrass Theorem]\label{th:4}
+    \begin{theorem}[The Bolzano-Weierstrass Theorem] \label{th:4}
         If $S$ is a bounded, infinite subset of $\mbb{R}$, then $S$ has a limit point in $\mbb{R}$.
 
         \smallskip
@@ -674,6 +674,45 @@
         We write $\lim_{k \to \infty} x_k = x_0$.
         If a sequence $\{x_k\}$ fails to converge, for whatever reason, then we say that it \tb{diverges}.
     \end{definition}
+
+    Note that in definition of convergence of sequence, \ti{neighborhood} is used and contrastly, in definition of limit of set, \ti{deleted neighborhood} is used.
+
 \end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        The limit of a convergent sequence in $\mbb{R}$ is unique.
+
+        proof. we have to prove that $\{x_k\}$ converges to both $x_0$ and $x_0^\prime \implies x_0 = x_0^\prime$.
+        Let assume $x_0 = x_0^\prime$.
+        Then by choosing $0 < \epsilon < \abs{x_0 - x_0^\prime}/2$, we will obtain a contradiction.
+        Since $\lim_{k \to \infty} x_k = x_0$, we can choose $k_1 \in \mbb{N}$ such that $\forall k \geq k_1, x_k \in N(x_0; \epsilon)$.
+        Similarly, we can choose $k_2 \in \mbb{N}$ such that, $\forall k \geq k_2, x_k \in N(x_0^\prime; \epsilon)$.
+
+        Let $k_0 = \max(k_1, k_2)$.
+        Then $k_0 \in N(x_0; \epsilon)$ and $k_0 \in N(x_0^\prime; \epsilon)$.
+        So, $\abs{x_0 - x_0^\prime} = \abs{x_0 - x_k + x_k - x_0^\prime} \leq \abs{x_0 - x_k} + \abs{x_k - x_0^\prime} < \epsilon + \epsilon = 2\epsilon$.
+        But by assumption, $2\epsilon < \abs{x_0 - x_0^\prime}$ and this is contradiction because $\abs{x_0 - x_0^\prime} < \abs{x_0 0 x_0^\prime}$ could not be hold.
+        $\qed$
+    \end{theorem}
+
+    \begin{theorem}
+        If a sequence has two (or more) cluster points, then it must diverge.
+
+        \smallskip
+        Our next result provides a logical fulcrum on which many of our subsequent arguments will hinge.
+    \end{theorem}
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        A convergent sequence is bounded.
+
+        Proof. Suppose that $\{x_k\}$ converges to $x_0$.
+        We must show that there exists some real number $M$ such that $\abs{x_k} \leq M$, for $k=1,2,3,\dots$.
+    \end{theorem}
+\end{frame}
+
 
 \end{document}
