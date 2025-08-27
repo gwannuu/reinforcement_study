@@ -662,7 +662,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{example}
+    \begin{example} \label{ex:3}
         Let $x_k = (-1)^k, \forall k \in \mbb{N}$.
         Then the set $S$ is simply $\{-1, 1\}$, consisting of two points and having no limit points.
         But both $-1$ and $1$ are cluster points of the sequence $\{x_k\}$.
@@ -675,7 +675,11 @@
         If a sequence $\{x_k\}$ fails to converge, for whatever reason, then we say that it \tb{diverges}.
     \end{definition}
 
-    Note that in definition of convergence of sequence, \ti{neighborhood} is used and contrastly, in definition of limit of set, \ti{deleted neighborhood} is used.
+    Note that
+    \begin{itemize}
+        \item In definition of convergence of sequence, \ti{neighborhood} is used and contrastly, in definition of limit of set, \ti{deleted neighborhood} is used.
+        \item Also, convergence of sequences requires all $x_k$, where $k \geq k_0$, should satisfies $x_k \in N(x_0; \epsilon)$. Instead, in limit point of set, for any $\epsilon > 0$, it accept only one point of $S$ in $N(x_0; \epsilon)$.
+    \end{itemize}
 
 \end{frame}
 
@@ -696,22 +700,146 @@
         $\qed$
     \end{theorem}
 
-    \begin{theorem}
+    \begin{theorem} \label{th:6}
         If a sequence has two (or more) cluster points, then it must diverge.
 
         \smallskip
         Our next result provides a logical fulcrum on which many of our subsequent arguments will hinge.
     \end{theorem}
 
+    Recall that \ref{ex:3} has \underline{two cluster points} and therefore \underline{diverges}.
+    
+
 \end{frame}
 
 \begin{frame}{.}
-    \begin{theorem}
+    \begin{figure}
+        \includegraphics[width=0.7\textwidth]{theorem1.3.3.png}
+    \end{figure}
+
+    \begin{theorem} \label{th:5}
         A convergent sequence is bounded.
 
+        \smallskip
         Proof. Suppose that $\{x_k\}$ converges to $x_0$.
         We must show that there exists some real number $M$ such that $\abs{x_k} \leq M$, for $k=1,2,3,\dots$.
+        Let $\epsilon=1$.
+        Since $\{x_k\}$ converges to $x_0$, $\exists k_0 \in \mbb{N}$ such that $\forall k \geq k_0, k_0 \in N(x_0; 1)$.
+        Then $\abs{x_k} = \abs{x_k - x_0 + x_0} \leq \abs{x_k - x_0} + \abs{x_0} < 1 + \abs{x_0}$.
+        This implies $x_k \in N(0; 1+\abs{x_0})$.
+
+        Consider the $k_0$ numbers: $\abs{x_1}, \abs{x_2}, \dots, \abs{x_{k_0 - 1}}$ and $\abs{x_0} + 1$.
+        We let $M$ be any real number greater than the maximum of these $k_0$ numbers.
+        It is easy to see that $\{x_k\}$ must be contained in $N(0;M)$ and is therefore bounded.
+        $\qed$
     \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    The contrapositive of \ref{th:5} provides us with the following useful fact.
+    \begin{theorem}
+        If a sequence is unbounded, then it must diverge
+    \end{theorem}
+
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = \frac{1}{k}$.
+        Intuitively, it is evident that $\lim_{k \to \infty} x_k = 0$.
+
+        By fixing any $\epsilon > 0$ and choosing the smallest positive integer $k_0$ such that $1 < k_0 \epsilon$, $0 < \frac{1}{k_0} < \epsilon$ holds.
+        For any $k \geq k_0$ such that $\abs{x_k - 0} = \frac{1}{k} \leq \frac{1}{k_0} < \epsilon$ holds.
+        So, $x_k \in N(0; \epsilon)$.
+
+        Thus, $\lim_{k \to \infty} x_k = 0$.
+    \end{example}
+
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = 1 - \frac{1}{2^k}$.
+        We claim that $\lim_{k \to \infty} x_k = 1$.
+
+        Fix $\epsilon > 0$.
+        Then $\exists k_0 \in \mbb{N}$ such that $1 < k_0\epsilon < k \epsilon$ where $k \geq k_0$.
+        This implies $1 < k\epsilon < 2^k \epsilon \implies \frac{1}{2^k} < \epsilon$.
+        Then $\abs{x_k - 1} = \abs{1 - \frac{1}{2^k} -1} = \frac{1}{2^k} < \epsilon$ holds.
+        In other words, $x_k \in N(1;\epsilon)$.
+
+        This proves $\lim_{k \to \infty} (1 - \frac{1}{2^k}) = 1$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{figure}
+        \includegraphics[width=0.75\textwidth]{example1.3.15.png}
+    \end{figure}
+    \begin{example}
+        Let $\{x_k\}$ be any sequence that converges to $0$ and let $c$ be any positive number.
+        Let $y_k = (-1)^k(c+x_k)$.
+        We claim that both $c$ and $-c$ are cluster points of $\{x_k\}$ and that the sequence must diverge.
+
+        \underline{Claim: both $-c$ and $c$ are cluster points of $\{y_k\}$ and these sequence must divergence}.
+
+        Let fix $0< \epsilon < c$. Then $\exists k_0$ such that $\forall k \geq k_0, \abs{x_k} < \epsilon$.
+        Then even $k$, i.e. $k=2j$, $\abs{y_k - c} = \abs{c + x_k - c} = x_k < \epsilon$.
+        Also, odd $k$, i.e. $k=2j+1$, $\abs{y_k - (-c)} = \abs{-c -x_k + c} = x_k < \epsilon$.
+
+        Since $\{y_k\}$ has two cluster points, $\{y_k\}$ must diverge by theorem \ref{th:6}.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, define $x_k = \frac{k}{k+1}$.
+        Evidently, $\lim_{k \to \infty} x_k = 1$.
+
+        Fix $\epsilon > 0$. We want to show that, eventually, $\abs{x_k -1} = \abs{\frac{k}{k+1} - 1} < \epsilon$ or, equivalently, that $1 - \epsilon < \frac{k}{k+1} < 1 + \epsilon$.
+        Since $\frac{k}{k+1} < 1+\epsilon$ is trivial, we only need to show that $1 - \epsilon < \frac{k}{k-1} \implies 1 - \epsilon < k\epsilon$.
+        So, we set $k_0 \in \mbb{N}$ as smallest number which satisfies $\frac{1-\epsilon}{\epsilon} < k_0$.
+        We want to confirm that, for any $k \geq k_0, x_k \in N(1;\epsilon)$.
+        Then $k\epsilon > 1 - \epsilon \implies k - k(1 - \epsilon) > 1-\epsilon \implies k > (k+1)(1-\epsilon) \implies \frac{k}{k+1} > 1- \epsilon$.
+
+        $\therefore x_k \in N(1;\epsilon)$ and $\lim_{k \to \infty} x_k = 1$.
+    \end{example}
+
+    \begin{theorem}
+        A sequence $\{x_k\}$ converges to $0$ iff $\{\abs{x_k}\}$ converges to $0$ also
+
+        ($\implies$): trivial
+
+        ($\impliedby$): Fix $\epsilon >0$ and $k_0 \in N$ such that for $k \geq k_0$, $\abs{x_k} \in N(0; \epsilon)$.
+        This implies $-\epsilon < x_k < \epsilon$ and $x_k \in N(0; \epsilon)$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Fix any $r$ such that $-1 < r < 1$.
+        Clam that $\lim_{k \to \infty} r^k = 0$.
+        We only proof for $0< r< 1$.
+        We need to exhibit an index $k_0$ with the property that, if $k \geq k_0$, then $r^k \in N(0; \epsilon)$.
+
+        Let $c = \frac{1}{r} -1$.
+        Then $r = \frac{1}{1+c}$.
+        Note that $r^k = \frac{1}{(1+c)^k} \leq \frac{1}{1 + ck} < \frac{1}{ck}$.
+
+        Fix $\epsilon >0$.
+        Then there exists smallest $k_0 \in \mbb{N}$ such that $\frac{1}{c k_0} < \epsilon$.
+        For $k \geq k_0$, $r^k < \frac{1}{ck} \leq \frac{1}{c k_0} < \epsilon$.
+        This implies $r^k \in N(0;\epsilon)$.
+    \end{example}
+
+    \begin{theorem}
+        If $\{x_k\}$ converges to $x_\infty$ and if $c$ is any constant, then $\{cx_k\}$ converges to $cx_\infty$.
+    \end{theorem}
+
+    \begin{theorem}
+        A bounded, monotone sequence of real numbers converges
+    \end{theorem}
+
+    Above theorem is an alternative form of Completeness Axiom for $\mbb{R}$
+\end{frame}
+
+\begin{frame}{theorem}
+
+
 \end{frame}
 
 
