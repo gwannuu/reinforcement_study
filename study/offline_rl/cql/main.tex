@@ -1,0 +1,419 @@
+\documentclass[11pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par %frame 에서 지정한 title 사용
+  %\insertsubsectionhead\par        % subsection의 header를 사용
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true] % 블록 테두리 둥글게
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+
+
+%\setbeamerfont{itemize/enumerate subbody}{parent=itemize/enumerate body} % 
+%\setbeamerfont{itemize/enumerate subbody}{size=\usebeamerfont{itemize/enumerate body}\size}
+
+\makeatletter
+% Taken from beamer.cls' default geometry settings
+% http://mirrors.ctan.org/macros/latex/contrib/beamer/base/beamer.cls
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.35}pt,\fpeval{\beamer@paperheight*1.35}pt},
+  hmargin=\fpeval{0.5 * 1.35}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.35}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.35}cm% 0.5cm
+}
+\makeatother %from search keyword beamer size, get this search result -> https://tex.stackexchange.com/questions/586756/beamer-use-glyphs-from-smaller-font-size-but-enlarge
+
+
+% Reference bibtex
+% style = numeric, apa, authoryear-comp
+\usepackage[backend=biber, style=authoryear-comp, natbib=true]{biblatex}
+\addbibresource{../../references.bib}
+
+
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+%\usepackage{lmodern} %다른 폰트 사용: 문서의 서문에 추가하면 Computer Modern 폰트의 확장 버전인 Latin Modern 폰트를 사용할 수 있습니다. 이 폰트는 더 다양한 크기와 스타일을 지원하여 문제를 해결해 줄 수 있습니다.
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\hypersetup{colorlinks} % search keyword: beamer hyperref color -> https://tex.stackexchange.com/questions/13423/how-to-change-the-color-of-href-links-for-real
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+\usepackage{mathtools} % dcases
+%\usepackage{xparse} % NewDocumentCommand
+\usepackage[boxed, lined]{algorithm2e} % to use algorithm block
+
+
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\NBin}[2]{\operatorname{NBin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\floor}[1]{\left\lfloor #1 \right \rfloor}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}{\operatorname{Span}}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+\newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
+\newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
+
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\supp}{\operatorname{supp}}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Conservative Q-Learning for Offline Reinforcement Learning}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% \subsection{Domain Randomization}
+% \begingroup
+%     \setbeamertemplate{frametitle}{%
+%     \vskip1ex
+%     \usebeamerfont{frametitle}%
+%     \insertframetitle\par        %  ← 원하는 대로 변경 가능
+%     \vskip1ex
+%     \hrule                             % 밑줄(선택)
+%     }
+%     \begin{frame}
+%         \frametitle{Table of Contents}
+%         \tableofcontents[currentsubsection]
+%     \end{frame}
+% \endgroup
+
+% % 목차 
+
+% \begin{frame}{Curriculum Learning}
+
+% \end{frame}
+
+\begin{frame}{Preliminaries}
+  \begin{itemize}
+    \item MDP: $<\mc{S}, \mc{A},T, r, \gamma>$
+    \item $\mc{S}$ - State space
+    \item $\mc{A}$ - Action space
+    \item $T: \mc{S}\times \mc{A} \to \Delta(S)$ - Transition Probability
+    \item $r: \mc{S} \times \mc{A} \to \mbb{R}$ - Reward Function ($\abs{r(s,a)} \leq R_{\text{max}}$)
+    \item $\gamma \in \mbb{R}$ - Discounted Factor
+    \item $\pi : \mc{S} \to \Delta(\mc{A})$ - Policy
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Online RL}
+  \begin{block}{Bellman Operator}
+    \[
+      (\mc{B}^\pi Q)(s,a) = r(s,a) + \gamma \mbb{E}_{s^\prime \sim T(\cdot |s,a)}[\mbb{E}_{a^\prime \sim \pi(\cdot | s^\prime)}[Q(s^\prime, a^\prime)]] 
+    \]
+  \end{block}
+
+  \begin{block}{Bellman Optimal Operator}
+    \[
+      (\mc{B}^\ast Q)(s,a) = r(s,a) + \gamma \mbb{E}_{s^\prime \sim T(\cdot |s,a)}[\max_{a^\prime} Q(s^\prime,a^\prime)]
+    \]
+  \end{block}
+  This equation is used to learn Q-Learning or DQN.
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{itemize}
+    \item Unlike Online RL, in offline RL, agent can't interact with environment.
+    \item Instead, agent can learn from offline dataset $\mc{D}$, where trajectories collected by behavior policy $\beta$ had gathered.
+  \end{itemize}
+
+  Preliminaries
+  \begin{itemize}
+    \item MDP: $<\mc{S}, \mc{A},T, r, \gamma>$
+    \item $\mc{S}$ - State space
+    \item $\mc{A}$ - Action space
+    \item $T: \mc{S}\times \mc{A} \to \Delta(S)$ - Transition Probability
+    \item $r: \mc{S} \times \mc{A} \to \mbb{R}$ - Reward Function ($\abs{r(s,a)} \leq R_{\text{max}}$)
+    \item $\gamma \in \mbb{R}$ - Discounted Factor
+    \item $\pi, \beta : \mc{S} \to \Delta(\mc{A})$ - Policy, Behavior Policy
+    \item $\mc{D} = \{(s,a,r,s)\}$ - Offline Dataset (collected by $\beta$)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{itemize}
+    \item In online RL, agent can steadily learn about reward function $r(s,a)$ and transition dynamics $T(s^\prime | s,a)$.
+    \item But offline RL, agent only can infer $r(s,a)$ and $T(s^\prime |s,a)$ from trajectories $(s,a,r,s^\prime) \in \mc{D}$.
+    \item Adding to this challenge, the offline dataset does not cover the full range of possible $(s,a,r,s^\prime)$ transitions.
+  \end{itemize}
+  So, \textbf{Empirical Bellman Operator} is introduced
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{block}{Empirical Bellman Operator}
+    \[
+      (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \hat{\beta}(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]
+    \]
+
+    where
+
+    \[
+    \begin{aligned}
+    &\abs{\mc{D}(s)} = \sum_{(s_i,a_i,r_i,s_i^\prime) \in \mc{D}}\mb{1}[s=s_i] \\
+    &\abs{\mc{D}(s,a)} = \sum_{(s_i,a_i,r_i,s^\prime_i)\in\mc{D}}\mb{1}[s=s_i, a=a_i]\\
+    &\abs{\mc{D}(s,a,\cdot, s^\prime)} = \sum_{(s_i, a_i, r_i, s^\prime_i)} \mb{1}[s=s_i, a=a_i, s^\prime=s_i^\prime] \\
+    &\hat{r}(s,a) = \frac{1}{\abs{\mc{D}(s,a)}} \sum_{(s_i, a_i, r_i, s_i^\prime) \in \mc{D}}\mb{1}[s=s_i,a=a_i]\cdot r_i \\
+    &\hat{T}(s^\prime|s,a) = \frac{\abs{\mc{D}(s,a,\cdot, s^\prime)}}{\abs{\mc{D}(s,a)}} \\
+    &\hat{\beta}(a|s) = \frac{\abs{\mc{D}(s,a)}}{\abs{\mc{D}(s)}}
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{block}{Basic Offline RL framework (Policy Iteration)}
+    Randomly initialize $\hat{Q}^{0}$ and update $\hat{Q}^k$ and $\hat{\pi}^k$ by following rule
+    \[
+    \begin{gathered}
+      \hat{Q}^{k+1} \leftarrow \arg\min_Q \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}}\left[\left(r + \gamma \mbb{E}_{a^\prime \sim \hat{\pi}^k (\cdot | s^\prime)}[\hat{Q}^k(s^\prime, a^\prime)]  - Q(s,a)\right)^2\right] \\
+      \hat{\pi}^{k+1} \leftarrow \arg\max_\pi \mbb{E}_{s \sim \mc{D}} \left[\mbb{E}_{a \sim \hat{\pi}^k(\cdot|s)} \left[\hat{Q}^{k+1}(s,a)\right]\right]
+    \end{gathered}
+    \]
+  \end{block}
+  But there exists some problems
+  \begin{itemize}
+    \item The policy distribution $\beta$ and $\hat{\pi}^k$ are mismatched during the learning of $\hat{Q}^k$ and $\hat{\pi}^k$.
+    \begin{itemize}
+      \item Recall that in original policy iteration, bellman operator updates $Q^k$ using transitions sampled from $\pi^k$.Then $\pi^k$ is updated to follow the maximizing $Q^k$ direction.
+      \item In this version, note that $\hat{Q}^k$ is updated by single transition which is sampled from $\beta$, but 
+    \end{itemize}
+    \item $\hat{\pi}^k(\cdot|s)$ can sample $a$ where $\beta(a|s) = 0$ holds. (O.O.D. situation, Mismatch with distribution of $\mc{D}$)
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  First approach:
+  \begin{itemize}
+    \item Utilize Empirical Bellman Operator, which samples $(s,a,r,s^\prime)$ obtained by $\beta$
+    \item To prevent Q-value overestiation, depress Q-value itself
+  \end{itemize}
+
+  \begin{block}{Conservative Policy Evaluation (lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+      \hat{Q}^{k+1} \leftarrow \arg \min_{Q} \textcolor{red}{\alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)]} + \frac{1}{2} \mbb{E}_{s,a, s^\prime \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]
+    \]
+
+    Recall that $ (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \hat{\beta}(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]$
+  \end{block}
+
+  \begin{itemize}
+    \item $\supp \mu \subset \supp \beta$ means that $\forall s,a, \beta(a|s) \neq 0 \implies \mu(a|s)\neq 0$.
+    \item The first term $\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)]$ depress the value of $Q(s,a)$
+    \item The second term $\frac{1}{2} \mbb{E}_{s,a \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]$ fits $Q(s,a)$ values, but with only using offline dataset $\mc{D}$.
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  % Not only decrease the L2 error between $Q^{k+1}(s,a)$ and $\hat{\mc{B}}^{\pi} \hat{Q}^k(s,a)$, But also decrease $\hat{Q}^{k+1}(s,a)$ itself.
+
+  The problem of first approach is:
+  \begin{itemize}
+    \item If $\alpha$ becomes bigger, then $Q(s,a)$ could be undervalued.
+  \end{itemize}
+
+  Second approach:
+  \begin{itemize}
+    \item Elevate $Q(s,a)$ in proportion to the probability of $(s,a)\in \mc{D}$.
+  \end{itemize}
+
+  \begin{block}{Conservative Policy Evaluation (more tighten lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+    \begin{aligned}
+          \hat{Q}^{k+1} \leftarrow &\arg \min_{Q} \alpha \cdot \left(\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] \textcolor{red}{- \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)} \left[Q(s,a)\right]} \right) \\
+          &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[ \left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^{k}(s,a)\right)^2\right]
+  \end{aligned}
+  \]
+  Recall that $ (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \hat{\beta}(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]$
+  \end{block}
+
+  % Add maximization term for the $Q^{k+1}(s,a)$ value if $(s,a)$ is in dataset $\mc{D}$.
+
+  \begin{itemize}
+    \item Note that in both evaluation methods, size of $\alpha$ plays a crucial role that makes hold the \underline{lower bound inequation}(See this later)
+    \item The less the $\alpha$ is, the higher probability to hold lower bound
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+    \begin{block}{Conservative Policy Evaluation (more tighten lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+    \begin{aligned}
+          \hat{Q}^{k+1} \leftarrow &\arg \min_{Q} \alpha \cdot \textcolor{red}{\left(\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)} \left[Q(s,a)\right] \right)} \\
+          &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[ \left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^{k}(s,a)\right)^2\right]
+  \end{aligned}
+  \]
+  Recall that $ (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \hat{\beta}(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]$
+  \end{block}
+
+  What is the true meaning of \textcolor{red}{red} terms?
+  \begin{itemize}
+    \item Suppose that for $s$, there exists possible actions $a^1, a^2$.
+    \item Let assume $\mu(a^1|s) = 1$ and $\pi(a^1|s) = 0.5$.
+    \item Then for $(s,a^1)$, the red term becomes $\left[ Q(s,a^1) - \frac{1}{2}Q(s,a^1) \right]$.
+  \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Conservative Policy Evaluation (lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+      \hat{Q}^{k+1} \leftarrow \arg \min_{Q} alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] + \frac{1}{2} \mbb{E}_{s,a, s^\prime \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]
+    \]
+  \end{block}
+  
+  \begin{block}{Lower Bound Inequation}
+    For learned $\hat{Q}^\pi = \lim_{k \to \infty} \hat{Q}^k$ which follows above approach, with probability $\geq 1-\delta$, following inequation holds
+    \[
+    \begin{aligned}
+      \forall s \in \mc{D}, a, \hat{Q}^\pi(s,a) \leq &Q^\pi(s,a) - \alpha \left[(I - \gamma T^\pi)^{-1} \frac{\mu}{\hat{\beta}}\right](s,a) \\
+      &+\left[(I-\gamma T^\pi)^{-1} \frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma)\sqrt{\abs{\mc{D}(s,a)}}}\right](s,a)
+    \end{aligned}
+    \]
+    where $\delta$ is small value $\in (0,1)$, $T^\pi Q(s,a)= \mbb{E}_{s^\prime \sim T(\cdot|s,a)}[\mbb{E}_{a^\prime \sim \pi(\cdot|s^\prime)}[Q(s^\prime,a^\prime)]]$, $C_{r,T,\delta}$ is a constant dependent on $r, T, \delta$.
+
+    Thus, if $\alpha$ is a sufficiently large, then $\hat{Q}^\pi (s,a) \leq Q^\pi(s,a), \forall s\in \mc{D},a$.
+    When $\hat{\mc{B}}^\pi = \mc{B}^\pi$, any $\alpha > 0$ guarantees inequation.
+  \end{block}
+    The inequality show that the more $\abs{\mc{D}(s,a)}$ increases, the theoretical value of $\alpha$ decreases.
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Conservative Policy Evaluation (more tighten lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+    \begin{aligned}
+      \hat{Q}^{k+1} \leftarrow &\arg \min_{Q} \alpha \cdot \left(\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)} \left[Q(s,a)\right] \right) \\
+      &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[ \left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^{k}(s,a)\right)^2\right]
+  \end{aligned}
+  \]
+  \end{block}
+
+  \begin{block}{(More Tighten) Lower Bound Inequation}
+    For $\hat{V}^{\pi}(s) = \mbb{E}_{\pi(a|s)}$, lower-bounds the true value of the policy obtained via exact policy evaluation, $V^\pi(s) = \mbb{E}_{\pi}(a|s) [Q^\pi(s,a)]$, when $\mu=\pi$, according to:
+    \[
+      \forall s \in \mc{D}, \hat{V}^\pi (s) \leq V^\pi (s) - \alpha \left[(I - \gamma T^\pi)^{-1} \mbb{E}_\pi  \left[\frac{\pi}{\hat{\beta}} - 1\right]\right] (s) + \left[(I - \gamma T^\pi)^{-1} \frac{C_{r, T, \delta}R_{\text{max}}}{(1-\gamma)\sqrt{\abs{\mc{D}}}}\right](s)
+    \]
+    Thus, if $\alpha \geq \frac{C_{r,T}R_{\text{max}}}{1-\gamma} \cdot \max_{s\in \mc{D}}\frac{1}{\sqrt{\abs{\mc{D}(s)}}}\cdot \left[\sum_a \pi(a|s) (\frac{\pi(a|s)}{\hat{\beta}(a|s)}-1)\right]^{-1}$, $\forall s \in \mc{D}$, $\hat{V}^{\pi}(s) \leq V^\pi (s)$, with probability $\geq 1 - \delta$.
+
+    When $\hat{\mc{B}}^\pi = \mc{B}^\pi$, then any $\alpha >0$ guarantees $\hat{V}^\pi (s) \leq V^{\pi} (s), \forall s \in \mc{D}$
+  \end{block}
+  For suitable $\alpha$, both bounds hold under sampling error and function approximation.
+
+\end{frame}
+
+
+\begin{frame}{Conservative Q-Learning}
+  General approach for offline policy learning, which is called \underline{Conservative Q-Learning (CQL)}.
+  \begin{itemize}
+    \item We can obtain Q-values that lower-bound the value of a policy $\pi$ by solving second approach with $\mu = \pi$.
+    \item So, just update $\mu$ to maximize current Q-function iterate
+  \end{itemize}
+  \begin{block}{Conservative Q-Learning (CQL)}
+    \[
+    \begin{aligned}
+      \min_{Q} \textcolor{red}{\max_{\mu}} \ &\alpha \left( \mbb{E}_{s \sim \mc{D}, \textcolor{red}{a \sim \mu(a|s)}}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\pi}_\beta} [Q(s,a)] \right) \\
+      &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k}\hat{Q}^k (s,a) \right)^2 \right] + \textcolor{red}{\mc{R}(\mu)}
+    \end{aligned}
+    \]
+    where $\mc{R}(\mu)$ is particular choices of regularizer
+  \end{block}
+\end{frame}
+
+\begin{frame}{Variants of CQL}
+  \begin{block}{Variants of CQL}
+    
+  \end{block}
+\end{frame}
+
+\end{document}
