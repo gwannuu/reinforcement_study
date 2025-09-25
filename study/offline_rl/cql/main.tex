@@ -1,0 +1,798 @@
+\documentclass[11pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par %frame 에서 지정한 title 사용
+  %\insertsubsectionhead\par        % subsection의 header를 사용
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true] % 블록 테두리 둥글게
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+
+
+%\setbeamerfont{itemize/enumerate subbody}{parent=itemize/enumerate body} % 
+%\setbeamerfont{itemize/enumerate subbody}{size=\usebeamerfont{itemize/enumerate body}\size}
+
+\makeatletter
+% Taken from beamer.cls' default geometry settings
+% http://mirrors.ctan.org/macros/latex/contrib/beamer/base/beamer.cls
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.5}pt,\fpeval{\beamer@paperheight*1.5}pt},
+  hmargin=\fpeval{0.5 * 1.5}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.5}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.5}cm% 0.5cm
+}
+\makeatother %from search keyword beamer size, get this search result -> https://tex.stackexchange.com/questions/586756/beamer-use-glyphs-from-smaller-font-size-but-enlarge
+
+
+% Reference bibtex
+% style = numeric, apa, authoryear-comp
+\usepackage[backend=biber, style=authoryear-comp, natbib=true]{biblatex}
+\addbibresource{../../../references.bib}
+
+
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+%\usepackage{lmodern} %다른 폰트 사용: 문서의 서문에 추가하면 Computer Modern 폰트의 확장 버전인 Latin Modern 폰트를 사용할 수 있습니다. 이 폰트는 더 다양한 크기와 스타일을 지원하여 문제를 해결해 줄 수 있습니다.
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+\newtheorem{proposition}[theorem]{Proposition}
+
+\usepackage{tcolorbox}
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+} % search keyword: beamer hyperref color -> https://tex.stackexchange.com/questions/13423/how-to-change-the-color-of-href-links-for-real
+%search keyword: hyperref color -> https://www.overleaf.com/learn/latex/Hyperlinks
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+\usepackage{mathtools} % dcases
+%\usepackage{xparse} % NewDocumentCommand
+\usepackage[boxed, lined]{algorithm2e} % to use algorithm block
+
+
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\NBin}[2]{\operatorname{NBin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\UnifOne}[1]{\operatorname{Unif}\!\left(#1\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\floor}[1]{\left\lfloor #1 \right \rfloor}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}{\operatorname{Span}}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+\newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
+\newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
+
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\supp}{\operatorname{supp}}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Conservative Q-Learning for Offline Reinforcement Learning}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% \subsection{Domain Randomization}
+% \begingroup
+%     \setbeamertemplate{frametitle}{%
+%     \vskip1ex
+%     \usebeamerfont{frametitle}%
+%     \insertframetitle\par        %  ← 원하는 대로 변경 가능
+%     \vskip1ex
+%     \hrule                             % 밑줄(선택)
+%     }
+%     \begin{frame}
+%         \frametitle{Table of Contents}
+%         \tableofcontents[currentsubsection]
+%     \end{frame}
+% \endgroup
+
+% % 목차 
+
+% \begin{frame}{Curriculum Learning}
+
+% \end{frame}
+
+\begin{frame}{Preliminaries}
+  \begin{itemize}
+    \item MDP: $<\mc{S}, \mc{A},T, r, \gamma>$
+    \item $\mc{S}$ - State space
+    \item $\mc{A}$ - Action space
+    \item $T: \mc{S}\times \mc{A} \to \Delta(S)$ - Transition Probability
+    \item $r: \mc{S} \times \mc{A} \to \mbb{R}$ - Reward Function ($\abs{r(s,a)} \leq R_{\text{max}}$)
+    \item $\gamma \in \mbb{R}$ - Discounted Factor
+    \item $\pi : \mc{S} \to \Delta(\mc{A})$ - Policy
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Online RL}
+  \begin{block}{Bellman Operator}
+    \[
+      (\mc{B}^\pi Q)(s,a) = r(s,a) + \gamma \mbb{E}_{s^\prime \sim T(\cdot |s,a)}[\mbb{E}_{a^\prime \sim \pi(\cdot | s^\prime)}[Q(s^\prime, a^\prime)]] 
+    \]
+  \end{block}
+
+  \begin{block}{Bellman Optimal Operator}
+    \[
+      (\mc{B}^\ast Q)(s,a) = r(s,a) + \gamma \mbb{E}_{s^\prime \sim T(\cdot |s,a)}[\max_{a^\prime} Q(s^\prime,a^\prime)]
+    \]
+  \end{block}
+  This equation is used to learn Q-Learning or DQN.
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{itemize}
+    \item Unlike Online RL, in offline RL, agent can't interact with environment.
+    \item Instead, agent can learn from offline dataset $\mc{D}$, where trajectories collected by behavior policy $\beta$ had gathered.
+  \end{itemize}
+
+  Preliminaries
+  \begin{itemize}
+    \item MDP: $<\mc{S}, \mc{A},T, r, \gamma>$
+    \item $\mc{S}$ - State space
+    \item $\mc{A}$ - Action space
+    \item $T: \mc{S}\times \mc{A} \to \Delta(S)$ - Transition Probability
+    \item $r: \mc{S} \times \mc{A} \to \mbb{R}$ - Reward Function ($\abs{r(s,a)} \leq R_{\text{max}}$)
+    \item $\gamma \in \mbb{R}$ - Discounted Factor
+    \item $\pi, \beta : \mc{S} \to \Delta(\mc{A})$ - Policy, Behavior Policy
+    \item $\mc{D} = \{(s,a,r,s)\}$ - Offline Dataset (collected by $\beta$)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{itemize}
+    \item In online RL, agent can steadily learn about reward function $r(s,a)$ and transition dynamics $T(s^\prime | s,a)$.
+    \item But offline RL, agent only can infer $r(s,a)$ and $T(s^\prime |s,a)$ from trajectories $(s,a,r,s^\prime) \in \mc{D}$.
+    \item Adding to this challenge, the offline dataset does not cover the full range of possible $(s,a,r,s^\prime)$ transitions.
+  \end{itemize}
+  So, \textbf{Empirical Bellman Operator} is introduced
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{block}{Empirical Bellman Operator}
+    \[
+      (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \pi(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]
+    \]
+
+    where
+
+    \[
+    \begin{aligned}
+    &\abs{\mc{D}(s)} = \sum_{(s_i,a_i,r_i,s_i^\prime) \in \mc{D}}\mb{1}[s=s_i] \\
+    &\abs{\mc{D}(s,a)} = \sum_{(s_i,a_i,r_i,s^\prime_i)\in\mc{D}}\mb{1}[s=s_i, a=a_i]\\
+    &\abs{\mc{D}(s,a,\cdot, s^\prime)} = \sum_{(s_i, a_i, r_i, s^\prime_i)} \mb{1}[s=s_i, a=a_i, s^\prime=s_i^\prime] \\
+    &\hat{r}(s,a) = \frac{1}{\abs{\mc{D}(s,a)}} \sum_{(s_i, a_i, r_i, s_i^\prime) \in \mc{D}}\mb{1}[s=s_i,a=a_i]\cdot r_i \\
+    &\hat{T}(s^\prime|s,a) = \frac{\abs{\mc{D}(s,a,\cdot, s^\prime)}}{\abs{\mc{D}(s,a)}} \\
+    &\hat{\beta}(a|s) = \frac{\abs{\mc{D}(s,a)}}{\abs{\mc{D}(s)}}
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Offline RL}
+  \begin{block}{Basic Offline RL framework (Policy Iteration)}
+    Randomly initialize $\hat{Q}^{0}$ and update $\hat{Q}^k$ and $\hat{\pi}^k$ by following rule
+    \[
+    \begin{gathered}
+      \hat{Q}^{k+1} \leftarrow \arg\min_Q \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}}\left[\left(r + \gamma \mbb{E}_{\textcolor{red}{a^\prime \sim \hat{\pi}^k (\cdot | s^\prime)}}[\hat{Q}^k(\textcolor{red}{s^\prime}, a^\prime)]  - Q(s,a)\right)^2\right] \\
+      \hat{\pi}^{k+1} \leftarrow \arg\max_\pi \mbb{E}_{s \sim \mc{D}} \left[\mbb{E}_{a \sim \hat{\pi}^k(\cdot|s)} \left[\hat{Q}^{k+1}(s,a)\right]\right]
+    \end{gathered}
+    \]
+  \end{block}
+  But there exists some problems
+  \begin{itemize}
+    \item The policy distribution $\beta$ and $\hat{\pi}^k$ are mismatched during the learning of $\hat{Q}^k$ and $\hat{\pi}^k$.
+    \begin{itemize}
+      \item next action $a^\prime$ is sampled from $\hat{\pi}^k$, but next state $s^\prime$ is visited by $\beta$.
+    \end{itemize}
+    \item $\hat{\pi}^k(\cdot|s)$ can sample $a$ where $\beta(a|s) = 0$ holds. (O.O.D. situation, Mismatch with distribution of $\mc{D}$)
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  First approach:
+  \begin{itemize}
+    \item Utilize Empirical Bellman Operator, which samples $(s,a,r,s^\prime)$ obtained by $\beta$
+    \item To prevent Q-value overestiation, depress Q-value itself
+  \end{itemize}
+
+  \begin{block}{Conservative Policy Evaluation (lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+      \hat{Q}^{k+1} \leftarrow \arg \min_{Q} \textcolor{red}{\alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)]} + \frac{1}{2} \mbb{E}_{s,a, s^\prime \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]
+    \]
+
+    Recall that $ (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \pi(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]$
+  \end{block}
+
+  \begin{itemize}
+    \item $\supp \mu \subset \supp \beta$ means that $\forall s,a, \beta(a|s) \neq 0 \implies \mu(a|s)\neq 0$.
+    \item The first term $\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)]$ depress the value of $Q(s,a)$
+    \item The second term $\frac{1}{2} \mbb{E}_{s,a \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]$ fits $Q(s,a)$ values, but with only using offline dataset $\mc{D}$.
+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Conservative Policy Evaluation (lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \begin{equation} \label{eq:1}
+      \hat{Q}^{k+1} \leftarrow \arg \min_{Q} \alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] + \frac{1}{2} \mbb{E}_{s,a, s^\prime \sim \mc{D}} \left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right]
+    \end{equation}
+
+  \end{block}
+  
+  \begin{block}{Lower Bound Inequation}
+    For learned $\hat{Q}^\pi = \lim_{k \to \infty} \hat{Q}^k$ which follows above approach, with probability $\geq 1-\delta$, following inequation holds
+    \[
+    \begin{aligned}
+      \forall s \in \mc{D}, a, \hat{Q}^\pi(s,a) \leq &Q^\pi(s,a) - \alpha \left[(I - \gamma T^\pi)^{-1} \frac{\mu}{\hat{\beta}}\right](s,a) \\
+      &+\left[(I-\gamma T^\pi)^{-1} \frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma)\sqrt{\abs{\mc{D}(s,a)}}}\right](s,a)
+    \end{aligned}
+    \]
+    where $\delta$ is small value $\in (0,1)$, $T^\pi Q(s,a)= \mbb{E}_{s^\prime \sim T(\cdot|s,a)}[\mbb{E}_{a^\prime \sim \pi(\cdot|s^\prime)}[Q(s^\prime,a^\prime)]]$, $C_{r,T,\delta}$ is a constant dependent on $r, T, \delta$.
+
+    Thus, if $\alpha$ is a sufficiently large, then $\hat{Q}^\pi (s,a) \leq Q^\pi(s,a), \forall s\in \mc{D},a$.
+    When $\hat{\mc{B}}^\pi = \mc{B}^\pi$, any $\alpha > 0$ guarantees inequation.
+  \end{block}
+    The inequality show that the more $\abs{\mc{D}(s,a)}$ increases, the theoretical value of $\alpha$ decreases.
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Lower Bound Inequation (Proof)}
+    From \hyperlink{eq:1}{equation 1}, we can obtain following equation by setting the derivative to zero
+    \[
+      \begin{aligned}
+        \hypertarget{thm:1_derivative}{&\frac{\partial}{\partial Q(s,a)} \left[\alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu(a|s)}Q(s,a)\right] + \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[ \left( Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right)^2\right] =0} \\
+        \implies &\alpha d^{\hat{\beta}}(s) \mu(a|s) + d^{\hat{\beta}} (s) \hat{\beta}(a|s) \left[ Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k (s,a)\right] =0 \\
+        \implies &\hat{Q}^{k+1} (s,a) \leftarrow \hat{\mc{B}}^\pi \hat{Q}^k - \alpha \frac{\mu(a|s)}{\hat{\beta}(a|s)}
+      \end{aligned}
+    \]
+
+    Meanwhile, with consideration for sampling error, under inequation holds with high probability (w.h.p.) (Please refer \hyperlink{appendix:sampling_error}{Appendix about $C_{r,T,\delta}$})
+    \[
+      \forall Q,s,a \in \mc{D}, \abs{\hat{\mc{B}}^\pi Q(s,a) - \mc{B}^\pi Q(s,a)} \leq \frac{C_{r,T,\delta} R_{\text{max}}}{(1-\gamma)\sqrt{\abs{\mc{D}(s,a)}}}
+    \]
+
+    Combining this result with sampling error consideration, we can get \hypertarget{text:why_assume_overestimation}{under inequation}
+    \[
+    \begin{aligned}
+      &\abs{\hat{Q}^{k+1} + \alpha \frac{\mu(a|s)}{\hat{\beta}(a|s)} - \mc{B}^\pi \hat{Q}^k} \leq \frac{C_{r,T.\delta}R_{\max}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}}
+      \implies \hat{Q}^{k+1} \leq \mc{B}^\pi \hat{Q}^k - \alpha \frac{\mu(a|s)}{\hat{\beta}(a|s)}  + \frac{C_{r,T,\delta} R_{\text{max}}}{(1- \gamma) \sqrt{\abs{\mc{D}(s,a)}}}
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Lower Bound Inequation (Proof, cont')}
+    By fixed point theorem, there exists unique $\lim_{k \to \infty}\hat{Q}^{k} = \hat{Q}^\pi$.
+    This $\hat{Q}^\pi$ also satisfies following inequation
+    \[
+      \hat{Q}^\pi \leq \mc{B}^\pi \hat{Q}^\pi - \alpha \frac{\mu(a|s)}{\hat{\beta}(a|s)} + \frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}}
+    \]
+    We can this inequation as following vectorized form and finally can derive our result of theorem 1
+    \[
+      \begin{aligned}
+        &(I - \gamma T^\pi) \hat{Q}^\pi \leq R + \alpha \frac{\mu}{\hat{\beta}} +\frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}} \\
+        \implies&\hat{Q}^\pi \leq (I - \gamma T^\pi)^{-1} \left[ R + \alpha \frac{\mu}{\hat{\beta}} + \frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}}\right] \\
+        \implies &\forall s,a, \hat{Q}^\pi(s,a) \leq Q^\pi (s,a) - \alpha \left[ (I - \gamma T^\pi)^{-1}\left[\frac{\mu}{\hat{\beta}}\right]\right](s,a) \\
+        &+ \left[(I - \gamma T^\pi)^{-1} \frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}}\right] (s,a)
+      \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{Lower Bound Inequation (Proof, cont')}
+    In order to guarantee (w.h.p) a lower bound, $\alpha$ can be chosen to cancel any potential \hypertarget{text:why_only_consider_overestimation}{overestimation incurred} by $\frac{C_{r,T,\delta}R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}}}}$.
+    The choice of $\alpha$ that guarantees a lower bound is then given by:
+    \[
+      \alpha \cdot \min_{s,a} \left[\frac{\mu(a|s)}{\hat{\beta}(a|s)}\right]  \geq \max_{s,a} \frac{C_{r,T, \delta} R_{\text{max}}}{ (1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}} \implies \alpha \geq \max_{s,a} \frac{C_{r,T,\delta} R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\mc{D}(s,a)}}} \cdot \max_{s,a} \left[\frac{\mu(a|s)}{\hat{\beta}(a|s)}\right]^{-1}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  % Not only decrease the L2 error between $Q^{k+1}(s,a)$ and $\hat{\mc{B}}^{\pi} \hat{Q}^k(s,a)$, But also decrease $\hat{Q}^{k+1}(s,a)$ itself.
+
+  The problem of first approach is:
+  \begin{itemize}
+    \item If $\alpha$ becomes bigger, then $Q(s,a)$ could be undervalued.
+  \end{itemize}
+
+  Second approach:
+  \begin{itemize}
+    \item Elevate $Q(s,a)$ in proportion to the probability of $(s,a)\in \mc{D}$.
+  \end{itemize}
+
+  \begin{block}{Conservative Policy Evaluation (more tighten lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \begin{equation} \label{eq:2}
+    \begin{aligned}
+          \hat{Q}^{k+1} \leftarrow &\arg \min_{Q} \alpha \cdot \left(\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] \textcolor{red}{- \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)} \left[Q(s,a)\right]} \right) \\
+          &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[ \left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^{k}(s,a)\right)^2\right]
+    \end{aligned}
+    \end{equation}
+  Recall that $ (\hat{\mc{B}}^\pi Q)(s,a) = \hat{r} + \gamma \mbb{E}_{s^\prime \sim \hat{T}(\cdot | s,a)}\left[\mbb{E}_{a^\prime \sim \pi(\cdot |s^\prime)} \left[ Q(s^\prime,a^\prime) \right]\right]$
+  \end{block}
+
+  % Add maximization term for the $Q^{k+1}(s,a)$ value if $(s,a)$ is in dataset $\mc{D}$.
+
+  \begin{itemize}
+    \item Note that in both evaluation methods, size of $\alpha$ plays a crucial role that makes hold the \underline{lower bound inequation}(See this later)
+    \item The less the $\alpha$ is, the higher probability to hold lower bound
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+    \begin{block}{Conservative Policy Evaluation (more tighten lower-bound)}
+    For any policy $\mu : \mc{S} \to \Delta{\mc{A}}, \supp \mu \subset \supp \beta$,
+    \[
+    \begin{aligned}
+          \hat{Q}^{k+1} \leftarrow &\arg \min_{Q} \alpha \cdot \textcolor{red}{\left(\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)} \left[Q(s,a)\right] \right)} \\
+          &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[ \left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^{k}(s,a)\right)^2\right]
+  \end{aligned}
+  \]
+  \end{block}
+
+  % What is the true meaning of \textcolor{red}{red} terms?
+  % \begin{itemize}
+  %   \item Suppose that for $s$, there exists possible actions $a^1, a^2$.
+  %   \item Let assume $\mu(a^1|s) = 1$ and $\pi(a^1|s) = 0.5$.
+  %   \item Then for $(s,a^1)$, the red term becomes $\left[ Q(s,a^1) - \frac{1}{2}Q(s,a^1) \right]$.
+  % \end{itemize}
+  \begin{block}{(More Tighten) Lower Bound Inequation}
+    For $\hat{V}^{\pi}(s) = \mbb{E}_{\pi(a|s)}$, lower-bounds the true value of the policy obtained via exact policy evaluation, $V^\pi(s) = \mbb{E}_{\pi}(a|s) [Q^\pi(s,a)]$, when $\mu=\pi$, according to:
+    \[
+      \forall s \in \mc{D}, \hat{V}^\pi (s) \leq V^\pi (s) - \alpha \left[(I - \gamma T^\pi)^{-1} \mbb{E}_\pi  \left[\frac{\pi}{\hat{\beta}} - 1\right]\right] (s) + \left[(I - \gamma T^\pi)^{-1} \frac{C_{r, T, \delta}R_{\text{max}}}{(1-\gamma)\sqrt{\abs{\mc{D}}}}\right](s)
+    \]
+    Thus, if $\alpha \geq \frac{C_{r,T}R_{\text{max}}}{1-\gamma} \cdot \max_{s\in \mc{D}}\frac{1}{\sqrt{\abs{\mc{D}(s)}}}\cdot \left[\sum_a \pi(a|s) (\frac{\pi(a|s)}{\hat{\beta}(a|s)}-1)\right]^{-1}$, $\forall s \in \mc{D}$, $\hat{V}^{\pi}(s) \leq V^\pi (s)$, with probability $\geq 1 - \delta$.
+
+    When $\hat{\mc{B}}^\pi = \mc{B}^\pi$, then any $\alpha >0$ guarantees $\hat{V}^\pi (s) \leq V^{\pi} (s), \forall s \in \mc{D}$
+  \end{block}
+  For suitable $\alpha$, both bounds hold under sampling error and function approximation.
+\end{frame}
+
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{(More Tighten) Lower Bound Inequation (Proof)}
+    From the \hyperlink{eq:2}{equation 2}, we can derive update formula
+    \[
+      \begin{aligned}
+        &\frac{\partial}{\partial Q(s,a)} \left[ \alpha (\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s,a,s^\prime \sim \mc{D}}[Q(s,a)]) + \frac{1}{2}\left[\left(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k\right)^2 \right]\right] =0 \\
+        \implies &\alpha (d^{\hat{\beta}}(s)(\mu(a|s) - \hat{\beta}(a|s))) + d^{\hat{\beta}}(s) \hat{\beta}(a|s)(Q(s,a) - \hat{\mc{B}}^\pi \hat{Q}^k(s,a)) = 0 \\
+        \implies &\hat{Q}^{k+1}(s,a) \leftarrow \hat{\mc{B}}^\pi \hat{Q}^k (s,a) - \alpha \left[\frac{\mu(a|s)}{\hat{\beta}(a|s)} -1\right]
+      \end{aligned}
+    \]
+    Let define $\hat{V}^{k+1} \coloneqq \mbb{E}_{a \sim \pi(\cdot|s)} [\hat{Q}^{k+1}(s,a)]=\hat{V}^{k+1} = \hat{\mc{B}}^\pi \hat{V}^k (s) - \alpha \mbb{E}_{a \sim \pi(\cdot|s)}\left[\frac{\mu(a|s)}{\hat{\beta}(a|s)} - 1\right]$ and $\lim_{k \to \infty} \hat{V}^{k} = \hat{V}^\pi$.
+    Before progress, let ignore the sampling error (i.e. $\hat{\beta}(a|s) = \beta(a|s)$, so $\hat{\mc{B}}^\pi = \mc{B}^\pi$).
+    By fixed point theorem,
+    \[
+    \begin{aligned}
+      &\hat{V}^\pi(s) = \mc{B}^\pi \hat{V}^\pi (s) - \alpha \mbb{E}_{a \sim \pi(\cdot|s)} \left[\frac{\mu(a|s)}{\beta(a|s)} -1\right] \\
+      \implies &(1 - \gamma T^{\pi})\hat{V}^\pi (s) = \mbb{E}_{a \sim \pi(\cdot|s)} [r(s,a)] - \alpha \mbb{E}_{a \sim \pi(\cdot |s)} \left[\frac{\mu(a|s)}{\beta(a|s)} -1\right]\\
+      \implies &\hat{V}^\pi = (1 - \gamma T^\pi)^{-1} r^{\pi} - \alpha (I - \gamma T^{\pi})^{-1}\mbb{E}_{\pi}\left[\frac{\mu}{\beta}-1\right] \text{ (vectorized form)} \\
+      \implies & \hypertarget{thm:v_update_without_sampling_error}{\hat{V}^{\pi}(s) = V^{\pi}(s) - \alpha \left[(I - \gamma T^{\pi})^{-1}\mbb{E}_{\pi} \left[\frac{\mu}{\beta} -1\right] \right](s)}
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{(More Tighten) Lower Bound Inequation (Proof)}
+    Let assume $\mu = \pi$.
+    Then by \hyperlink{thm:2_underestimate}{this result}, \hyperlink{thm:v_update_without_sampling_error}{Empirical value evaluation } turns to
+    \[
+      \hat{V}^{\pi}(s) = V^{\pi}(s) - \alpha\left[ \underbrace{(I - \gamma T^\pi)^{-1}}_{\text{non-negative entries}}  \underbrace{\mbb{E}_{\pi}\left[\frac{\pi}{\beta}-1\right]}_{\geq 0}\right](s)
+    \]
+    In summary, $\hat{V}^\pi (s)$ lower-bounds $V^{\pi}$ in assumption $\hat{\mc{B}}^\pi = \mc{B}^\pi$ and $\pi = \mu$.
+
+    \bigskip
+    Now let plugin this result to sampling error.
+    By combining \hyperlink{thm:sampling_error_value_version}{this result} with previous result ($\mu = \pi$),
+    \[
+    \begin{aligned}
+      &\abs{\hat{\mc{B}}^\pi \hat{V}^k(s) - \mc{B}^\pi \hat{V}^k(s)} \leq \frac{C_{r,T,\delta}}{\sqrt{\abs{\mc{D}(s)}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)}  \\
+      \implies &\hat{V}^{k+1} (s) \leq \mc{B}^\pi \hat{V}^k (s) -  \alpha \mbb{E}_{\alpha \sim \pi(\cdot|s) }\left[\frac{\pi(a|s)}{\hat{\beta}(a|s)}-1\right] + \frac{C_{r,T,\delta}}{\sqrt{\abs{\mc{D}(s)}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)} \\
+      \implies & \hat{V}^\pi (s) \leq \mc{B}^\pi \hat{V}^\pi (s) - \alpha \mbb{E}_{a \sim \pi(\cdot|s)} \left[\frac{\pi(a|s)}{\hat{\beta}(a|s)} -1\right] + \frac{C_{r,T,\delta}}{\sqrt{\abs{\mc{D}(s)}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)} \\
+      \implies & \hat{V}^\pi = (I - \gamma T^\pi)^{-1} r^\pi - \alpha (I - \gamma T^\pi)^{-1} \mbb{E}_{a \sim \pi(\cdot|s)} \left[\frac{\pi(a|s)}{\hat{\beta}(a|s)}-1\right] + (I - \gamma T^\pi)^{-1} \frac{C_{r,T,\delta}}{\sqrt{\abs{\mc{D}(s)}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)}
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Off-Policy Evaluation}
+  \begin{block}{(More Tighten) Lower Bound Inequation (Proof)}
+    To guarantee (w.h.p) the underestimation choicing of $\alpha$ should follows under condition:
+    \[  
+      \alpha \geq \max_{s,a} \frac{C_{r,T,\delta} R_{\text{max}}}{(1-\gamma) \sqrt{\abs{\textcolor{magenta}{\mc{D}(s)}}}} \cdot \max_{s} \left[ \sum_{a \in \supp \hat{\beta}(\cdot|s)}  \pi(a|s) \left[\frac{\pi(a|s)}{\hat{\beta}(a|s)}-1\right]\right]^{-1}
+    \]
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Conservative Q-Learning}
+  General approach for offline policy learning, which is called \underline{Conservative Q-Learning (CQL)}.
+  \begin{itemize}
+    \item We can obtain estimated Q-values that lower-bound the true Q-value of a policy $\pi$ by integrating $\mu = \pi$ to \hyperlink{eq:2}{equation 2}.
+    \item How can we optimize policy with this estimated Q-value? $\rightarrow$ Policy Iteration
+  \end{itemize}
+  \begin{block}{Conservative Q-Learning (CQL)}
+    \[
+    \begin{aligned}
+      \min_{Q} \textcolor{red}{\max_{\mu}} \ &\alpha \left( \mbb{E}_{s \sim \mc{D}, \textcolor{red}{a \sim \mu(a|s)}}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\pi}_\beta} [Q(s,a)] \right) \\
+      &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k}\hat{Q}^k (s,a) \right)^2 \right] + \textcolor{red}{\mc{R}(\mu)}
+    \end{aligned}
+    \]
+    where $\mc{R}(\mu)$ is particular choices of regularizer
+  \end{block}
+
+    \begin{block}{Theorem3.3 (CQL Learns lower-bounded Q-values)}
+    For simplicity, theorem is developed under \hypertarget{thm:3_3_assumption}{\ti{ignoring the sampling error (i.e. $\hat{\mc{B}}^\pi = \mc{B}^\pi$) and $\mu = \pi_{\hat{Q}^k}$.}}
+
+    Let $\pi_{\hat{Q}^k}(a|s) \propto \exp(\hat{Q}^k(s,a))$ and assume that $D_{\text{TV}}(\hat{\pi}^{k+1}, \pi_{\hat{Q}^k}(a|s)) \leq \epsilon$ (i.e., $\hat{\pi}^{k+1}$ changes slowly w.r.t to $\hat{Q}^k$).
+    Then, the policy value under $\hat{Q}^k$, lower-bounds the actual policy value, $\hat{V}^{k+  1} (s) \leq V^{k+1}(s)$ if
+    \[
+      \mbb{E}_{a \sim \pi_{\hat{Q}^k}(\cdot|s)}\left[\frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)}-1\right] \geq \max_{a \in \supp \hat{\beta}(\cdot|s)} \left[\frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)} \right]\cdot \epsilon
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.3 Proof (cont')}
+    In CQL framework, the update of Q value $\hat{Q}^{k+1}$ can be written by
+    \[
+      \hat{Q}^{k+1}(s,a) = \mc{B}^{\pi}\hat{Q}^{k} (s,a) - \alpha \left[\frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)} - 1\right]
+    \]
+    Then these leads to
+    \[
+      \begin{aligned}
+        \mbb{E}_{a \sim \hat{\pi}^{k+1} (\cdot|s)} [\hat{Q}^{k+1} (s,a)] &= \mbb{E}_{a \sim \hat{\pi}^{k+1}(\cdot|s)} [\mc{B}^\pi \hat{Q}^k(s,a)] - \alpha \left[\mbb{E}_{a \sim \pi^{k+1}(\cdot|s)}\left[\frac{\pi_{\hat{Q}^k(a|s)}}{\hat{\beta}(a|s)} -1 \right] \right] \\
+        &= \mbb{E}_{a \sim \hat{\pi}^{k+1}(\cdot | s)} [\mc{B}^\pi \hat{Q}^{k}(s,a)] - \alpha \left[\underbrace{\mbb{E}_{a \sim \pi^{k+1}(\cdot|s)}\left[\frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)} -1\right]}_{\text{underestimation, (a)}} \right] \\
+         &+ \alpha \left[ \underbrace{\sum_a \left( \pi_{\hat{Q}^k}(a|s) - \hat{\pi}^{k+1}(a|s)\right) \frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta} (a|s)}}_{\text{(b)}}  \right]
+      \end{aligned}
+    \]
+    To make sure underestimate, i.e. $\hat{Q}^{\pi} \leq Q^\pi$, (a) $\geq$ (b) should be satisfied.
+    $\left( \text{Note that }\sum_a (\pi_{\hat{Q}^k}(a|s))-\hat{\pi}^{k+1}(a|s) \leq D_{\text{TV}}(\pi_{\hat{Q}^k}, \hat{\pi}^{k+1}) = \sum_a \abs{\pi_{\hat{Q}^k}(a|s) - \hat{\pi}^{k+1} (a|s)}\right)$
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.3 Proof (cont')}
+    With the inequality $\epsilon \cdot \max_{a} \frac{\pi_{\hat{Q}^k(a|s)}}{\hat{\beta}(a|s)} \geq D_{\text{TV}}(\pi_{\hat{Q}^k}, \hat{\pi}^{k+1}) \cdot \max_a \frac{\pi_{\hat{Q}^k(a|s)}}{\hat{\beta}(a|s)} \geq \sum_a \left(\pi_{\hat{Q}^k}(a|s) - \hat{\pi}^{k+1}(a|s)\right) \cdot \frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)}$,
+    Lower bound guarantee inequation has induced by
+    \[
+      \mbb{E}_{a \sim \pi^{k+1}(\cdot|s)}\left[\frac{\pi_{\hat{Q}^k}(a|s)}{\hat{\beta}(a|s)} -1\right] \geq \epsilon \cdot \max_{a \in \supp \hat{\beta}(\cdot | s)} \frac{\pi_{\hat{Q}^k(a|s)}}{\hat{\beta}(a|s)}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{CQL($\mc{H}$)}
+    In CQL($\mc{H}$), $\mc{R} = \mc{H}(\mu)$.
+    The optimization problem becomes the form of
+    \[
+      \max_\mu \mbb{E}_{x \sim \mu(x)}[f(x)] + \mc{H}(\mu) \text{ s.t. }  \sum_x \mu(x)=1,\mu(x) \geq 0, \forall x
+    \]
+
+    We can solve this optimization problem by Lagrangian Multiplier.
+    Let $J(\mu) = \mbb{E}_{x \sim \mu(x)} [f(x) + \mc{H}(\mu)] = \sum_x \mu(x)f(x) - \sum_x \mu(x) \log \mu(x)$ and $g(\mu) = \sum_x \mu(x) - 1 = 0$.
+    Then
+    \[
+    \begin{gathered}
+      \mc{L}(\mu, \lambda) = J(\mu) - \lambda \cdot g(\mu) \\
+      \implies \mc{L}(\mu, \lambda) = \left(\sum_x \mu(x) f(x) - \sum_x \mu(x) \log \mu(x)\right) - \lambda \left(\sum_x \mu(x) -1\right) \\
+      \text{Let } \forall \mu(x), \frac{\partial \mc{L}}{\partial \mu(x)} = 0 \implies f(x) - \log \mu(x) - 1 - \lambda = 0 \implies \mu(x) = \exp(f(x)) \cdot \exp(f(x)) \cdot \exp(-(1+\lambda)) \\
+      \text{From the fact } \sum_x \mu(x)=1, \sum_x \exp(f(x)) \cdot \exp(-(1+\lambda)) =1 \implies \exp(1+\lambda) = \sum_x \exp(f(x)) \\
+      \therefore \mu(x) = \frac{\exp(f(x))}{\sum_x \exp(f(x))}
+    \end{gathered}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+
+  \begin{block}{CQL($\mc{H}$) (cont')}
+    If we plugin this $\mu(a|s) = \frac{Q(s,a)}{\sum_x \exp Q(s,a)}$, the generalized CQL framework can be specified by
+    \[
+      \begin{aligned}
+        &\min_Q \max_\mu \alpha (\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)}[Q(s,a)]) + \frac{1}{2}\mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k} \hat{Q}^k (s,a)\right)\right] + \mc{H}(\mu) \\
+        &\implies \min_Q \left(\mbb{E}_{s \sim \mc{D}}\left[\sum_a \frac{\exp(Q(s,a))}{Z}Q(s,a)\right] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)}[Q(s,a)] \right)\\
+        &+\frac{1}{2}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k}\hat{Q}^k (s,a)\right)^2\right] - \mbb{E}_{s \sim \mc{D}}\left[\sum_a \frac{\exp(Q(s,a))}{Z} \log \exp (Q(s,a)) - \log Z\right] \\
+        &\implies \min_Q \alpha \mbb{E}_{s \sim \mc{D}} \left[ \log \sum_a \exp(Q(s,a)) - \mbb{E}_{a \sim \hat{\beta}}[Q(s,a)]\right] + \frac{1}{2}\mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k} \hat{Q}^k(s,a)\right)^2\right] \label{eq:cql_h}
+      \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{CQL($D_{KL}$)}
+    If we choose $\mc{R}(\mu)$ to be the KL-divergence against a prior distribution, $\rho(a|s)$, i.e., $\mc{R}(\mu) = - D_{\text{KL}}(\mu, \rho)$, then we get $\mu(a|s) \propto \rho(a|s) \cdot \exp(Q(s,a))$.
+    Following is the derivation.
+    \[
+    \begin{gathered}
+      \max_\mu \mbb{E}[x \sim \mu(\cdot)][f(x)] - D_{\text{KL}}(\mu \parallel \rho) \text{ s.t. } \sum_x \mu(x) = 1, \mu(x) \geq 0, \forall x \\
+      J(\mu) = \sum_x \mu(x)f(x) - \sum_x \mu(x) \log \frac{\mu(x)}{\rho(x)} \cdot g(\mu) = \sum_x \mu(x) - 1 \\
+      \mc{L}(\mu, \lambda) = J(\mu) - \lambda g(\mu) \\
+      \forall \mu(x), \frac{\partial \mc{L}}{\partial \mu(x)} = 0 \implies f(x) - \log \mu(x) -1 + \log \rho(x) - \lambda \implies \mu(x) = \exp(\log(\rho(x)) + f(x) - (1+\lambda))\\
+      \text{Let } \sum_x \mu(x) = 1 \implies \exp(-(\lambda +1)) \sum_x \exp(\log(\rho(x))+f(x)) = 1 \implies \exp(\lambda+1) = \frac{1}{\sum_x \rho(x) \exp (f(x))} \\
+      \therefore \mu(x) = \frac{\rho(x) \exp(f(x))}{\sum_x \rho(x) \exp(f(x))}
+    \end{gathered}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{CQL($D_{\text{KL}}$) (cont')}  
+    So, plugging this result to CQL framework,
+    \[
+      \begin{aligned}
+        \min_Q \max_\mu \ & \alpha (\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)}[Q(s,a)]) + \frac{1}{2}\mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left(Q(s,a) - \hat{\mc{B}}^{\pi_k} \hat{Q}^k (s,a)\right)\right] \\
+        &-D_{KL}(\mu \parallel \rho) \\
+        \min_Q \ &\alpha \left(\mbb{E}_{s \sim \mc{D}}\left[\frac{\sum_a \rho(a|s)\exp(Q(s,a))}{Z}\right] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot|s)}[Q(s,a)]\right) \\
+        &+ \frac{1}{2}\mbb{E}_{s,a,s^\prime \sim \mc{D}}\left[\left( Q(s,a) - \hat{\mc{B}}^{\pi_k} \hat{Q}^k (s,a)\right)\right] - \mbb{E}_{s\sim \mc{D}}\left[\sum_a \frac{\rho(a|s)\exp(Q(s,a))}{Z} \log \frac{\rho(a|s)\exp(s,a)}{\rho(a|s) Z}\right] \\
+        \text{t.b.c...}
+      \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.4:CQL is gap-expanding}
+    At any iteration $k$, CQL expands the difference in expected Q-values under the behavior policy $\pi_\beta$ and $\mu_k$, such that for large enough values of $\alpha_k$, we have that 
+    \[
+      \forall s, \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^k (s,a)] - \mbb{E}_{\mu_k (\cdot|s)}[\hat{Q}^k (s,a)] > \mbb{E}_{\beta(\cdot|s)}[Q^k(s,a)] - \mbb{E}_{\mu_k(\cdot|s)}[Q^k(s,a)]
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.4:CQL is gap-expanding proof}
+    Before starting proof, let ignore the sampling error and later incorporating it into the choice of $\alpha$.
+    Starting from update rule
+    \[
+      \hat{Q}^{k+1} (s,a) = \mc{B}^{\pi_k} \hat{Q}^k (s,a) - \alpha \frac{\mu_k (a|s) - \beta (a|s)}{\beta (a|s)}
+    \]
+    Then from previous equation, we can derive two equations
+    \begin{itemize}
+      \item \[
+      \mbb{E}_{\mu_k(\cdot|s)}[\hat{Q}^{k+1} (s,a)]= \mbb{E}_{\mu(\cdot|s)}[\mc{B}^{\pi_k} \hat{Q}^k (s,a)] - \alpha_k \underbrace{\mbb{E}_{\mu(\cdot|s)}\left[\frac{\mu_k (a|s) - \beta(a|s)}{\beta(a|s)}\right]}_{\geq 0}
+      \]
+      \item \[
+       \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] = \mbb{E}_{\beta(\cdot|s)}[\mc{B}^{\pi_k} \hat{Q}^k (s,a)] - \alpha \underbrace{\mbb{E}_{\beta(\cdot|s)}\left[\frac{\mu_k (a|s) - \beta(a|s)}{\beta(a|s)}\right]}_{= 0}
+      \]
+    \end{itemize}
+    Subtracting second equation by first equation, we obtain
+    \[
+    \begin{aligned}
+      \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \mbb{E}_{\mu(\cdot|s)}[\hat{Q}^{k+1}(s,a)] &= \mbb{E}_{\beta(\cdot|s)}[\mc{B}^{\pi_k} \hat{Q}^k (s,a)] - \mbb{E}_{\mu(\cdot|s)}[\mc{B}^{\pi_k} \hat{Q}^k (s,a)] \\
+      &- \alpha_k \mbb{E}_{\mu(\cdot|s)}\left[\frac{\mu_k(a|s) - \beta(a|s)}{\beta(a|s)}\right]
+    \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.4:CQL is gap-expanding proof (cont')}
+    By subtracting $\mbb{E}_{\beta(\cdot|s)}[\textcolor{magenta}{Q^{k+1}(s,a)}] - \mbb{E}_{\mu(\cdot|s)}[\textcolor{magenta}{Q^{k+1}(s,a)}]$,
+    % \[
+    % \begin{aligned}
+    %   &\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \mbb{E}_{\beta(\cdot|s)}[Q^{k+1}(s,a)] = \mbb{E}_{\beta(\cdot|s)}[\mc{B}^{\pi_k}\hat{Q}^k(s,a)] - \mbb{E}_{\mu(\cdot|s)}[\mc{B}^{\pi_k}\hat{Q}^{k+1}(s,a)]  \\
+    %   & - \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \mbb{E}_{\mu(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \alpha_k \mbb{E}_{\mu(\cdot|s)}\left[\frac{\mu_k(a|s)}{\beta(a|s)} -1\right]\\
+    %   \implies &\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \mbb{E}_{\beta(\cdot|s)}[Q^{k+1}(s,a)] = \mbb{E}_{\beta(\cdot|s)}\left[\hat{Q}^{k+1}(s,a) + \alpha_k \cdot \left(\frac{\mu(a|s)}{\beta(a|s)}-1 +1\right)\right] \\
+    %   & - \mbb{E}_{\mu(\cdot|s)}\left[\hat{Q}^{k+1}(s,a) + \alpha_k \cdot \left(\frac{\mu(a|s)}{\beta(a|s)}-1+1 \right)\right] -\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)] - \mbb{E}_{\mu_k(\cdot|s)}[\hat{Q}^{k+1}(s,a)] \\
+    %   &-\alpha_k \mbb{E}_{\mu_k(\cdot|s)}\left[\frac{\mu_k(a|s)}{\beta(a|s)}-1\right] \\
+    %   \implies & \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1}(s,a)]  - \mbb{E}_{\beta(\cdot|s)}[Q^{k+1}(s,a)] = \mbb{E}_{\beta(\cdot|s)}[]
+    % \end{aligned}
+    % \]
+    \[
+    \begin{aligned}
+      &\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] - \mbb{E}_{\mu(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] = \mbb{E}_{\beta(\cdot|s)}\left[\mc{B}^{\pi_k} \hat{Q}^{k}\right] -\mbb{E}_{\mu(\cdot|s)}\left[\mc{B}^{\pi_k} \hat{Q}^{k}\right] \\
+      & - \mbb{E}_{\beta(\cdot|s)} [Q^{k+1}] + \mbb{E}_{\mu(\cdot|s)}[Q^{k+1}]  - \alpha_k \mbb{E}_{\mu(\cdot|s)} \left[\frac{\mu_k}{\beta} -1\right]\\
+      \implies& \mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] - \mbb{E}_{\mu(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] = \mbb{E}_{\beta(\cdot|s)}\left[\mc{B}^{\pi_k} \left(\hat{Q}^{k} - Q^k\right)\right] - \mbb{E}_{\mu_k(\cdot|s)}\left[\mc{B}^{\pi_k}\left(\hat{Q}^k - Q^k\right)\right] \\
+      &- \alpha_k \mbb{E}_{\mu_k(\cdot|s)}\left[\frac{\mu_k}{\beta} - 1 \right] \\
+      \implies &\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] = \mbb{E}_{\mu(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] + \underbrace{\mbb{E}_{\beta(\cdot|s)}\left[\mc{B}^{\pi_k}\left(\hat{Q}^k -Q^k\right)\right] - \mbb{E}_{\mu_k(\cdot|s)}\left[\mc{B}^{\pi_k}\left(
+        \hat{Q}^k- Q^k\right)\right]}_{(a)} \\
+        &- \underbrace{\alpha_k \mbb{E}_{\mu_k(\cdot|s)}\left[\frac{\mu_k}{\beta} -1 \right]}_{(b)}
+    \end{aligned}
+    \]
+    From above equation, we can notice that if (a) $<$ (b), then $\mbb{E}_{\beta(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}] > \mbb{E}_{\mu_k(\cdot|s)}[\hat{Q}^{k+1} - Q^{k+1}]$ holds. So
+    \[
+      \alpha_k > \max \left(\frac{\sum_a (\beta(a|s)-\mu_k(a|s))\left[\mc{B}^{\pi_k} (\hat{Q}^k - Q^k)(s,a)\right]}{\mbb{E}_{\mu_k(\cdot|s)}[\frac{\mu_k}{\beta} -1]}, 0\right)
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q-Learning}
+  \begin{block}{Theorem3.4:CQL is gap-expanding proof (cont')}
+    Let incorporate sampling error.
+    Recall that for any $Q$, $Q \leq \frac{R_{\text{max}}}{1- \gamma}$ holds and $\forall Q, \sum_a (\beta(a|s) - \mu_k(a|s)) \cdot \mc{B}^{\pi_k}Q(s,a) \leq D_{\text{TV}}(\beta, \mu_k)\cdot \frac{R_{\text{max}}}{1 - \gamma}$ holds.
+    Starting from 
+    \[
+    \abs{\hat{\mc{B}^{\pi_k}}\left(\hat{Q}^k - Q^k\right) - \mc{B}^{\pi_k} \left(\hat{Q}^k -Q^k\right)} \leq \frac{2 \cdot C_{r,T,\delta}R_{\text{max}}}{1 - \gamma}
+    \],
+    Following expressions guarantees conservatism with high property,
+    \[
+      \alpha_k > \max \left(\frac{\sum_a (\beta(a|s)-\mu_k(a|s))\left[\mc{B}^{\pi_k} (\hat{Q}^k - Q^k)(s,a)\right]}{\mbb{E}_{\mu_k(\cdot|s)}[\frac{\mu_k}{\beta} -1]} + D_{\text{TV}}()\right)
+    \]
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Implementation}
+  In this paper, authors adopt this CQL framework to
+  \begin{itemize}
+    \item Soft Actor Critic, which is actor-critic based
+    \item QR-DQN, which is value-based algorithm
+  \end{itemize}
+  
+  \begin{block}{Setting $\alpha$}
+    \begin{itemize}
+      \item In Soft Actor Critic, CQL framework is re-formulated and $\alpha$ is changed automatically by dual gradient-descent ( with introduction of "budget" parameter \textcolor{red}{$\tau$})
+      \[
+      \begin{aligned}
+        \min_Q \textcolor{red}{\max_{\alpha \geq 0}}\  &\alpha \left( \mbb{E}_{s \sim d^{\hat{\beta}}} \left[\log \sum_a \exp(Q(s,a))- \mbb{E}_{a \sim \hat{\beta}(\cdot|s)} [Q(s,a)] - \textcolor{red}{\tau} \right] \right) \\
+        &+ \frac{1}{2} \mbb{E}_{s,a,s^\prime \sim \mc{D}} \left[\left( Q(s,a) - \mc{B}^{\pi_k} \hat{Q}^k(s,a)\right)^2 \right]
+      \end{aligned}
+      \]
+      Explanation: If expected difference in Q-values is less than the specified threshold $\tau$, $\alpha$ will adjust to be close to $0$.
+      Whereas if the difference is higher than $\tau$, then $\alpha$ is likely to take on high values (more aggressive penalize Q-values) 
+      \item In QR-DQN, just fix $\alpha = 5.0$ and use bellman optimal operator instead of empirical bellman operator.
+      \[
+        \min_Q \max_\mu \ \textcolor{red}{5.0} (\mbb{E}_{s \sim \mc{D}, a \sim \mu(\cdot|s)}[Q(s,a)] - \mbb{E}_{s \sim \mc{D}, a \sim \hat{\beta}(\cdot |s)}[Q(s,a)]) + \frac{1}{2} \mbb{E}_{s,a,\textcolor{red}{r},s^\prime  \sim \mc{D}}\left[\left(  Q(s,a) - \textcolor{red}{\mc{B}^\ast} Q(s,a)^{k}\right)\right]
+      \]
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Appendix}
+  \begin{block}{Sampling Error of Empirical Bellman Operator} \label{appendix:sampling_error}
+    In Offline-RL, there exists \tb{sampling error} due to the finite size of the datset $\mc{D}$.
+
+    \begin{block}{Assumption D.1. (Concentration properties)}
+      For all $s,a \in \mc{D}$, the following relationships hold with high probability, $\geq 1-\delta$, where $C_{r,\delta}$ and $C_{T,\delta}$ depends on $\delta$ via a $\sqrt{\log(1/\delta)}$ dependency
+      \[
+        \abs{r - r(s,a)} \leq \frac{C_{r,\delta}}{\sqrt{\abs{\mc{D}(s,a)}}}, \abs{\hat{T}(s^\prime|s,a) - T(s^\prime |s,a)}_1 \leq \frac{C_{T,\delta}}{\sqrt{\mc{D}(s,a)}}
+      \]
+    \end{block}
+    Under this assumption, the difference between the empirical Bellman operator and the actual Bellman operator can be bounded
+    \[
+      \begin{aligned}
+        \abs{\hat{\mc{B}}^\pi \hat{Q}^k (s,a) - \mc{B}^\pi \hat{Q}^k (s,a)} &= \abs{ (r - r(s,a)) + \gamma \sum_{s^\prime} \left(\hat{T}(s^\prime|s,a) - T(s^\prime |s,a)\right)\mbb{E}_{\pi(\cdot | s^\prime)}\left[ \hat{Q}^k (s^\prime, a^\prime)\right]} \\
+        & \leq \abs{r - r(s,a)} + \gamma \abs{\sum_{s^\prime} \left(\hat{T}(s^\prime |s,a) - T(s^\prime |s,a)\right)\mbb{E}_{\pi(\cdot | s^\prime)}\left[\hat{Q}^k (s^\prime, a^\prime)\right]} \\
+        &\leq \abs{r - r(s,a)} + \gamma \abs{\sum_{s^\prime} \left(\hat{T}(s^\prime|s,a) - T(s^\prime|s,a)\right)}_1 \abs{\mbb{E}_{\pi(\cdot | s^\prime)}\left[\hat{Q}^k(s^\prime, a^\prime)\right]}_\infty \\
+        &\leq \frac{C_{r,\delta}}{\sqrt{\abs{\mc{D}(s,a)}}} + \frac{C_{T,\delta}}{\sqrt{\abs{\mc{D}(s,a)}}} \cdot \frac{2\gamma R_{\text{max}}}{(1-\gamma)} = \frac{C_{r,T,\delta}}{\sqrt{\abs{\mc{D}(s,a)}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)}
+      \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Appendix}
+  \begin{block}{Sampling Error of Empirical Bellman Operator (Cont')}
+    We can also derive sampling error combined with value function.
+    \[
+      \begin{aligned}
+      \abs{\hat{\mc{B}}^\pi \hat{V}^k(s) - \mc{B}^\pi \hat{V}^k(s)} &= \abs{\mbb{E}_{a \sim \pi(\cdot|s)}\left[(r-r(s,a)) + \gamma \sum_{s^\prime} \left( \hat{T}(s^\prime|s,a) - T(s^\prime|s,a) \right) \hat{V}^k(s^\prime) \right]}\\
+      &\leq \abs{\mbb{E}_{a \sim \pi(\cdot|s)} \left[(r - r(s,a))\right]} + \gamma \abs{\mbb{E}_{a \sim \pi(\cdot|s)}\left[\sum_{s^\prime}(\hat{T}(s^\prime|s,a) - T(s^\prime|s,a))\right]\hat{V}^k(s^\prime)}\\
+      &\leq \frac{C_{r,\delta}}{\sqrt{\abs{\hypertarget{thm:sampling_error_value_version}{\textcolor{magenta}{\mc{D}(s)}}}}} + \frac{C_{T,\delta}}{\sqrt{\abs{\textcolor{magenta}{\mc{D}(s)}}}} \cdot \frac{ 2\gamma R_{\text{max}}}{(1-\gamma)} = \frac{C_{r,T,\delta}}{\sqrt{\abs{\textcolor{magenta}{\mc{D}(s)}}}} \cdot \frac{R_{\text{max}}}{(1-\gamma)}
+      \end{aligned}
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Appendix}
+    \hypertarget{thm:2_underestimate}{\begin{block}{Make $\hat{V}^{k+1}$ Lower than $\mc{B}^\pi \hat{V}^{k}$}
+    We want to make $\hat{V}^{k+1} \leq \mc{B}^{\pi}\hat{V}^{k}$ always holds.
+    \begin{itemize}
+      \item if $\pi(a|s) = \mu(a|s)$, then 
+      \[
+      \begin{aligned}
+      \mbb{E}_{a \sim \pi(\cdot|s)}\left[\frac{\mu(a|s)}{\beta(a|s)}-1 \right] &= \sum_a (\pi(a|s) - \beta (a|s)+ \beta(a|s)) \left[\frac{\pi(a|s)}{\beta(a|s)}-1 \right] \\
+      & = \sum_a \frac{(\pi(a|s) - \beta(a|s))^2}{\beta(a|s)} + \sum_a \pi(a|s) - \sum_a \beta(a|s) \\
+      & = \sum_a \frac{(\pi(a|s) - \beta(a|s))^2}{\beta(a|s)} \geq 0
+      \end{aligned}
+     \]
+     \item Else, preserve $\hat{V}^{k+1} \leq \hat{V}^{k}$ by turning $\left[\frac{\mu(a|s)}{\hat{\beta}(a|s)} -1\right]$ to \hypertarget{thm:2_absolute}{$\abs{\frac{\mu(a|s)}{\hat{\beta}(a|s)}-1}$}
+    \end{itemize}
+  \end{block}}
+
+\end{frame}
+
+\begin{frame}{Question}
+  \begin{itemize}
+    \item \hyperlink{text:why_only_consider_overestimation}{Why only consider overestimation problem?}
+    \begin{itemize}
+      \item \hyperlink{text:why_assume_overestimation}{In this equation, the absolute is removed with assuming $\hat{\mc{B}}^\pi Q(s,a) \geq \mc{B}^\pi Q(s,a)$}
+    \end{itemize}
+    \item \hyperlink{thm:1_derivative}{Why just derivative and set as $\frac{\partial}{\partial Q(s,a)} = 0$ Is it convex?}
+    \item \hyperlink{thm:2_absolute}{Why convert to absolute value? for preventing overestimation?}
+    \item How to prove the fixed point exists in thorem 1?
+    \item What is the Lagrangian Dual gradient descent
+    \item \hyperlink{thm:3_3_assumption}{Are these assumptions correct?}
+    \item \hyperlink{thm:sampling_error_value_version}{In consideration of value sampling error, is it true?}
+  \end{itemize}
+\end{frame}
+
+\end{document}
