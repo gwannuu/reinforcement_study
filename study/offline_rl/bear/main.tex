@@ -41,110 +41,28 @@
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\tb}[1]{\textbf{#1}}
 
-% Title, Author, etc.
 \title{Stabilizing Off-Policy Q-Learning via Bootstrapping Error Reduction (BEAR)}
-\author{Gwanwoo Choi} % Or keep "Gwanwoo Choi" if you prefer
+\author{Gwanwoo Choi}
 \institute{MLIC}
-% \date{} % To use the current date
+\date{} % To use the current date
 
 \begin{document}
 
-% --- Title Frame ---
 \begin{frame}
     \titlepage
 \end{frame}
 
-% % --- Outline Frame ---
-% \begin{frame}{Outline}
-%     \tableofcontents
-% \end{frame}
-
-% % =======================================================
-% \section{Introduction: The Challenge of Offline RL}
-% % =======================================================
-
-% \begin{frame}{What is Offline Reinforcement Learning?}
-%     \begin{block}{Definition}
-%         A paradigm in RL where an agent learns a policy from a fixed, static dataset ($\mc{D}$) without any further online interaction with the environment. Also known as Batch RL.
-%     \end{block}
-    
-%     \begin{itemize}
-%         \item Essential for domains where online interaction is impossible, expensive, or dangerous.
-%         \item Examples: Healthcare, robotics, autonomous driving, recommendation systems.
-%     \end{itemize}
-    
-%     \begin{block}{The Core Challenge}
-%         How to handle the \tb{distributional shift} between the data-collecting policy and the learned policy?
-%     \end{block}
-% \end{frame}
-
-% \begin{frame}{Problem 1: Distributional Shift}
-%     \begin{itemize}
-%         \item The dataset $\mc{D}$ was collected by a specific behavior policy ($\beta$).
-%         \item The learned policy ($\pi$) attempts to improve upon $\beta$, so its action distribution will differ.
-%         \item When policy $\pi$ queries the value of a state-action pair not well-represented in the data (Out-of-Distribution, OOD), the Q-function must extrapolate, leading to inaccurate value estimates.
-%     \end{itemize}
-    
-%     \begin{block}{Extrapolation Error}
-%         Q-function estimates for OOD state-action pairs are unreliable and can contain large errors.
-%     \end{block}
-% \end{frame}
-
-% \begin{frame}{Problem 2: Bootstrapping Error Accumulation}
-%     \begin{itemize}
-%         \item The Bellman update bootstraps, using previous Q-estimates to update the current Q-function.
-%         \[ Q_k(s,a) \approx r + \gamma \max_{a'} Q_{k-1}(s', a') \]
-%         \item If the $\max_{a'}$ operator selects an OOD action, the erroneous $Q_{k-1}(s', a')$ value becomes the target.
-%         \item This error is then propagated to other state-action pairs through subsequent updates.
-%         \item Eventually, the entire Q-function can become corrupted, leading to learning failure.
-%     \end{itemize}
-%     \begin{center}
-%         \tb{This is the fundamental reason why naive off-policy RL (e.g., TD3) fails on static offline datasets.}
-%     \end{center}
-% \end{frame}
-
-
-% \begin{frame}{Theoretical Performance Bound (Theorem 4.1)}
-%     \begin{block}{Suboptimality Bound}
-%         This theorem formalizes the trade-off by bounding the suboptimality of the learned value function. The bound is given by:
-%         \[
-%         \lim_{k \to \infty} \mbb{E}_{\rho_0}[|V^{\pi_k}(s) - V^*(s)|] \le \frac{\gamma}{(1-\gamma)^2} \left( C(\Pi) \mbb{E}_{\mu} [\max_{\pi \in \Pi} \mbb{E}_{\pi}[\delta(s,a)]] + \frac{1-\gamma}{\gamma} \alpha(\Pi) \right)
-%         \]
-%     \end{block}
-    
-%     \begin{itemize}
-%         \item The left side, $|V^{\pi_k}(s) - V^*(s)|$, represents the \tb{suboptimality gap} of the learned policy.
-%         \item The total error is amplified by the \tb{Concentrability Coefficient ($C(\Pi)$)}, which measures distributional shift.
-%         \item The other error sources are the \tb{Bellman Error ($\delta$)} from function approximation and the \tb{Suboptimality Constant ($\alpha(\Pi)$)} from the limited policy set.
-%     \end{itemize}
-
-%     \begin{center}
-%         \tb{To minimize this bound, we must balance keeping $C(\Pi)$ small (staying on-support) with keeping $\alpha(\Pi)$ small (allowing policy improvement).}
-%     \end{center}
-% \end{frame}
-
-% \begin{frame}{Key Concepts: $C(\Pi)$ and $\alpha(\Pi)$}
-%     To analyze this problem, we define two important constants.
-
-%     \begin{block}{1. Concentrability Coefficient: $C(\Pi)$}
-%         Measures how much the state visitation distribution of a policy set $\Pi$ deviates from the data distribution $\mu$.
-%         \begin{itemize}
-%             \item Represents the \tb{amplification of error} due to distributional shift.
-%             \item As $\Pi$ deviates from the data distribution, $C(\Pi)$ increases (minimum value is 1).
-%         \end{itemize}
-%     \end{block}
-
-%     \begin{block}{2. Suboptimality Constant: $\alpha(\Pi)$}
-%         Measures how far the best policy within the set $\Pi$ is from the true optimal policy.
-%         \begin{itemize}
-%             \item Represents the \tb{inherent limitation} of the policy set's expressiveness.
-%             \item As $\Pi$ includes more diverse and better policies, $\alpha(\Pi)$ decreases.
-%         \end{itemize}
-%     \end{block}
-% \end{frame}
-
-
 \begin{frame}{Sources of Suboptimality in Offline RL}
+    \begin{block}{Distribution-Constrained Operators}
+        Given a set of policies $\Pi$, the \tb{distribution-constrained backup operator} is defined as
+        \[
+            \mc{T}^\Pi Q(s,a) \coloneqq \mbb{E}[R(s,a) + \gamma \mbb{E}_{P(s^\prime|s,a)}[V(s^\prime)]] \quad V(s) \coloneqq \max_{\textcolor{red}{\pi \in \Pi}} \mbb{E}_{\pi}[Q(s,a)]
+        \]
+
+        This backup operator converges to a fixed point with similar manner of Q Learning convergence.
+    \end{block}
+
+    \vspace{0.5cm}
     When learning from a fixed dataset, two primary sources of error can lead to a suboptimal final policy.
 
     \begin{block}{1. Suboptimality Bias}
@@ -169,49 +87,30 @@
     We can quantify these two error sources with the following definitions.
 
     \begin{block}{Suboptimality Constant: $\alpha(\Pi)$}
-        This measures the suboptimality bias.
-        \[ \alpha(\Pi) = \max_{s,a} |T^\Pi Q^*(s,a) - TQ^*(s,a)| \]
+        \[ \alpha(\Pi) \coloneqq \max_{s,a} |\mc{T}^\Pi Q^*(s,a) - TQ^*(s,a)| = \max_{s,a} |\mc{T}^\Pi Q^*(s,a) - Q^*(s,a)| \]
         \begin{itemize}
-            \item It captures the maximum difference between the standard Bellman operator ($TQ^*$) and an operator constrained to policies in $\Pi$ ($T^\Pi Q^*$).
+            \item It captures the maximum difference between the standard Bellman operator ($\mc{T}Q^*$) and an operator constrained to policies in $\Pi$ ($\mc{T}^\Pi Q^*$).
             \item A \tb{larger, more expressive $\Pi$} leads to a \tb{smaller $\alpha(\Pi)$}.
         \end{itemize}
     \end{block}
 
     \begin{block}{Concentrability Coefficient: $C(\Pi)$}
-        This measures the effect of distributional shift, based on the assumption:
-        \[ \rho_0 P^{\pi_1} \dots P^{\pi_k}(s) \le c(k) \mu(s) \]
+        Let $\rho_0$ denote the initial state distribution and $\mu(s,a)$ denote the distribution of training data over $\mc{S}\times \mc{A}$, with marginal $\mu(s)$ over $\mc{S}$.
+        Suppose there exists coefficients $c(k)$ such that for any $\pi_1, \dots, \pi_k \in \Pi$ and $s \in \mc{S}$:
+        \[ \rho_0 P^{\pi_1} \dots P^{\pi_k}(s) \le c(k) \mu(s) \implies \frac{\rho_0 P^{\pi_1}\dots P^{\pi_k}(s)}{\mu(s)} \leq c(k)\]
+
+        This measures the effect of distributional shift, based on the assumption.
         \begin{itemize}
             \item It bounds the ratio between the state distribution generated by policies in $\Pi$ and the dataset's state distribution $\mu$.
             \item $C(\Pi)$ is a weighted sum of these mismatch coefficients, $c(k)$. A \tb{larger, more diverse $\Pi$} can lead to a \tb{larger $C(\Pi)$}.
+            \[
+                C(\Pi) \coloneqq (1-\gamma)^2 \sum_{k=1}^\infty k \gamma^{k-1} c(k)
+            \]
         \end{itemize}
     \end{block}
 \end{frame}
 
-
 \begin{frame}{The Overall Performance Bound (Theorem 4.1)}
-    This theorem combines both error sources to provide an upper bound on the final policy's suboptimality.
-
-    \begin{block}{The Suboptimality Bound}
-        \[
-        \lim_{k \to \infty} \mbb{E}_{\rho_0}[|V^{\pi_k}(s) - V^*(s)|] \le \frac{\gamma}{(1-\gamma)^2} \left( C(\Pi) \mbb{E}_{\mu} [\dots] + \frac{1-\gamma}{\gamma} \alpha(\Pi) \right)
-        \]
-    \end{block}
-    
-    \begin{itemize}
-        \item The \tb{left-hand side} is the final suboptimality gap we want to minimize.
-        \item The \tb{right-hand side} shows that the total error depends on two key terms.
-        \item \tb{Observation 1}: The distributional shift error, $C(\Pi)$, acts as a \tb{multiplier} on the Bellman error term. A large $C(\Pi)$ can amplify even small approximation errors.
-        \item \tb{Observation 2}: The bound is a sum of the $C(\Pi)$-weighted term and the $\alpha(\Pi)$ term. This mathematically formalizes the trade-off.
-    \end{itemize}
-
-    \begin{center}
-        \tb{To guarantee good performance, an algorithm must balance keeping $C(\Pi)$ small with keeping $\alpha(\Pi)$ small.}
-    \end{center}
-\end{frame}
-
-\begin{frame}{The Core Dilemma: $C(\Pi)$ vs. $\alpha(\Pi)$ Trade-off}
-    The performance of an offline RL algorithm depends on balancing these two sources of error.
-
     \begin{columns}[T]
         \begin{column}{.5\textwidth}
             \begin{block}{Shrinking the policy set $\Pi$}
@@ -233,10 +132,56 @@
         \end{column}
     \end{columns}
 
-    \vspace{1cm}
+    \vspace{0.5cm}
+    Following theorem combines both error sources to provide an upper bound on the final policy's suboptimality.
+
+    \begin{block}{The Suboptimality Bound}
+        Suppose we run approximate distribution-constrained value iteration with a set constrained backup $\mc{T}^\Pi$.
+        Assume that $\delta(s,a) \geq \max_k |Q_k(s,a) - \mc{T}^\Pi Q_{k-1} (s,a)|$ bounds the bellman error. Then
+        \[
+        \lim_{k \to \infty} \mbb{E}_{\rho_0}[|V^{\pi_k}(s) - V^*(s)|] \le \frac{\gamma}{(1-\gamma)^2} \left( \textcolor{red}{C(\Pi) }\mbb{E}_{\mu} [\max_{\pi \in \Pi} \mbb{E}_{\pi}[\delta(s,a)]] + \frac{1-\gamma}{\gamma} \textcolor{red}{\alpha(\Pi)} \right)
+        \]
+    \end{block}
+    
+    \begin{itemize}
+        \item The \tb{left-hand side} is the final suboptimality gap we want to minimize.
+        \item The \tb{right-hand side} shows that the total error depends on two key terms.
+    \end{itemize}
+
+
+    \begin{center}
+        \tb{To guarantee good performance, an algorithm must balance keeping $C(\Pi)$ small with keeping $\alpha(\Pi)$ small.}
+    \end{center}
+
+    \vspace{1mm}
     \begin{center}
         \tb{Goal: Find an optimal policy set $\Pi$ that minimizes $\alpha(\Pi)$ while keeping $C(\Pi)$ bounded.}
     \end{center}
+\end{frame}
+
+\begin{frame}{Theorem 4.2}
+
+    \begin{block}{Support Set}
+        \[
+            \Pi_{\epsilon} \coloneqq \{\pi | \pi(a|s) =0 \text{ whenever } \beta(a|s) < \epsilon\}
+        \]
+
+        \begin{itemize}
+            \item By adjusting $\epsilon$, we can control the trade-off between $C(\Pi_\epsilon)$ and $\alpha(\Pi_\epsilon)$.
+        \end{itemize}
+    \end{block}
+    \begin{block}{Theorem 4.2}
+        Assume the data distribution $\mu$ is generated by a behavior policy $\beta$.
+        Let $\mu(s)$ be the marginal state distribution under the data distribution and $\mu_{\Pi_\epsilon}$ be the \tb{highest discounted marginal state distribution} starting from the initial state distribution $\rho$ and following policies $\pi \in \Pi_\epsilon$ at each time step thereafter.
+        Then, there exists a concentrability coefficient $C(\Pi_\epsilon)$ which is bounded:
+        \[
+            C(\Pi_{\epsilon}) \leq C(\beta) \cdot \left(1 + \frac{\gamma}{(1-\gamma)f(\epsilon)}(1-\epsilon)\right)
+        \]
+        where $f(\epsilon) \coloneqq \min_{s \in \mc{S} \text{ s.t. } \mu_{\Pi_\epsilon}(s)>0}[\mu(s)]>0$.
+    \end{block}
+    \begin{itemize}
+        \item $f(\epsilon)$ is the lowest probability of any state in the support of $\mu_{\Pi_\epsilon}$.
+    \end{itemize}
 \end{frame}
 
 
@@ -261,8 +206,9 @@
                 \item \tb{Unconstrained (Q-learning)}: Fails. The $\max$ operator propagates high error from the OOD region into the data-supported region, corrupting the Q-values.
                 \vspace{1em}
                 \item \tb{Behavior Policy (Policy Eval.)}: Stable but suboptimal. It avoids error propagation but cannot learn a better policy.
+                \textcolor{magenta}{Why the error propagation starts from the goal state?}
                 \vspace{1em}
-                \item \tb{Support Constrained (BEAR's idea)}: Succeeds. It strikes a balance by confining error propagation to the OOD region while allowing for stable policy improvement.
+                \item \tb{Support Constrained ($\Pi_\epsilon$)}: It strikes a balance by confining error propagation to the OOD region while allowing for stable policy improvement.
             \end{itemize}
         \end{column}
         
@@ -286,6 +232,19 @@
     \end{block}
 \end{frame}
 
+\begin{frame}{Ensemble of Q-functions}
+    \begin{block}{Ensemble of Q-functions}
+        \begin{itemize}
+            \item Train $K$ independent Q-functions, $\{\hat{Q}_1, \hat{Q}_2, \dots, \hat{Q}_K\}$.
+            \item Use the minimum of these Q-values for policy improvement:
+            \[ \min_{j=1,..,K} \hat{Q}_j(s,a) \]
+            \item The policy is updated to maximize the conservative estimate of the Q-values within $\Pi_\epsilon$:
+            \[\pi_\phi (s) \coloneqq \max_{\pi \in \Pi_\epsilon} \mbb{E}_{a \sim \pi(\cdot|s)}\left[ \min_{j=1,\dots,K} \hat{Q}_j(s,a)\right]\]
+            \item This conservative estimate helps mitigate overestimation bias and provides a more robust value function.
+        \end{itemize}
+    \end{block}
+\end{frame}
+
 \begin{frame}{The MMD (Maximum Mean Discrepancy) Constraint}
     \begin{itemize}
         \item \tb{Problem}: We cannot directly use the theoretical constraint ($\pi(a|s)=0 \text{ if } \beta(a|s)<\epsilon$) because the true distribution of $\beta$ is unknown.
@@ -305,9 +264,36 @@
     \end{itemize}
 \end{frame}
 
-% =======================================================
-\section{Experimental Results and Analysis}
-% =======================================================
+\begin{frame}{ALgorithms}
+    \begin{block}{Constrained Policy Update Objective}
+        \begin{align*}
+            \pi_\phi := \max_{\pi} \quad & \mbb{E}_{s \sim \mc{D}, a \sim \pi(\cdot|s)} \left[ \min_{j=1,..,K} \hat{Q}_j(s,a) \right] \\
+            \text{s.t.} \quad & \mbb{E}_{s \sim \mc{D}} \left[ \text{MMD}(\mc{D}(s), \pi(\cdot|s)) \right] \leq \epsilon
+        \end{align*}
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=0.94\textwidth]{Algorithm.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Experiment: Baselines}
+    \begin{block}{Baselines}
+        \begin{itemize}
+        \item Off-Policy \tb{TD3}
+        \item \tb{BCQ}
+        \item \tb{KL-control} (BCQ + KL-constraint)
+        \item (static version of ) \tb{DQfD}
+        \item \tb{BC} (Behavior Cloning)
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{Plot}
+        \begin{itemize}
+            \item \tb{X-axis} : number of gradient updates taken by each algorithm. One step on the x-axis corresponds to 1000 gradient steps.
+            \item \tb{Y-axis} : average evaluation return over 5 seeds of the policy
+        \end{itemize}
+    \end{block}
+\end{frame}
 
 \begin{frame}{Experiment 1: Performance on Medium-Quality Data}
     \begin{itemize}
@@ -323,92 +309,125 @@
     
     \begin{itemize}
         \item \tb{BEAR-QL} consistently outperforms baselines and successfully improves upon the behavior policy.
+        \item \tb{BCQ} often tracks the performance of the BC baseline, suggesting that BCQ primarily imitates the data.
+        \item \tb{KL-control} usually performs similar or worse to BC
+        \item \tb{DQfD} tends to diverge often due to cumulative error due to OOD actions and often exhibits a huge variance across different runs (For example, HalfCheetah-v2 environments)
         \item \tb{Naive-RL} fails to learn and suffers from performance degradation due to error accumulation.
     \end{itemize}
 \end{frame}
 
+\begin{frame}{Experiment 1: Performance on Medium-Quality Data (Appendix E)}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{Figure8.png}
+    \end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{Figure9.png}
+    \end{figure}
+        \begin{itemize}
+        \item In Figure 8, $Q-MC$ of the policy in the environment are provided
+        \item In Figure 9, Q-values learned by BEAR-QL and BCQ are provided.
+        \item BCQs Q-values tend to be more unstable (especially, in Walker2d) as compared to BEAR-QL
+    \end{itemize}
+\end{frame}
+
 \begin{frame}{Experiment 2: Performance on Extreme Datasets}
-    \begin{columns}[T]
-        \begin{column}{.5\textwidth}
-            \begin{block}{Random Data}
-                \begin{figure}
-                \includegraphics[width=\textwidth]{Figure5Top.png}
-                \end{figure}
-                \begin{itemize}
-                    \item \tb{Goal}: Test policy \textit{improvement}.
-                    \item \tb{BEAR}: Succeeds.
-                    \item \tb{BCQ}: Fails, as it is too conservative to improve upon random behavior.
-                \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{.5\textwidth}
-            \begin{block}{Optimal Data}
-                \begin{figure}
-                % --- Insert bottom row of Figure 5 ---
-                \includegraphics[width=\textwidth]{Figure5Bottom.png}
-                \end{figure}
-                \begin{itemize}
-                    \item \tb{Goal}: Test policy \textit{stability}.
-                    \item \tb{BEAR, BCQ}: Succeed.
-                    \item \tb{Naive-RL}: Fails catastrophically due to OOD errors.
-                \end{itemize}
-            \end{block}
-        \end{column}
-    \end{columns}
-    
-    \begin{block}{Conclusion}
-        BEAR is the only algorithm that demonstrates robustness across the full spectrum of data quality.
+        \begin{figure}
+            \includegraphics[width=\textwidth]{Figure5Bottom.png}
+            \caption{Random Data}
+        \end{figure}
+        \begin{itemize}
+            % \item \tb{Goal}: Test policy \textit{improvement}.
+            \item \tb{BEAR, Naive-RL}: BEAR achieves good results, Naive-RL often does well.
+            \item \tb{BCQ}: Favors a BC strategy, causing it to fail on random data.
+        \end{itemize}
+        \begin{figure}
+            \includegraphics[width=\textwidth]{Figure5Top.png}
+            \caption{Optimal Data}
+        \end{figure}
+        \begin{itemize}
+            % \item \tb{Goal}: Test policy \textit{stability}.
+            \item \tb{BEAR, BCQ}: Succeed.
+            \item \tb{Naive-RL}: Can't handle optimal data, since it doesn't illustrate mistakes.
+        \end{itemize}
+    \end{frame}
+
+\begin{frame}{Ablation Studies: Validating BEAR's Design}
+    \begin{figure}
+     % --- Insert Figure 6a ---
+     \includegraphics[width=0.5\textwidth]{Figure6.png}
+    \end{figure}
+    \begin{block}{MMD vs KL-Divergence}
+            \begin{itemize}
+                \item \tb{Question}: Why use MMD?
+                \item \tb{Result}: The KL constraint is too strict (density matching), causing learning to fail in medium-quality data. MMD provides a better balance (support matching).
+            \end{itemize}
+    \end{block}
+
+    \begin{block}{Number of MMD Samples}
+        \begin{itemize}
+            \item \tb{Question}: How many samples `n`?
+            \item \tb{Result}: A small number of samples (n=4) performs better, likely acting as a form of regularization.
+        \end{itemize}
     \end{block}
 \end{frame}
 
-\begin{frame}{Ablation Studies: Validating BEAR's Design}
-    \begin{columns}[T]
-        \begin{column}{.5\textwidth}
-            \begin{block}{MMD vs KL-Divergence}
-                \begin{figure}
-                 % --- Insert Figure 6a ---
-                 \includegraphics[width=\textwidth]{Figure6.png}
-                \end{figure}
-                 \begin{itemize}
-                     \item \tb{Question}: Why use MMD?
-                     \item \tb{Result}: The KL constraint is too strict (density matching), causing learning to fail. MMD provides a better balance (support matching).
-                 \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{.5\textwidth}
-            \begin{block}{Number of MMD Samples}
-                 \begin{figure}
-                 % --- Insert Figure 6b ---
-                 \includegraphics[width=\textwidth]{Figure6.png}
-                 \end{figure}
-                 \begin{itemize}
-                     \item \tb{Question}: How many samples `n`?
-                     \item \tb{Result}: A small number of samples (n=4) performs better, likely acting as a form of regularization.
-                 \end{itemize}
-            \end{block}
-        \end{column}
-    \end{columns}
-
-    \begin{center}
-        \tb{These studies confirm that BEAR's core design choices are crucial for its performance.}
-    \end{center}
+\begin{frame}{Experiment 1: Performance on Medium-Quality Data (Appendix E)}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{Figure10.png}
+    \end{figure}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{Figure11.png}
+    \end{figure}
+    \begin{itemize}
+        \item Figure 10 and 11 shows performance trends (mesuared in Average Returns) with using \tb{MMD constraint} vs \tb{KL constraint}
+        \item Even in Figure 11, Lagrangian multipler for KL constraint is fine-tuned, MMD constraint shows better performance than KL constraint
+    \end{itemize}
 \end{frame}
 
-% =======================================================
-\section{Conclusion}
-% =======================================================
-
-% \begin{frame}{Conclusion}
-%     \begin{itemize}
-%         \item The key challenge in offline RL is \tb{bootstrapping error accumulation} caused by distributional shift.
-%         \item This problem can be analyzed through the theoretical \tb{trade-off} between the concentrability ($C(\Pi)$) and suboptimality ($\alpha(\Pi)$) constants.
-%         \item \tb{BEAR} effectively solves this by using an \tb{MMD-based constraint} to ensure the learned policy stays within the support of the data distribution.
-%         \item Experiments show that BEAR achieves \tb{robust, state-of-the-art performance} across a wide variety of datasets and environments.
-%     \end{itemize}
-%     \begin{block}{Final Summary}
-%         BEAR successfully combines theoretical insights with a practical implementation to create a robust and effective algorithm for offline reinforcement learning.
-%     \end{block}
+% \begin{frame}{Experiment 1: Performance on Medium-Quality Data (Appendix E)}
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.7\textwidth]{Figure12.png}
+%     \end{figure}
+%     How can calculate MMD with importance sampling?
 % \end{frame}
 
+\begin{frame}{Discussion}
+    \begin{block}{Opinion}
+        In my opinion,
+        \begin{itemize}
+            \item If MMD's performance is as good as the paper claims, why wasn't it mentioned in a later paper like CQL? It looks like MMD and KL divergence seem to have similar performance.
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Appendix: Definition of Maximum Mean Discrepancy}
+    \begin{block}{Maximum Mean Discrepancy (MMD)}
+        \begin{itemize}
+            \item A statistical distance metric that measures the difference between two distributions based on samples.
+            \item Given two sets of samples $\{x_i\}_{i=1}^m$ from distribution $P$ and $\{y_j\}_{j=1}^n$ from distribution $Q$, MMD is defined as:
+            \[
+            \text{MMD}(P, Q) = \left\| \frac{1}{m} \sum_{i=1}^m \phi(x_i) - \frac{1}{n} \sum_{j=1}^n \phi(y_j) \right\|_{\mathcal{H}}
+            \]
+            where $\phi$ is a feature mapping to a reproducing kernel Hilbert space (RKHS) $\mathcal{H}$.
+            \item Intuitively, MMD captures how different the two distributions are by comparing their means in the feature space.
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{Sampled Maximum Mean DIscrepancy}
+        Given samples $x_1, \cdots, x_n \sim P$ and $y_1, \cdots, y_m \sim Q$
+        \[
+        \text{MMD}^2(X, Y) = \frac{1}{n^2} \sum_{i=1}^n \sum_{j=1}^n k(x_i, x_j) + \frac{1}{m^2} \sum_{i=1}^m \sum_{j=1}^m k(y_i, y_j) - \frac{2}{mn} \sum_{i=1}^n \sum_{j=1}^m k(x_i, y_j)
+        \]
+        where $k(\cdot,\cdot)$ is any universal kernel function (e.g., Gaussian kernel).
+        \begin{itemize}
+            \item This empirical estimate allows us to compute MMD using only samples from the distributions, making it practical for our offline RL setting.
+        \end{itemize}
+    \end{block}
+\end{frame}
 
 \end{document}
