@@ -199,18 +199,19 @@
 \end{frame}
 
 \begin{frame}{Motivation}
-    Datasets for Experiment
-    \begin{itemize}
-        \item Final buffer : replay buffer gathered by training a DDPG agent over a million time steps.
-        \item Concurrent : baselines and BCQ train concurrently, with the same replay buffer, as the behavioral DDPG policy.
-        \item Imitation : dataset collected by an expert policy.
-        \item Imperfect demonstration : With 30\% of dataset, action is randomly chosen. With remainings, expert policy selects actions randomly with adding high exploration noise $\mc{N}(0, 0.3)$
-    \end{itemize}
+    \begin{block}{Datasets for Experiment}    
+        \begin{itemize}
+            \item Final buffer : replay buffer gathered by training a DDPG agent over a million time steps.
+            \item Concurrent : BCQ train concurrently, with the same replay buffer, as the behavioral DDPG policy.
+            \item Imitation : dataset collected by an expert policy.
+            \item Imperfect demonstration : With 30\% of dataset, action is randomly chosen. With remainings, expert policy selects actions randomly with adding high exploration noise $\mc{N}(0, 0.3)$
+        \end{itemize}
+    \end{block}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.65\textwidth]{Figure1Clipped.png}
-    \end{figure}
+    % \begin{figure}
+    %     \centering
+    %     \includegraphics[width=0.65\textwidth]{Figure1Clipped.png}
+    % \end{figure}
 \end{frame}
 
 \begin{frame}{Motivation}
@@ -222,10 +223,19 @@
             \end{figure}
         \end{column}
         \begin{column}{0.5\textwidth}
+            \begin{block}{Explanation of Figure 1}
+                \begin{itemize}
+                    \item Blue line is \tb{offline DDPG}, Orange line is \tb{behavioral DDPG}
+                    \item Orange straight lines in above row represent the \tb{average return of episodes} contained in the batch
+                    \item Dotted lines are estimates of the \tb{true value} of off-policy DDPG (this is evaluated by Monte Carlo returns)
+                \end{itemize}
+            \end{block}
+            
             \begin{itemize}
-                \item In each task, the off-policy agent performances significantly worse than the behavioral agent.
-                \item Even in the concurrent experiment, where both agents are trained with the same dataset, there is a large gap in performance in every single trial.
-                \item This result suggests that differences in the state distribution under the initial policies is enough for extrapolation error to drastically offset the performance of the off-policy agent.
+                \item In each task, the offline agent \tb{performances significantly worse} than the behavioral agent.
+                \item Even in the \tb{concurrent experiment}, where both agents are trained with the same dataset, there is \tb{a large gap} in performance in every single trial.
+                \item In bottom row, offline agent has optimistic view for current state, whereas \tb{true value is much low}.
+                % \item This result suggests that differences in the state distribution under the initial policies is enough for extrapolation error to drastically offset the performance of the off-policy agent.
             \end{itemize}
         \end{column}
     \end{columns}
@@ -233,32 +243,43 @@
 
 \begin{frame}{Batch-Constrained Reinforcement Learning}
     \begin{itemize}
-        \item Batch MDP : $M_{\mc{B}}$
         \item Batch Transition Probability: $p_{\mc{B}}(s^\prime|s,a) = \frac{N(s,a,s^\prime)}{\sum_{\tilde{S}}N(s,a,\tilde{s})}$
-
-
-        \item Set $s_{\text{init}}$ as pseudo terminal state. If $\sum_{\tilde{s}} N(s,a, \tilde{s}) = 0$, then denote $p_{\mc{B}}(s_{\text{{init}}|s,a}) = 1$.
-
-        Note that in batch constrained setting, for transition $(s,a,s_{\text{init}})$, $Q(s,a)$ will not update.
-        \item Batch-Constrained Policy $\pi \in \Pi_{\mc{B}}$ satisfies that if for all $(s,a)$ such that $d^{\pi}(s) > 0$ and $\pi(a|s)>0$, then $(s,a) \in \mc{B}$.
-        \item $Q^\pi_{\mc{B}}$ computed with the batch $\mc{B}$ and the value function $Q^\pi$ computed with the true MDP $M$
+        \item Batch MDP $M_{\mc{B}}$ samples new state $s^\prime$ by $p_{\mc{B}}(s^\prime|s,a)$.
+        
+        
+        \item Set $s_{\text{init}}$ as pseudo terminal state. If $\sum_{\tilde{s}} N(s,a, \tilde{s}) = 0$, then denote $p_{\mc{B}}(s_{\text{{init}}}|s,a) = 1$.
+        
+        Note that \underline{in batch constrained setting, for transition $(s,a,s_{\text{init}})$, $Q(s,a)$ will not update}.
+        \item Batch-Constrained Policy $\pi \in \Pi_{\mc{B}}$ : $\forall (s,a), \mu_\pi(s)>0 \text{ and } \pi(a|s) > 0 \implies (s,a) \in \mc{B}$.
     \end{itemize}
 
     \begin{block}{Batch-Constrained Q-Learning (BCQL)}
         Batch-constrained Q-Learning follows the standard tabular Q-Learning update while constraining the possible actions with respect to the batch
         \[
-            Q(s,a) \leftarrow (1-\alpha) Q(s,a) + \alpha (r + \gamma \max_{ \textcolor{red}{a^\prime \text{ s.t. }(s^\prime, a^\prime) \in \mc{B}}} Q(s^\prime, a^\prime))
+            Q(s,a) \leftarrow (1-\alpha) Q(s,a) + \alpha \left(r + \gamma \max_{ \textcolor{red}{a^\prime \text{ s.t. }(s^\prime, a^\prime) \in \mc{B}}} Q(s^\prime, a^\prime) \right)
         \]
     \end{block}
 
-    \begin{block}{Theorem4}
-        Given a deterministic MDP and coherent batch $\mc{B}$, along with the Robbins-Monro stochastic convergence conditions on the learning rate $\alpha$ and standard sampling requirements on the batch $\mc{B}$, \ti{BCQL converges to $Q^{\pi}_\mc{B} (s,a)$ where $\pi^\ast(s) = \arg\max_{a \text{ s.t. }(s,a) \in \mc{B}} Q^\pi_{\mc{B}}(s,a)$ is the optimal batch-constrained policy}
+    \vspace{0.5cm}
+    Let denote $Q^\pi_{\mc{B}}$ be fixed point of batch-constrained Q-Learning and $Q^\pi$ be fixed point of Q-learning.
+    \begin{block}{Theorem 4}
+        \ti{Given a deterministic MDP and coherent batch $\mc{B}$, along with the Robbins-Monro stochastic convergence conditions on the learning rate $\alpha$ and standard sampling requirements on the batch $\mc{B}$, \ti{BCQL converges to $Q^{\pi}_\mc{B} (s,a)$ where $\pi^\ast(s) = \arg\max_{a \text{ s.t. }(s,a) \in \mc{B}} Q^\pi_{\mc{B}}(s,a)$ is the optimal batch-constrained policy}}
+
+        \bigskip
+        \ti{Proof.} BCQL learns optimal value for the MDP $M_{\mc{B}}$ by \hyperref[th:1]{theorem 1}.
+        Also, by \hyperref[th:3]{theorem 3}, with sampling true transition dynamics of environments, BCQL also learns optimal value.
+        If the MDP is deterministic, then by \hyperref[th:2]{theorem 2}, the optimal values obtained from theorem 1 and from theorem 3 are same.
+        Therefore, if MDP is deterministic, then $\pi^\ast (s) = \arg \max_{a \text{ s.t. } (s,a) \in \mc{B}} Q^\pi_{\mc{B}}(s,a)$ is optimal policy.
+
     \end{block}
 
 \end{frame}
 
 \begin{frame}{Batch-Constrained Deep Reinforcement Learning}
-    BCQ approaches the notion of batch-constrained through a generative model.
+    Theorem 4 tells us that with converged $Q^\pi_{\mc{B}}$, we can obtain \tb{optimal deterministic policy} as $\pi^\ast(s) = \arg \max_{a \text{ s.t. } (s,a) \in \mc{B}}Q^\pi_{\mc{B}}(s,a)$ in deterministic MDP.
+
+    \vspace{1cm}
+    So, BCQ approaches the notion of batch-constrained through a generative model for effectively considering $(s,a) \in \mc{B}$.
     \begin{itemize}
         \item For a given state, BCQ generates plausible candidate actions with high similarity to the batch.
         \item And then selects the highest valued action through a learned Q-Network.
@@ -280,9 +301,9 @@
     \vfill
 
     \begin{enumerate}
-        \item In ideal situation, we can learn state-conditioned marginal likelihood $P^G_\mc{B}(a|s) \approx P_{\mc{B}}(a|s)$.
+        \item In ideal situation, we can learn \textcolor{magenta}{state-conditioned marginal likelihood $P^G_\mc{B}(a|s) \approx P_{\mc{B}}(a|s)$}.
         But it is difficult to learn $P^G_\mc{B}(a|s)$ in continuous state space and high-dimensional action space.
-        $\implies$ We instead train a variational auto-endocer(VAE): $G_\omega (s)$. This fucntion generates action $a$ by given state $s$.
+        $\implies$ We instead train a \tb{variational auto-endocer(VAE): $G_\omega (s)$}. This fucntion generates action $a$ by given state $s$.
         \item Generate $n$ actions $\{a_i\} \sim G_\omega (s)$.
         And define $\pi(s) \coloneqq \arg \max_{a_i} Q_\theta (s, a_i)$
         \item Increase diversity of selected action, with introducion of perturbation model, $\xi_\phi(s,a,\Phi)$, where $s,a$ is input and $\Phi$ is hyperparameter
@@ -293,6 +314,7 @@
     \begin{figure}
         \centering
         \includegraphics[width=0.5\textwidth]{Actor.png}
+        \caption{Perturbation Model Code Snippet}
     \end{figure}
 \end{frame}
 
@@ -382,9 +404,9 @@
 
     \smallskip
     \begin{itemize}
-        \item BCQ is the only algorithm which succeeds at all tasks, matching or outperforming the behavioral policy in each instance, and outperforming all other agents.
-        \item In the imperfect demonstrations task, we find that both deep reinforcement learning and imitation learning algorithms perform poorly. BCQ, however, is able to strongly outperforms the noisy demonstrator, disentangling poor and expert actions.
-        \item Compared to current deep reinforcement learning algorithms, which can requires millions of time steps, BCQ attains a high performance in remarkably few iterations.
+        \item \tb{BCQ is the only algorithm} which \tb{succeeds at all tasks}, matching or outperforming the behavioral policy in each instance, and outperforming all other agents.
+        \item In the imperfect demonstrations task, we find that both deep reinforcement learning and imitation learning algorithms perform poorly. BCQ, however, is able to \tb{strongly outperforms the noisy demonstrator}, disentangling poor and expert actions.
+        \item Compared to current deep reinforcement learning algorithms, which can requires millions of time steps, BCQ attains a high performance in remarkably \tb{few iterations}.
     \end{itemize}
 \end{frame}
 
@@ -399,6 +421,93 @@
     \begin{itemize}
         \item BCQ exhibits a highly stable value function in the presence of off-policy samples, suggesting extrapolation error has been successfully mitigated through the batch-constraint.
     \end{itemize}
+\end{frame}
+
+\begin{frame}{Opinion}
+    \begin{block}{Opinion}
+        BCQ has restrict that it can only be utilized in \tb{deterministic MDP}. But in BEAR, there is no restrict about deterministic.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Proofs}
+    \begin{itemize}
+        \item Coherent Batch $M_{\mc{B}} : (s,a,s^\prime) \in \mc{B} \implies s^\prime \in \mc{B}$ 
+        \item $\epsilon_{\text{MDP}}(s,a) \coloneqq Q^\pi (s,a) - Q^\pi_{\mc{B}}(s,a)$
+        \item $\epsilon^\pi_{\text{MDP}} \coloneqq \sum_s \mu_\pi (s) \sum_a \pi(a|s) \abs{\epsilon_{\text{MDP}}(s,a)}$
+        \item Optimal Batch-Constrained Policy $\pi^\ast \in \Pi_{\mc{B}} : \forall \pi \in \Pi_{\mc{B}}, \forall (s,a) \in \mc{B}, Q^{\pi^\ast}(s,a) \geq Q^\pi (s,a)$
+        \item $p_{\mc{B}}(s^\prime|s,a) = \frac{N(s,a,s^\prime)}{\sum_{\tilde{s}}(s,a,\tilde{s})}$
+        \item If $\sum_{\tilde{s}}(s,a,\tilde{s}) = 0$, then $p_{\mc{B}}(s_{\text{init}}|s,a)=1$, where $r(s_{\text{init}}, s, a)$ is initialized value of $Q(s,a)$
+    \end{itemize}
+
+    \begin{block}{Batch-Constrained Q-Learning (BCQL)}
+        Batch-Constrained Q-Learning (BCQL) maintains a tabular value function $Q(s,a)$ for each possible state-action pair $(s,a)$.
+        A transition tuple $(s,a,r,s^\prime)$ is sampled from the batch $\mc{B}$ with uniform probability and the following update rule  is applied, with learning rate $\alpha$:
+        \[
+            Q(s,a) \leftarrow (1- \alpha) Q(s,a) + \alpha (r + \gamma \max_{a^\prime \text{ s.t. } (s^\prime, a^\prime) \in \mc{B}} Q(s^\prime, a^\prime))
+        \]
+    \end{block}
+
+    \begin{block}{Theorem 1} \label{th:1}
+        Performing Q-Learning by sampling from a batch $\mc{B}$ converges to the optimal value function under the MDP $M_{\mc{B}}$
+    \end{block}
+\end{frame}
+
+\begin{frame}{Proofs}
+    \begin{block}{Remark 1}
+        For any policy $\pi$ and state-action pair $(s,a)$, the error term $\epsilon_{\text{MDP}}(s,a)$ satisfies the following Bellman-like equation
+        \[
+        \begin{aligned}
+            \epsilon_{\text{MDP}}(s,a) &= \sum_{s^\prime} (p_M(s^\prime|s,a) - p_{\mc{B}}(s^\prime|s,a)) \left(r(s,a,s^\prime)+\gamma \sum_{a^\prime}\pi(a^\prime | s^\prime) Q^\pi_{\mc{B}}(s^\prime, a^\prime) \right) \\
+            &+ p_M(s^\prime |s,a) \gamma \sum_{a^\prime} \pi(a^\prime |s^\prime) \epsilon_{\text{MDP}}(s^\prime, a^\prime)
+        \end{aligned}
+        \]
+
+        \smallskip
+        Proof
+        \[
+        \begin{aligned}
+            \epsilon_{\text{MDP}}(s,a) &= Q^{\pi}(s,a) - Q^\pi_{\mc{B}}(s,a) \\
+            =& \sum_{s^\prime} p_M(s^\prime|s,a) \left(r(s,a,s^\prime) + \gamma \sum_{a^\prime} \pi(a^\prime|s^\prime) Q^\pi(s^\prime, a^\prime)\right) \\
+            &- \sum_{s^\prime}p_{\mc{B}}(s^\prime|s,a) \left(r(s,a,s^\prime) + \gamma \sum_{a^\prime} \pi(a^\prime|s^\prime) Q^\pi_{\mc{B}}(s^\prime, a^\prime)\right) \\
+            =&\sum_{s^\prime} \Big[(p_M(s^\prime|s,a) - p_{\mc{B}}(s^\prime|s,a))r(s,a,s^\prime) + p_M(s^\prime|s,a) \gamma \sum_{a^\prime} \pi(a^\prime|s^\prime) (Q^\pi_{\mc{B}}+\epsilon_{\text{MDP}}(s^\prime,a^\prime))\\
+            & - p_{\mc{B}}(s^\prime|s,a) \gamma \sum_{a^\prime} \pi(a^\prime|s^\prime) Q^\pi_{\mc{B}}(s^\prime, a^\prime) \Big] \\
+            \label{eq:remark1}
+            =& \sum_{s^\prime} \Big[(p_M(s^\prime|s,a) - p_{\mc{B}}(s^\prime|s,a))\left(r(s,a,s^\prime) + \gamma \sum_{a^\prime}\pi(a^\prime|s^\prime) Q^\pi_{\mc{B}}\right) \\
+            &+ p_M(s^\prime|s,a) \gamma \sum_{a^\prime} \pi(a^\prime|s^\prime)\epsilon_{\text{MDP}}(s^\prime,a^\prime) \Big]
+        \end{aligned}
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{Proofs}
+    \begin{block}{Lemma 1}
+        For all reward functions, $\epsilon^\pi_{\text{MDP}} =0 \iff p_{\mc{B}}(s^\prime|s,a) = p_M(s^\prime|s,a)$ for all $s^\prime \in \mc{S}$ and $(s,a)$ such that $\mu_\pi (s) > 0$ and $\pi(a|s) > 0$.
+
+        \smallskip
+        Proof
+
+        ($\implies$) From \hyperlink{eq:remark1}{remark 1}, $\epsilon_{\text{MDP}}(s,a) =0 \implies $
+        \[
+        0 = \sum_{s^\prime} (p_M(s^\prime|s,a) - p_{\mc{B}}(s^\prime|s,a)) \left(r(s,a,s^\prime) + \gamma \sum_{a^\prime}\pi(a^\prime|s^\prime) Q^\pi_{\mc{B}}(s^\prime,a^\prime)\right)
+        \]
+        $\implies p_M (s^\prime|s,a) = p_{\mc{B}}(s^\prime|s,a)$.
+
+        ($\impliedby$) We can expand $\epsilon_{\text{MDP}}(s,a)$ terms recursively.
+        Since $p_M(s^\prime|s,a) - p_{\mc{B}}(s^\prime|s,a) = 0$, $\epsilon_{\text{MDP}}(s,a) = 0 + \gamma 0 + \gamma^2 0 + \cdots  = 0$.
+    \end{block}
+    \begin{block}{Theorem 2} \label{th:2}
+        \ti{For a deterministic MDP and all reward functions, $\epsilon^\pi_{\text{MDP}}=0 \iff$ the policy $\pi$ is batch-constrained.
+        Furthermore, if $\mc{B}$ is coherent, then such a policy must exist if the start state $s_0 \in \mc{B}$.
+        }
+
+        Proof. In deterministic MDP, $P_M(s^\prime |s,a) = p_{\mc{B}}(s^\prime|s,a) =1$. So, the policy $\pi$ is batch-constrained. (First part)
+        Since the MDP is deterministic and $\mc{B}$ is coherent, when starting from $s_0$, there must be able to follow at least one trajectory until termination. (Second part)
+    \end{block}
+    \begin{block}{Theorem 3} \label{th:3}
+        \ti{Given the Robbins-Monro stochastic convergence conditions on the learning rate $\alpha$, and standard sampling requirements from the environment, BCQL converges to the optimal value function $Q^\ast$}.
+
+        Proof. Nothing the batch-constraint is non-restrictive with a batch which contains all possible transitions.
+    \end{block}
 \end{frame}
 
 
