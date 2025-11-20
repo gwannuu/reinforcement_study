@@ -1,0 +1,182 @@
+\documentclass[11pt, aspectratio=169]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  \vskip1ex
+  \hrule
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.4}pt,\fpeval{\beamer@paperheight*1.4}pt},
+  hmargin=\fpeval{0.5 * 1.0}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.4}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.4}cm% 0.5cm
+}
+\makeatother
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../references.bib}
+
+% Your custom commands (kept as is)
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\Unif}{\operatorname{Unif}}
+
+\title{Improvement Conservative Q Learning}
+\author{Gwanwoo Choi}
+\institute{MLIC}
+\date{} % To use the current date
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+
+% https://tex.stackexchange.com/questions/541559/citep-vs-parencite
+% \citep - \parencite
+% \citet - \textcite
+% \citealp - \citealt - \cite
+
+
+\begin{frame}{Offline Learning}
+  \begin{block}{Preliminaries of Offline Reinforcement Learning}
+    \itemize{
+        \item Markov Decision Process (MDP): $(\mc{S}, \mc{A}, p, r, \gamma)$
+        \item State space: $\mc{S}$, Action space: $\mc{A}$
+        \item Transition dynamics: $p(s^\prime|s,a)$, Reward function: $r(s,a)$
+        \item Discount factor: $\gamma \in [0,1)$
+        \item Policy: $\pi(a|s)$, Behavior Policy: $\beta(a|s)$
+        \item In offline RL, we cannot interact with environment during training. Only have static dataset $\mc{D} = \{(s_i, a_i, r_i, s_i^\prime)\}_{i=1}^N$ collected by unknown behavior policy $\beta$.
+        \item Goal: Find optimal policy $\pi^*$ that maximize cumulative discounted reward in \tb{test time}.
+        $$J(\pi) = \mbb{E}_{\substack{s_0 \sim p_0 \\ a_t \sim \pi(\cdot|s_t) \\ s_{t+1} \sim p(\cdot|s_t,a_t)}}\left[\sum_{t=0}^\infty \gamma^t r(s_t,a_t)\right]$$
+    }
+  \end{block}
+  % }
+\end{frame}
+
+\begin{frame}{Offline Learning}
+    \begin{block}{Problem of Offline RL}
+    \itemize{
+        \item Offline RL: Learn policy from static dataset $\mc{D}$ collected by unknown behavior policy $\beta$.
+        \item In offline learning, we can not know the real transition dynamics $p(s^\prime|s,a)$. So critic learning is occured only on the points of \tb{in-distribution} $(s,a)$ state-action pair of dataset $\mc{D}$.
+        $$
+          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi} }\left[ (r + \gamma Q_\theta(s^\prime, a^\prime)  - Q_\theta (s,a))^2\right]
+        $$
+
+        \item One of the problem of Offline RL is \tb{unseen state-action pairs} $(s,a) \sim \pi$ lead to errors due to untrustworthy function approximation. 
+        
+        \item In offline RL, not all state-action points may be included in the dataset $\mc{D}$, forcing the $Q$ function to extrapolate. This can cause large errors that accumulate through the Bellman update:
+        $$
+          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
+        $$
+    }
+  \end{block}
+\end{frame}
+
+\begin{frame}{Out-of-Distribution Problem}
+    \begin{block}{OOD problem}
+      Suppose we learn $Q$ function by Soft Actor Critic, which is online algorithm, in \tb{offline setting}.
+      \begin{itemize}
+        \item The objective of SAC is to minimize the following loss:
+        $$
+        \begin{gathered}
+        \textcolor{violet}{\min_\phi} \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\alpha \log \pi_\phi(a|s) \textcolor{violet}{- Q_\theta(s,a)}\right] \\
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
+        \end{gathered}
+        $$
+        \item \tb{Key question}: Is $\textcolor{red}{Q_\theta (s^\prime, a^\prime)}$ reliable when $(s^\prime, a^\prime)$ is \textcolor{red}{out-of-distribution}?
+        \item If $(s^\prime, a^\prime)$ is OOD, $Q_\theta(s^\prime, a^\prime)$ is often \tb{overestimated} due to extrapolation.
+        \item This overestimation propagates: $Q(s,a) \leftarrow r + \gamma Q(s^\prime, a^\prime)$, compounding errors.
+        \item The policy then exploits \textcolor{violet}{overestimated Q-values}, selecting poor actions that appear artificially good.
+
+
+        % \item Is $\textcolor{red}{Q_\theta (s^\prime, a^\prime)}$ trustworthy? What if $(s^\prime, a^\prime)$ is \textcolor{red}{out-of-distribution}?
+        % \item Suppose that, unfortunately, $Q(s^\prime, a^\prime)$ is \tb{highly approximated} for an OOD point $(s^\prime, a^\prime)$.
+        % \item Then this overestimation error propagates through bootstrapping: $Q(s,a) \leftarrow r + \gamma Q(s^\prime, a^\prime)$.
+        % \item Also, \textcolor{violet}{overestimated $Q$} values lead to suboptimal policy updates in the policy improvement step. \textcolor{gray}{(why?)}
+        % % \item If $(s^\prime, a^\prime)$ is OOD, then $Q_\theta(s^\prime, a^\prime)$ tends to be \tb{overestimated} due to extrapolation errors in function approximation. The policy $\pi_\phi$ then exploits these overestimated values, leading to performance degradation.
+      \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q Learning}
+  \begin{block}{Conservative Q Learning \parencite{kumarConservativeQLearningOffline2020} Motivation}
+    
+    \tb{Goal}: Prevent overestimation by making Q-values \tb{conservative} for OOD actions.
+    % \tb{Key question}: Is $\textcolor{red}{Q_\theta (s^\prime, a^\prime)}$
+    % How can we solve the OOD \& overestimation problem?
+    \begin{itemize}
+      \item \tb{Key insight}: Actions from policies different from $\beta$ are more likely to be OOD.
+      \item Consider an arbitrary policy $\mu \neq \beta$. For $s \sim \mc{D}$ and $a \sim \mu(\cdot|s)$, the pair $(s,a)$ may be OOD.
+      \item \tb{Approach(1)}: Lower Q-values for actions under $\mu$ while keeping them accurate for actions in $\mc{D}$:
+      \item \tb{Objective(1)}: Penalize Q-values for actions sampled from $\mu$:
+      \begin{equation}
+        \min_\theta \max_\mu  \underbrace{\alpha \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right]}_{\text{Conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
+      \end{equation}
+        % \min_\theta \max_\mu \left\{ \alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu}[Q_\theta(s,a)] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)] \right\}
+      \item This encourages conservative Q-estimates for OOD actions.
+      \item But this objective \tb{can hurt Q-values for in-distribution actions} $a \in \mc{D}$.
+      \item \tb{Approach(2)}: Do not penalize Q-values for in-distribution actions.
+      \item \tb{Objective(2)}: Depenalize Q-values for in-distribution actions:
+      \begin{equation}
+          \min_\theta \max_\mu  \underbrace{\alpha \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right)}_{\text{More loosen conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
+      \end{equation}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Conservative Q Learning}
+  \begin{block}{Conservative Q Learning Framework}
+    \begin{itemize}
+      \item \tb{Policy Evaluation}: Learn conservative Q-function by minimizing the CQL objective:
+      $$
+        \min_\theta \max_\mu  \alpha \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu)
+      $$
+      \item \tb{Policy Improvement}: Update policy via maximizing expected Q-values:
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Idea}
+    \itemize{
+        \item More generalize for unseen state. In policy learning, sampling not only $s$, but also $s^{\prime}$. Add maximize term $\max_V \mbb{E}_{s \sim \mc{D}}[V(s)] = \mbb{E}_{s \sim \mc{D}, a \sim \pi^k, a^\prime \sim \operatorname{Unif}}[Q(s,a) - \log \pi(a^\prime|s)]$ of CQL policy evaluation. Want to maximize value function for seen state $s \sim \mc{D}$.
+        \item Modify Penalize term (current is $Q^\pi(s,a) \leftarrow \mc{B}^\pi Q^\pi(s,a) -\alpha \lvert \frac{\mu(a|s)}{\beta(a|s)} -1 \rvert$. What if this term changes action sampling N $a_1, a_2, \dots, a_N \sim \mu(\cdot|s)$ and $\sum_n \lvert a_n - a \rvert^2 /N$). This approach wants to basically wasserstein-2 distance of Flow Q Learning. Note that target domain is continuous control. And also, CQL implementation set $\mu$ not uniform distribution, instead mixed density of policy $\pi$ and $\mu$.
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{References}
+    \printbibliography
+\end{frame}
+
+\end{document}
+
