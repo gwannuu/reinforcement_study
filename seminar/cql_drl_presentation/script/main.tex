@@ -1,0 +1,213 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{setspace}
+\usepackage{enumitem}
+
+\setstretch{1.2}
+
+\begin{document}
+
+\section*{Talk Script: An Improvement to Conservative Q-Learning}
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Hello everyone, my name is Gwanwoo Choi. Today I am going to talk about \emph{An Improvement to Conservative Q-Learning} for offline reinforcement learning.
+
+I will briefly review offline RL and Conservative Q-Learning, then present my modification to the CQL penalty and an additional KL regularization for continuous action spaces, followed by experiments on D4RL AntMaze.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+In this part, I briefly review the offline RL setting and notation.
+
+We work with a Markov Decision Process with a state space, action space, transition dynamics, reward, and discount factor. I denote the policy we want to learn by $\pi(a \mid s)$, and the behavior policy that generated the dataset by $\beta(a \mid s)$.
+
+In offline RL, we never interact with the environment during training. Instead, we are given a fixed dataset of state, action, reward, and next-state tuples from the unknown behavior policy, and we want to learn a policy that maximizes the expected discounted return at test time.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Next, I explain why offline RL is challenging.
+
+In a standard actor--critic setup, the critic is trained to match the reward plus discounted next Q-value, where the next action comes from the current policy. In offline RL, these next actions can easily be out-of-distribution relative to the dataset.
+
+Because the critic must extrapolate to unseen state--action pairs, it can badly overestimate Q-values there. Those overestimates are propagated backward through the Bellman updates and exploited by the policy, creating a feedback loop that leads to poor test-time performance.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+To make this more concrete, consider Soft Actor-Critic, or SAC, in an offline setting.
+
+In SAC, the policy tries to maximize the critic's Q-value while keeping high entropy, and the critic predicts the reward plus discounted next Q-value when the next action is drawn from the current policy.
+
+Online, this works because new data keeps the critic grounded. Offline, the next actions from the SAC policy are often out-of-distribution, so the critic's predictions there can be severely overestimated, and these optimistic values are reinforced by both the critic and the policy updates.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Next, I introduce Conservative Q-Learning, or CQL, which directly targets this overestimation problem.
+
+The idea is to learn Q-values that are intentionally conservative for actions that look out-of-distribution, while keeping Q-values reasonable on the data.
+
+CQL adds an extra term to the critic objective that pushes down Q-values for actions sampled from an auxiliary exploration policy $\mu$ that differs from the behavior policy $\beta$. Since actions from $\mu$ on dataset states are likely to be off-support, lowering their Q-values makes the critic pessimistic on OOD actions.
+
+However, simply penalizing under $\mu$ can be too conservative even for actions that lie on the dataset. The refined objective instead penalizes the difference between the average Q-value under $\mu$ and the average Q-value on the dataset, still pushing down likely OOD actions while relatively \emph{depenalizing} in-distribution ones. This preserves Q-values on the data while remaining conservative on OOD actions.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+This is the overall CQL framework in mathematical form.
+Note that the policy improvement process of CQL framework is same with the policy improvement method of SAC.
+CQL framework is only applied to the policy evaluation process.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Now I focus on a particular instance of the CQL framework called CQL H, in a continuous action space.
+
+At the end of the policy evaluation equation, the regularizer $R$ on the auxiliary policy $\mu$ is usually its entropy. By this equation, the optimal $\mu$ puts more mass on actions with larger Q-values, and explores the action space to penalize Q values more aggressively.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+The conservative term of CQL H can be solved as a closed form. A log-sum-exp over Q-values at each state minus the expected Q-value under the behavior policy. In continuous action spaces, this log-sum-exp is approximated by sampling actions from proposals like a uniform distribution and the current policy, and using importance sampling.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+There is also a Lagrangian version, where the coefficient $\alpha'$ is not a constant but is a learnable dual variable enforcing that the difference between the log-sum-exp surrogate and the average Q on the dataset matches a target threshold, so the degree of conservatism adapts during training.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+To better understand CQL and access towards my motivation, it is useful to look at the update of Q value function.
+
+If we differentiate the CQL objective with respect to in dataset Q-values, the update can be viewed as a standard Bellman backup minus a penalty measuring how different the auxiliary policy $\mu$ is from the behavior policy $\beta$ at each state--action pair, via the ratio of their probabilities.
+
+So the key conservative signal in CQL is this density-ratio-based penalty: when $\mu$ puts much more mass on an action than $\beta$ does, its Q-value is pushed down strongly. This depends only on the probability ratio, not on the actual geometric distance between actions.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+My idea is to modify this penalization term so that it directly reflects distance-awareness between actions in continuous action space.
+
+Instead of using the ratio between $\mu$ and $\beta$, I subtract from the Bellman target a term proportional to the average Euclidean distance between actions sampled from the current policy and the corresponding dataset action at the same state, approximated using a finite number of samples.
+
+If the policy proposes actions far from what is seen in the dataset, the Q-value at that state--action pair is penalized strongly; if the proposed actions are close, the penalty is small. This ties conservatism to geometric distance in action space rather than only to density ratios.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Let me give you a concrete counter-example where density ratios fail.
+Consider two actions, $a_1$ and $a_2$.
+
+Let's assume their $L_2$ distance is near zero ($|a_1 - a_2| \approx 0$).
+Semantically, in a continuous control task like a robot moving a joint, these represent almost the exact same movement.
+
+However, their probability densities could be vastly different. 
+Suppose the current policy $\mu$ puts high probability on $a_1$ (0.9), while the behavior policy $\beta$ puts low probability (0.1).
+This big difference between probabilites leads to a large panelty.
+
+This seems unfair. The action $a_1$ is physically identical to $a_2$, yet it gets penalized heavily just because of a density mismatch.
+My method, using $L_2$ distance, would yield a penalty near zero, correctly reflecting that these actions are semantically similar. This was the core hypothesis of my work.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+
+
+Based on this new penalty, I define my first method, ``Ours without KL regularization''.
+
+In policy evaluation, the critic still matches the usual Bellman target, but now minus the average $L_2$ distance between policy actions and the dataset action at each state, scaled by a coefficient and approximated with a finite number of samples.
+
+In policy improvement, the policy is updated simply to maximize these conservative Q-values, without an explicit entropy term or separate exploration policy $\mu$. The only driver of conservatism is the $L_2$ penalty inside the critic.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Now I move on to experiments.
+
+Due to limited time, I only evaluate on the D4RL AntMaze-v2 benchmark, which is a challenging offline RL environment. I compare three algorithms: CQL H, CQL Lagrangian, and my first approach without KL regularization.
+All of these were implemented from scratch, since alot of CQL code implementations are different.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+
+Across methods, I use common hyperparameters: the Adam optimizer, discount factor $0.99$, target update rate $0.005$, batch size 256, one million gradient steps, three hidden layer policy and Q networks. Each hidden layer has 256 units and use ReLU activation, Also all algorithms adopt hyperbolic tangent transformed Gaussian policy, and a two-critic ensemble. All performance is estimated by averaging results over four seeds and multiple evaluation rollouts.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+The first set of results compares CQL H, CQL Lagrangian variant, and my approach without KL regularization on several AntMaze tasks.
+
+On the easiest task, AntMaze-umaze-v2, my method reaches a moderate score but still trails the original CQL baseline. On the medium and large variants, performance is generally poor for all methods, and my method shows worse performance than baselines.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+I also ran experiments about the number of sampled actions in the $L_2$ penalty. Varying the number of samples from five to twenty-five did not show strong trends, but $N=10$ shows slightly better performance overall, so I chose $N=10$ by default. 
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+I additionally studied the effect of the $L_2$ penalty coefficient $\alpha'$.
+Varying $\alpha'$ over a wide range from very small to 0.03,
+I found that the value $10^{-12}$, which is nearly zero, lead to poor performance, likely because the penalty is too weak to prevent overestimation.
+
+So I selected default value of $\alpha^\prime$ as $0.01$.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+To better understand the penalization term, I monitored the $L_2$ penalization term during training.
+
+Intuitively, I expected this term to decrease.
+Implicitly decreasing Q value in which the action sampled by policy is varies from the action sampled from dataset.
+Then the policy would avoid penalized Q values and prefer to the actions that is close to the dataset actions.
+
+However, the plot shows that the magnitude penalty actually has been unchanged throughout training.
+
+This suggests that the $L_2$ penalty on the critic alone is not enough; we need an additional regularization directly on the policy to keep it near the behavior distribution.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+This leads to my second framework, which adds an explicit regularization term on the policy.
+
+In policy evaluation, I keep the same critic update as before: the critic matches the Bellman target minus the $L_2$-based penalty between policy actions and dataset actions.
+
+In policy improvement, I add a KL regularization term between the learned policy and the behavior policy. The policy still maximizes conservative Q-values, but is penalized for deviating too much from the behavior distribution, counteracting the drift we saw earlier.
+
+In practice, when training, we do not know the behavior policy $\beta$ explicitly; we can only see its samples in the dataset, so we cannot compute the KL divergence in closed form.
+
+To address this problem, I use the approximation techniques called a lagrangian dual, which is the bypassing KL regularization based on log-probability differences. For each state, I compare the log-probability that the policy assigns to its own sample with the log-probability it assigns to the dataset action, and encourage this gap to stay below a target threshold, $\tau$.
+
+This leads to a pair of coupled minimization problems: one over the policy parameters, which try to maximize Q-values while keeping the gap small, and one over the dual parameter that enforces the threshold. Intuitively, this keeps dataset actions sufficiently likely relative to policy samples, pulling the policy back toward the data when it drifts.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Finally, I compare four methods: CQL H, CQL Lagrangian, my method without KL regularization, and my method with KL regularization.
+
+On AntMaze-umaze-v2, the KL-regularized version achieves performance close to the CQL baseline, though not fully matching it. On some medium tasks such as medium-play and medium-diverse, the KL-regularized method clearly outperforms the non-regularized version, which essentially fails.
+
+The penalty term of the $L_2$ penalization term with KL regularization is also much more lower: the penalty decreases, indicating that the policy stays better constrained around the dataset density.
+
+Overall, while not yet competitive with the very best CQL configurations on every task, adding KL regularization on top of the $L_2$ penalty improves both stability and performance compared to using the $L_2$ penalty alone.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+% To summarize: offline RL suffers from overestimation because the critic must extrapolate to out-of-distribution actions proposed by the learned policy. Conservative Q-Learning addresses this by adding a penalty based on a density ratio between an auxiliary policy and the behavior policy, but that does not directly capture distances in continuous action space.
+
+% I instead proposed an $L_2$-distance-based penalty between dataset actions and policy actions in the critic update. On its own, this can cause the policy to drift away from the dataset, as reflected by a growing penalization term. To counteract that drift, I added a KL-style regularization on the policy, approximated via a Lagrangian formulation using log-probability differences between dataset actions and policy samples.
+
+% Empirically, combining an $L_2$-based penalty in the critic with KL regularization on the policy stabilizes training and improves performance on some AntMaze tasks relative to the non-regularized version, suggesting that this combination is a promising direction for continuous-action offline RL.
+
+% \bigskip\noindent\textbf{--- Slide 17: References ---}
+
+% The references slide lists the main papers I relied on, including the original CQL paper and the D4RL benchmark paper. I will not read this slide, but it is there for anyone who wants to look up further details.
+
+% \bigskip\noindent\textbf{--- Slide 18: Appendix -- Hyperparameters (CQL of H) ---}
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+In the appendix, I briefly document the hyperparameters used for each method.
+
+For CQL H, I use a Q-function learning rate of three times ten to the minus four, and sweep the conservative coefficient $\alpha'$ over a small range such as five and ten, with the underlined value indicating the setting used in the main experiments.
+
+For CQL Lagrangian, I again use a Q-function learning rate of three times ten to the minus four. Instead of a fixed $\alpha'$, I tune the Lagrangian threshold parameter, which sets the target level of conservatism, sweeping over values like five and ten.
+
+This two CQL algorithms strictly follows the original paper.
+
+For my method without KL regularization, I vary several hyperparameters: the Q-function learning rate from one to three times ten to the minus four, the $L_2$ penalty coefficient $\alpha'$ over a wide range from extremely small to around zero point three, and the number of action samples for the $L_2$ penalty over five, ten, and twenty-five.
+
+Finally, for my method with KL regularization, I fix the number of samples for the $L_2$ penalty, sweep the learning rate for the KL dual parameter over a small range, and also sweep the $L_2$ penalty coefficient $\alpha'$ and the KL threshold over reasonable values.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Thank you for your attention.
+
+\end{document}
+

@@ -376,7 +376,7 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{N} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}:
       \begin{equation*}
@@ -425,7 +425,7 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\textcolor{red}{\alpha^\prime}}{N} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}:
       \begin{equation*}
