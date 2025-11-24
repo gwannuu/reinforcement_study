@@ -92,16 +92,16 @@
     \begin{block}{Problem of Offline RL}
     \itemize{
         \item Offline RL: Learn a policy from a static dataset $\mc{D}$ collected by an unknown behavior policy $\beta$.
-        \item In offline learning, we cannot know the real transition dynamics $p(s^\prime|s,a)$. Thus, critic learning occurs only on in-distribution $(s,a)$ state-action pairs from the dataset $\mc{D}$.
+        \item In offline learning, we cannot know the real transition dynamics. Thus, critic learning occurs only on the in-distribution $(s,a)$ state-action pairs from the dataset $\mc{D}$.
         $$
-          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi} }\left[ (r + \gamma Q_\theta(s^\prime, a^\prime)  - Q_\theta (s,a))^2\right]
+          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)} }\left[ (r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta (s,a))^2\right]
         $$
 
-        \item One problem in offline RL is that unseen state-action pairs $(s,a) \sim \pi$ lead to errors due to untrustworthy function approximation. 
+        \item One problem in offline RL is that unseen state-action pairs $(s,a) \sim \pi$ leads to errors due to \tb{untrustworthy function approximation}. 
         
         \item In offline RL, not all state-action points may be included in the dataset $\mc{D}$, forcing the $Q$ function to extrapolate. This can cause large errors that accumulate through the Bellman update:
         $$
-          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
+          \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi(\cdot|s^\prime)}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
         $$
     }
   \end{block}
@@ -114,8 +114,8 @@
         \item The SAC objective consists of policy improvement and Q-function learning:
         $$
         \begin{gathered}
-        \textcolor{violet}{\min_\phi} \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\alpha \log \pi_\phi(a|s) \textcolor{violet}{- Q_\theta(s,a)}\right] \\
-        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
+        \textcolor{violet}{\min_\phi} \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[\alpha \log \pi_\phi(a|s) \textcolor{violet}{- Q_\theta(s,a)}\right] \\
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ \textcolor{red}{a^\prime \sim \pi_\phi(\cdot|s^\prime)}} }\left[ (r + \gamma \textcolor{red}{Q_\theta(s^\prime, a^\prime)}  - Q_\theta (s,a))^2\right]
         \end{gathered}
         $$
         \item \tb{Key question}: Is $\textcolor{red}{Q_\theta (s^\prime, a^\prime)}$ reliable when $(s^\prime, a^\prime)$ is \textcolor{red}{out-of-distribution}?
@@ -134,6 +134,7 @@
 \end{frame}
 
 \begin{frame}{Conservative Q Learning}
+  From here, I denote \tb{$\mb{\alpha^\prime}$ as critic learning related hyperparameter}, and \tb{$\mb{\alpha}$ as actor learning related hyperparameter}.
   \begin{block}{Conservative Q Learning \parencite{kumarConservativeQLearningOffline2020} Motivation}
     
     \tb{Goal}: Prevent overestimation by making Q-values \tb{conservative} for OOD actions.
@@ -145,7 +146,7 @@
       \item \tb{Approach(1)}: Lower Q-values for actions under $\mu$ while keeping them accurate for actions in $\mc{D}$:
       \item \tb{Objective(1)}: Penalize Q-values for actions sampled from $\mu$:
       \begin{equation}
-        \min_\theta \max_\mu  \underbrace{\alpha^\prime \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right]}_{\text{Conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
+        \min_\theta \max_\mu  \underbrace{\alpha^\prime \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right]}_{\text{Conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
       \end{equation}
         % \min_\theta \max_\mu \left\{ \alpha \mbb{E}_{s \sim \mc{D}, a \sim \mu}[Q_\theta(s,a)] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)] \right\}
       \item This encourages conservative Q-estimates for OOD actions.
@@ -153,7 +154,7 @@
       \item \tb{Approach(2)}: Do not penalize Q-values for in-distribution actions.
       \item \tb{Objective(2)}: Depenalize Q-values for in-distribution actions:
       \begin{equation}
-          \min_\theta \max_\mu  \underbrace{\alpha \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right)}_{\text{More loosen conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
+          \min_\theta \max_\mu  \underbrace{\alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right)}_{\text{More loosen conservatism penalty}} + \underbrace{\frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right]}_{\text{Standard Bellman error}} + \underbrace{\mc{R}(\mu)}_{\text{Regularizer on } \mu}
       \end{equation}
     \end{itemize}
   \end{block}
@@ -165,11 +166,11 @@
       \item Especially, in this presentation, I focus on \tb{continuous action space}.
       \item \tb{Policy Evaluation}: Learn conservative Q-function by minimizing the CQL objective:
       $$
-        \min_\theta \max_\mu  \alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu)
+        \min_\theta \max_\mu  \alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu)
       $$
       \item \tb{Policy Improvement}: Update policy via maximizing expected Q-values (SAC style):
       $$
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\alpha \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[\alpha \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
       $$
     \end{itemize}
   \end{block}
@@ -179,46 +180,46 @@
   \begin{block}{CQL($\mc{H}$)}
     \begin{itemize}
       \item Special case of CQL framework when choosing $\mc{R}(\mu) = \mc{H}(\mu)$. It can be shown that the optimal $\mu^\ast(a|s) = \exp(Q(s,a))$
-      \item \tb{Policy Evaluation}: We can estimate $\log\sum_q \exp(Q(s,a))$ by \textcolor{red}{importance sampling}.
+      \item \tb{Policy Evaluation}: We can estimate $\log\sum_a \exp(Q(s,a))$ by \textcolor{red}{importance sampling}.
       \begin{equation*}
         \begin{gathered}
-          \min_\theta  \alpha^\prime \mbb{E}_{s \sim \mc{D}}\left[\textcolor{red}{\log \sum_a \exp(Q_\theta(s,a))} - \mbb{E}_{a \sim \beta(a|s)}[Q_\theta(s,a)]\right] + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma  Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\ 
-          \approx \min_\theta \alpha \mbb{E}_{(s,a) \sim \mc{D}}\left[\textcolor{red}{w_{\theta, \phi}(s)} - Q_\theta(s,a) \right] + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
-          \text{where } \textcolor{red}{w_{\theta, \phi}(s)} = \log \left( \frac{1}{3N} \sum^N_{a_i \sim \Unif(a)}\left[\frac{\exp(Q_\theta(s,a_i))}{\Unif(a_i)}\right] + \frac{1}{3N} \sum_{a_i \sim \pi_\phi(a|s)}^N\left[\frac{\exp(Q_\theta(s, a_i))}{\pi_\phi(a_i|s)}\right] + \frac{1}{3N} \sum_{a^\prime_i \sim \pi_\phi(a^\prime|s^\prime)}^N \left[\frac{\exp(Q_\theta(s^\prime, a^\prime_i))}{\pi_\phi(a^\prime_i|s^\prime)}\right] \right)
+          \min_\theta  \alpha^\prime \mbb{E}_{(s, a) \sim \mc{D}}\left[\textcolor{red}{\log \sum_{\hat{a}} \exp(Q_\theta(s,\hat{a}))} - Q_\theta(s,a)\right] + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma  Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\ 
+          \approx \min_\theta \alpha^\prime \mbb{E}_{(s,a) \sim \mc{D}}\left[\textcolor{red}{w_{\theta, \phi}(s)} - Q_\theta(s,a) \right] + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
+          \text{where } \textcolor{red}{w_{\theta, \phi}(s)} = \log \left( \frac{1}{3N} \sum^N_{\hat{a}_i \sim \Unif}\left[\frac{\exp(Q_\theta(s,\hat{a}_i))}{\Unif(\hat{a}_i)}\right] + \frac{1}{3N} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N\left[\frac{\exp(Q_\theta(s, \hat{a}_i))}{\pi_\phi(\hat{a}_i|s)}\right] + \frac{1}{3N} \sum_{\hat{a}^\prime_i \sim \pi_\phi(\cdot|s^\prime)}^N \left[\frac{\exp(Q_\theta(s^\prime, \hat{a}^\prime_i))}{\pi_\phi(\hat{a}^\prime_i|s^\prime)}\right] \right)
         \end{gathered}
       \end{equation*}
         
       \item \tb{Policy Improvement}:
       $$
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\alpha \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[\alpha \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
       $$
     \end{itemize}
   \end{block}
 \end{frame}
 
 \begin{frame}{Conservative Q Learning}
-  \begin{block}{Recall: $w(s)$ equation}  
+  \begin{block}{Recall: $w_{\theta, \phi}(s)$ equation}  
     \begin{equation*}
-      w_{\theta, \phi}(s) = \log \left( \frac{1}{3N} \sum^N_{a_i \sim \Unif(a)}\left[\frac{\exp(Q_\theta(s,a_i))}{\Unif(a_i)}\right] + \frac{1}{3N} \sum_{a_i \sim \pi_\phi(a|s)}^N\left[\frac{\exp(Q_\theta(s, a_i))}{\pi_\phi(a_i|s)}\right] + \frac{1}{3N} \sum_{a^\prime_i \sim \pi_\phi(a^\prime|s^\prime)}^N \left[\frac{\exp(Q_\theta(s^\prime, a^\prime_i))}{\pi_\phi(a^\prime_i|s^\prime)}\right] \right)
+      w_{\theta, \phi}(s) = \log \left( \frac{1}{3N} \sum^N_{\hat{a}_i \sim \Unif}\left[\frac{\exp(Q_\theta(s,\hat{a}_i))}{\Unif(\hat{a}_i)}\right] + \frac{1}{3N} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N\left[\frac{\exp(Q_\theta(s, \hat{a}_i))}{\pi_\phi(\hat{a}_i|s)}\right] + \frac{1}{3N} \sum_{\hat{a}^\prime_i \sim \pi_\phi(\cdot|s^\prime)}^N \left[\frac{\exp(Q_\theta(s^\prime, \hat{a}^\prime_i))}{\pi_\phi(\hat{a}^\prime_i|s^\prime)}\right] \right)
     \end{equation*}
   \end{block}
   \begin{block}{CQL($\mc{H}$) Lagrangian}
     \begin{itemize}
-      \item Fixed alpha is sometimes not gooe for complicated tasks.
+      \item Fixed alpha is sometimes not good for complicated tasks.
       \item Inestead of using fixed $\alpha^\prime$, make \textcolor{red}{$\alpha^\prime$} also \textcolor{red}{learnable parameter}. (Lagrangian dual problem)
-      \item \tb{Policy Evaluation}: In Lagrangian dual form, $\alpha^\prime$ is trainable parameter and \textcolor{red}{$\tau$ is fixed constant}. If training becomes success, $w(s,a) - \mbb{E}_{a \sim \beta(a|s)}[Q(s,a)]$ converges to $\tau$.
+      \item \tb{Policy Evaluation}: In Lagrangian dual form, \textcolor{red}{$\alpha^\prime$ is trainable parameter} and \textcolor{red}{$\tau$ is fixed constant}. As training proceeds, $w_{\theta, \phi}(s) - \mbb{E}_{a \sim \beta(\cdot|s)}[Q(s,a)]$ converges to $\tau$.
       \begin{equation*}
         \begin{gathered}
-          \min_\theta \textcolor{red}{\alpha^\prime} \left(\mbb{E}_{(s,a) \sim \mc{D}} \left[w_{\theta, \phi}(s) - Q_\theta(s,a)\right] - \textcolor{red}{\tau}\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma  Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
+          \min_\theta \textcolor{red}{\alpha^\prime} \left(\mbb{E}_{(s,a) \sim \mc{D}} \left[w_{\theta, \phi}(s) - Q_\theta(s,a)\right] - \textcolor{red}{\tau}\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma  Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
           \implies \begin{cases}
-          \min_\theta \alpha^\prime (\mbb{E}_{(s,a) \sim \mc{D}}[w_{\theta, \phi}(s) - Q_\theta(s,a)] - \tau) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
+          \min_\theta \alpha^\prime (\mbb{E}_{(s,a) \sim \mc{D}}[w_{\theta, \phi}(s) - Q_\theta(s,a)] - \tau) + \frac{1}{2} \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] \\
           \min_{\textcolor{red}{\alpha^\prime}} \textcolor{red}{\alpha^\prime} (\mbb{E}_{(s,a) \sim \mc{D}}[w_{\theta, \phi}(s) - Q_\theta(s,a)] - \tau)
           \end{cases}
         \end{gathered}
       \end{equation*}
       \item \tb{Policy Improvement}:
       $$
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\alpha   \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[\alpha   \log \pi_\phi(a|s) {- Q_\theta(s,a)}\right]
       $$
     \end{itemize}
   \end{block}
@@ -228,18 +229,18 @@
 \begin{frame}{Idea}
   \begin{block}{CQL penalization term}
     \begin{itemize}
-      \item In CQL($\mc{H}$), critic update rule is driven from following equation:
+      \item In CQL($\mc{H}$), critic update rule can be driven from following equation:
       \begin{equation*}
         \begin{gathered}
-          \arg\min_\theta \alpha \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu) \\
+          \arg\min_\theta \alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu) \\
           \begin{aligned}
-            \forall (s,a) \sim \mc{D}, &\frac{\partial}{\partial Q_\theta(s,a)} \left[\alpha^\prime\left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu}}[Q_\theta(s,a)] - \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \beta}} \left[Q_\theta(s,a)\right]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a, r, s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}} \left[(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a))^2\right]\right] = 0 \\
-            &\implies \alpha^\prime \left(d^\beta(s) \left(\mu(a|s) - \beta(a|s)\right)\right) + d^\beta(s) \beta(a|s)\left(Q_\theta(s,a) - \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}}[r + \gamma Q_\theta(s^\prime, a^\prime)]\right) =0 \\
-            &\implies Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}}[r + \gamma Q_\theta(s^\prime, a^\prime)] - \textcolor{red}{\alpha^\prime \left\lvert \frac{\mu(a|s)}{\beta(a|s)} - 1 \right\rvert}
+            \forall (s,a) \in \mc{D}, &\frac{\partial}{\partial Q_\theta(s,a)} \left[\alpha^\prime\left(\mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \mu(\cdot|s)}}[Q_\theta(s,a)] - \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \beta(\cdot|s)}} \left[Q_\theta(s,a)\right]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a, r, s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a))^2\right]\right] = 0 \\
+            &\implies \alpha^\prime \left(d^\beta(s) \left(\mu(a|s) - \beta(a|s)\right)\right) + d^\beta(s) \beta(a|s)\left(Q_\theta(s,a) - \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}[r + \gamma Q_\theta(s^\prime, a^\prime)]\right) =0 \\
+            &\implies Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[r + \gamma Q_\theta(s^\prime, a^\prime)\right] - \textcolor{red}{\alpha^\prime \left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right]} 
           \end{aligned}
         \end{gathered}
       \end{equation*}
-      \item \textcolor{red}{$\alpha^\prime \left\lvert \frac{\mu(a|s)}{\beta(a|s)} - 1 \right\rvert$} is the key penalization term of CQL.
+      \item \textcolor{red}{$\alpha^\prime \left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right]$} is the key penalization term of CQL.
     \end{itemize}
   \end{block}
 \end{frame}
@@ -247,39 +248,43 @@
 \begin{frame}{Idea}
     \begin{block}{Change penalization term}
       \begin{itemize}
-        \item The essence of CQL penalization is the term $\alpha^\prime \left\lvert \frac{\mu(a|s)}{\beta(a|s)} - 1 \right\rvert$:
+        \item The essence of CQL penalization is the term $\alpha^\prime \left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right]$:
         $$
-           \forall (s,a) \sim \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}}[r + \gamma Q_\theta(s^\prime, a^\prime)] - \alpha^\prime \left\lvert \frac{\mu(a|s)}{\beta(a|s)} - 1 \right\rvert
+           \forall (s,a) \in \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[r + \gamma Q_\theta(s^\prime, a^\prime)\right] - \alpha^\prime \left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right]
         $$
         \item Alternatively, I considered following penality term, which is based on $L_2$ distance between actions:
         \begin{equation*}
-            \begin{aligned}  \forall (s,a) \sim \mc{D}, &Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime) \right] - \textcolor{red}{\alpha^\prime \mbb{E}_{\hat{a}\sim \pi_\phi}[\left\lvert \hat{a} - a\right\rvert_2]} \\
-              &\approx Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime) \right]- \textcolor{red}{\frac{\alpha^\prime}{N} \sum^N_{\hat{a}_i \sim \pi_\phi}\left\lvert \hat{a}_i - a \right\rvert_2}
+            \begin{aligned}  \forall (s,a) \in \mc{D}, &Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime)\right]  - \textcolor{red}{\alpha^\prime \mbb{E}_{\hat{a}\sim \pi_\phi(\cdot|s)}[\left\lvert \hat{a} - a\right\rvert_2]}  \\
+              &\approx Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime)\right] - \textcolor{red}{\frac{\alpha^\prime}{N} \sum^N_{\hat{a}_i \sim \pi_\phi(\cdot|s)}\left\lvert \hat{a}_i - a \right\rvert_2}
           \end{aligned}
         \end{equation*}
-        Where $N$ is the number of sampled actions from policy $\pi$.
+        Where \textcolor{red}{$N$} is the number of sampled actions from policy $\pi_\phi$.
     \end{itemize}
   \end{block}
 \end{frame}
 
 \begin{frame}{Idea}
   \begin{block}{Recall: penalization terms}
-    \begin{equation*}
-      \begin{gathered}
-        \forall (s,a) \sim \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}}[r + \gamma Q_\theta(s^\prime, a^\prime)] - \alpha^\prime \left\lvert \frac{\mu(a|s)}{\beta(a|s)} - 1 \right\rvert \\
-        \forall (s,a) \sim \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D} \\ a^\prime \sim \pi_\phi}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime) \right]- {\frac{\alpha^\prime}{N} \sum^N_{\hat{a}_i \sim \pi_\phi}\left\lvert \hat{a}_i - a \right\rvert_2}
-      \end{gathered}
-    \end{equation*}
+    \begin{itemize}
+      \item CQL:
+      $$
+      \forall (s,a) \in \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[r + \gamma Q_\theta(s^\prime, a^\prime)\right] - \alpha^\prime \left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right] 
+      $$
+      \item Ours:
+      $$
+      \forall (s,a) \in \mc{D}, Q_\theta(s,a) \leftarrow \mbb{E}_{\substack{s^\prime \sim \mc{D}(\cdot|s,a,r) \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ r + \gamma Q_\theta (s^\prime, a^\prime)\right] - \frac{\alpha^\prime}{N} \sum^N_{\hat{a}_i \sim \pi_\phi(\cdot|s)}\left\lvert \hat{a}_i - a \right\rvert_2
+      $$
+    \end{itemize}
   \end{block}
   \begin{block}{Motivation}
     \begin{itemize}
-        \item I motivated from the fact that $\left \lvert \frac{\mu(a|s)}{\beta(a|s)} -1 \right \rvert$ only calculates the density ratio between two policies, but does not directly reflect the distance between actions.
-        \item \underline{For example}, let assume $a_1, a_2 \in \mc{A}$ and $ \vert a_1 - a_2\vert_2 \approx 0$ and $\substack{\mu(a_1|s) = 0.9 \\ \beta(a_1|s) =0.1}, \substack{\mu(a_2|s)=0.1 \\  \beta(a_2|s)=0.9}$.
+        \item I motivated from the fact that $\left[\frac{\mu(a|s)}{\beta(a|s)} - 1 \right] $ only calculates the density ratio between two policies, but does not directly reflect the distance between actions.
+        \item \underline{For example}, let assume $a_1, a_2 \in \mc{A}$, $ \vert a_1 - a_2\vert_2 \approx 0$ and $\substack{\mu(a_1|s) = 0.9 \\ \beta(a_1|s) =0.1}, \substack{\mu(a_2|s)=0.1 \\  \beta(a_2|s)=0.9}$.
         \item In continuous action space, semantically $a_1$ and $a_2$ are almost same actions. But CQL penalization term gives \tb{huge} penalty for both actions since:
         \begin{equation*}
-          \textcolor{red}{\left\lvert \frac{\mu(a_1|s)}{\beta(a_1|s)} - 1 \right\rvert = 8},  \left\lvert \frac{\mu(a_2|s)}{\beta(a_2|s)} - 1 \right\rvert = 0.2
+          \textcolor{red}{\left[ \frac{\mu(a_1|s)}{\beta(a_1|s)} - 1 \right] = 8},  \left[ \frac{\mu(a_2|s)}{\beta(a_2|s)} - 1 \right] = -\frac{8}{9}
         \end{equation*}
-        \item In my method, $\textcolor{red}{\vert a_1 - a_2\vert \approx 0}$, which is quite smalle and matches the semantic of continuous action space.
+        \item In my method, $\textcolor{red}{\vert a_1 - a_2\vert_2 \approx 0}$, which is quite smalle and matches the semantic of continuous action space.
     \end{itemize}
   \end{block}
 \end{frame}
@@ -289,25 +294,26 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       $$
-        \min_\theta \max_\mu  \alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ \textcolor{red}{a \sim \mu}}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu)
+        \min_\theta \max_\mu  \alpha^\prime \left(\mbb{E}_{\substack{s \sim \mc{D} \\ \textcolor{red}{a \sim \mu(\cdot|s)}}}\left[Q_\theta(s,a)\right] - \mbb{E}_{(s,a) \sim \mc{D}}[Q_\theta(s,a)]\right) + \frac{1}{2}\mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}}\left[\left(r + \gamma Q_\theta(s^\prime, a^\prime) - Q_\theta(s,a)\right)^2\right] + \mc{R}(\mu)
       $$
       \item \tb{Policy Improvement}:
       $$
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[\textcolor{red}{\alpha \log \pi_\phi(a|s)} {- Q_\theta(s,a)}\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[\textcolor{red}{\alpha \log \pi_\phi(a|s)} {- Q_\theta(s,a)}\right]
       $$
     \end{itemize}
   \end{block}
   \begin{block}{Framework 1: Ours (w/o KL reg.)}
     \begin{itemize}
-      \item \tb{Policy Evaluation}:
+      \item \tb{Policy Evaluation}: I \textcolor{red}{dropped the exploration distribution $\mu$} and used only policy distribution $\pi_\phi$ and $\beta$.
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{N} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{N} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}: I \textcolor{red}{dropped the entropy term $\alpha \mbb{E}_{s \sim \mc{D}}[\mc{H}(\pi)]$} in policy learning.
       \begin{equation*}
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[- Q_\theta(s,a)\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[- Q_\theta(s,a)\right]
       \end{equation*}
-      \item In my method, compared with CQL, since exploration distribution $\mu$ is removed, I \textcolor{red}{dropped the exploration term $\alpha \mbb{E}_{s \sim \mc{D}}[\mc{H}(\pi)]$} in policy improvement.
+      \item In my method, compared with CQL, exploration distribution $\mu$ is removed. 
+      So I \textcolor{red}{dropped the exploration term $\alpha \mbb{E}_{s \sim \mc{D}}[\mc{H}(\pi(\cdot|s))]$} in policy improvement.
     \end{itemize}
   \end{block}
 \end{frame}
@@ -376,11 +382,11 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}:
       \begin{equation*}
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[- Q_\theta(s,a)\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[- Q_\theta(s,a)\right]
       \end{equation*}
     \end{itemize}
   \end{block}
@@ -425,11 +431,11 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\textcolor{red}{\alpha^\prime}}{N} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\textcolor{red}{\alpha^\prime}}{N} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}:
       \begin{equation*}
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[- Q_\theta(s,a)\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[- Q_\theta(s,a)\right]
       \end{equation*}
     \end{itemize}
   \end{block}
@@ -463,11 +469,11 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \textcolor{red}{\sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 }\right)\right)^2\right]
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{\textcolor{red}{N}} \textcolor{red}{\sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N \left\lvert \hat{a}_i - a \right\rvert_2} \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}:
       \begin{equation*}
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[- Q_\theta(s,a)\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[- Q_\theta(s,a)\right]
       \end{equation*}
     \end{itemize}
   \end{block}
@@ -498,22 +504,22 @@
     \begin{itemize}
       \item \tb{Policy Evaluation}:
       \begin{equation*}
-        \min_\theta \mbb{E}_{(s,a,r,s^\prime) \sim \mc{D}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{N} \sum_{\hat{a}_i \sim \pi_\phi}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
+        \min_\theta \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left(Q_\theta(s,a) - \left(r + \gamma Q_\theta(s^\prime, a^\prime) - \frac{\alpha^\prime}{N} \sum_{\hat{a}_i \sim \pi_\phi(\cdot|s)}^N \left\lvert \hat{a}_i - a \right\rvert_2 \right)\right)^2\right]
       \end{equation*}
       \item \tb{Policy Improvement}: I add \tb{KL regularization term} in policy learning.
       \begin{equation*}
-        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi}}\left[- Q_\theta(s,a) + \textcolor{red}{\alpha D_{KL}(\pi_\phi(\cdot|s) || \beta(\cdot|s))}\right]
+        \min_\phi \mbb{E}_{\substack{s \sim \mc{D} \\ a \sim \pi_\phi(\cdot|s)}}\left[- Q_\theta(s,a) + \textcolor{red}{\alpha D_{KL}(\pi_\phi(\cdot|s) || \beta(\cdot|s))}\right] = \mbb{E}_{\substack{s \sim \mc{D} \\a \sim \pi_\phi(\cdot|s)}}\left[-Q_\theta(s,a) + \textcolor{red}{\alpha \left(\log \pi_\phi(a|s) - \log \beta(a|s)\right)}\right]
       \end{equation*}
       This objective is \tb{infeasible} because behavior policy \tb{$\beta$ is unknown}.
       So I approximate it with \tb{lagrangian dual} form of KL divergence:
       \begin{equation*}
         \implies 
         \begin{cases}
-          \min_\phi \mbb{E}_{\substack{(s,a) \sim \mc{D} \\ \hat{a} \sim \pi_\phi}}\left[-Q_\theta (s,a) - \alpha \left((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau \right)\right] \\
-          \min_\alpha \mbb{E}_{\substack{(s, a) \sim \mc{D} \\ \hat{a} \sim \pi_\phi}} \left[ - \alpha ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau) \right]
+          \min_\phi \mbb{E}_{\substack{(s,a) \sim \mc{D} \\ \hat{a} \sim \pi_\phi(\cdot|s)}}\left[-Q_\theta (s,a) + \alpha \left((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \textcolor{red}{\tau} \right)\right] \\
+          \min_\alpha \mbb{E}_{\substack{(s, a) \sim \mc{D} \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[ - \alpha ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \textcolor{red}{\tau}) \right]
         \end{cases}
       \end{equation*}
-      $\tau$ is a fixed threshold hyperparameter.
+      where \textcolor{red}{$\tau$} is a fixed threshold hyperparameter.
     \end{itemize}
   \end{block}
 \end{frame}
