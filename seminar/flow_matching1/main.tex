@@ -59,7 +59,7 @@
 
 % \DeclareMathOperator{\div}{\operatorname{div}}
 
-\title{Flow Matching and its usage in Offline RL}
+\title{Flow Matching}
 \author{Gwanwoo Choi}
 \institute{MLIC}
 \date{} % To use the current date
@@ -132,6 +132,7 @@
       \begin{column}{0.45\textwidth}
         \begin{figure}
           \includegraphics[width=0.6\textwidth]{assets/p_t.pdf}
+          \caption{Probability Path}
         \end{figure}
       \end{column}
       \begin{column}{0.50\textwidth}
@@ -155,7 +156,7 @@
       $$
         X_t = \psi_t(X_0),\ t \in [0,1], \text{ where } X_0 \sim p
       $$
-      \item The \tb{goal of generative flow modeling} is to find a flow $\psi_t$ such that 
+      \item The \tb{goal of generative flow modeling} is to find a flow $\psi_t$ such that
       $$
         X_1 = \psi_1 (X_0) \sim q
       $$
@@ -192,8 +193,8 @@
       \item A flow $\psi$ be defined in terms of a \tb{velocity field} $u: [0,1] \times \mbb{R}^d \to \mbb{R}^d$ via the following ODE:
       $$
       \begin{gathered}
-        \frac{d}{dt} \psi_t(x) = u_t(\psi_t(x)) \\
-        \psi_0(x) = x
+        \frac{d}{dt} \psi_t(x) = u_t(\psi_t(x_0)) = u_t(x) \\
+        \psi_0(x_0) = x_0
       \end{gathered}
       $$
     \end{itemize}
@@ -256,14 +257,225 @@
 \begin{frame}{Flow Matching}
   \begin{block}{Flow Matching Problem}
     \begin{itemize}
-      \item Given a source distribution $p$ and a target distribution $q$, Flow Matching (FM) is a scalable approach for training a flow model, defined by a learnable velocity $u^\theta_t$. and solving the \tb{Folw Matching Problem}
+      \item In Flow Matching, we define a learnable velocity field $u_t^\theta$.
+      \item \tb{Flow Matching Problem}: \underline{Find $u^\theta_t$ generating $p_t$, with satisfy boundary conditions $p_0=p$ and $p_1=q$}.
+    \end{itemize}
+    \begin{figure}
+      \centering
+      \captionsetup[subfigure]{skip=0.5ex, labelfont=small, textfont=small}
+      \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/data.pdf}
+        \caption{Data}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/p_t.pdf}
+        \caption{Path Design}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.24\textwidth}
+          \centering
+          \includegraphics[width=0.9\textwidth]{assets/match_pt.pdf}
+          \caption{Training}
+      \end{subfigure}
+          \begin{subfigure}[b]{0.24\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/fm_recepie_4.pdf}
+        \caption{Sampling}
+      \end{subfigure}
+    \end{figure}
+    \begin{itemize}
+      \item (a) identifies a known source distribution $p$ and an unknown data target distribution $q$
+      \item (b) predescribe a probability path $p_t$ interpolating from $p_0 =p$ to $p_1 = q$
+      \item (c) learns a velocity field $u^\theta_t$ implemented in terms of a neural network and generating the path $p_t$
+      \item (d) samples from the learned model by solving an ODE with $u_t^\theta$
     \end{itemize}
   \end{block}
 \end{frame}
 
+\begin{frame}{Flow Matching}
+  \begin{block}{Building probability paths}
+    \begin{columns}
+      \begin{column}{0.4\textwidth}
+        \begin{figure}
+          \centering
+          \captionsetup[subfigure]{skip=0.5ex, labelfont=small, textfont=small}
+          \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{assets/p_cond.pdf}
+            \caption{Conditional probability path $p_{t|1}(x|x_1)$}
+          \end{subfigure}\hfill
+          \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{assets/p_t.pdf}
+            \caption{(Marginal) probability path $p_t(x)$}
+          \end{subfigure}
+        \end{figure}
+      \end{column}
+      \begin{column}{0.55\textwidth}
+        \begin{itemize}
+          \item Flow Matching drastically simplifies the problem of designing a probability path $p_t$ by adopting a \textit{conditional} strategy.
+          \item Consider conditioning the design of $p_t$ on a single target example $X_1 = x_1$, yielding the \tb{conditional probability path} $p_{t|1}(x|x_1)$
+          \item Then we may construct the overall, \tb{marginal probability path} $p_t$ by aggregating such conditional probability paths $p_{t|1}$
+          $$
+            p_t(x) =\int p_{t|1}(x|x_1)q(x_1)dx_1
+          $$
+          \item \underline{By setting as following, we can meet the boundary conditions} $p_0 = p$ and $p_1 = q$, where $\pi_{0|1}(x_0|x_1) = \pi_{0,1}(x_0, x_1)/q(x_1) = p(x_0) q(x_1)/q(x_1) = p(x_0)$ and $\delta_{x_1}$ is the delta meausre centered at $x_1$.
+          $$
+          \begin{gathered}
+            p_{0|1}(x_0|x_1) = \pi_{0|1}(x_0|x_1) = \pi_{0,1}(x_0, x_1)/q(x_1) = p(x_0) \\ \quad p_{1|1}(x|x_1) = \delta_{x_1}(x)
+          \end{gathered}
+          $$
+          \item For example, $p$ is a Gaussian distribution and $p_t$ is defined by linear interpolation between $p$ and $q$.
+          $$
+          \mc{N}(\cdot|t x_1, (1-t)^2 I) \to \delta_{x_1}(\cdot) \text{ as } t \to 1
+          $$
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flow Matching}
+  \begin{block}{Deriving generating velocity fields}
+    \begin{columns}
+      \begin{column}{0.4\textwidth}
+        \begin{figure}
+          \centering
+          \captionsetup[subfigure]{skip=0.5ex, labelfont=small, textfont=small}
+          \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{assets/fm_recepie_2.pdf}
+            \caption{Conditional velocity field $u_t(x|x_1)$}
+          \end{subfigure}\hfill
+          \begin{subfigure}[b]{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.9\textwidth]{assets/cond_E_u.pdf}
+            \caption{(Marginal) Velocity field $u_t(x)$}
+          \end{subfigure}
+        \end{figure}
+      \end{column}
+      \begin{column}{0.55\textwidth}
+        \begin{itemize}
+          \item Let define $u_t(x|x_1)$ be the \tb{conditional velocity fields} that satisfying
+          $$
+            u_t(\cdot|x_1) \tb{ \text{generates} } p_{t|1}(\cdot|x_1)
+          $$
+          % \item For example, we can define $u_{t|1}(x|x_1) \triangleq \frac{x_1 - x}{1-t}$ and this $u_{t|1}$ generates $p_{t|1}$.
+          \item The \tb{marginal velocity field} $u_t(x)$, which generates the marginal path $p_t(x)$, is given by averaging theconditional velocity fields $u_t(x|x_1)$ across target examples:
+          $$
+          \begin{aligned}
+            u_t(x) &= \int u_t(x|x_1) p_{t|1}(x|x_1) dx_1 = \int u_t(x|x_1) \frac{p_{t|1}(x|x_1)q(x_1)}{p_t(x)} dx_1 \\&= \mbb{E}_{X_1 \sim q} [u_t (X_t|X_1) |X_t = x]
+          \end{aligned}
+          $$
+          \item It is shonw that this \underline{marginal $u_t(x)$ velocity field generates the marginal probability path $p_t(x)$} if $u_t(\cdot|x_1)$ \tb{generates} $p_{t|1}(\cdot|x_1)$.
+          \item For example, let $p_{t|1}(x|x_1) = \mc{N}(x|tx_1, (1-t)^2I)$. Then $u_{t|1}(x|x_1) =(x_1 - x)/(1-t)$ generates $p_{t|1}(x|x_1)$.
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flow Matching}
+  \begin{block}{Flow Matching Loss}
+    \begin{itemize}
+      \item Let denote $D(u,v)$ as the \hyperlink{appendix:bregman_divergence}{bregman divergence}, which measures dissimilarity between two vectors $u$ and $v$ (e.g. $D(u,v) = \lVert u - v \rVert^2_2$).
+      \item Let denote $\mc{L}_{\text{FM}}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ X_t \sim p_t}}  D(u_t(X_t), u^\theta_t(X_t))$ the \tb{Flow Matching Loss} and $u_t^\theta$ be a learnable velocity field parameterized by $\theta$.
+      \item Let denote $\mc{L}_{\text{CFM}}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ X_1 \sim q \\ X_t \sim p_t}}  D(u_t(X_t|X_1), u^\theta_t(X_t))$ the \tb{Conditional Flow Matching Loss}.
+      \item What we want to know is true velocity field $u_t$ that generates $p_t$.
+      \item However, \underline{it is intractable to compute $u_t$ directly. Unlike $u_t$, the conditional velocity field $u_{t|1}$ is \tb{tractable}.}
+      \item Fortunately, it is shown that
+      $$
+        \nabla_\theta \mc{L}_{\text{FM}}(\theta) = \nabla_\theta \mc{L}_{\text{CFM}}(\theta)
+      $$
+      \item So, we can optimize the learnable velocity field $u_t^\theta$ by minimizing the \tb{tractable} CFM loss.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flow Matching}
+  \begin{block}{Problem formulation}
+    So far, wehave reducedthe problem of training a flow model
+    \begin{enumerate}
+      \item Find conditional probability paths $p_{t|1}(x|x_1)$ yielding a marginal probability path $p_t(x)$ satisfying the boundary conditions.
+      \item Find conditional velocity fields $u_t(x|x_1)$ generating the conditional probability path.
+      \item Train using the CFM loss.
+    \end{enumerate}
+    We now discuss a concrete options on how to do step $1$. and $2$.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flow Matching}
+  \begin{block}{Conditional flows}
+    \begin{columns}
+      \begin{column}{0.3\textwidth}
+        \includegraphics[width=0.95\textwidth]{assets/x1_cond.pdf}
+      \end{column}
+      \begin{column}{0.65\textwidth}
+        \begin{itemize}
+          \item Define the \tb{conditional flow model} $X_{t|1}$ by
+          $$
+            X_{t|1} = \psi_t(X_0 |x_1), \text{ where } X_0 \sim \pi_{0|1}(\cdot|x_1)
+          $$
+          where $\psi: [0,1) \times \mbb{R}^d \times \mbb{R}^d \to \mbb{R}^d$ is a \tb{conditional flow} that satisfies
+          $$
+            \psi_t(x_0|x_1)= \begin{cases}
+              x_0 &t=0 \\ x_1 & t=1
+            \end{cases}
+          $$
+          \item It is known that  there exists a unique smooth conditional velocity field, where $x = \psi_t(x_0|x_1)$
+          $$
+            u_t(x|x_1) = \frac{d}{dt} \psi_t (\psi^{-1}_t (x|x_1)|x_1) = \frac{d}{dt} \psi_t (x_0|x_1)
+          $$
+          \item By the Law of Unconscious Statistician, following holds
+          $$
+            u_t(x) =\frac{d}{dt} \psi_t (x_0|x_1) =\mbb{E}_{X_t \sim \psi_t(X_0|X_1)} \left[\frac{d}{dt}\psi_t(X_0|X_1) \mid X_t = x\right]
+          $$
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flow Matching}
+  \begin{block}{Optimal Transport and linear conditional flow}
+    \begin{columns}
+      \begin{column}{0.3\textwidth}
+        \begin{figure}
+          \includegraphics[width=0.9\textwidth]{assets/x1_cond.pdf}
+        \end{figure}
+        \begin{figure}
+          \includegraphics[width=0.9\textwidth]{assets/x0_x1_cond.pdf}
+        \end{figure}
+      \end{column}
+      \begin{column}{0.65\textwidth}
+        \begin{itemize}
+          \item Optimal Transport (OT) is finding a optimal probability path $p_t^\star$ and velocity field $u_t^\star$ that safisfying
+          $$
+            (p^\star_t, u^\star_t) = \arg \min_{p_t, u_t} \int^1_0 \mbb{E}_{X_t \sim p_t} \lVert u_t(X_t)\rVert^2 dt
+          $$
+          \item Since it is hard to solve the OT problem, we instead minimize the upper bound:
+          $$
+            \begin{aligned}
+              \int^1_0 \mbb{E}_{X_t \sim p_t} \lVert u_t(X_t) \rVert^2 dt &= \int^1_0 \mbb{E}_{X_t \sim p_t} \left\lVert \mbb{E}\left[\frac{d}{dt} \psi_t (X_0|X_1)|X_t\right]\right\rVert^2 dt \\
+              &\leq \int^1_0 \mbb{E}_{X_t \sim p_t} \mbb{E} \left[\left\lVert\frac{d}{dt} \psi_t (X_0|X_1)\right\rVert^2 \mid X_t \right]dt \\ &= \mbb{E}_{X_0, X_1 \sim \pi_{0,1}} \int^1_0 \left\lVert \frac{d}{dt}\psi_t (X_0|X_1) \right\rVert^2 dt
+            \end{aligned}
+          $$
+          \item This problem can be solved using Euler-Lagrange equations, which in this case take the form $\frac{d^2}{dt^2} \frac{d}{dt} \psi_t(x|x_1) = 0$, concluding
+          $$
+            \psi_t(x|x_1) = t x_1 + (1-t)x \implies u_t(x|x_1) = x_1 - x
+          $$
+          \item So flow matching loss is obtained by 
+          $$
+            \mc{L}_{\text{CFM}}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ X_0, X_1 \sim \pi_{0,1}}} \left[ \left\lVert u_t(X_t|X_1)- u_t^\theta(X_t|X_1) \right\rVert^2 \right]
+          $$
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{block}
+\end{frame}
 
 \begin{frame}{Appendix}
-
   \begin{block}{$C^r$ diffeomorphism} \label{appendix:diffeomorphism}
     We denote by $C^r(\mbb{R}^m, \mbb{R}^n)$ the collection of functions $f: \mbb{R}^m \to \mbb{R}^n$ with continuous derivatives of order $r$:
     $$
@@ -295,6 +507,25 @@
         \item $u_t$ generates $p_t$
       \end{enumerate}
     \end{theorem}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Appendix}
+  \begin{block}{Bregman Divergence}\label{appendix:bregman_divergence}
+    \begin{columns}
+      \begin{column}{0.3\textwidth}
+        \begin{figure}
+          \includegraphics[width=0.9\textwidth]{assets/bregman.pdf}
+        \end{figure}
+      \end{column}
+      \begin{column}{0.65\textwidth}
+        For any vectors $u, v \in \mbb{R}^d$,
+        $$
+          D(u,v) \triangleq \Phi(u) -[\Phi(v) + \langle u - v, \nabla \Phi(v) \rangle]
+        $$
+        where $\phi: \mbb{R}^d \to \mbb{R}$ is a strictly convex function defined over some convex set $\Omega \subset \mbb{R}^d$.
+      \end{column}
+    \end{columns}
   \end{block}
 \end{frame}
 
