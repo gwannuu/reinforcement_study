@@ -1,0 +1,266 @@
+\documentclass[11pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  \vskip1ex
+  \hrule
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.8}pt,\fpeval{\beamer@paperheight*1.8}pt},
+  hmargin=\fpeval{0.5 * 1.0}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.8}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.8}cm% 0.5cm
+}
+\makeatother
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../../references.bib}
+
+% Your custom commands (kept as is)
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\Unif}{\operatorname{Unif}}
+
+\title{Brief overview of VAE, Diffusion and Flow-Matching}
+\author{Gwanwoo Choi}
+\institute{MLIC}
+\date{} % To use the current date
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% \begin{frame}{VAE, Diffusion, FlowMatching}
+
+%   \begin{figure}
+%     \includegraphics[width=0.6\textwidth]{VAELatent.png}
+%   \end{figure}
+
+%   \begin{block}{VAE Loss (\cite{kingmaAutoEncodingVariationalBayes2022})}
+%     $$
+%     \begin{gathered}
+%       \mc{L}(\theta, \phi) \triangleq \mbb{E}_{x \sim \mc{D}} \left[D_{KL}(q_\phi(z|x), p_{\theta}(z)) - \mbb{E}_{z \sim q_\phi(\cdot|x)}\left[\log p_{\theta}(x|z)\right]\right]
+%     \end{gathered}
+%     $$
+
+%     \begin{itemize}
+%       \item we want distribution of $z$ directly matches the complex and untractable data distribution of $x$
+%       \item $z$ directly matches to $x$ at once
+%       \item Ideal distribution of $z$ should be tractable (e.g. $\mc{N}(0, I)$)
+%     \end{itemize}
+%   \end{block}
+% \end{frame}
+
+\begin{frame}{VAE}
+
+  \begin{figure}
+    % [demo] 옵션은 이미지 파일이 없어도 컴파일되게 합니다.
+    % 실제 이미지 사용 시 [demo] 제거
+    \includegraphics[width=0.55\textwidth]{VAELatent.png}
+  \end{figure}
+
+  \begin{block}{Key Components (\cite{kingmaAutoEncodingVariationalBayes2022})}
+    \begin{itemize}
+      \item Encoder $q_\phi(z|x)$: Maps data $x$ to a distribution for latent variable $z$.
+      \item Decoder $p_\theta(x|z)$: Reconstructs data $x$ from the latent variable $z$.
+      \item Prior $p(z)$: A simple distribution we enforce on $z$ (e.g., $\mc{N}(0, I)$).
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Loss: Evidence Lower Bound (ELBO) (Minimize Negative ELBO)}
+    $$
+    \begin{gathered}
+      \mc{L}(\theta, \phi) = \mbb{E}_{x \sim \mc{D}} \left[ \underbrace{D_{KL}(q_\phi(z|x) || p(z))}_{\text{Regularization}} - \underbrace{\mbb{E}_{z \sim q_\phi(\cdot|x)}\left[\log p_{\theta}(x|z)\right]}_{\text{Reconstruction}} \right]
+    \end{gathered}
+    $$
+    \begin{itemize}
+      \item Pros: Fast training and \emph{one-shot} sampling.
+      \item Cons: Reconstruction term often acts like L2 loss, leading to blurry samples.
+      \item Limitation: A single $z \to x$ step struggles to model highly complex data distributions.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% \begin{frame}{DDPM}
+%   \begin{figure}
+%     \includegraphics[width=0.75\textwidth]{DDPMExample.png}
+%   \end{figure}
+
+%   \begin{block}{Diffusion Process (\cite{hoDenoisingDiffusionProbabilistic2020})}
+%     \begin{itemize}
+%       \item In diffusion process, latent space becomes $x_T$ and data space becomes $x_0$ ($T$ is an arbitrary timestep)
+%       \item Rather than going directly from $x_T$ to $x_0$ at once, split the path in separate $T$ timesteps.
+%       \item For all $t$, each $x_t$ space can be obtained recursively by sampling from distribution
+%       $q(x_t|x_{t-1}) = \mc{N}(\sqrt{1-\beta_t}x_{t-1}, \beta_t I)$ ($\beta_t$ is an arbitrary constant)
+%       \item Simiarly with VAE, we can also construct the distribution $p_{\theta}(x_{t-1}|x_t)$
+%       \item This distribution is intractable, so $p_\theta$ distribution is parameterized by $\theta$
+%     \end{itemize}
+%   \end{block}
+% \end{frame}
+
+\begin{frame}{DDPM}
+  \begin{figure}
+    \includegraphics[width=0.7\textwidth]{DDPMExample.png}
+  \end{figure}
+
+  \begin{block}{Key Idea (\cite{hoDenoisingDiffusionProbabilistic2020})}
+    \begin{itemize}
+      \item Instead of VAE's 'one-shot' generation, the process is broken into $T$ small steps.
+      \item {Forward Process (Fixed):} Gradually add Gaussian noise to data $x_0$ over $T$ steps until it becomes pure noise $x_T \sim \mc{N}(0, I)$.
+      $$ q(x_t|x_{t-1}) = \mc{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I) $$
+      \item {Direct Sampling:} We can sample $x_t$ at any $t$ directly from $x_0$:
+      $$ q(x_t|x_0) = \mc{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1-\bar{\alpha}_t)I) \quad (\text{where } \bar{\alpha}_t = \prod_{i=1}^t (1-\beta_i)) $$
+      \item {Reverse Process (Learned):} Learn a neural network $p_\theta(x_{t-1}|x_t)$ to reverse the process, step-by-step, removing noise.
+      \item {Generation:} Start from $x_T \sim \mc{N}(0, I)$ and sample $T$ times from $p_\theta$ to get $x_0$.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{DDPM}
+  \begin{figure}
+    \includegraphics[width=0.75\textwidth]{DDPMExample.png}
+  \end{figure}
+
+  \begin{block}{Full Objective (Variational Lower Bound)}
+    $$
+      \mbb{E}_{q} \left[ \underbrace{D_{\text{KL}}(q(x_T|x_0)|p(x_T))}_{L_T} + \sum_{t>1} \underbrace{D_{\text{KL}}(q(x_{t-1}|x_t,x_0)|p_\theta (x_{t-1}|x_t))}_{L_{t-1}} - \underbrace{\log p_{\theta} (x_0|x_1)}_{L_0} \right]
+    $$
+    \begin{itemize}
+      \item Similar to VAE, this is a Variational Lower Bound (VLB) on $\log p(x_0)$.
+      \item $L_{t-1}$ is tractable because $q(x_{t-1}|x_t, x_0)$ (via Bayes' rule) and $p_\theta(x_{t-1}|x_t)$ are both defined as Gaussians.
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{DDPM Simplification ($\epsilon$-prediction)}
+    \cite{hoDenoisingDiffusionProbabilistic2020} showed this VLB can be simplified to a simple L2 loss. We train a model $\epsilon_\theta(x_t, t)$ to predict the noise $\epsilon$ that was added to $x_0$ to get $x_t$.
+    (Recall: $x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon$)
+    $$
+    \mc{L}_{\text{simple}} = \mbb{E}_{\substack{
+    t \sim \operatorname{Unif}[1, T] \\
+    x_0 \sim \mc{D} \\
+    \epsilon \sim \mc{N}(0, I)}} \left[ \lVert \epsilon - \epsilon_\theta (\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t) \rVert^2 \right]
+    $$
+    \begin{itemize}
+      \item Pros: Generates extremely high-quality, diverse samples.
+      \item Cons: Sampling is very slow, requiring $T$ (e.g., 1000) sequential network evaluations.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Flow-Matching}
+  \begin{columns}
+    \begin{column}{0.8\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{FlowMatching1.png}
+      \end{figure}    
+    \end{column}
+    \begin{column}{0.2\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{FlowMatching2.png}
+      \end{figure}
+    \end{column}
+  \end{columns}
+
+  \begin{block}{From Discrete Steps to Continuous Time}
+    \begin{itemize}
+      \item Diffusion's $T$ discrete steps are slow. What if we let $T \to \infty$?
+      \item This leads to a continuous-time process.
+      \item Continuous Normalizing Flows (CNFs): Learn a continuous "flow" that transforms a simple prior $p_0$ (at $t=0$) to the complex data $p_1$ (at $t=1$).
+      \item This flow is defined by an Ordinary Differential Equation (ODE):
+        $$ \frac{dx_t}{dt} = v_t(x_t) $$
+      \item $v_t(x_t)$ is a Vector Field (a neural network) that defines the direction and speed of the flow at any point $(x_t, t)$.
+      \item Generation: Sample $x_0 \sim p_0$ and solve the ODE $x_1 = x_0 + \int_0^1 v_t(x_t) dt$ using a numerical solver.
+    \end{itemize}
+  \end{block}
+
+  % \begin{block}{The Challenge}
+  %   How to train $v_t(x_t)$? Previous CNF methods were hard to train (e.g., required $\log \det$ computations) or required costly simulations (like Diffusion).
+  %   \tb{Flow Matching's Goal:} Train $v_t$ \tb{without simulation}.
+  % \end{block}
+\end{frame}
+
+\begin{frame}{Flow-Matching}
+  \begin{block}{Conditional Flow Matching (CFM) (\cite{lipmanFlowMatchingGenerative2023})}
+    Flow Matching proposes a simple, "simulation-free" way to learn $v_\theta$.
+    \begin{enumerate}
+      \item Define a Path: Connect a prior sample $x_0 \sim p_0$ and a data sample $x_1 \sim p_1$ with a simple path. (e.g., Linear Interpolation path $\phi_t$)
+        $$ \phi_t(x_0, x_1) = (1-t)x_0 + t x_1 $$
+      \item Define Target Vector Field: This path implies a target vector field $u_t$ (its time derivative):
+        $$ u_t(x_0, x_1) = \frac{d\phi_t}{dt} = x_1 - x_0 $$
+      \item Define Loss: Train the model $v_\theta(t, x)$ to "match" this target $u_t$ at the corresponding point $x = \phi_t$ on the path.
+    \end{enumerate}
+  \end{block}
+
+  \begin{block}{CFM Loss (Simple Regression)}
+    This results in a simple L2 regression loss:
+    $$
+    \mc{L}_{\text{CFM}}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ x_0 \sim p_0 \\ x_1 \sim p_1}} \left[ \Big\lVert \underbrace{v_\theta(t, (1-t)x_0 + t x_1)}_{\text{Model Prediction}} - \underbrace{(x_1 - x_0)}_{\text{Target Vector}} \Big\rVert^2 \right]
+    $$
+    \begin{itemize}
+      \item Pro (Training): Simulation-free. Just sample $(x_0, x_1, t)$ and compute L2 loss. This is fast and very stable.
+      \item Pro (Sampling): Once $v_\theta$ is trained, we can solve the ODE using fast solvers with far fewer steps (e.g., 10-100) than Diffusion.
+      % \item This is a general framework that unifies many generative models.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+% \begin{frame}{VAE, Diffusion, FlowMatching}
+
+%   \begin{columns}
+%     \begin{column}{0.8\textwidth}
+%       \begin{figure}
+%         \includegraphics[width=0.95\textwidth]{FlowMatching1.png}
+%       \end{figure}    
+%     \end{column}
+%     \begin{column}{0.2\textwidth}
+%       \begin{figure}
+%         \includegraphics[width=0.95\textwidth]{FlowMatching2.png}
+%       \end{figure}
+%     \end{column}
+%   \end{columns}
+
+%   \begin{block}{FlowMatching Loss (\cite{lipmanFlowMatchingGenerative2023})}
+%     $$
+%     \mc{L}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ x_1 \sim q \\ x_0 \sim p}} \left[\lVert v_t(\psi_t(x_0)) - \left( x_1 - (1-\sigma_{\min})x_0\right)\rVert^2\right]
+%     $$
+%   \end{block}
+% \end{frame}
+
+\begin{frame}{References}
+  \printbibliography
+\end{frame}
+
+\end{document}
+

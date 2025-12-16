@@ -1,0 +1,152 @@
+\documentclass[11pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  \vskip1ex
+  \hrule
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.5}pt,\fpeval{\beamer@paperheight*1.5}pt},
+  hmargin=\fpeval{0.5 * 1.5}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.5}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.5}cm% 0.5cm
+}
+\makeatother
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../../references.bib}
+
+% Your custom commands (kept as is)
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\Unif}{\operatorname{Unif}}
+
+\title{Flow Matching for Generative Modeling}
+\author{Gwanwoo Choi}
+\institute{MLIC}
+\date{} % To use the current date
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{VAE, Diffusion, FlowMatching}
+
+  \begin{figure}
+    \includegraphics[width=0.6\textwidth]{VAELatent.png}
+  \end{figure}
+
+  \begin{block}{VAE Loss (\cite{kingmaAutoEncodingVariationalBayes2022})}
+    $$
+    \begin{gathered}
+      \mc{L}(\theta, \phi) \triangleq \mbb{E}_{x \sim \mc{D}} \left[D_{KL}(q_\phi(z|x), p_{\theta}(z)) - \mbb{E}_{z \sim q_\phi(\cdot|x)}\left[\log p_{\theta}(x|z)\right]\right]
+    \end{gathered}
+    $$
+
+    \begin{itemize}
+      \item we want distribution of $z$ directly matches the complex and untractable data distribution of $x$
+      \item $z$ directly matches to $x$ at once
+      \item Ideal distribution of $z$ should be tractable (e.g. $\mc{N}(0, I)$)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{VAE, Diffusion, FlowMatching}
+  \begin{figure}
+    \includegraphics[width=0.75\textwidth]{DDPMExample.png}
+  \end{figure}
+
+  \begin{block}{Diffusion Process (\cite{hoDenoisingDiffusionProbabilistic2020})}
+    \begin{itemize}
+      \item In diffusion process, latent space becomes $x_T$ and data space becomes $x_0$ ($T$ is an arbitrary timestep)
+      \item Rather than going directly from $x_T$ to $x_0$ at once, split the path in separate $T$ timesteps.
+      \item For all $t$, each $x_t$ space can be obtained recursively by sampling from distribution
+      $q(x_t|x_{t-1}) = \mc{N}(\sqrt{1-\beta_t}x_{t-1}, \beta_t I)$ ($\beta_t$ is an arbitrary constant)
+      \item Simiarly with VAE, we can also construct the distribution $p_{\theta}(x_{t-1}|x_t)$
+      \item This distribution is intractable, so $p_\theta$ distribution is parameterized by $\theta$
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{VAE, Diffusion, FlowMatching}
+  \begin{figure}
+    \includegraphics[width=0.75\textwidth]{DDPMExample.png}
+  \end{figure}
+
+  \begin{block}{Diffusion Loss}
+    $$
+      \mbb{E}_{(x_T, x_{T-1}, \dots, x_0) \sim q} \left[ \underbrace{D_{\text{KL}}(q(x_T|x_0)|p(x_T))}_{L_T} + \sum_{t>1} \underbrace{D_{\text{KL}}(q(x_{t-1}|x_t,x_0)|p_\theta (x_{t-1}|x_t))}_{L_{t-1}} - \underbrace{\log p_{\theta} (x_0|x_1)}_{L_0} \right]
+    $$
+
+    \begin{itemize}
+      \item In diffusion framework, the decoder is chosen by $p_\theta(x_{t-1}|x_t) \triangleq \mc{N}(\mu_{\theta}(x_t, t), \sigma^2_tI)$
+      \item Then we can calculate $D_{\text{KL}}(q(x_{t-1}|x_t, x_0)|p_\theta(x_{t-1}|x_t))$ since $q$ and $p$ are gaussian
+    \end{itemize}
+    Through some trick, more simpler form of loss function can be obtained, where $\epsilon_\theta$ is the noise predictor at timestep $t$.
+    $$
+    \mbb{E}_{\substack{
+    t \sim \operatorname{Unif}[1, T] \\
+    x_0 \sim \mc{D} \\
+    \epsilon \sim \mc{N}(0, I)}} \left[ \lVert \epsilon - \epsilon_\theta (\sqrt{\bar{\alpha}_t} x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, t) \rVert^2 \right]
+    $$
+  \end{block}
+\end{frame}
+
+\begin{frame}{VAE, Diffusion, FlowMatching}
+
+  \begin{columns}
+    \begin{column}{0.8\textwidth}
+      \begin{figure}
+        \includegraphics[width=0.95\textwidth]{FlowMatching1.png}
+      \end{figure}    
+    \end{column}
+    \begin{column}{0.2\textwidth}
+      \begin{figure}
+        \includegraphics[width=0.95\textwidth]{FlowMatching2.png}
+      \end{figure}
+    \end{column}
+  \end{columns}
+
+  \begin{block}{FlowMatching Loss (\cite{lipmanFlowMatchingGenerative2023})}
+    $$
+    \mc{L}(\theta) = \mbb{E}_{\substack{t \sim \Unif[0,1] \\ x_1 \sim q \\ x_0 \sim p}} \left[\lVert v_t(\psi_t(x_0)) - \left( x_1 - (1-\sigma_{\min})x_0\right)\rVert^2\right]
+    $$
+  \end{block}
+\end{frame}
+
+\begin{frame}{References}
+  \printbibliography
+\end{frame}
+
+\end{document}
+

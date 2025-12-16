@@ -1,0 +1,162 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{kotex}
+
+\setstretch{1.2}
+
+\begin{document}
+
+\section*{Talk Script: An Improvement to Conservative Q-Learning}
+
+Hello, everyone. Today I will present on ``An Improvement to Conservative Q-Learning''. When I chose this topic, my background in offline RL was still shallow, so I started from a slightly older but fundamental paper and tried to identify and explore a possible improvement to it.
+
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Before we get into the main idea, let me briefly review the preliminaries of offline reinforcement learning.
+Offline RL has the same basic MDP setup as standard RL, but the key difference is that we cannot interact with the environment during training. We must learn the agent purely from a fixed transition dataset. I will call the policy that collected this dataset the behavior policy, denoted by $\beta$.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Next, I will briefly explain the main difficulty of offline RL, and then how CQL tries to address it.
+In offline RL we do not know the true transition dynamics; we only see the next state through the dataset. So when we learn the Q-function, TD learning is performed only on next-states that actually appear in the dataset.
+The more serious issue comes from how actions are sampled. In the loss, which is highlighted in red on the slide, the next state--action pair $s^\prime, a^\prime$ sampled from the current policy is used as the target in TD learning.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+But can we really trust this $s^\prime, a^\prime$ pair? It may not exist in the dataset at all. If $Q(s^\prime, a^\prime)$ is higher than the true Q-value, what happens?
+Then the TD target becomes larger than the correct target, and the current state--action pair $s, a$ is updated toward an overestimated value. This creates an overestimation problem.
+If you look at the purple-highlighted part of the formula on the slide, you can see that this overestimated Q-value is then used again when we update the policy. The policy is trained to choose actions $a$ that have higher Q-values, so it starts to sample these overestimated actions with high probability. If those actions are actually very poor in the true environment, the offline training will fail badly.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Conservative Q-Learning is proposed to directly address this overestimation of Q-values.
+In the formula, the part labeled ``standard Bellman error'' is the usual critic learning term I described for offline RL. On the left, there is an additional ``conservative penalty'' term, which pushes Q-values down overall. Because of the $\min_\theta$ operator, $Q_\theta$ is optimized to be smaller.
+If you look closely, the actions used when reducing Q-values are sampled from a policy distribution $\mu$. This distribution is shaped in two ways: by the regularizer on $\mu$ on the right, which encourages some randomness, and by the conservative penalty itself, which encourages sampling actions with high Q-values. In summary, a well-chosen $\mu$ will selectively pick out high-Q actions, and the algorithm then learns to push those Q-values down. This offsets the overestimation that arises from the standard Bellman error term.
+
+With the first objective alone, we can prevent overestimation, but Q-values that are too low are also undesirable. To address this, the second objective slightly modifies the first one.
+In the second objective, if the action $a$ is sampled from $\mu$, the Q-value at $(s,a)$ is pushed down, but if $a$ comes from the dataset, the Q-value is increased by roughly the same amount that it was previously reduced. In other words, for actions not in the dataset we keep Q-values low, but for actions in the dataset we avoid applying the conservative penalty and rely only on the standard Bellman error to update Q.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+So far I have explained how CQL learns the critic. Now let me explain how the policy is trained.
+Policy learning in CQL is essentially the same as in SAC. A term like $\alpha \log \pi(a|s)$ appears, which is the entropy term that encourages the policy to produce more random actions.
+In a typical offline RL method, using Q-values for highly random actions could easily cause severe OOD problems and destabilize training. However, in CQL, Q-values for OOD actions have already been pushed down sufficiently, so this entropy-driven exploration is much safer.
+
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Now I will introduce the two baselines I use in my experiments: CQL H and CQL H Lagrangian.
+
+We have seen the general learning mechanism of CQL. Next I will show how it is actually implemented in code.
+First, CQL($\mathcal{H}$) is obtained by choosing the regularization term on the OOD exploration distribution $\mu$ to be its entropy and then analytically solving for the optimal $\mu$. In the original CQL critic objective, both Q and $\mu$ are learned, but in CQL H we can substitute the optimal $\mu$ back into the objective and obtain a formulation where only Q is learned.
+
+This leads to a new problem: computing the log-sum-exp over Q-values for all actions is intractable in continuous action spaces, since in principle we would have to integrate over infinitely many actions. To bypass this, we use importance sampling. The term $w$ in the equation is an importance-sampling-based approximation of this log-sum-exp, and its detailed form is shown in the slide.
+Thanks to importance sampling, we can sample actions from distributions that are easy to sample from, such as a uniform distribution or the current policy. In the paper, actions are sampled from three distributions: a uniform distribution over actions, the current policy given the current state, and the current policy given the next state, and these samples are used to approximate the log-sum-exp Q.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+There is a small modification of CQL H called CQL H Lagrangian.
+In CQL H, we learn to reduce the gap between $w$ and Q, that is, the difference between the log-sum-exp surrogate and the dataset Q-values. However, the hyperparameter $\alpha^\prime$ that controls how strongly this gap affects the critic learning is fixed. In reality, when the gap is large we would like $\alpha^\prime$ to be large, and when the gap is small we would like $\alpha^\prime$ to be small, but CQL H keeps it constant.
+
+CQL Lagrangian addresses this by making $\alpha^\prime$ a learnable parameter. In the equations, you can see that we now update both $\theta$, the Q-function parameters, and $\alpha^\prime$.
+The red-highlighted part in the objective is the update rule for $\alpha^\prime$: it adjusts $\alpha^\prime$ so that the gap between $w$ and Q moves toward a target value $\tau$. If the gap is larger than $\tau$, then $\alpha^\prime$ increases to push the gap down; if the gap is smaller than $\tau$, then $\alpha^\prime$ decreases, making the method less conservative.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+To look for possible improvements to CQL, I focused on its penalization term.
+If we assume that Q is a convex function in CQL($\mathcal{H}$), we can derive the optimal Q-value by following the derivation shown on this slide. Because of convexity, we can find the Q that makes the derivative of the objective zero.
+When we differentiate and simplify, we obtain a Q-update rule with the red term added as a penalty. This red term can be viewed as the essential Q penalization term in CQL.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+My idea is to modify this penalization term.
+In the original CQL term, the penalty is based on the probability density ratio between the OOD exploration distribution $\mu$ and the behavior policy $\beta$. In contrast, I propose to use the Euclidean distance between actions as an indicator of how out-of-distribution an action is in continuous space.
+The new penalty term, shown in red on the slide, updates Q by subtracting the expected Euclidean distance between actions sampled from the behavior policy, that is, from the dataset, and actions sampled from the current policy.
+
+We approximate the expectation of the $L_2$ distance between $a$ and $\hat{a}$ by sampling $N$ actions from the policy at a given state $s$ and averaging their Euclidean distances to the dataset action.
+
+Here, $N$ is a hyperparameter: larger $N$ gives a more accurate approximation of the expectation but increases computational cost.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+This slide directly compares the CQL penalization and the penalization in my method.
+To show why my penalty might be advantageous, let me give a simple example. The CQL penalty is not distance-aware: it uses only the ratio of probabilities between $\mu$ and $\beta$ for a given action. In other words, it completely ignores where actions lie in Euclidean space.
+Suppose we have two actions, $a_1$ and $a_2$, and the probabilities of sampling them from $\mu$ and $\beta$ are shown on the slide. If the Euclidean distance between $a_1$ and $a_2$ is very small, my $L_2$-based penalty will also be small, because the actions are semantically almost the same.
+However, under CQL, if we compute the penalty terms for $a_1$ and $a_2$ using the density ratio, we get large values like 8 or minus eight-ninths. So two actions that are almost identical in Euclidean space receive very different and possibly large penalties solely because $\mu$ and $\beta$ assign different probabilities to them.
+In this sense, my penalty term is distance-aware, while the CQL penalty term is distance-agnostic.
+
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Now let me summarize the algorithm I propose, called Framework 1.
+In the critic update, I use exactly the Q-update equation described earlier, with the $L_2$-based penalty term.
+The policy improvement step is slightly different from CQL: here I remove the entropy term, because in my method there is no separate exploration distribution $\mu$ used in critic learning. As a result, my critic objective alone does not provide the same kind of conservatism for OOD actions as CQL.
+
+Since this conservatism is reduced, I chose to simplify policy learning: the policy is trained only to maximize the conservative Q-values, without an entropy bonus. If we added an entropy term, the policy would be pushed toward random actions, and I expected this to make training unstable in the offline setting.
+Without the entropy term, the policy does not deliberately sample highly random actions, which should reduce the risk that the critic overestimates Q-values for OOD actions.
+
+I call this algorithm Framework 1 because later I will introduce a second version, Framework 2, that builds on top of it to further improve performance.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+For baselines, I focus on two algorithms: CQL($\mathcal{H}$) and CQL($\mathcal{H}$) Lagrangian. Although many newer offline RL methods outperform CQL in terms of raw performance, I do not compare against them here because my work specifically builds on CQL. It would not be meaningful to compare my early-stage method directly against the latest state-of-the-art algorithms.
+
+For the environment, I use AntMaze from the D4RL benchmark, which is a common testbed for offline RL. AntMaze is a maze environment where an ant-shaped agent must be controlled to reach a goal position as quickly as possible. In the figure, the star indicates the goal location, and the agent must learn to follow the red optimal path through the maze.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Next, let me briefly summarize the hyperparameters I use. The hyperparameters shown on this slide are shared across both my first and second frameworks.
+I keep the optimizer, batch size, and network architecture consistent with typical CQL settings, and I choose learning rates that are close to those used in the original CQL implementation.
+For evaluation, I train with four random seeds. For each seed, I evaluate on eight independent environments and average the scores.
+
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Here are the main experimental results. In AntMaze, the environments differ by maze size and dataset type. I run experiments on six variants, and the table shows the scores for each algorithm, averaged over the four seeds.
+The CQL scores I obtain are lower than those reported in the original paper. One reason is that the dataset versions differ: the original CQL paper used version 0 of the D4RL datasets, whereas I use version 2. In addition, when I inspected both the paper and the official code, I found some mismatches between the published equations and the implementation, so for these experiments I re-implemented CQL from scratch, guided by both sources.
+
+As you can see from the numbers, the umaze environments are the easiest, so the scores are highest there. As we move to medium and large mazes, the tasks become harder and the scores drop. The ``diverse'' datasets are also more challenging, and performance is generally lower on them.
+In this first set of results, my proposed algorithm performs worse than the CQL baselines.
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Next, I investigated how sensitive my first algorithm is to its hyperparameters.
+First, I varied the hyperparameter $N$, which controls how many actions are sampled when computing the critic penalty term. I tried $N=5, 10, 25$.
+The results suggest that performance does not strongly depend on $N$. I therefore chose $N=10$ as a reasonable default.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Second, I varied $\alpha^\prime$, which determines the relative scale of the penalty term.
+In the table, you can see a case where $\alpha^\prime$ is set to $10^{-12}$, which is effectively zero. Performance in that setting is poor, likely because the penalty is too weak to prevent overestimation.
+When $\alpha^\prime$ is larger, performance tends to improve, so I chose $0.01$ as a default value.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+My method uses Euclidean distance as a penalty term, so I also checked how this distance changes during training.
+From the graph, you can see that the average distance does not decrease much as training proceeds. This means that simply penalizing the critic is not enough for the policy to learn to stay close to the behavior policy.
+What I originally hoped to see was that this distance would gradually shrink as training went on, but the graph shows a different pattern. This led me to the conclusion that I need to add a regularization term directly to the policy objective, encouraging the policy to sample actions similar to those in the dataset.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+This motivates my second method, which adds a KL divergence term on top of the first framework. The idea is to train the policy to have a probability density close to the behavior policy, so that the penalty term decreases over training as the policy stays near the data.
+However, we face a problem: we do not know the behavior policy explicitly, we only have samples from it. Therefore we cannot compute the log-probabilities of $\beta$ and the KL divergence in closed form.
+
+To circumvent this, I apply the Lagrangian dual form of the KL divergence. In this formulation, the coefficient $\alpha$ of the KL term becomes a learnable parameter.
+
+From the equations at the bottom of the slide, you can see how $\alpha$ is updated so that the KL divergence approaches a target threshold $\tau$. If the KL is larger than $\tau$, $\alpha$ increases to penalize it more strongly; if it is smaller, $\alpha$ decreases.
+
+\bigskip\noindent\textbf{-----------------------------------------------------------------------------}
+
+Finally, here are the results for the second framework.
+On some of the medium tasks where CQL and my first method struggled, the KL-regularized version achieves non-trivial performance.
+
+Moreover, with KL regularization, the penalty term in the critic actually decreases over time, indicating that the policy remains better aligned with the dataset.
+Taken together, these results provide some evidence that my proposed method can outperform plain CQL in certain regimes.
+
+Thank you for listening.
+
+\end{document}
+
