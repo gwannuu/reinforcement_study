@@ -1,0 +1,210 @@
+\documentclass[11pt, aspectratio=169]{beamer}
+\usefonttheme[onlymath]{serif}
+
+\setbeamersize{text margin left=1.5em}
+\setbeamersize{text margin right=1.5em}
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertframetitle\par
+  \vskip1ex
+  \hrule
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+% Add numbered captions for figures/tables in beamer
+\setbeamertemplate{caption}[numbered]
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.5}pt,\fpeval{\beamer@paperheight*1.5}pt},
+  hmargin=\fpeval{0.5 * 1.0}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.5}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.5}cm% 0.5cm
+}
+\makeatother
+
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{xcolor} % <-- add xcolor so \textcolor works
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{subcaption}
+
+\usepackage[
+  backend=bibtex,
+  style=authoryear,   % or numeric
+  citestyle=authoryear
+]{biblatex}
+\addbibresource{../../references.bib}
+
+% Your custom commands (kept as is)
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\norm}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\Norm}[1]{\left\lVert #1 \right\rVert}
+% \newcommand{\Unif}{\operatorname{Unif}}
+\DeclareMathOperator*{\unif}{Unif}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\subtitle{Add BC penalty to FQL}
+\title{202512-week3}
+\author{Gwanwoo Choi}
+\institute{MLIC}
+\date{} % To use the current date
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{ReBRAC}
+  \begin{block}{ReBRAC}
+    $$
+      \begin{gathered}
+        \mc{L}_Q(\phi) = \mathbb{E}_{\substack{(s,a,r,s^\prime, a^\prime)\sim \mc{D} \\ a^\prime_\pi \sim \pi(\cdot| s^\prime)}} \left[ (Q_\theta(s,a) - \underbrace{(r + \gamma (Q_{\bar{\theta}}(s^\prime , a^\prime) - \alpha_Q  (a^\prime - a^{\prime}_\pi)^2))}_{\text{Q target with BC penalty}})^2\right] \\
+        \mc{L}_\pi(\theta) = \mbb{E}_{\substack{(s,a) \sim \mc{D} \\ a_\pi \sim \pi_\theta}} \left[-\lambda Q_\phi(s, \pi(s)) + \alpha_\pi \underbrace{ (a_\pi- a)^2}_{\text{BC penalty}} \right] \\
+        \text{where } \lambda = \frac{1}{\frac{1}{N} \sum_{(s_i, a_i)} \norm{Q(s_i, a_i)}} \text{ and } (s_i, a_i) \text{ is the batch data}. \\
+      \end{gathered}
+    $$
+  \end{block}
+\end{frame}
+
+\begin{frame}{FQL}
+  \begin{block}{FQL}
+    \begin{equation*}
+      \begin{gathered}
+        \mc{L}_{\text{flow}}(\theta) = \mbb{E}_{\substack{s,a=x^1 \sim \mc{D} \\ x^0 \sim \mc{N}(0, I) \\ t \sim \unif([0,1])}} \left[ \Norm{v_\theta(t, s, x^t) - (x_1 - x_0)}^2_2 \right] \\
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime)}} \left[(Q_\phi(s,a) - r - \gamma Q_{\bar{\phi}}(s^\prime, a^\prime_\pi))^2\right] \\
+        \mc{L}_\pi(\omega) = \mathbb{E}_{s \sim \mathcal{D}, a^\pi \sim \pi_\omega} \left[- Q_\phi(s, a^\pi)\right] + \alpha_\pi \mathbb{E}_{\substack{s \sim \mc{D} \\ z \sim \mc{N}(0, I)}} \left[\Norm{\mu_\omega(s, z) - \mu_\theta (s,z)}^2_2 \right]
+      \end{gathered}
+    \end{equation*}
+
+    \bigskip
+
+    \begin{equation*}
+      \begin{aligned}
+        &\textbf{function } \mu_\theta(s, z) && \triangleright \text{ BC flow policy} \\
+        &\quad \textbf{for } t = 0, 1, \dots, M-1 \textbf{ do} \\
+        &\quad \quad z \leftarrow z + v_\theta(t/M, s, z)/M && \triangleright \text{ Euler method} \\
+        &\quad \textbf{return } z
+      \end{aligned}
+    \end{equation*}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Idea: Add BC penalty term in critic loss of FQL}
+  \begin{block}{FQL BC penalty (Naive form)}
+    \begin{equation*}
+      \begin{gathered}
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime, a^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime)}} \left[\left(Q_\phi(s,a) - \underbrace{\left(r - \gamma (Q_{\bar{\phi}}(s^\prime, a^\prime_\pi) - \alpha_Q (a^\prime_\pi - a^\prime)^2)\right)}_{\text{Q target with BC penalty}}\right)^2\right] \\
+        \mc{L}_\pi(\omega) = \mathbb{E}_{s \sim \mathcal{D}, a^\pi \sim \pi_\omega} \left[- \lambda Q_\phi(s, a^\pi)\right] + \alpha_\pi \mathbb{E}_{\substack{s \sim \mc{D} \\ z \sim \mc{N}(0, I)}} \left[\Norm{\mu_\omega(s, z) - \mu_\theta (s,z)}^2_2 \right]
+      \end{gathered}
+    \end{equation*}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Idea: Variant formats of BC penalty term}
+  \begin{block}{BC penalty: next state vs current state}
+    \begin{equation*}
+      \begin{gathered}
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime, a^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime)}} \left[(Q_\phi(s,a) - \underbrace{(r - \gamma (Q_{\bar{\phi}}(s^\prime, a^\prime_\pi) - \alpha_Q (a^\prime_\pi - a^\prime)^2))}_{\text{Q target with BC penalty}})^2\right] \\
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime, a^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime) \\ a_\pi \sim \pi_\theta(\cdot|s)}} \left[(Q_\phi(s,a) - \underbrace{(r - \gamma (Q_{\bar{\phi}}(s^\prime, a^\prime_\pi)) - \alpha_Q (a_\pi - a)^2)}_{\text{Q target with BC penalty}})^2\right]
+      \end{gathered}
+    \end{equation*}
+    \begin{itemize}
+      \item First equation uses next action $a^\prime$ and second equation uses current action $a$ for BC penalty.
+      \item First equation is applied by $\gamma$ and second equation is not.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Idea: Variant formats of BC penalty term}
+  \begin{block}{BC penalty: dataset action vs flow action}
+    \begin{equation*}
+      \begin{gathered}
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime, a^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime)}} \left[(Q_\phi(s,a) - \underbrace{(r - \gamma (Q_{\bar{\phi}}(s^\prime, a^\prime_\pi) - \alpha_Q (a^\prime_\pi - a^\prime)^2))}_{\text{Q target with BC penalty}})^2\right] \\
+        \mc{L}_{Q}(\phi) = \mbb{E}_{\substack{(s,a,r,s^\prime) \sim \mc{D} \\ a^\prime_\pi \sim \pi_\theta(\cdot|s^\prime) \\  \epsilon \sim \mc{N}(0, I)}} \left[(Q_\phi(s,a) - \underbrace{(r - \gamma (Q_{\bar{\phi}}(s^\prime, a^\prime_\pi) - \alpha_Q (a_\pi^\prime - \mu_\theta(s^\prime, z))^2))}_{\text{Q target with BC penalty}})^2\right]
+      \end{gathered}
+    \end{equation*}
+    \begin{itemize}
+      \item First action $a^\prime$ is get from dataset and second action $a^\prime_\pi$ is generated from the BC flow policy.
+      \item $u\mu_\theta(s^\prime, z)$ is the generated action from the BC flow policy.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Experiment result}
+  \begin{block}{Baseline (FQL) performance on Antaze-large-navigate \& Humanoidmaze-large-navigate}
+    \begin{figure}[h]
+      \centering
+      \begin{subfigure}{0.35 \textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{antmaze_large_navigate_baseline.png}
+        \caption{Antmaze-large-navigate (baseline)}
+      \end{subfigure}
+      \begin{subfigure}{0.35 \textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{humanoidmaze_medium_navigate_baseline.png}
+        \caption{Humanoidmaze-medium-navigate (baseline)}
+      \end{subfigure}
+    \end{figure}
+
+    \begin{itemize}
+      \item In Antmaze-large-navigate, FQL + BC penalty shows better performance than baseline.
+      \item But in Humanoidmaze-medium-navigate, FQL + BC penalty shows worse performance than baseline.
+      \item It may need more hyperparameter tuning ($\alpha_Q$).
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Experiment result}
+  \begin{block}{Baseline (FQL) performance on Antaze-large-stitch \& Humanoidmaze-large-stitch}
+    \begin{itemize}
+      \item The performance for \tb{stitch datasets is not reported} in the FQL paper.
+    \end{itemize}
+    \begin{figure}[h]
+      \centering
+      \begin{subfigure}{0.35 \textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{antmaze_large_stitch_baseline.png}
+        \caption{Antmaze-large-stitch (baseline)}
+      \end{subfigure}
+      \begin{subfigure}{0.35 \textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{humanoidmaze_medium_stitch_baseline.png}
+        \caption{Humanoidmaze-medium-stitch (baseline)}
+      \end{subfigure}
+    \end{figure}
+
+    \begin{itemize}
+      \item In Antmaze-large-stitch, FQL + BC penalty shows better performance than baseline.
+      \item But in Humanoidmaze-medium-stitch, FQL + BC penalty shows worse performance than baseline.
+      \item It may need more hyperparameter tuning ($\alpha_Q$).
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+% https://tex.stackexchange.com/questions/541559/citep-vs-parencite
+% \citep - \parencite
+% \citet - \textcite
+% \citealp - \citealt - \cite
+
+\end{document}
+
