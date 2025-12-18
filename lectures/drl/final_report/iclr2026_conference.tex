@@ -7,32 +7,22 @@
 
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+% For arranging multiple sub-figures
+\usepackage{subcaption}
 
 
-\title{Uclidean distance-aware penalized Q Learning in Offline Reinforcement Learning}
+\title{Euclidean Distance-Aware Penalized Q Learning for Offline Reinforcement Learning}
 
 % Authors must not appear in the submitted version. They should be hidden
 % as long as the \iclrfinalcopy macro remains commented out below.
 % Non-anonymous submissions will be rejected without review.
 
-\author{Antiquus S.~Hippocampus, Natalia Cerebro \& Amelie P. Amygdale \thanks{ Use footnote for providing further information
-about author (webpage, alternative address)---\emph{not} for acknowledging
-funding agencies.  Funding acknowledgements go at the end of the paper.} \\
-Department of Computer Science\\
-Cranberry-Lemon University\\
-Pittsburgh, PA 15213, USA \\
-\texttt{\{hippo,brain,jen\}@cs.cranberry-lemon.edu} \\
-% \And
-% Ji Q. Ren \& Yevgeny LeNet \\
-% Department of Computational Neuroscience \\
-% University of the Witwatersrand \\
-% Joburg, South Africa \\
-% \texttt{\{robot,net\}@wits.ac.za} \\
-% \AND
-% Coauthor \\
-% Affiliation \\
-% Address \\
-% \texttt{email}
+\author{Gwanwoo Choi\thanks {first author}\\
+Department of Artificial Intelligence\\
+\texttt{cgw1999@unist.ac.kr} \\
 }
 
 % The \author macro works with any number of authors. There are two commands
@@ -53,362 +43,299 @@ Pittsburgh, PA 15213, USA \\
 \maketitle
 
 \begin{abstract}
-The abstract paragraph should be indented 1/2~inch (3~picas) on both left and
-right-hand margins. Use 10~point type, with a vertical spacing of 11~points.
-The word \textsc{Abstract} must be centered, in small caps, and in point size 12. Two
-line spaces precede the abstract. The abstract must be limited to one
-paragraph.
+Offline reinforcement learning (RL) learns a policy from a fixed dataset without further environment interaction, but it is vulnerable to out-of-distribution (OOD) actions and critic overestimation. We propose Distance-aware Penalized Q Learning (DPQL), a simple regularization approach that discourages OOD behavior by penalizing Q-targets using the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions, avoiding explicit reliance on behavior-policy likelihoods. We evaluate DPQL on D4RL Antmaze-v2 tasks, where offline agents must stitch together fragmented trajectories. DPQL outperforms Conservative Q-Learning (CQL) baselines on several environments, with particularly strong gains on medium mazes. We further analyze a failure case on Antmaze-umaze-diverse-v2 and find that performance degradation coincides with rapidly increasing maximum Q-values and signals of policy drift away from the dataset, suggesting renewed OOD behavior and critic overestimation. These results indicate that distance-based penalization is a promising direction for offline RL.
 \end{abstract}
 
-\section{Submission of conference papers to ICLR 2026}
+\section{Introduction}
+Deep reinforcement learning (RL) has achieved notable successes in online settings, where an agent improves through direct interaction with an environment. Landmark results in value-based learning and actor--critic methods have demonstrated that, given sufficient interaction data, deep neural policies can solve complex control problems \citep{mnihHumanlevelControlDeep2015,haarnojaSoftActorCriticAlgorithms2019}. Despite this progress, deploying online RL in real-world domains remains difficult: collecting interaction data can be expensive, time-consuming, or unsafe, and iterative trial-and-error is often infeasible when experiments must be performed on physical systems or high-stakes platforms.
 
-ICLR requires electronic submissions, processed by
-\url{https://openreview.net/}. See ICLR's website for more instructions.
+These limitations motivate \emph{offline} reinforcement learning, where the goal is to learn a high-performing policy from a fixed dataset of transitions without additional environment interaction. Offline RL is appealing because many practical domains already generate large volumes of logged experience (e.g., robotics logs, recommender feedback, or historical control traces), and learning purely from such data can avoid the costs and risks of exploration. However, the offline setting introduces a fundamental distribution shift: during training, the learned policy may propose actions that are rare or absent in the dataset, creating out-of-distribution (OOD) state--action pairs.
 
-If your paper is ultimately accepted, the statement {\tt
-  {\textbackslash}iclrfinalcopy} should be inserted to adjust the
-format to the camera ready requirements.
+This distribution shift poses a major challenge for value-based methods. When the critic is evaluated on unseen actions, approximation errors can be amplified by bootstrapping, leading to systematic overestimation and degraded policies \citep{fujimotoOffPolicyDeepReinforcement2019}. A prominent line of work therefore focuses on constraining policy improvement and/or learning \emph{conservative} value functions that avoid assigning unrealistically high values to OOD actions. Conservative Q-Learning (CQL) \citep{kumarConservativeQLearningOffline2020} is a representative approach: it augments the critic objective with a penalty that lowers Q-values for actions that are unlikely under the dataset, thereby reducing overestimation and improving robustness in offline settings.
 
-The format for the submissions is a variant of the NeurIPS format.
-Please read carefully the instructions below, and follow them
-faithfully.
+In this work, we build on this trend and propose Distance-aware Penalized Q Learning (DPQL), a simple alternative regularization strategy that does not require explicit access to the behavior policy. Instead of penalizing actions using likelihood ratios, DPQL uses an action-space distance penalty that discourages policy actions from drifting away from dataset actions, directly targeting OOD behavior. We evaluate DPQL on D4RL \citep{fuD4RLDatasetsDeep2021} Antmaze-v2 tasks, where offline algorithms must stitch together fragmented trajectories. DPQL improves over CQL baselines on several environments (notably the medium mazes), and our analysis highlights a failure mode on Antmaze-umaze-diverse-v2 that is associated with policy drift, increased OOD behavior, and critic overestimation.
 
-\subsection{Style}
+\noindent\textbf{Contributions.} (i) We introduce DPQL, a distance-aware penalty for offline Q-learning targets that encourages conservative value estimates without requiring behavior-policy likelihoods. (ii) We present empirical results on Antmaze-v2 showing improved performance over CQL baselines in multiple settings. (iii) We provide diagnostic analyses of Q-values and regularization signals to better understand both successes and failure cases.
 
-Papers to be submitted to ICLR 2026 must be prepared according to the
-instructions presented here.
+\section{Preliminary}
 
-%% Please note that we have introduced automatic line number generation
-%% into the style file for \LaTeXe. This is to help reviewers
-%% refer to specific lines of the paper when they make their comments. Please do
-%% NOT refer to these line numbers in your paper as they will be removed from the
-%% style file for the final version of accepted papers.
+\subsection{Offline Reinforcement Learning}
+% Offline reinforcement learning
+We assume a Markov decision process (MDP) \citep{suttonReinforcementLearning} $\gM$ defined by a tuple $(\gS, \gA, r, \rho, p)$, where $\gS$ is the state space, $\gA$ is the action space, $r: \gS \times \gA \to \sR$ is the reward function, $\rho \in \Delta(\gS)$ is the initial state distribution, and $p: \gS \times \gA \to \Delta(\gS)$ is the transition probability. For any domain $\gX$, $\Delta(\gX)$ denotes the set of all probability distributions over $\gX$.
 
-Authors are required to use the ICLR \LaTeX{} style files obtainable at the
-ICLR website. Please make sure you use the current files and
-not previous versions. Tweaking the style files may be grounds for rejection.
+Offline reinforcement learning (RL) aims to learn a policy without interacting with the environment, relying solely on a pre-collected dataset $\gD$. The objective is to learn a stationary policy $\pi_\theta \in \Pi$ that maximizes the expected discounted return
+$R(\pi_\theta) = \mathbb{E}_{\tau \sim p^{\pi_\theta}}\big[\sum^T_{t=0} \gamma^t r(s_t, a_t)\big]$, where $\gamma$ is the discount factor and $p^{\pi_\theta}(\tau)$ is the trajectory distribution induced by $\pi_\theta$ and the MDP dynamics.
+We assume the dataset is collected by a behavior policy $\beta \in \Pi$ and is given by $\gD = \{(s_i, a_i, r_i, s_i^\prime)\}_{i=1}^N$.
 
-\subsection{Retrieval of style files}
+Compared to online RL, offline RL faces additional challenges due to distribution shift between the learned policy and the fixed dataset \citep{kumarConservativeQLearningOffline2020,fujimotoOffPolicyDeepReinforcement2019}. A major challenge is out-of-distribution (OOD) actions: the critic $Q(s,a)$ can be inaccurate for state--action pairs $(s,a)$ when the action $a$ is rare or absent in $\gD$. Consequently, $Q(s,a)$ is often overestimated on unseen actions, degrading policy learning \citep{fujimotoOffPolicyDeepReinforcement2019}.
 
-The style files for ICLR and other conference information are available online at:
-\begin{center}
-   \url{http://www.iclr.cc/}
-\end{center}
-The file \verb+iclr2026_conference.pdf+ contains these
-instructions and illustrates the
-various formatting requirements your ICLR paper must satisfy.
-Submissions must be made using \LaTeX{} and the style files
-\verb+iclr2026_conference.sty+ and \verb+iclr2026_conference.bst+ (to be used with \LaTeX{}2e). The file
-\verb+iclr2026_conference.tex+ may be used as a ``shell'' for writing your paper. All you
-have to do is replace the author, title, abstract, and text of the paper with
-your own.
+\subsection{Conservative Q Learning (CQL)}
 
-The formatting instructions contained in these style files are summarized in
-sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
+In CQL \citep{kumarConservativeQLearningOffline2020}, the authors proposed a penalized Q-learning method to address the overestimation problem.
+Rather than eliminating OOD actions directly, CQL encourages conservative value estimates by decreasing Q-values for actions that are unlikely under the dataset distribution.
+\begin{equation} \label{eq:cql_critic}
+   \begin{aligned}
+      \min_{\theta} \max_\mu\ &\alpha_{Q}\left(\E_{\substack{s \sim \gD \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right] - \E_{(s,a) \sim \gD} \left[Q_\theta(s,a)\right] \right) \\ &+ \frac{1}{2} \E_{\substack{(s,a,r,s^\prime) \sim \gD \\ \hat{a}^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ (Q_\theta(s,a) - \left(r + \gamma Q_{\bar{\theta}}(s^\prime, \hat{a}^\prime)\right))^2 \right] + \gR(\mu)
+   \end{aligned}
+\end{equation}
+Here $\alpha_Q$ is the hyperparameter controlling the strength of the penalty, and $\mu \in \Pi$ is the sampling distribution for the first expectation term.
+$\gR(\mu)$ is the regularization term for $\mu$.
+Typically $\mu$ is set to be the uniform distribution and $\gR(\mu)$ is set to be the entropy of $\mu$.
+$\bar{\theta}$ denotes the parameters of the target Q network \citep{mnihHumanlevelControlDeep2015}.
 
-\section{General formatting instructions}
-\label{gen_inst}
-
-The text must be confined within a rectangle 5.5~inches (33~picas) wide and
-9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).
-Use 10~point type with a vertical spacing of 11~points. Times New Roman is the
-preferred typeface throughout. Paragraphs are separated by 1/2~line space,
-with no indentation.
-
-Paper title is 17~point, in small caps and left-aligned.
-All pages should start at 1~inch (6~picas) from the top of the page.
-
-Authors' names are
-set in boldface, and each name is placed above its corresponding
-address. The lead author's name is to be listed first, and
-the co-authors' names are set to follow. Authors sharing the
-same address can be on the same line.
-
-Please pay special attention to the instructions in section \ref{others}
-regarding figures, tables, acknowledgments, and references.
+CQL can be applied to both actor--critic methods \citep{suttonPolicyGradientMethods1999,mnihAsynchronousMethodsDeep2016,haarnojaSoftActorCriticAlgorithms2019} and Q-learning methods \citep{mnihHumanlevelControlDeep2015}. For comparison with our method, we focus on the actor--critic version of CQL. In this framework, the actor is trained to maximize the following objective:
+\begin{equation} \label{eq:cql_actor}
+   \max_\phi \E_{\substack{s \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[  Q_\theta(s, \hat{a})\right] + \alpha_\pi \gH(\pi_\phi(\cdot|s))
+\end{equation}
+This objective matches the actor objective in Soft Actor-Critic \citep{haarnojaSoftActorCriticAlgorithms2019}. Here, $\alpha_\pi$ controls the strength of the entropy regularization $\gH$. With conservative Q-values, the learned policy can be trained with entropy regularization while mitigating overestimation.
 
 
-There will be a strict upper limit of \textbf{9 pages} for the main text of the initial submission, with unlimited additional pages for citations. This limit will be expanded to \textbf{10 pages} for rebuttal/camera ready.
 
-\section{Headings: first level}
-\label{headings}
+\section{Methodology}
+Previous methods \citep{kumarConservativeQLearningOffline2020} penalize Q-learning based on quantities related to the behavior policy. In contrast, we propose a regularizer based on the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions.
 
-First level headings are in small caps,
-flush left and in point size 12. One line space before the first level
-heading and 1/2~line space after the first level heading.
+\begin{equation} \label{eq:dpql_critic}
+\gL_Q(\theta) = \mathbb{E}_{\substack{(s,a, r, s^\prime) \sim \gD \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left( Q_\theta(s,a) - \left(r + \gamma Q_{\bar{\theta}}(s^\prime, a^\prime) - \frac{\alpha_Q}{K} \sum_{i=1}^{K} \lVert \hat{a}_i - a \rVert_2 \right)\right)^2  \right],\quad \hat{a}_i \sim \pi_\phi(\cdot|s).
+\end{equation}
 
-\subsection{Headings: second level}
+Here, $K$ is the number of action samples used to estimate the distance penalty for each state.
 
-Second level headings are in small caps,
-flush left and in point size 10. One line space before the second level
-heading and 1/2~line space after the second level heading.
+Our method, Distance-aware Penalized Q Learning (DPQL), uses a different actor objective from CQL.
+\begin{equation} \label{eq:dpql_actor}
+   \gL_\pi(\phi) = \E_{\substack{s \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}}\left[ -Q_\theta(s, \hat{a}) \right] + \alpha_\pi D_{\text{KL}}(\pi_\phi(\cdot|s) \| \beta(\cdot|s))
+\end{equation}
 
-\subsubsection{Headings: third level}
+Since we cannot access $\beta$, directly computing $D_{\text{KL}}\big(\pi_\phi(\cdot|s) \| \beta(\cdot|s)\big)$ is not feasible.
+In practice, we use a Lagrangian relaxation that constrains a likelihood-gap proxy using only $\pi_\phi$ and dataset actions, as shown in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}. These equations provide a practical surrogate for the intended behavior-regularization in Equation \ref{eq:dpql_actor}.
+Here, $\tau$ is a hyperparameter that controls the strength of the likelihood-gap constraint in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}.
 
-Third level headings are in small caps,
-flush left and in point size 10. One line space before the third level
-heading and 1/2~line space after the third level heading.
+\begin{gather}
+   \gL_\pi(\phi)= \E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[ -Q_\theta(s,\hat{a}) + \alpha_\pi ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau) \right]\label{eq:dpql_actor_lagrangian} \\
+   \gL(\alpha_\pi) = \E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[-\alpha_\pi ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau)\right]\label{eq:dpql_actor_lagrangian_alpha}
+\end{gather}
 
-\section{Citations, figures, tables, references}
-\label{others}
+The key idea in DPQL is that the penalty in the critic objective (Equation \ref{eq:dpql_critic}) is based on the Euclidean distance between an action sampled from the current policy and the corresponding dataset action.
+We also modify the actor objective from Equation \ref{eq:cql_actor} to the Lagrangian form in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}. While CQL uses an entropy term, DPQL uses a behavior-regularization term and its practical likelihood-gap surrogate.
 
-These instructions apply to everyone, regardless of the formatter being used.
 
-\subsection{Citations within the text}
+\section{Experiments}
 
-Citations within the text should be based on the \texttt{natbib} package
-and include the authors' last names and year (with the ``et~al.'' construct
-for more than two authors). When the authors or the publication are
-included in the sentence, the citation should not be in parenthesis using \verb|\citet{}| (as
-in ``See \citet{Hinton06} for more information.''). Otherwise, the citation
-should be in parenthesis using \verb|\citep{}| (as in ``Deep learning shows promise to make progress
-towards AI~\citep{Bengio+chapter2007}.'').
+\subsection{Experimental Setup}
+In many offline RL works, D4RL \citep{fuD4RLDatasetsDeep2021} is one of the most widely used benchmarks. D4RL provides a variety of datasets collected in different ways, including expert demonstrations, partially expert demonstrations, and random policy interactions.
 
-The corresponding references are to be listed in alphabetical order of
-authors, in the \textsc{References} section. As to the format of the
-references themselves, any style is acceptable as long as it is used
-consistently.
+In D4RL, there exists several environments including Gym-MuJoCo, Maze2D, AntMaze, Adroit, and FrankaKitchen.
+Among these environments, We selected AntMaze because it effectively evaluates the stitching capability of offline RL algorithms, which is a critical requirement for scaling RL to real-world applications where data is often fragmented.
+One can see the demonstration of AntMaze environment in Figure \ref{fig:antmaze}.
 
-\subsection{Footnotes}
+In the AntMaze environment, maze size varies and produces different difficulty levels.
+Specifically, there are three maze sizes: Umaze, Medium, and Large.
+Difficulty increases from Umaze to Large because rewards become sparser.
 
-Indicate footnotes with a number\footnote{Sample of the first footnote} in the
-text. Place the footnotes at the bottom of the page on which they appear.
-Precede the footnote with a horizontal rule of 2~inches
-(12~picas).\footnote{Sample of the second footnote}
+There are two dataset types: play and diverse.
+The "play" dataset contains trajectories where the robot is guided between specific, hand-picked locations rather than random points. These trajectories mimic human-like play, focusing on movement between particular areas that may not match the final evaluation goal, and reflect scenarios where agents learn from sub-trajectories collected during human-driven activities.
+The "diverse" dataset is generated by commanding the Ant robot to reach randomly selected goals from random starting locations. This yields broad, uniform exploration and tests an offline RL algorithm's ability to stitch together disparate trajectory segments to reach a target.
 
-\subsection{Figures}
-
-All artwork must be neat, clean, and legible. Lines should be dark
-enough for purposes of reproduction; art work should not be
-hand-drawn. The figure number and caption always appear after the
-figure. Place one line space before the figure caption, and one line
-space after the figure. The figure caption is lower case (except for
-first word and proper nouns); figures are numbered consecutively.
-
-Make sure the figure caption does not get separated from the figure.
-Leave sufficient space to avoid splitting the figure and figure caption.
-
-You may use color figures.
-However, it is best for the
-figure captions and the paper body to make sense if the paper is printed
-either in black/white or in color.
+All experiments were conducted on Antmaze-v2.
 \begin{figure}[h]
-\begin{center}
-%\framebox[4.0in]{$\;$}
-\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-\end{center}
-\caption{Sample figure caption.}
+\centering
+\includegraphics[width=0.5\linewidth]{pngs/antmaze.png}
+\caption{AntMaze Environment Description}
+\label{fig:antmaze}
 \end{figure}
 
-\subsection{Tables}
+\subsection{Experimental Results}
+\subsubsection{Baselines}
+We compare our method, Distance-aware Penalized Q Learning (DPQL), with Conservative Q Learning (CQL).
+We consider two variants of CQL. CQL$(\gH)$ corresponds to Equation \ref{eq:cql_critic} with entropy regularization (i.e., $\gR = \gH$). The Lagrangian version of CQL$(\gH)$ adapts the penalty coefficient $\alpha_Q$ via a Lagrangian formulation rather than using a fixed hyperparameter. Equations \ref{eq:cql_lagrangian_critic} and \ref{eq:cql_lagrangian_critic_alpha} describe the critic objectives for Lagrangian CQL$(\gH)$.
 
-All tables must be centered, neat, clean and legible. Do not use hand-drawn
-tables. The table number and title always appear before the table. See
-Table~\ref{sample-table}.
+\begin{gather} \label{eq:cql_lagrangian_critic}
+   \begin{aligned}  
+      \gL_Q(\theta) &= \alpha_Q \left( \E_{(s,a)\sim \gD} \left[ \log \sum_{\hat{a}} \exp(Q_\theta (s,\hat{a})) - Q_\theta(s,a) \right] \right) \\&+ \frac{1}{2} \E_{\substack{(s,a,r,s^\prime) \sim \gD \\ \hat{a}^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left( Q_\theta(s,a) - \left( r+ \gamma Q_\theta(s^\prime, \hat{a}^\prime)\right) \right)^2  \right]
+   \end{aligned} \\
+   \gL(\alpha_Q) = \alpha_Q \left(\E_{(s,a) \sim \gD} \left[ \log \sum_{\hat{a}} \exp(Q_\theta(s, \hat{a})) - Q_\theta(s,a) \right]\right) \label{eq:cql_lagrangian_critic_alpha}
+\end{gather}
 
-Place one line space before the table title, one line space after the table
-title, and one line space after the table. The table title must be lower case
-(except for first word and proper nouns); tables are numbered consecutively.
 
-\begin{table}[t]
-\caption{Sample table title}
-\label{sample-table}
-\begin{center}
-\begin{tabular}{ll}
-\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-\\ \hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
-\end{tabular}
-\end{center}
+\subsubsection{Performance Comparison}
+Overall performance between baselines and our method is summarized in Table \ref{tab:antmaze_results}.
+These results are obtained using fixed hyperparameters selected via grid search. In other words, DPQL uses the same hyperparameters across all environments.
+
+Table \ref{tab:antmaze_results} shows that DPQL substantially improves over the baselines, especially on the Antmaze-medium-v2 datasets. In other settings, both CQL$(\gH)$ and Lagrangian CQL$(\gH)$ perform worse than DPQL.
+
+However, DPQL fails on Antmaze-umaze-diverse-v2. Improving robustness in this setting is left for future work.
+
+\begin{table}
+\centering
+\resizebox{0.90\textwidth}{!}{
+   \begin{tabular}{lccc}
+   \toprule
+      \textbf{Method} & CQL($\gH$) & CQL($\gH$) Lagrangian & DPQL\\
+      \midrule
+      \textbf{AntMaze-umaze-v2} & 94.4 $\pm$ 15.7 & 52.0 $\pm$ 37.1 &  100 $\pm$ 0  \\
+      \textbf{AntMaze-umaze-diverse-v2}  & 0 $\pm$ 0 & 25.5 $\pm$ 28.5 &  0 $\pm$ 0        \\
+      \textbf{Antmaze-medium-play-v2} & 1.56$\pm$ 4.42 &  0 $\pm$ 0 & 70.0 $\pm$ 20.4 \\ 
+      \textbf{Antmaze-medium-diverse-v2} & 0$\pm$ 0 & 1.56 $\pm$ 4.42 &  34.4 $\pm$ 43.8    \\
+      \textbf{Antmaze-large-play-v2} & 1.56 $\pm$ 4.42 & 0 $\pm$ 0  &  0  $\pm$ 0\\
+      \textbf{Antmaze-large-diverse-v2} & 0 $\pm$ 0  & 0 $\pm$ 0 &  0 $\pm$ 0 \\
+      \bottomrule
+   \end{tabular}
+}
+\caption{Performance comparison across different environments}
+\label{tab:antmaze_results}
 \end{table}
 
-\section{Default Notation}
 
-In an attempt to encourage standardized notation, we have included the
-notation file from the textbook, \textit{Deep Learning}
-\cite{goodfellow2016deep} available at
-\url{https://github.com/goodfeli/dlbook_notation/}.  Use of this style
-is not required and can be disabled by commenting out
-\texttt{math\_commands.tex}.
+\subsection{Analysis}
 
+It is surprising that DPQL fails on Antmaze-umaze-diverse-v2, since it is often considered one of the easier Antmaze-v2 tasks.
+We therefore analyze this failure case.
+\subsubsection{Q-Value Analysis}
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:q_max_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
+   \caption{Max Q-values across training steps}
+   \label{fig:q_max}
+\end{figure}
 
-\centerline{\bf Numbers and Arrays}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1in}p{3.25in}}
-$\displaystyle a$ & A scalar (integer or real)\\
-$\displaystyle \va$ & A vector\\
-$\displaystyle \mA$ & A matrix\\
-$\displaystyle \tA$ & A tensor\\
-$\displaystyle \mI_n$ & Identity matrix with $n$ rows and $n$ columns\\
-$\displaystyle \mI$ & Identity matrix with dimensionality implied by context\\
-$\displaystyle \ve^{(i)}$ & Standard basis vector $[0,\dots,0,1,0,\dots,0]$ with a 1 at position $i$\\
-$\displaystyle \text{diag}(\va)$ & A square, diagonal matrix with diagonal entries given by $\va$\\
-$\displaystyle \ra$ & A scalar random variable\\
-$\displaystyle \rva$ & A vector-valued random variable\\
-$\displaystyle \rmA$ & A matrix-valued random variable\\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+In Table \ref{tab:antmaze_results}, DPQL shows poor performance on Antmaze-umaze-diverse-v2.
+To analyze the reason of this failure case, we plot the max Q-values across training steps in Figure \ref{fig:q_max}.
+Figure \ref{fig:q_max_umaze_diverse} shows that the maximum Q-values increase rapidly compared to other environments, indicating critic overestimation in Antmaze-umaze-diverse-v2. In the other environments, Q-values remain comparatively conservative throughout training.
 
-\centerline{\bf Sets and Graphs}
-\bgroup
-\def\arraystretch{1.5}
+\subsubsection{Q Penalty Analysis}
 
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle \sA$ & A set\\
-$\displaystyle \R$ & The set of real numbers \\
-$\displaystyle \{0, 1\}$ & The set containing 0 and 1 \\
-$\displaystyle \{0, 1, \dots, n \}$ & The set of all integers between $0$ and $n$\\
-$\displaystyle [a, b]$ & The real interval including $a$ and $b$\\
-$\displaystyle (a, b]$ & The real interval excluding $a$ but including $b$\\
-$\displaystyle \sA \backslash \sB$ & Set subtraction, i.e., the set containing the elements of $\sA$ that are not in $\sB$\\
-$\displaystyle \gG$ & A graph\\
-$\displaystyle \parents_\gG(\ervx_i)$ & The parents of $\ervx_i$ in $\gG$
-\end{tabular}
-\vspace{0.25cm}
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:q_penalty_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
 
+   \caption{Q-penalty term across training steps}
+   \label{fig:q_penalty}
+\end{figure}
 
-\centerline{\bf Indexing}
-\bgroup
-\def\arraystretch{1.5}
+Figure \ref{fig:q_penalty} shows the trend of the Q-penalty term in Equation \ref{eq:dpql_critic} across training steps.
+The Q-penalty term measures the average $\ell_2$ distance between actions sampled from the policy and the corresponding dataset action, i.e. $\frac{1}{K}\sum_{i=1}^{K} \lVert \hat{a}_i - a \rVert_2$.
+Reducing this term helps keep the policy's actions close to those in the dataset, mitigating OOD behavior and critic overestimation.
+In Antmaze-umaze-diverse-v2, Figure \ref{fig:q_penalty_umaze_diverse} shows that the Q-penalty term rebounds after an initial decrease, indicating that the policy drifts away from dataset actions and becomes more prone to overestimation.
 
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle \eva_i$ & Element $i$ of vector $\va$, with indexing starting at 1 \\
-$\displaystyle \eva_{-i}$ & All elements of vector $\va$ except for element $i$ \\
-$\displaystyle \emA_{i,j}$ & Element $i, j$ of matrix $\mA$ \\
-$\displaystyle \mA_{i, :}$ & Row $i$ of matrix $\mA$ \\
-$\displaystyle \mA_{:, i}$ & Column $i$ of matrix $\mA$ \\
-$\displaystyle \etA_{i, j, k}$ & Element $(i, j, k)$ of a 3-D tensor $\tA$\\
-$\displaystyle \tA_{:, :, i}$ & 2-D slice of a 3-D tensor\\
-$\displaystyle \erva_i$ & Element $i$ of the random vector $\rva$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:kl_divergence_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
 
+   \caption{Likelihood-gap (KL surrogate) term across training steps}
+   \label{fig:kl_divergence}
+\end{figure}
 
-\centerline{\bf Calculus}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-% NOTE: the [2ex] on the next line adds extra height to that row of the table.
-% Without that command, the fraction on the first line is too tall and collides
-% with the fraction on the second line.
-$\displaystyle\frac{d y} {d x}$ & Derivative of $y$ with respect to $x$\\ [2ex]
-$\displaystyle \frac{\partial y} {\partial x} $ & Partial derivative of $y$ with respect to $x$ \\
-$\displaystyle \nabla_\vx y $ & Gradient of $y$ with respect to $\vx$ \\
-$\displaystyle \nabla_\mX y $ & Matrix derivatives of $y$ with respect to $\mX$ \\
-$\displaystyle \nabla_\tX y $ & Tensor containing derivatives of $y$ with respect to $\tX$ \\
-$\displaystyle \frac{\partial f}{\partial \vx} $ & Jacobian matrix $\mJ \in \R^{m\times n}$ of $f: \R^n \rightarrow \R^m$\\
-$\displaystyle \nabla_\vx^2 f(\vx)\text{ or }\mH( f)(\vx)$ & The Hessian matrix of $f$ at input point $\vx$\\
-$\displaystyle \int f(\vx) d\vx $ & Definite integral over the entire domain of $\vx$ \\
-$\displaystyle \int_\sS f(\vx) d\vx$ & Definite integral with respect to $\vx$ over the set $\sS$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+Figure \ref{fig:kl_divergence} shows the trend of the likelihood-gap (KL surrogate) term in Equation \ref{eq:dpql_actor_lagrangian} across training steps.
+Concretely, it measures the log-likelihood gap between a policy-sampled action and the corresponding dataset action under the current policy,
+$\E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}}[\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)]$.
+As training progresses, this term stays relatively stable across most environments, except for Antmaze-umaze-diverse-v2.
+In Antmaze-umaze-diverse-v2, Figure \ref{fig:kl_divergence_umaze_diverse} shows that the term grows rapidly, suggesting that the policy increasingly assigns much higher likelihood to its own sampled actions than to dataset actions.
+This behavior is consistent with policy drift and can contribute to critic overestimation, aligning with the exploding Q-values in Figure \ref{fig:q_max_umaze_diverse}.
 
-\centerline{\bf Probability and Information Theory}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle P(\ra)$ & A probability distribution over a discrete variable\\
-$\displaystyle p(\ra)$ & A probability distribution over a continuous variable, or over
-a variable whose type has not been specified\\
-$\displaystyle \ra \sim P$ & Random variable $\ra$ has distribution $P$\\% so thing on left of \sim should always be a random variable, with name beginning with \r
-$\displaystyle  \E_{\rx\sim P} [ f(x) ]\text{ or } \E f(x)$ & Expectation of $f(x)$ with respect to $P(\rx)$ \\
-$\displaystyle \Var(f(x)) $ &  Variance of $f(x)$ under $P(\rx)$ \\
-$\displaystyle \Cov(f(x),g(x)) $ & Covariance of $f(x)$ and $g(x)$ under $P(\rx)$\\
-$\displaystyle H(\rx) $ & Shannon entropy of the random variable $\rx$\\
-$\displaystyle \KL ( P \Vert Q ) $ & Kullback-Leibler divergence of P and Q \\
-$\displaystyle \mathcal{N} ( \vx ; \vmu , \mSigma)$ & Gaussian distribution %
-over $\vx$ with mean $\vmu$ and covariance $\mSigma$ \\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+\section{Conclusion}
 
-\centerline{\bf Functions}
-\bgroup
-\def\arraystretch{1.5}
-\begin{tabular}{p{1.25in}p{3.25in}}
-$\displaystyle f: \sA \rightarrow \sB$ & The function $f$ with domain $\sA$ and range $\sB$\\
-$\displaystyle f \circ g $ & Composition of the functions $f$ and $g$ \\
-  $\displaystyle f(\vx ; \vtheta) $ & A function of $\vx$ parametrized by $\vtheta$.
-  (Sometimes we write $f(\vx)$ and omit the argument $\vtheta$ to lighten notation) \\
-$\displaystyle \log x$ & Natural logarithm of $x$ \\
-$\displaystyle \sigma(x)$ & Logistic sigmoid, $\displaystyle \frac{1} {1 + \exp(-x)}$ \\
-$\displaystyle \zeta(x)$ & Softplus, $\log(1 + \exp(x))$ \\
-$\displaystyle || \vx ||_p $ & $\normlp$ norm of $\vx$ \\
-$\displaystyle || \vx || $ & $\normltwo$ norm of $\vx$ \\
-$\displaystyle x^+$ & Positive part of $x$, i.e., $\max(0,x)$\\
-$\displaystyle \1_\mathrm{condition}$ & is 1 if the condition is true, 0 otherwise\\
-\end{tabular}
-\egroup
-\vspace{0.25cm}
+We proposed Distance-aware Penalized Q Learning (DPQL), a simple regularization scheme for offline actor--critic methods that penalizes Q-targets based on the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions. Unlike conservative regularizers that directly rely on an explicit behavior-policy likelihood, DPQL uses an action-space distance penalty to discourage out-of-distribution actions while still enabling policy improvement.
 
+In experiments on Antmaze-v2, DPQL achieved consistently stronger performance than CQL baselines on several tasks, with particularly large gains on the medium mazes, indicating improved stitching under fragmented offline data. However, DPQL failed on Antmaze-umaze-diverse-v2. Our analysis shows that this failure correlates with rapidly increasing maximum Q-values, suggesting critic overestimation. We further observe that the Q-penalty term rebounds and the KL-related constraint signal can grow sharply late in training, implying that the policy drifts away from dataset actions and increases OOD behavior, which in turn exacerbates Q overestimation.
 
-
-\section{Final instructions}
-Do not change any aspects of the formatting parameters in the style files.
-In particular, do not modify the width or length of the rectangle the text
-should fit into, and do not change font sizes (except perhaps in the
-\textsc{References} section; see below). Please note that pages should be
-numbered.
-
-\section{Preparing PostScript or PDF files}
-
-Please prepare PostScript or PDF files with paper size ``US Letter'', and
-not, for example, ``A4''. The -t
-letter option on dvips will produce US Letter files.
-
-Consider directly generating PDF files using \verb+pdflatex+
-(especially if you are a MiKTeX user).
-PDF figures must be substituted for EPS figures, however.
-
-Otherwise, please generate your PostScript and PDF files with the following commands:
-\begin{verbatim}
-dvips mypaper.dvi -t letter -Ppdf -G0 -o mypaper.ps
-ps2pdf mypaper.ps mypaper.pdf
-\end{verbatim}
-
-\subsection{Margins in LaTeX}
-
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+
-from the graphicx package. Always specify the figure width as a multiple of
-the line width as in the example below using .eps graphics
-\begin{verbatim}
-   \usepackage[dvips]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.eps}
-\end{verbatim}
-or % Apr 2009 addition
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.pdf}
-\end{verbatim}
-for .pdf graphics.
-See section~4.4 in the graphics bundle documentation (\url{http://www.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.ps})
-
-A number of width problems arise when LaTeX cannot properly hyphenate a
-line. Please give LaTeX hyphenation hints using the \verb+\-+ command.
-
-\subsubsection*{Author Contributions}
-If you'd like to, you may include  a section for author contributions as is done
-in many journals. This is optional and at the discretion of the authors.
-
-\subsubsection*{Acknowledgments}
-Use unnumbered third level headings for the acknowledgments. All
-acknowledgments, including those to funding agencies, go at the end of the paper.
-
+These results suggest that distance-based penalization is a promising direction for offline RL, but robustness depends on reliably keeping the policy close to the data distribution throughout training. Future work includes stabilizing the constraint/dual updates, improving the calibration of the distance penalty (e.g., scheduling or normalization), and investigating additional mechanisms to prevent late-stage policy drift on diverse datasets.
 
 \bibliography{iclr2026_conference}
 \bibliographystyle{iclr2026_conference}
 
 \appendix
 \section{Appendix}
-You may include other additional sections here.
-
 
 \end{document}

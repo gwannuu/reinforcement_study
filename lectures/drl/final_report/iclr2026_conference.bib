@@ -22,3 +22,138 @@ volume={1},
 year={2016},
 publisher={MIT Press}
 }
+
+@article{kumarConservativeQLearningOffline2020,
+title = {Conservative {{Q-Learning}} for {{Offline Reinforcement Learning}}},
+shorttitle = {{{CQL}}},
+author = {Kumar, Aviral and Zhou, Aurick and Tucker, George and Levine, Sergey},
+year = 2020,
+month = aug,
+number = {arXiv:2006.04779},
+eprint = {2006.04779},
+primaryclass = {cs},
+publisher = {arXiv},
+doi = {10.48550/arXiv.2006.04779},
+url = {http://arxiv.org/abs/2006.04779},
+urldate = {2025-09-04},
+abstract = {Effectively leveraging large, previously collected datasets in reinforcement learning (RL) is a key challenge for large-scale real-world applications. Offline RL algorithms promise to learn effective policies from previously-collected, static datasets without further interaction. However, in practice, offline RL presents a major challenge, and standard off-policy RL methods can fail due to overestimation of values induced by the distributional shift between the dataset and the learned policy, especially when training on complex and multi-modal data distributions. In this paper, we propose conservative Q-learning (CQL), which aims to address these limitations by learning a conservative Q-function such that the expected value of a policy under this Q-function lower-bounds its true value. We theoretically show that CQL produces a lower bound on the value of the current policy and that it can be incorporated into a policy learning procedure with theoretical improvement guarantees. In practice, CQL augments the standard Bellman error objective with a simple Q-value regularizer which is straightforward to implement on top of existing deep Q-learning and actor-critic implementations. On both discrete and continuous control domains, we show that CQL substantially outperforms existing offline RL methods, often learning policies that attain 2-5 times higher final return, especially when learning from complex and multi-modal data distributions.},
+archiveprefix = {arXiv},
+keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+file = {/home/unist/Zotero/storage/Z5Z3PCRU/Kumar et al. - 2020 - Conservative Q-Learning for Offline Reinforcement Learning.pdf;/home/unist/Zotero/storage/XNITY5EB/2006.html}
+}
+
+@misc{fujimotoOffPolicyDeepReinforcement2019,
+  title = {Off-{{Policy Deep Reinforcement Learning}} without {{Exploration}} ({{BCQ}})},
+  shorttitle = {{{BCQ}}},
+  author = {Fujimoto, Scott and Meger, David and Precup, Doina},
+  year = 2019,
+  month = aug,
+  number = {arXiv:1812.02900},
+  eprint = {1812.02900},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1812.02900},
+  urldate = {2025-09-08},
+  abstract = {Many practical applications of reinforcement learning constrain agents to learn from a fixed batch of data which has already been gathered, without offering further possibility for data collection. In this paper, we demonstrate that due to errors introduced by extrapolation, standard off-policy deep reinforcement learning algorithms, such as DQN and DDPG, are incapable of learning with data uncorrelated to the distribution under the current policy, making them ineffective for this fixed batch setting. We introduce a novel class of off-policy algorithms, batch-constrained reinforcement learning, which restricts the action space in order to force the agent towards behaving close to on-policy with respect to a subset of the given data. We present the first continuous control deep reinforcement learning algorithm which can learn effectively from arbitrary, fixed batch data, and empirically demonstrate the quality of its behavior in several tasks.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {C\:\\Users\\kwanw\\Zotero\\storage\\RKVJ4GPD\\Fujimoto et al. - 2019 - Off-Policy Deep Reinforcement Learning without Exploration.pdf;C\:\\Users\\kwanw\\Zotero\\storage\\7AEC67ZS\\1812.html}
+}
+
+@book{suttonReinforcementLearning,
+  title = {Reinforcement {{Learning}}},
+  author = {Sutton, Richard S and Barto, Andrew G},
+  file = {C:\Users\kwanw\Zotero\storage\B5ZGLI7Y\adsf.pdf},
+  year = {1998},
+  publisher = {MIT Press},
+}
+
+
+@article{mnihHumanlevelControlDeep2015,
+  title = {Human-Level Control through Deep Reinforcement Learning},
+  author = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and Rusu, Andrei A. and Veness, Joel and Bellemare, Marc G. and Graves, Alex and Riedmiller, Martin and Fidjeland, Andreas K. and Ostrovski, Georg and Petersen, Stig and Beattie, Charles and Sadik, Amir and Antonoglou, Ioannis and King, Helen and Kumaran, Dharshan and Wierstra, Daan and Legg, Shane and Hassabis, Demis},
+  year = 2015,
+  month = feb,
+  journal = {Nature},
+  volume = {518},
+  number = {7540},
+  pages = {529--533},
+  publisher = {Nature Publishing Group},
+  issn = {1476-4687},
+  doi = {10.1038/nature14236},
+  urldate = {2025-05-07},
+  abstract = {An artificial agent is developed that learns to play~a diverse range of classic Atari 2600 computer games directly from sensory experience, achieving a~performance comparable to that of an expert human player; this work paves the way to building general-purpose learning algorithms that bridge the divide between perception and action.},
+  copyright = {2015 Springer Nature Limited},
+  langid = {english},
+  keywords = {Computer science},
+  file = {C:\Users\kwanw\Zotero\storage\M7TS7JNV\Mnih et al. - 2015 - Human-level control through deep reinforcement learning.pdf}
+}
+
+
+@inproceedings{suttonPolicyGradientMethods1999,
+  title = {Policy {{Gradient Methods}} for {{Reinforcement Learning}} with {{Function Approximation}} ({{REINFORCE}})},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Sutton, Richard S and McAllester, David and Singh, Satinder and Mansour, Yishay},
+  year = 1999,
+  volume = {12},
+  publisher = {MIT Press},
+  urldate = {2025-04-09},
+  abstract = {Function  approximation  is  essential  to  reinforcement  learning,  but  the standard approach of approximating a  value function and deter(cid:173) mining  a  policy  from  it  has so  far  proven theoretically  intractable.  In this paper we explore an alternative approach in which the policy  is explicitly represented by its own function approximator,  indepen(cid:173) dent of the value function,  and is  updated according to the gradient  of expected reward with respect to the policy parameters.  Williams's  REINFORCE method and actor-critic methods are examples of this  approach.  Our  main  new  result  is  to  show  that  the  gradient  can  be  written  in  a  form  suitable  for  estimation  from  experience  aided  by  an  approximate  action-value  or  advantage  function.  Using  this  result,  we  prove for  the first  time that a  version  of policy  iteration  with arbitrary differentiable function approximation is convergent to  a  locally optimal policy.},
+  keywords = {policy gradient},
+  file = {C:\Users\kwanw\Zotero\storage\F3S9XSME\Sutton et al. - 1999 - Policy Gradient Methods for Reinforcement Learning with Function Approximation.pdf}
+}
+
+
+@misc{mnihAsynchronousMethodsDeep2016,
+  title = {Asynchronous {{Methods}} for {{Deep Reinforcement Learning}}},
+  author = {Mnih, Volodymyr and Badia, Adri{\`a} Puigdom{\`e}nech and Mirza, Mehdi and Graves, Alex and Lillicrap, Timothy P. and Harley, Tim and Silver, David and Kavukcuoglu, Koray},
+  year = 2016,
+  month = jun,
+  number = {arXiv:1602.01783},
+  eprint = {1602.01783},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1602.01783},
+  urldate = {2025-12-18},
+  abstract = {We propose a conceptually simple and lightweight framework for deep reinforcement learning that uses asynchronous gradient descent for optimization of deep neural network controllers. We present asynchronous variants of four standard reinforcement learning algorithms and show that parallel actor-learners have a stabilizing effect on training allowing all four methods to successfully train neural network controllers. The best performing method, an asynchronous variant of actor-critic, surpasses the current state-of-the-art on the Atari domain while training for half the time on a single multi-core CPU instead of a GPU. Furthermore, we show that asynchronous actor-critic succeeds on a wide variety of continuous motor control problems as well as on a new task of navigating random 3D mazes using a visual input.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Machine Learning},
+  file = {C\:\\Users\\kwanw\\Zotero\\storage\\6XP5X8JS\\Mnih et al. - 2016 - Asynchronous Methods for Deep Reinforcement Learning.pdf;C\:\\Users\\kwanw\\Zotero\\storage\\ACZ6BFMG\\1602.html}
+}
+
+@misc{haarnojaSoftActorCriticAlgorithms2019,
+  title = {Soft {{Actor-Critic Algorithms}} and {{Applications}} ({{SAC2}})},
+  shorttitle = {{{SAC}}},
+  author = {Haarnoja, Tuomas and Zhou, Aurick and Hartikainen, Kristian and Tucker, George and Ha, Sehoon and Tan, Jie and Kumar, Vikash and Zhu, Henry and Gupta, Abhishek and Abbeel, Pieter and Levine, Sergey},
+  year = 2019,
+  month = jan,
+  number = {arXiv:1812.05905},
+  eprint = {1812.05905},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1812.05905},
+  urldate = {2025-09-17},
+  abstract = {Model-free deep reinforcement learning (RL) algorithms have been successfully applied to a range of challenging sequential decision making and control tasks. However, these methods typically suffer from two major challenges: high sample complexity and brittleness to hyperparameters. Both of these challenges limit the applicability of such methods to real-world domains. In this paper, we describe Soft Actor-Critic (SAC), our recently introduced off-policy actor-critic algorithm based on the maximum entropy RL framework. In this framework, the actor aims to simultaneously maximize expected return and entropy. That is, to succeed at the task while acting as randomly as possible. We extend SAC to incorporate a number of modifications that accelerate training and improve stability with respect to the hyperparameters, including a constrained formulation that automatically tunes the temperature hyperparameter. We systematically evaluate SAC on a range of benchmark tasks, as well as real-world challenging tasks such as locomotion for a quadrupedal robot and robotic manipulation with a dexterous hand. With these improvements, SAC achieves state-of-the-art performance, outperforming prior on-policy and off-policy methods in sample-efficiency and asymptotic performance. Furthermore, we demonstrate that, in contrast to other off-policy algorithms, our approach is very stable, achieving similar performance across different random seeds. These results suggest that SAC is a promising candidate for learning in real-world robotics tasks.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Computer Science - Robotics,Statistics - Machine Learning},
+  file = {C\:\\Users\\kwanw\\Zotero\\storage\\AA3QIGUN\\Haarnoja et al. - 2019 - Soft Actor-Critic Algorithms and Applications.pdf;C\:\\Users\\kwanw\\Zotero\\storage\\GD2UJFZ8\\1812.html}
+}
+
+@misc{fuD4RLDatasetsDeep2021,
+  title = {{{D4RL}}: {{Datasets}} for {{Deep Data-Driven Reinforcement Learning}}},
+  shorttitle = {{{D4RL}}},
+  author = {Fu, Justin and Kumar, Aviral and Nachum, Ofir and Tucker, George and Levine, Sergey},
+  year = 2021,
+  month = feb,
+  number = {arXiv:2004.07219},
+  eprint = {2004.07219},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2004.07219},
+  url = {http://arxiv.org/abs/2004.07219},
+  urldate = {2025-09-09},
+  abstract = {The offline reinforcement learning (RL) setting (also known as full batch RL), where a policy is learned from a static dataset, is compelling as progress enables RL methods to take advantage of large, previously-collected datasets, much like how the rise of large datasets has fueled results in supervised learning. However, existing online RL benchmarks are not tailored towards the offline setting and existing offline RL benchmarks are restricted to data generated by partially-trained agents, making progress in offline RL difficult to measure. In this work, we introduce benchmarks specifically designed for the offline setting, guided by key properties of datasets relevant to real-world applications of offline RL. With a focus on dataset collection, examples of such properties include: datasets generated via hand-designed controllers and human demonstrators, multitask datasets where an agent performs different tasks in the same environment, and datasets collected with mixtures of policies. By moving beyond simple benchmark tasks and data collected by partially-trained RL agents, we reveal important and unappreciated deficiencies of existing algorithms. To facilitate research, we have released our benchmark tasks and datasets with a comprehensive evaluation of existing algorithms, an evaluation protocol, and open-source examples. This serves as a common starting point for the community to identify shortcomings in existing offline RL methods and a collaborative route for progress in this emerging area.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {/home/unist/Zotero/storage/U2B2GJ8M/Fu et al. - 2021 - D4RL Datasets for Deep Data-Driven Reinforcement Learning.pdf;/home/unist/Zotero/storage/CYCFDCUS/2004.html}
+}
