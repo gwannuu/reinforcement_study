@@ -1,0 +1,341 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+% For arranging multiple sub-figures
+\usepackage{subcaption}
+
+
+\title{Euclidean Distance-Aware Penalized Q Learning for Offline Reinforcement Learning}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Gwanwoo Choi\thanks {first author}\\
+Department of Artificial Intelligence\\
+\texttt{cgw1999@unist.ac.kr} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+Offline reinforcement learning (RL) learns a policy from a fixed dataset without further environment interaction, but it is vulnerable to out-of-distribution (OOD) actions and critic overestimation. We propose Distance-aware Penalized Q Learning (DPQL), a simple regularization approach that discourages OOD behavior by penalizing Q-targets using the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions, avoiding explicit reliance on behavior-policy likelihoods. We evaluate DPQL on D4RL Antmaze-v2 tasks, where offline agents must stitch together fragmented trajectories. DPQL outperforms Conservative Q-Learning (CQL) baselines on several environments, with particularly strong gains on medium mazes. We further analyze a failure case on Antmaze-umaze-diverse-v2 and find that performance degradation coincides with rapidly increasing maximum Q-values and signals of policy drift away from the dataset, suggesting renewed OOD behavior and critic overestimation. These results indicate that distance-based penalization is a promising direction for offline RL.
+\end{abstract}
+
+\section{Introduction}
+Deep reinforcement learning (RL) has achieved notable successes in online settings, where an agent improves through direct interaction with an environment. Landmark results in value-based learning and actor--critic methods have demonstrated that, given sufficient interaction data, deep neural policies can solve complex control problems \citep{mnihHumanlevelControlDeep2015,haarnojaSoftActorCriticAlgorithms2019}. Despite this progress, deploying online RL in real-world domains remains difficult: collecting interaction data can be expensive, time-consuming, or unsafe, and iterative trial-and-error is often infeasible when experiments must be performed on physical systems or high-stakes platforms.
+
+These limitations motivate \emph{offline} reinforcement learning, where the goal is to learn a high-performing policy from a fixed dataset of transitions without additional environment interaction. Offline RL is appealing because many practical domains already generate large volumes of logged experience (e.g., robotics logs, recommender feedback, or historical control traces), and learning purely from such data can avoid the costs and risks of exploration. However, the offline setting introduces a fundamental distribution shift: during training, the learned policy may propose actions that are rare or absent in the dataset, creating out-of-distribution (OOD) state--action pairs.
+
+This distribution shift poses a major challenge for value-based methods. When the critic is evaluated on unseen actions, approximation errors can be amplified by bootstrapping, leading to systematic overestimation and degraded policies \citep{fujimotoOffPolicyDeepReinforcement2019}. A prominent line of work therefore focuses on constraining policy improvement and/or learning \emph{conservative} value functions that avoid assigning unrealistically high values to OOD actions. Conservative Q-Learning (CQL) \citep{kumarConservativeQLearningOffline2020} is a representative approach: it augments the critic objective with a penalty that lowers Q-values for actions that are unlikely under the dataset, thereby reducing overestimation and improving robustness in offline settings.
+
+In this work, we build on this trend and propose Distance-aware Penalized Q Learning (DPQL), a simple alternative regularization strategy that does not require explicit access to the behavior policy. Instead of penalizing actions using likelihood ratios, DPQL uses an action-space distance penalty that discourages policy actions from drifting away from dataset actions, directly targeting OOD behavior. We evaluate DPQL on D4RL \citep{fuD4RLDatasetsDeep2021} Antmaze-v2 tasks, where offline algorithms must stitch together fragmented trajectories. DPQL improves over CQL baselines on several environments (notably the medium mazes), and our analysis highlights a failure mode on Antmaze-umaze-diverse-v2 that is associated with policy drift, increased OOD behavior, and critic overestimation.
+
+\noindent\textbf{Contributions.} (i) We introduce DPQL, a distance-aware penalty for offline Q-learning targets that encourages conservative value estimates without requiring behavior-policy likelihoods. (ii) We present empirical results on Antmaze-v2 showing improved performance over CQL baselines in multiple settings. (iii) We provide diagnostic analyses of Q-values and regularization signals to better understand both successes and failure cases.
+
+\section{Preliminary}
+
+\subsection{Offline Reinforcement Learning}
+% Offline reinforcement learning
+We assume a Markov decision process (MDP) \citep{suttonReinforcementLearning} $\gM$ defined by a tuple $(\gS, \gA, r, \rho, p)$, where $\gS$ is the state space, $\gA$ is the action space, $r: \gS \times \gA \to \sR$ is the reward function, $\rho \in \Delta(\gS)$ is the initial state distribution, and $p: \gS \times \gA \to \Delta(\gS)$ is the transition probability. For any domain $\gX$, $\Delta(\gX)$ denotes the set of all probability distributions over $\gX$.
+
+Offline reinforcement learning (RL) aims to learn a policy without interacting with the environment, relying solely on a pre-collected dataset $\gD$. The objective is to learn a stationary policy $\pi_\theta \in \Pi$ that maximizes the expected discounted return
+$R(\pi_\theta) = \mathbb{E}_{\tau \sim p^{\pi_\theta}}\big[\sum^T_{t=0} \gamma^t r(s_t, a_t)\big]$, where $\gamma$ is the discount factor and $p^{\pi_\theta}(\tau)$ is the trajectory distribution induced by $\pi_\theta$ and the MDP dynamics.
+We assume the dataset is collected by a behavior policy $\beta \in \Pi$ and is given by $\gD = \{(s_i, a_i, r_i, s_i^\prime)\}_{i=1}^N$.
+
+Compared to online RL, offline RL faces additional challenges due to distribution shift between the learned policy and the fixed dataset \citep{kumarConservativeQLearningOffline2020,fujimotoOffPolicyDeepReinforcement2019}. A major challenge is out-of-distribution (OOD) actions: the critic $Q(s,a)$ can be inaccurate for state--action pairs $(s,a)$ when the action $a$ is rare or absent in $\gD$. Consequently, $Q(s,a)$ is often overestimated on unseen actions, degrading policy learning \citep{fujimotoOffPolicyDeepReinforcement2019}.
+
+\subsection{Conservative Q Learning (CQL)}
+
+In CQL \citep{kumarConservativeQLearningOffline2020}, the authors proposed a penalized Q-learning method to address the overestimation problem.
+Rather than eliminating OOD actions directly, CQL encourages conservative value estimates by decreasing Q-values for actions that are unlikely under the dataset distribution.
+\begin{equation} \label{eq:cql_critic}
+   \begin{aligned}
+      \min_{\theta} \max_\mu\ &\alpha_{Q}\left(\E_{\substack{s \sim \gD \\ a \sim \mu(\cdot|s)}}\left[Q_\theta(s,a)\right] - \E_{(s,a) \sim \gD} \left[Q_\theta(s,a)\right] \right) \\ &+ \frac{1}{2} \E_{\substack{(s,a,r,s^\prime) \sim \gD \\ \hat{a}^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ (Q_\theta(s,a) - \left(r + \gamma Q_{\bar{\theta}}(s^\prime, \hat{a}^\prime)\right))^2 \right] + \gR(\mu)
+   \end{aligned}
+\end{equation}
+Here $\alpha_Q$ is the hyperparameter controlling the strength of the penalty, and $\mu \in \Pi$ is the sampling distribution for the first expectation term.
+$\gR(\mu)$ is the regularization term for $\mu$.
+Typically $\mu$ is set to be the uniform distribution and $\gR(\mu)$ is set to be the entropy of $\mu$.
+$\bar{\theta}$ denotes the parameters of the target Q network \citep{mnihHumanlevelControlDeep2015}.
+
+CQL can be applied to both actor--critic methods \citep{suttonPolicyGradientMethods1999,mnihAsynchronousMethodsDeep2016,haarnojaSoftActorCriticAlgorithms2019} and Q-learning methods \citep{mnihHumanlevelControlDeep2015}. For comparison with our method, we focus on the actor--critic version of CQL. In this framework, the actor is trained to maximize the following objective:
+\begin{equation} \label{eq:cql_actor}
+   \max_\phi \E_{\substack{s \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[  Q_\theta(s, \hat{a})\right] + \alpha_\pi \gH(\pi_\phi(\cdot|s))
+\end{equation}
+This objective matches the actor objective in Soft Actor-Critic \citep{haarnojaSoftActorCriticAlgorithms2019}. Here, $\alpha_\pi$ controls the strength of the entropy regularization $\gH$. With conservative Q-values, the learned policy can be trained with entropy regularization while mitigating overestimation.
+
+
+
+\section{Methodology}
+Previous methods \citep{kumarConservativeQLearningOffline2020} penalize Q-learning based on quantities related to the behavior policy. In contrast, we propose a regularizer based on the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions.
+
+\begin{equation} \label{eq:dpql_critic}
+\gL_Q(\theta) = \mathbb{E}_{\substack{(s,a, r, s^\prime) \sim \gD \\ a^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left( Q_\theta(s,a) - \left(r + \gamma Q_{\bar{\theta}}(s^\prime, a^\prime) - \frac{\alpha_Q}{K} \sum_{i=1}^{K} \lVert \hat{a}_i - a \rVert_2 \right)\right)^2  \right],\quad \hat{a}_i \sim \pi_\phi(\cdot|s).
+\end{equation}
+
+Here, $K$ is the number of action samples used to estimate the distance penalty for each state.
+
+Our method, Distance-aware Penalized Q Learning (DPQL), uses a different actor objective from CQL.
+\begin{equation} \label{eq:dpql_actor}
+   \gL_\pi(\phi) = \E_{\substack{s \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}}\left[ -Q_\theta(s, \hat{a}) \right] + \alpha_\pi D_{\text{KL}}(\pi_\phi(\cdot|s) \| \beta(\cdot|s))
+\end{equation}
+
+Since we cannot access $\beta$, directly computing $D_{\text{KL}}\big(\pi_\phi(\cdot|s) \| \beta(\cdot|s)\big)$ is not feasible.
+In practice, we use a Lagrangian relaxation that constrains a likelihood-gap proxy using only $\pi_\phi$ and dataset actions, as shown in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}. These equations provide a practical surrogate for the intended behavior-regularization in Equation \ref{eq:dpql_actor}.
+Here, $\tau$ is a hyperparameter that controls the strength of the likelihood-gap constraint in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}.
+
+\begin{gather}
+   \gL_\pi(\phi)= \E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[ -Q_\theta(s,\hat{a}) + \alpha_\pi ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau) \right]\label{eq:dpql_actor_lagrangian} \\
+   \gL(\alpha_\pi) = \E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}} \left[-\alpha_\pi ((\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)) - \tau)\right]\label{eq:dpql_actor_lagrangian_alpha}
+\end{gather}
+
+The key idea in DPQL is that the penalty in the critic objective (Equation \ref{eq:dpql_critic}) is based on the Euclidean distance between an action sampled from the current policy and the corresponding dataset action.
+We also modify the actor objective from Equation \ref{eq:cql_actor} to the Lagrangian form in Equations \ref{eq:dpql_actor_lagrangian} and \ref{eq:dpql_actor_lagrangian_alpha}. While CQL uses an entropy term, DPQL uses a behavior-regularization term and its practical likelihood-gap surrogate.
+
+
+\section{Experiments}
+
+\subsection{Experimental Setup}
+In many offline RL works, D4RL \citep{fuD4RLDatasetsDeep2021} is one of the most widely used benchmarks. D4RL provides a variety of datasets collected in different ways, including expert demonstrations, partially expert demonstrations, and random policy interactions.
+
+In D4RL, there exists several environments including Gym-MuJoCo, Maze2D, AntMaze, Adroit, and FrankaKitchen.
+Among these environments, We selected AntMaze because it effectively evaluates the stitching capability of offline RL algorithms, which is a critical requirement for scaling RL to real-world applications where data is often fragmented.
+One can see the demonstration of AntMaze environment in Figure \ref{fig:antmaze}.
+
+In the AntMaze environment, maze size varies and produces different difficulty levels.
+Specifically, there are three maze sizes: Umaze, Medium, and Large.
+Difficulty increases from Umaze to Large because rewards become sparser.
+
+There are two dataset types: play and diverse.
+The "play" dataset contains trajectories where the robot is guided between specific, hand-picked locations rather than random points. These trajectories mimic human-like play, focusing on movement between particular areas that may not match the final evaluation goal, and reflect scenarios where agents learn from sub-trajectories collected during human-driven activities.
+The "diverse" dataset is generated by commanding the Ant robot to reach randomly selected goals from random starting locations. This yields broad, uniform exploration and tests an offline RL algorithm's ability to stitch together disparate trajectory segments to reach a target.
+
+All experiments were conducted on Antmaze-v2.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{pngs/antmaze.png}
+\caption{AntMaze Environment Description}
+\label{fig:antmaze}
+\end{figure}
+
+\subsection{Experimental Results}
+\subsubsection{Baselines}
+We compare our method, Distance-aware Penalized Q Learning (DPQL), with Conservative Q Learning (CQL).
+We consider two variants of CQL. CQL$(\gH)$ corresponds to Equation \ref{eq:cql_critic} with entropy regularization (i.e., $\gR = \gH$). The Lagrangian version of CQL$(\gH)$ adapts the penalty coefficient $\alpha_Q$ via a Lagrangian formulation rather than using a fixed hyperparameter. Equations \ref{eq:cql_lagrangian_critic} and \ref{eq:cql_lagrangian_critic_alpha} describe the critic objectives for Lagrangian CQL$(\gH)$.
+
+\begin{gather} \label{eq:cql_lagrangian_critic}
+   \begin{aligned}  
+      \gL_Q(\theta) &= \alpha_Q \left( \E_{(s,a)\sim \gD} \left[ \log \sum_{\hat{a}} \exp(Q_\theta (s,\hat{a})) - Q_\theta(s,a) \right] \right) \\&+ \frac{1}{2} \E_{\substack{(s,a,r,s^\prime) \sim \gD \\ \hat{a}^\prime \sim \pi_\phi(\cdot|s^\prime)}} \left[ \left( Q_\theta(s,a) - \left( r+ \gamma Q_\theta(s^\prime, \hat{a}^\prime)\right) \right)^2  \right]
+   \end{aligned} \\
+   \gL(\alpha_Q) = \alpha_Q \left(\E_{(s,a) \sim \gD} \left[ \log \sum_{\hat{a}} \exp(Q_\theta(s, \hat{a})) - Q_\theta(s,a) \right]\right) \label{eq:cql_lagrangian_critic_alpha}
+\end{gather}
+
+
+\subsubsection{Performance Comparison}
+Overall performance between baselines and our method is summarized in Table \ref{tab:antmaze_results}.
+These results are obtained using fixed hyperparameters selected via grid search. In other words, DPQL uses the same hyperparameters across all environments.
+
+Table \ref{tab:antmaze_results} shows that DPQL substantially improves over the baselines, especially on the Antmaze-medium-v2 datasets. In other settings, both CQL$(\gH)$ and Lagrangian CQL$(\gH)$ perform worse than DPQL.
+
+However, DPQL fails on Antmaze-umaze-diverse-v2. Improving robustness in this setting is left for future work.
+
+\begin{table}
+\centering
+\resizebox{0.90\textwidth}{!}{
+   \begin{tabular}{lccc}
+   \toprule
+      \textbf{Method} & CQL($\gH$) & CQL($\gH$) Lagrangian & DPQL\\
+      \midrule
+      \textbf{AntMaze-umaze-v2} & 94.4 $\pm$ 15.7 & 52.0 $\pm$ 37.1 &  100 $\pm$ 0  \\
+      \textbf{AntMaze-umaze-diverse-v2}  & 0 $\pm$ 0 & 25.5 $\pm$ 28.5 &  0 $\pm$ 0        \\
+      \textbf{Antmaze-medium-play-v2} & 1.56$\pm$ 4.42 &  0 $\pm$ 0 & 70.0 $\pm$ 20.4 \\ 
+      \textbf{Antmaze-medium-diverse-v2} & 0$\pm$ 0 & 1.56 $\pm$ 4.42 &  34.4 $\pm$ 43.8    \\
+      \textbf{Antmaze-large-play-v2} & 1.56 $\pm$ 4.42 & 0 $\pm$ 0  &  0  $\pm$ 0\\
+      \textbf{Antmaze-large-diverse-v2} & 0 $\pm$ 0  & 0 $\pm$ 0 &  0 $\pm$ 0 \\
+      \bottomrule
+   \end{tabular}
+}
+\caption{Performance comparison across different environments}
+\label{tab:antmaze_results}
+\end{table}
+
+
+\subsection{Analysis}
+
+It is surprising that DPQL fails on Antmaze-umaze-diverse-v2, since it is often considered one of the easier Antmaze-v2 tasks.
+We therefore analyze this failure case.
+\subsubsection{Q-Value Analysis}
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:q_max_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/q_max_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
+   \caption{Max Q-values across training steps}
+   \label{fig:q_max}
+\end{figure}
+
+In Table \ref{tab:antmaze_results}, DPQL shows poor performance on Antmaze-umaze-diverse-v2.
+To analyze the reason of this failure case, we plot the max Q-values across training steps in Figure \ref{fig:q_max}.
+Figure \ref{fig:q_max_umaze_diverse} shows that the maximum Q-values increase rapidly compared to other environments, indicating critic overestimation in Antmaze-umaze-diverse-v2. In the other environments, Q-values remain comparatively conservative throughout training.
+
+\subsubsection{Q Penalty Analysis}
+
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:q_penalty_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/gap_distance_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
+
+   \caption{Q-penalty term across training steps}
+   \label{fig:q_penalty}
+\end{figure}
+
+Figure \ref{fig:q_penalty} shows the trend of the Q-penalty term in Equation \ref{eq:dpql_critic} across training steps.
+The Q-penalty term measures the average $\ell_2$ distance between actions sampled from the policy and the corresponding dataset action, i.e. $\frac{1}{K}\sum_{i=1}^{K} \lVert \hat{a}_i - a \rVert_2$.
+Reducing this term helps keep the policy's actions close to those in the dataset, mitigating OOD behavior and critic overestimation.
+In Antmaze-umaze-diverse-v2, Figure \ref{fig:q_penalty_umaze_diverse} shows that the Q-penalty term rebounds after an initial decrease, indicating that the policy drifts away from dataset actions and becomes more prone to overestimation.
+
+\begin{figure}[h]
+   \centering
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_umaze.png}
+      \caption{Antmaze-umaze-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_umaze_diverse.png}
+      \caption{Antmaze-umaze-diverse-v2}
+      \label{fig:kl_divergence_umaze_diverse}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_medium_play.png}
+      \caption{Antmaze-medium-play-v2}
+   \end{subfigure}
+   
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_medium_diverse.png}
+      \caption{Antmaze-medium-diverse-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_large_play.png}
+      \caption{Antmaze-large-play-v2}
+   \end{subfigure}
+   \begin{subfigure}[b]{0.32\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{pngs/kl_divergence_large_diverse.png}
+      \caption{Antmaze-large-diverse-v2}
+   \end{subfigure}
+
+   \caption{Likelihood-gap (KL surrogate) term across training steps}
+   \label{fig:kl_divergence}
+\end{figure}
+
+Figure \ref{fig:kl_divergence} shows the trend of the likelihood-gap (KL surrogate) term in Equation \ref{eq:dpql_actor_lagrangian} across training steps.
+Concretely, it measures the log-likelihood gap between a policy-sampled action and the corresponding dataset action under the current policy,
+$\E_{\substack{(s,a) \sim \gD \\ \hat{a} \sim \pi_\phi(\cdot|s)}}[\log \pi_\phi(\hat{a}|s) - \log \pi_\phi(a|s)]$.
+As training progresses, this term stays relatively stable across most environments, except for Antmaze-umaze-diverse-v2.
+In Antmaze-umaze-diverse-v2, Figure \ref{fig:kl_divergence_umaze_diverse} shows that the term grows rapidly, suggesting that the policy increasingly assigns much higher likelihood to its own sampled actions than to dataset actions.
+This behavior is consistent with policy drift and can contribute to critic overestimation, aligning with the exploding Q-values in Figure \ref{fig:q_max_umaze_diverse}.
+
+\section{Conclusion}
+
+We proposed Distance-aware Penalized Q Learning (DPQL), a simple regularization scheme for offline actor--critic methods that penalizes Q-targets based on the Euclidean distance between actions sampled from the current policy and the corresponding dataset actions. Unlike conservative regularizers that directly rely on an explicit behavior-policy likelihood, DPQL uses an action-space distance penalty to discourage out-of-distribution actions while still enabling policy improvement.
+
+In experiments on Antmaze-v2, DPQL achieved consistently stronger performance than CQL baselines on several tasks, with particularly large gains on the medium mazes, indicating improved stitching under fragmented offline data. However, DPQL failed on Antmaze-umaze-diverse-v2. Our analysis shows that this failure correlates with rapidly increasing maximum Q-values, suggesting critic overestimation. We further observe that the Q-penalty term rebounds and the KL-related constraint signal can grow sharply late in training, implying that the policy drifts away from dataset actions and increases OOD behavior, which in turn exacerbates Q overestimation.
+
+These results suggest that distance-based penalization is a promising direction for offline RL, but robustness depends on reliably keeping the policy close to the data distribution throughout training. Future work includes stabilizing the constraint/dual updates, improving the calibration of the distance penalty (e.g., scheduling or normalization), and investigating additional mechanisms to prevent late-stage policy drift on diverse datasets.
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{iclr2026_conference}
+
+\appendix
+\section{Appendix}
+
+\end{document}
