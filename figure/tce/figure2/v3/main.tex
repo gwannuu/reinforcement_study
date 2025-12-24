@@ -1,0 +1,69 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{tikz}
+
+% 1. 중앙 정렬 컬럼 정의
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+% 2. 색상 정의
+\definecolor{boxMint}{RGB}{197, 247, 234}
+\definecolor{lineOrange}{RGB}{240, 156, 78}
+\definecolor{boxPurple}{RGB}{135, 111, 239}
+
+% 3. 투명 박스 (너비 고정용)
+\newcommand{\iconBox}[1]{\makebox[1.8em][c]{#1}}
+
+\begin{document}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.8}
+
+\begin{tabular}{ M{0.8cm} M{3cm} M{2.5cm} } 
+\toprule[1.5pt]
+
+\textbf{Idx.} & \textbf{Method} & \textbf{Hyperparams} \\ 
+\midrule
+
+% --- (a) ---
+\textbf{(a)} & 
+% [박스] 높이 -0.3em + (1.2em / 2) = 중심 +0.3em (정중앙)
+\iconBox{\textcolor{boxMint}{\rule[-0.3em]{1.2em}{1.2em}}}\ \ \ TCE(NN)\ \ \ \ & 
+$\begin{gathered}
+    \lambda_{\text{cov}} \in (0,1] \\
+    \lambda_{\text{mix}} \in (0,1]
+\end{gathered}$ \\ 
+\cmidrule(lr){1-3}
+
+% --- (b) ---
+\textbf{(b)} & 
+% [수정됨] 주황색 선
+% 기존 0.4em -> 0.22em으로 낮춤
+% 계산: 0.22em(시작점) + 1.25pt(반두께) ≈ 0.3em(글자중심)
+\iconBox{\textcolor{lineOrange}{\rule[0.22em]{1.5em}{2.5pt}}}\ \ \ TCE(OG)\ \ \ \ & 
+$\begin{gathered}
+    \lambda_{\text{cov}} \in (0,1] \\
+    \lambda_{\text{mix}} = 0
+\end{gathered}$ \\ 
+\cmidrule(lr){1-3}
+
+% --- (c) ---
+\textbf{(c)} & 
+% [수정됨] 보라색 원
+% 기존 baseline=-0.1em -> -0.3em으로 변경
+% 의미: 원의 중심(0,0)을 텍스트 베이스라인보다 0.3em 위로 끌어올림
+\iconBox{\tikz[baseline=-0.3em]{\fill[boxPurple] (0,0) circle (0.45em);}} 
+\ Simple Aug.\ & 
+$\begin{gathered}
+    \lambda_{\text{cov}} = 0 \\
+    \lambda_{\text{mix}} = 0
+\end{gathered}$ \\ 
+
+\bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+\end{document}

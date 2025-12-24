@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage{amsmath}  % 수식 입력용
+\usepackage[table]{xcolor} % 색상 및 표 관련
+\usepackage{array}    % 세로 중앙 정렬(m 컬럼)용
+
+% 1. 이미지와 비슷한 색상 정의 (RGB 값 조절 가능)
+\definecolor{myMint}{RGB}{200, 240, 230}   % (a) 민트색
+\definecolor{myOrange}{RGB}{235, 120, 50}  % (b) 주황색
+\definecolor{myPurple}{RGB}{110, 80, 230}  % (c) 보라색
+
+\begin{document}
+
+% 2. 표의 행 높이를 넉넉하게 설정 (기본값 1.0)
+\renewcommand{\arraystretch}{2.2}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|m{6cm}|m{4cm}|} % m{너비}: 세로 중앙 정렬
+\hline
+% 첫 번째 행 (a)
+\textbf{(a)} \hspace{2mm} 
+\textcolor{myMint}{\rule[-2pt]{1.2em}{1.2em}} % 색상 사각형 (너비, 높이)
+\hspace{2mm} TCE(NN) & 
+$\begin{aligned}
+    \lambda_{cov} &\in (0,1] \\
+    \lambda_{mix} &\in (0,1]
+\end{aligned}$ \\ \hline
+
+% 두 번째 행 (b)
+\textbf{(b)} \hspace{2mm} 
+\textcolor{myOrange}{\rule[3pt]{1.5em}{2.5pt}} % 색상 선 (위치 보정, 너비, 높이)
+\hspace{2mm} TCE(OG) & 
+$\begin{aligned}
+    \lambda_{cov} &\in (0,1] \\
+    \lambda_{mix} &= 0
+\end{aligned}$ \\ \hline
+
+% 세 번째 행 (c)
+\textbf{(c)} \hspace{2mm} 
+\textcolor{myPurple}{\rule[-1pt]{0.8em}{0.8em}} % 작은 사각형
+\hspace{2mm} Simple Aug. & 
+$\begin{aligned}
+    \lambda_{cov} &= 0 \\
+    \lambda_{mix} &= 0
+\end{aligned}$ \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}
