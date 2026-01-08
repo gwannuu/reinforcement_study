@@ -16,6 +16,17 @@
 \setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
 \setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
 
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.3}pt,\fpeval{\beamer@paperheight*1.3}pt},
+  hmargin=\fpeval{0.5 * 1.0}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.3}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.3}cm% 0.5cm
+}
+\makeatother
+
 % 테마 선택 (선택 사항)
 % \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
 % \font{serif}
@@ -40,6 +51,8 @@
 \newtheorem{proposition}[theorem]{Proposition}
 
 \usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing} % 중괄호(brace)를 그리기 위한 라이브러리
 
 % 필요할 경우 패키지 추가
 \usepackage{graphicx} % 이미지 삽입을 위한 패키지
@@ -49,6 +62,7 @@
 \usepackage{multicol}  % 여러 열 나누기
 \usepackage{ulem} % 취소선 및줄 나누기
 \usepackage{mathtools} % dcases
+
 %\usepackage{xparse} % NewDocumentCommand
 
 
@@ -499,6 +513,7 @@
         Proof.
         Since $S$ is bounded, by Axiom $\nu = \inf S, \mu = \sup S$ exist.
         Clearly, $S \subseteq [\nu, \mu]$.
+        Let $a_0= \nu$, $b_0 = \mu$.
         Let $c_0 = (a_0 + b_0)/2$.
         Then either $[a_0, c_0]$ or $[c_0, b_0]$ contains infinitely many points of $S$, for otherwise $S$ would be a finite set.
         Let $I_1 =[a_1, b_1]$ denote whichever of the intervals $[a_0, c_0]$ or $[c_0, b_0]$ contains infinitely many points of $S$.
@@ -508,7 +523,15 @@
         Continue this procecure, repeatedly bisecting each interval $[a_k, b_k]$ and choosing $I_{k+1} = [a_{k+1}, b_{k+1}]$ to be the half of $[a_k, b_k]$ that contains infinitely many points of $S$.
 
         In this way, we can obtain $T = \{I_k \mid \forall k \in \mbb{N}\}$ of closed intervals with the following properties:
-        For each $k \in \mbb{N}$, (1.) $S \cap I_k$ is infinite (2.) $I_{k+1} \subset I_k$ (3.) The length of $I_k$ is $b_k - a_k = (b_0 - a_0)/ 2^k$.
+        \begin{block}{}
+            For each $k \in \mbb{N}$,
+            
+            (1.) $S \cap I_k$ is infinite.
+            
+            (2.) $I_{k+1} \subset I_k$.
+            
+            (3.) The length of $I_k$ is $b_k - a_k = (b_0 - a_0)/ 2^k$.
+        \end{block}
 
         From this fact, for any $k \in \mbb{N}$ and $m \geq k, m \in \mbb{N}$, $a_0 \leq a_k \leq a_m \leq b_m \leq b_k \leq b_0$ holds (the reason why this equation is exercise!).
         Let $A = \{a_k \mid \forall k \in \mbb{N}\}$ be the set of all left endpoints of the intervals $I_k$ and $B = \{b_k \mid \forall k \in \mbb{N}\}$.
@@ -539,7 +562,7 @@
         Now we see that $x_0$ is limit point.
         Assign any positive value to $\epsilon$.
         By Archimedes' principle, choose a $k$ in $\mbb{N}$ such that $ b_k - a_k = (b_0 - a_0)/2^k <\epsilon$.
-        Then combining with $a_k \leq x_0 \leq b_k$, $x_0 + \epsilon > x_0 + (b_k - a_k) = b_k - (x_0 - a_k) \leq b_k$ holds.
+        Then combining with $a_k \leq x_0 \leq b_k$, $x_0 + \epsilon > x_0 + (b_k - a_k) = b_k + (x_0 - a_k) \geq b_k$ holds.
         Also, $x_0 - \epsilon < x_0 - (b_k - a_k) = a_k - (b_k - x_0) \leq a_k$ holds.
         So, $a_k, b_k \in N^\prime(x_0; \epsilon)$. and there exists infinitely many points of $S$ between $a_k$ and $b_k$.
 
@@ -688,15 +711,15 @@
         The limit of a convergent sequence in $\mbb{R}$ is unique.
 
         proof. we have to prove that $\{x_k\}$ converges to both $x_0$ and $x_0^\prime \implies x_0 = x_0^\prime$.
-        Let assume $x_0 = x_0^\prime$.
+        Let assume $x_0 \neq x_0^\prime$.
         Then by choosing $0 < \epsilon < \abs{x_0 - x_0^\prime}/2$, we will obtain a contradiction.
         Since $\lim_{k \to \infty} x_k = x_0$, we can choose $k_1 \in \mbb{N}$ such that $\forall k \geq k_1, x_k \in N(x_0; \epsilon)$.
         Similarly, we can choose $k_2 \in \mbb{N}$ such that, $\forall k \geq k_2, x_k \in N(x_0^\prime; \epsilon)$.
 
         Let $k_0 = \max(k_1, k_2)$.
         Then $k_0 \in N(x_0; \epsilon)$ and $k_0 \in N(x_0^\prime; \epsilon)$.
-        So, $\abs{x_0 - x_0^\prime} = \abs{x_0 - x_k + x_k - x_0^\prime} \leq \abs{x_0 - x_k} + \abs{x_k - x_0^\prime} < \epsilon + \epsilon = 2\epsilon$.
-        But by assumption, $2\epsilon < \abs{x_0 - x_0^\prime}$ and this is contradiction because $\abs{x_0 - x_0^\prime} < \abs{x_0 0 x_0^\prime}$ could not be hold.
+        So for any $k \geq k_0$, $\abs{x_0 - x_0^\prime} = \abs{x_0 - x_k + x_k - x_0^\prime} \leq \abs{x_0 - x_k} + \abs{x_k - x_0^\prime} < \epsilon + \epsilon = 2\epsilon$.
+        But by assumption, $2\epsilon < \abs{x_0 - x_0^\prime}$ and this is contradiction.
         $\qed$
     \end{theorem}
 
@@ -704,17 +727,73 @@
         If a sequence has two (or more) cluster points, then it must diverge.
 
         \smallskip
-        Our next result provides a logical fulcrum on which many of our subsequent arguments will hinge.
+        proof. skip
     \end{theorem}
-
     Recall that \ref{ex:3} has \underline{two cluster points} and therefore \underline{diverges}.
-    
-
 \end{frame}
 
 \begin{frame}{.}
-    \begin{figure}
-        \includegraphics[width=0.7\textwidth]{theorem1.3.3.png}
+    Our next result provides a logical fulcrum on which many of our subsequent arguments will hinge.
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            % -------------------------------------------------------
+            % 1. 좌표 설정 (사용자 요청에 맞춰 정렬)
+            % x_0 = -2 로 가정
+            % x_0의 반경 1 Neighborhood: (-3 ~ -1)
+            % 0을 중심으로 한 큰 Neighborhood: (-3 ~ 3) -> 반지름이 3 (|x_0|+1)
+            % -------------------------------------------------------
+
+            % 수직선 그리기
+            \draw[latex-latex] (-6,0) -- (6,0);
+
+            % -------------------------------------------------------
+            % 2. 틱(Tick)과 라벨(Label) 그리기
+            % -------------------------------------------------------
+            
+            % -M (맨 왼쪽)
+            \draw (-5, 0.1) -- (-5, -0.1) node[below=8pt] {$-M$};
+            
+            % x_0 (Top Neighborhood의 중심)
+            \draw (-2, 0.1) -- (-2, -0.1) node[below=8pt] {$x_0$};
+            
+            % 0 (원점)
+            \draw (0, 0.1) -- (0, -0.1) node[below=8pt] {$0$};
+            
+            % |x_0| (대칭점)
+            \draw (2, 0.1) -- (2, -0.1) node[below=6pt] {$|x_0|$};
+            
+            % |x_0| + 1 (요청하신 대로 수직선 '위쪽'에 표시)
+            \draw (3, 0.1) -- (3, -0.1) node[above=8pt] {$|x_0|+1$};
+            
+            % M (맨 오른쪽)
+            \draw (5, 0.1) -- (5, -0.1) node[below=8pt] {$M$};
+
+            % -------------------------------------------------------
+            % 3. 수직선 위의 괄호 ( ) 표시
+            % N(x_0; 1) 구간인 -3과 -1 위치에 괄호 표시
+            % -------------------------------------------------------
+            \node at (-3, 0) {{(}}; % 왼쪽 괄호 (Bottom Brace의 시작점과 일치)
+            \node at (-1, 0) {{)}}; % 오른쪽 괄호
+
+            % -------------------------------------------------------
+            % 4. 위쪽 중괄호: N(x_0; 1)
+            % 범위: -3 ~ -1
+            % -------------------------------------------------------
+            \draw [decorate, decoration={brace, amplitude=5pt, raise=10pt}] 
+            (-3,0) -- (-1,0) node [black, midway, above=18pt] {$N(x_0; 1)$};
+
+            % -------------------------------------------------------
+            % 5. 아래쪽 중괄호: N(0; |x_0|+1)
+            % 요청사항: 위쪽 중괄호의 시작점(-3)부터 |x_0|+1 지점(3)까지
+            % 범위: -3 ~ 3
+            % -------------------------------------------------------
+            \draw [decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}] 
+            (-3,0) -- (3,0) node [black, midway, below=33pt] {$N(0; |x_0|+1)$};
+
+        \end{tikzpicture}
+        \caption{Figure 1.10 Visualization}
     \end{figure}
 
     \begin{theorem} \label{th:5}
