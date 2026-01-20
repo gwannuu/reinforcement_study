@@ -286,7 +286,7 @@
     \end{block}
 
 
-    \begin{example}
+    \begin{example} \label{ex:6}
         Let $S = \{x_k = \sum_{j=0}^k \frac{1}{j!} \mid \forall k \in \mbb{N}\}$.
         The claim is that $S$ is bounded above.
         For any $k$, $x_k = 1 + \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!} \leq 1 + \frac{1}{2^0} + \frac{1}{2^1} + \cdots + \frac{1}{2^{k-1}} = 1 + \frac{1 - \frac{1}{2}^k}{1 - \frac{1}{2}} = 1 + 2\left(1 - \frac{1}{2}^k\right) <3$.
@@ -793,7 +793,7 @@
             (-3,0) -- (3,0) node [black, midway, below=33pt] {$N(0; |x_0|+1)$};
 
         \end{tikzpicture}
-        \caption{Figure 1.10 Visualization}
+        \caption{Figure 1.10}
     \end{figure}
 
     \begin{theorem} \label{th:5}
@@ -846,9 +846,46 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{figure}
-        \includegraphics[width=0.75\textwidth]{example1.3.15.png}
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            % 수직선
+            \draw[latex-latex] (-4,0) -- (4,0);
+
+            \def\cx{2}
+            \def\dotxpos{0.5}
+            \def\parxpos{0.75}
+
+            % 눈금 및 텍스트 (수정된 부분)
+            % inner sep을 줄여서 눈금에 더 가깝게 붙임
+            \draw (-\cx, 0.1) -- (-\cx, -0.1) node[below, inner sep=0pt] {$-c$}; 
+            \draw (\cx, 0.1) -- (\cx, -0.1) node[below=1.5pt, inner sep=0pt] {$c$};
+            \draw (0, 0.1) -- (0, -0.1) node[below=0.5pt, inner sep=0pt] {$0$};
+
+            % 점들
+            \fill (-\cx + \dotxpos, 0) circle (2pt);
+            \node[above=8pt] at (-\cx + \dotxpos, 0) {$y_{2j+1}$};
+
+            \fill(\cx + \dotxpos, 0) circle (2pt);
+            \node[above=8pt] at (\cx + \dotxpos, 0) {$y_{2j}$};
+
+            % 괄호
+            \node at (-\cx - \parxpos, 0) {{(}};
+            \node at (-\cx + \parxpos, 0) {{)}};
+
+            \node at (\cx - \parxpos, 0) {{(}};
+            \node at (\cx + \parxpos, 0) {{)}};
+
+            % 아래쪽 중괄호 (Brace)
+            % raise 값을 조금 줄여서 전체적으로 위로 올릴 수도 있습니다 (필요하다면)
+            \draw [decorate, decoration={brace, amplitude=3pt, mirror, raise=12pt}] 
+            (-\cx - \parxpos,0) -- (-\cx + \parxpos,0) node [black, midway, below=15pt] {$N(-c; \epsilon)$};
+            \draw [decorate, decoration={brace, amplitude=3pt, mirror, raise=12pt}] 
+            (\cx - \parxpos,0) -- (\cx + \parxpos,0) node [black, midway, below=15pt] {$N(c; \epsilon)$};
+        \end{tikzpicture}
+        \caption{Figure 1.11}
     \end{figure}
+
     \begin{example}
         Let $\{x_k\}$ be any sequence that converges to $0$ and let $c$ be any positive number.
         Let $y_k = (-1)^k(c+x_k)$.
@@ -878,18 +915,7 @@
         $\therefore x_k \in N(1;\epsilon)$ and $\lim_{k \to \infty} x_k = 1$.
     \end{example}
 
-    \begin{theorem}
-        A sequence $\{x_k\}$ converges to $0$ iff $\{\abs{x_k}\}$ converges to $0$ also
-
-        ($\implies$): trivial
-
-        ($\impliedby$): Fix $\epsilon >0$ and $k_0 \in N$ such that for $k \geq k_0$, $\abs{x_k} \in N(0; \epsilon)$.
-        This implies $-\epsilon < x_k < \epsilon$ and $x_k \in N(0; \epsilon)$.
-    \end{theorem}
-\end{frame}
-
-\begin{frame}{.}
-    \begin{example}
+    \begin{example} \label{ex:18}
         Fix any $r$ such that $-1 < r < 1$.
         Clam that $\lim_{k \to \infty} r^k = 0$.
         We only proof for $0< r< 1$.
@@ -904,22 +930,127 @@
         For $k \geq k_0$, $r^k < \frac{1}{ck} \leq \frac{1}{c k_0} < \epsilon$.
         This implies $r^k \in N(0;\epsilon)$.
     \end{example}
+    
+    By following theorem, $-1<r<0$ case is also holded.
 
-    \begin{theorem}
+    \begin{theorem} \label{th:1.3.5}
+        A sequence $\{x_k\}$ converges to $0$ iff $\{\abs{x_k}\}$ converges to $0$ also
+
+        ($\implies$): trivial
+
+        ($\impliedby$): Fix $\epsilon >0$ and $k_0 \in N$ such that for $k \geq k_0$, $\abs{x_k} \in N(0; \epsilon)$.
+        This implies $-\epsilon < x_k < \epsilon$ and $x_k \in N(0; \epsilon)$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{theorem}\label{th:1.3.6}
         If $\{x_k\}$ converges to $x_\infty$ and if $c$ is any constant, then $\{cx_k\}$ converges to $cx_\infty$.
     \end{theorem}
 
-    \begin{theorem}
-        A bounded, monotone sequence of real numbers converges
+    \begin{theorem} \label{th:1.3.7}
+        A bounded, monotone sequence of real numbers converges.
     \end{theorem}
 
-    Above theorem is an alternative form of Completeness Axiom for $\mbb{R}$
+    Above theorem is an alternative form of Completeness Axiom for $\mbb{R}$.
+    The stragety for its proof follows from basic principles, for if ${x_k}$ is a bounded, monotone increasing sequence, then it must converge to $\sup \{x_k: k \in \mbb{N}\}$.
+    Likewise, if $\{x_k\}$ is a bounded, monotone decreasing sequence, then it converges to $\inf \{x_k: k \in \mbb{N}\}$.
+
+    \begin{theorem}[The Squeeze Play] \label{th:1.3.8}
+        If $\{x_k\}, \{y_k\}$, and $\{z_k\}$ are three sequences such that $x_k \leq y_k \leq z_k$, for $k \in \mb{N}$, and if $\lim_{k \to \infty} x_k$ and $\lim_{k \to \infty}z_k$ exist and are equal, then $\lim_{k \to \infty} y_k$ also exist and is equal to this common value.
+
+        Proof. Let $L$ denote the common limit of $\{x_k\}$ and $\{z_k\}$.
+        We must show that eventually $y_k$ is arbitrarily near $L$.
+        How do we proceed?
+        First, we assign an arbirarily small, positive value to $\epsilon$.
+        We need to confirm the existence of an index $k_0$ such that, for $k \geq k_0$, the number $y_k$ is in $N(L;\epsilon)$.
+
+        Because $\lim_{k \to \infty} x_k = L$, there exists an index $k_1$ such that, for $k \geq k_1$, $x_k$ is in $N(L;\epsilon)$.
+        Likewise, there exists an index there exists an index $k_2$ such that, for $k \geq k_2$, $z_k$ is in $N(L;\epsilon)$.
+        If we let $k_0 = \max {k_1, k_2}$, the both conditions hold simultaneously.
+        For $k \geq k_0$, both $x_k$ and $z_k$ are in $N(L; \epsilon)$.
+        Since, for all $k$, the number $y_k$ is trapped between $x_k$ and $z_k$, it must follow that for $k \geq k_0$, $y_k$ is in $N(L; \epsilon)$ also.
+        In other words, $\lim_{k \to \infty} y_k = L$.
+    \end{theorem}
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            \draw[latex-latex] (-4,0) -- (4,0);
+
+            \def\lx{0}
+            \def\eps{3}
+
+            \fill (\lx, 0) circle (2pt);
+            \node[below=4pt] at (\lx, 0) {$L$};
+
+            \fill (\lx-\eps, 0) circle (2pt);
+            \node[below=4pt] at (\lx-\eps, 0) {$L - \epsilon$};
+
+            \fill (\lx + \eps, 0) circle (2pt);
+            \node[below=4pt] at (\lx + \eps, 0) {$L + \epsilon$};
+
+            \fill (-1.5, 0) circle (2pt);
+            \node[below=4pt] at (-1.5, 0) {$x_k$};
+
+            \fill (-0.5, 0) circle (2pt);
+            \node[below=4pt] at (-0.5, 0) {$y_k$};
+
+            \fill (1.0, 0) circle (2pt);
+            \node[below=4pt] at (1.0, 0) {$z_k$};
+
+        \end{tikzpicture}
+        \caption{Figure 1.12}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{theorem}
+    In a similar vein we have the following theorem whose proof is left as an exercise.
+    \begin{theorem}
+        Limit is order-preserving on convergent sequences.
+        That is, if both $\{x_k\}$ and $\{y_k\}$ converge and if for each $k \in \mbb{N}$ we have $x_k \leq y_k$, then $\lim_{k \to \infty} x_k \leq \lim_{k \to \infty} y_k$.
 
+        Proof. Let $\lim{k \to \infty}_{y_k} = y_0,  \lim_{k \to \infty} x_k = x_0$ and assume $x_0 > y_0$. Let $\epsilon = \frac{x_0 - y_0}{2}$. Then for $k \geq k_1, \in \mbb{N}$, $x_k \in N(x_0; \epsilon)$ and for $k, \geq k_2, y_k \in N(y_0; \epsilon)$. For $k \geq k_0 = \max(k_1, k_2), y_k < y_0 + \epsilon = x_0 - \epsilon < x_k$ holds.
+        This is contradiction for $x_k \leq y_k$.
+        This implies $x_0 \leq y_0$.
+    \end{theorem}
 
+    \begin{example}
+        Fix $r \neq 0 \in \mbb{R}$.
+        We claim that $\lim_{k \to \infty} r^k /k! = 0$.
+        To verify our claim, choose $k_0$ to be the smallest natural number greater than $\floor{\abs{r}}$, the integer part of $\abs{r}$.
+        Let $R = \abs{r}/(k_0 + 1)$ and note that $0 < R< 1$.
+        Let $c$ denote the constant $(k_0 + 1)^{k_0} / k_0!$.
+        Fix any $k \geq k_0$.
+        Notice that, for any $j=1,2,\dots, k-k_0, 1/(k_0 + j) \leq 1 / (k_0 +1)$.
+        Thus we obtain
+        \begin{equation*}
+            0 < \frac{\abs{r}^k}{k!} = \abs{r}^k \frac{1}{k_0!} \cdot \frac{1}{(k_0 + 1)(k_0 + 2)\cdots (k-1) k} \leq \abs{r}^k \frac{1}{k_0!} \cdot \frac{1}{(k_0 +1)^{k-k_0}} = \frac{(k_0+1)^{k_0}}{k_0!}\cdot \left[\frac{\abs{r}}{k_0+1}\right]^k = c R^{k - k_0}.
+        \end{equation*}
+        By example \ref{ex:18} and thereom \ref{th:1.3.6}, we know that $\lim_{k \to \infty} cR^k = 0$.
+        Therefore we have $0 \leq \lim_{k \to \infty} \abs{r}^k / k! \leq \lim_{k \to \infty} cR^k =0$.
+        By the Squeeze Play, (theorem $\ref{th:1.3.8}$), we conclude that $\lim_{k \to \infty} r^k / k! = 0$ and our initial claim is proved.
+    \end{example}
 \end{frame}
 
+\begin{frame}{.}
+    \begin{example} \label{ex:20}
+        For $k \in \mbb{N}$, let
+        \begin{equation*}
+            x_k = 1+ \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!},\quad y_k = \left(1+\frac{1}{k}\right)^k
+        \end{equation*}
+        We will show that $\lim_{k \to \infty} x_k = \lim_{k \to \infty} y_k$.
+        The common limit is the irrational number $e$ discussed in examples \ref{ex:6}.
+
+        It is easy to see that $\{x_k\}$ is strictly monotone increasing.
+        We saw in Example \ref{ex:6} that $\{x_k\}$ is bounded above by $3$.
+        Consequently, by theorem \ref{th:1.3.7}, $\{x_k\}$ converges to $\sup \{x_k: k \in \mbb{N}\}$.
+        We denote this limit by $e$.
+
+        Consider next the sequence $\{y_k\}$.
+        
+    \end{example}
+\end{frame}
 
 \end{document}
