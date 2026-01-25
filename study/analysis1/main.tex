@@ -48,7 +48,87 @@
 % \newtheorem{definition}{Definition}[section] % to number according to section
 % \newtheorem*{idea}{Proof idea} % no numbered block
 
-\newtheorem{proposition}[theorem]{Proposition}
+% ------------------------------------------------------------
+% Separate counters:
+% - (theorem, proposition) share one counter
+% - definition has its own counter
+% - example has its own counter
+% (Beamer's default theorem-like environments often share a counter.)
+% ------------------------------------------------------------
+\newcounter{thm}
+\newcounter{defn}
+\newcounter{ex}
+\newcounter{exer}
+\renewcommand{\thethm}{\thesection.\thesubsection.\arabic{thm}}
+\renewcommand{\thedefn}{\thesection.\thesubsection.\arabic{defn}}
+\renewcommand{\theex}{\thesection.\thesubsection.\arabic{ex}}
+\renewcommand{\theexer}{\thesection.\thesubsection.\arabic{exer}}
+
+% Reset numbering by section/subsection (useful in beamer where content is organized by \subsection).
+\makeatletter
+\@addtoreset{thm}{section}
+\@addtoreset{defn}{section}
+\@addtoreset{ex}{section}
+\@addtoreset{exer}{section}
+\@addtoreset{thm}{subsection}
+\@addtoreset{defn}{subsection}
+\@addtoreset{ex}{subsection}
+\@addtoreset{exer}{subsection}
+\makeatother
+
+\renewenvironment{theorem}[1][]{%
+    \refstepcounter{thm}%
+    % \begin{block}{Theorem \thethm\if\relax\detokenize{#1}\relax \ condition is true \relax == \relax\else\ (#1)\fi}%
+    \begin{block}{Theorem \thethm\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+    \itshape
+}{%
+    \end{block}%
+}
+
+\newenvironment{proposition}[1][]{%
+    \refstepcounter{thm}%
+    \begin{block}{Proposition \thethm\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+    \itshape
+}{%
+    \end{block}%
+}
+
+\renewenvironment{definition}[1][]{%
+    \refstepcounter{defn}%
+    \begin{block}{Definition \thedefn\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+}{%
+    \end{block}%
+}
+
+\renewenvironment{example}[1][]{%
+    \refstepcounter{ex}%
+    \begin{exampleblock}{Example \theex\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+}{%
+    \end{exampleblock}%
+}
+
+% Exercise: increments its own counter for \label/\ref, but you can override
+% the displayed number/name via the optional argument.
+% Examples:
+%   \begin{exercise}[1.19] ... \end{exercise}   -> shows "Exercise 1.19"
+%   \begin{exercise} ... \end{exercise}        -> shows "Exercise <section>.<subsection>.<n>"
+\makeatletter
+\newenvironment{exercise}[1][]{%
+    \refstepcounter{exer}%
+    \def\exercise@display{#1}%
+    % If an optional display label is provided (e.g. [1.19]), make \label/\ref
+    % use that value as well by overriding \@currentlabel.
+    \if\relax\detokenize{#1}\relax
+        \def\exercise@display{\theexer}%
+    \else
+        \protected@edef\@currentlabel{#1}%
+        \@ifundefined{@currentlabelname}{}{\protected@edef\@currentlabelname{#1}}%
+    \fi
+    \begin{block}{Exercise \exercise@display}%
+}{%
+    \end{block}%
+}
+\makeatother
 
 \usepackage{tcolorbox}
 \usepackage{tikz}
@@ -113,7 +193,7 @@
 
 
 % 발표 제목, 저자, 날짜 설정
-\title{Introduction to Mathematical Analysis: The Structure of the Real Numbers: Sequences}
+\title{Introduction to Mathematical Analysis}
 \author{Gwanwoo Choi}
 % \date{}
 
@@ -124,6 +204,7 @@
     \titlepage
 \end{frame}
 
+\section{The Structure of the Real Numbers: Sequences}
 \subsection{Completeness of the Real Numbers}
 \begingroup
     \setbeamertemplate{frametitle}{%
@@ -277,13 +358,13 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 1.19}
+    \begin{exercise}[1.19]
         Prove by induction that, for every $j \in \mbb{N}$, $2^{j-1} \leq j!$.
 
         If $j=1$, $2^0 = 1 \leq 1! = 1$.
         Suppose for $k \in \mbb{N}$, $2^{k-1} \leq k!$ holds.
         Then $2^k \leq 2 \cdot k! \leq (k+1)\cdot k! \leq (k+1)!$.
-    \end{block}
+    \end{exercise}
 
 
     \begin{example} \label{ex:6}
@@ -324,7 +405,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 1.5}
+    \begin{exercise}[1.5]
         Use the Axiom and theorem \ref{th:1} to derive Archimedes' principle.
 
         For any $\epsilon > 0$, let $S = \{k\epsilon \mid \forall k \in \mbb{N}\}$.
@@ -337,9 +418,9 @@
         So the assumption, $S$ is bounded above, is false.
 
         This means for any large positive constant $M$, $\exists k\epsilon$ such that $M < k \epsilon$.
-    \end{block}
+    \end{exercise}
 
-    \begin{block}{Exercise 1.6}
+    \begin{exercise}[1.6]
         Show that Archimedes' principle is equivalent to the following statement: For any $c > 0$, there exists a $k \in \mbb{N}$ such that $k-1 \leq c <k$.
 
         ($\implies$) Let $\epsilon = 1$ and $M = c > 0$.
@@ -352,7 +433,7 @@
         ($\impliedby$) Let $c = \frac{M}{\epsilon}$.
         Then there exists a $k$ such that $k-1 \leq \frac{M}{\epsilon} < k$.
         Then in the right-side, $M < \epsilon k$ holds.
-    \end{block}
+    \end{exercise}
 \end{frame}
 
 \begin{frame}{.}
@@ -382,18 +463,40 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 1.10} \label{exercise:1.10}
+    \begin{exercise}[1.10]\label{exercise:1.10}
         Suppose that $c$ is a real number such that, for all $\epsilon >0$, it is true that $\abs{c} < \epsilon$.
         Prove that $c$ must be $0$.
-    \end{block}
+    \end{exercise}
 
-    \begin{block}{Exercise 1.17}
+    \begin{exercise}[1.17]
         Prove that if $x$ and $y$ are positive numbers such that $x^n < y^n$ for some $n \in \mbb{N}$, then $x < y$.
         (We say that the taking of positive $n$th roots \ti{preserves order} on $\mbb{R}^+$.)
-    \end{block}
+    \end{exercise}
+\end{frame}
 
-    \begin{block}{Exercise 1.20}
-    \end{block}
+\begin{frame}{.}
+    \begin{exercise}[1.20]\label{exercise:1.20}
+        \begin{enumerate}
+            \item Use the Binomial Theorem to show that $(1+1/k)^k$ expands to become 
+            \begin{equation*}
+                1 + 1+ \sum^k_{j=2} \frac{1}{j!} \left(1 - \frac{1}{k}\right)\left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+            \end{equation*}
+            \textit{Proof.}
+            \begin{equation*}
+                \begin{aligned}
+                    &\left(\frac{1}{k}\right)^0 + k \left(\frac{1}{k}\right)^{1} + \frac{k (k-1)}{2} \cdot \left(\frac{1}{k}\right)^2 + \frac{k(k-1)(k-2)}{1\cdot 2 \cdot 3} \cdot \left(\frac{1}{k}\right)^{3} + \cdots \\
+                    &= 1+ 1+ \frac{1}{2!} \cdot \left(\frac{k-1}{k}\right) + \frac{1}{3!}\cdot \left(\frac{k-1}{k} \cdot \frac{k-2}{k}\right) + \cdots = 1+ 1+ \sum_{j=2}^k \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+                \end{aligned}
+            \end{equation*}
+            \item Prove that, for each $j=2,3,\dots,k$,
+            \begin{equation*}
+                \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right) \leq \frac{1}{j!}
+            \end{equation*}
+            \textit{Proof.}
+
+            For all $j \leq k$, $\left(1-\frac{j-1}{k}\right) \leq 1$. This implies that the above inequality holds.
+        \end{enumerate}
+    \end{exercise}
 \end{frame}
 
 \subsection{Neighborhoods and Limit Points}
@@ -575,7 +678,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 1.23}
+    \begin{exercise}[1.23]
         Suppose that $S$ is a bounded, infinite subset of $\mbb{R}$.
         Let $\mu = \sup S$.
         Is $\mu$ necessarily a limit point of $S$?
@@ -588,9 +691,9 @@
         Then there is no element of $S$ in $N^\prime(1/2; 1/8)$.
 
         Therefore there is no guarantee that $\mu$ is a limit point.
-    \end{block}
+    \end{exercise}
 
-    \begin{block}{Exercise 1.25}
+    \begin{exercise}[1.25]
         If $x$ is any nonzero number and if $0 < \epsilon < \abs{x}$, prove that only finitely many numbers of the form $(-1)^k/2^k$ are in $N(x;\epsilon)$.
 
         If $x>0$, then for any $\epsilon > 0$, there exists $k \in \mbb{N}$ such that $1 < k (x - \epsilon) < 4^k (x - \epsilon)$.
@@ -600,11 +703,11 @@
         Then $\forall m \in \mbb{N}, m > k$, $x + \epsilon < -1/2^{2m+1} <0$ holds.
 
         $\therefore N(x; \epsilon)$ only contains finite points.
-    \end{block}
+    \end{exercise}
 \end{frame}
 
 \begin{frame}{.}
-    \begin{block}{Exercise 1.26}
+    \begin{exercise}[1.26]
         Prove that a nonempty finite set has no limit points.
 
         Let order the element of any nonempty finite set $S$, and denote $i$-th element as $x_i$
@@ -619,16 +722,16 @@
         $d_i = \min(x-x_{i}, x_{i+1} - x)$ and for $0 < \epsilon <d_i$, there is no element in $N^\prime(x; \epsilon)$.
 
         So there is no limit point for nonempty finite set.s
-    \end{block}
+    \end{exercise}
 
-    \begin{block}{Exercise 1.29}
+    \begin{exercise}[1.29]
         Suppose that $S$ is an unbounded, infinite set in $\mbb{R}$.
         Does $S$ necessarily have a limit point?
         If so, prove it.
         If not, prove an example of an unbounded, infinite set having no limit points.
 
         $\mbb{Z}$ is good example of an unbounded, infinite set who has no limit points.
-    \end{block}
+    \end{exercise}
 \end{frame}
 
 \begin{frame}{.}
@@ -1007,7 +1110,7 @@
 
 \begin{frame}{theorem}
     In a similar vein we have the following theorem whose proof is left as an exercise.
-    \begin{theorem}
+    \begin{theorem} \label{th:1.3.9}
         Limit is order-preserving on convergent sequences.
         That is, if both $\{x_k\}$ and $\{y_k\}$ converge and if for each $k \in \mbb{N}$ we have $x_k \leq y_k$, then $\lim_{k \to \infty} x_k \leq \lim_{k \to \infty} y_k$.
 
@@ -1035,22 +1138,75 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{example} \label{ex:20}
+    \begin{example} \label{ex:1.3.8}
         For $k \in \mbb{N}$, let
         \begin{equation*}
-            x_k = 1+ \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!},\quad y_k = \left(1+\frac{1}{k}\right)^k
+            x_k = 1+ \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!}= 1 + 1 + \sum_{j=2}^{k}\frac{1}{j!},\quad y_k = \left(1+\frac{1}{k}\right)^k
         \end{equation*}
         We will show that $\lim_{k \to \infty} x_k = \lim_{k \to \infty} y_k$.
         The common limit is the irrational number $e$ discussed in examples \ref{ex:6}.
 
         It is easy to see that $\{x_k\}$ is strictly monotone increasing.
-        We saw in Example \ref{ex:6} that $\{x_k\}$ is bounded above by $3$.
+        We saw in example \ref{ex:6} that $\{x_k\}$ is bounded above by $3$.
         Consequently, by theorem \ref{th:1.3.7}, $\{x_k\}$ converges to $\sup \{x_k: k \in \mbb{N}\}$.
         We denote this limit by $e$.
 
-        Consider next the sequence $\{y_k\}$.
-        
+        Consider next the sequence $\{y_k\}$. In exercise \ref{exercise:1.20}, we showed that 
+        \begin{equation} \label{eq:1}
+            y_k = 1 + 1 + \sum^k_{j=2} \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+        \end{equation}
+        and that, for every $k \in \mbb{N}$, $y_k \leq x_k \leq e$.
+        Thus $\{y_k\}$ is bounded above.
+
+        Notice that $1 - i/k < 1- i/{k+1}, \forall i=1,2,\dots,j-1$.
+        From this it follows that, $\forall j=2,3,\dots, k$,
+        \begin{equation*}
+            \frac{1}{j!}\prod^{j-1}_{i=1} \left(1 - \frac{i}{k}\right) < \frac{1}{j!} \prod^{j-1}_{i=1}\left(1 - \frac{i}{k+1}\right)
+        \end{equation*}
+        Observe that, $y_k < y_{k+1}$,
+        \begin{equation*}
+            \begin{aligned}
+                y_k &= 1+ 1+ \sum^k_{j=2}\frac{1}{j!} \prod_{i=1}^{j-1}\left(1 - \frac{i}{k}\right) < 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1}  \left(1 - \frac{i}{k+1}\right) \\
+                &< 1+ 1+ \sum_{j=2}^k \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{k+1}\right) + \frac{1}{(k+1)!}\prod_{i=1}^{k} \left(1 - \frac{i}{k+1}\right) = y_{k+1}
+            \end{aligned}
+        \end{equation*}
+        This implies $\{y_k\}$ is strictly monotonic increasing.
+        Since the sequence $\{y_k\}$ is bounded above by $e$, we are guaranteed by Theorem \ref{th:1.3.7}.
     \end{example}
+\end{frame}
+
+\begin{frame}{.}
+\begin{exampleblock}{Example 1.3.8 (con't)}
+    Denote the limit of $\{y_k\}$ by $y_0$.
+    Since $y_k \leq x_k$ for all $k$, we can immediately deduce by Theorem \ref{th:1.3.9} that
+    \begin{equation*}
+        y_0 \leq \lim_{k \to \infty} x_k = e
+    \end{equation*}
+
+    To obtain the reverse inequality, we create a third sequence from the fragments of information at hand.
+    Fix any $k \in \mbb{N}$.
+    $\forall m > k$, define
+    \begin{equation*}
+        z_m = 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{m}\right)
+    \end{equation*}
+    This choice of $z_m$ is motivated in part by the observation that $\lim_{m \to \infty} z_m = x_k^2$.
+
+    Referring again to equation \ref{eq:1}, note that $z_m$ is obtained from $y_m$ by omitting the final $m-k$ positive summands of $y_m$.
+    Thus, $\forall m>k$, we have $z_m< y_m$.
+    Since $\lim_{m \to \infty} z_m = x_k$ and $\lim_{m \to \infty} y_m = y_0$ we deduce by Theorem \ref{th:1.3.9} that $\lim_{m \to \infty} z_m=x_k \leq y_0, \forall k \in \mbb{N}$.
+    Thus $y_0$ is an upper bound for the sequence $\{x_k\}$.
+    Consequently, we know that
+    \begin{equation*}
+        e = \lim_{k \to \infty} x_k = \sup \{x_k:k \in \mbb{N}\} \leq y_0
+    \end{equation*}
+
+    Since we already know that $y_0 \leq e$, we conclude that $y_0 = e$.
+    We have proved that $\lim_{k \to \infty} (1+\frac{1}{k})^k = \lim_{k \to \infty} \sum_{j=0}^{k}\frac{1}{j!} = e$.
+
+    To approximate $e$ to seven-place accuracy, take $k=10$ and use your calculator to compute $x_{10} = \sum_{j=0}^{k} 1/{j!} \doteq 2.7182818$.
+    By contrast, $y_{10} = (1+\frac{1}{10})^10 = 2.5937425$. This contrast exhibits the fact that $\{x_k\}$ converges to $e$ more rapidly than does $\{y_k\}$.
+\end{exampleblock}
+
 \end{frame}
 
 \end{document}
