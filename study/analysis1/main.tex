@@ -384,7 +384,7 @@
         \item If $S$ has a largest element $M$, then $M = \sup S$.
     \end{itemize}
 
-    \begin{theorem} \label{th:1}
+    \begin{theorem} \label{th:1.1.1}
         Let $S$ be a non-empty set  of real numbers and let $\mu$ and $\nu$ be real numbers.
         \begin{enumerate}
             \item Suppose that $S$ is bounded above. Then $\mu = \sup S$ if and only if $\mu$ is an upper bound for $S$ and, for every $\epsilon >0$, there exists an $x \in S$ such that $\mu - \epsilon < x \leq \mu$.
@@ -608,7 +608,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    \begin{theorem}[The Bolzano-Weierstrass Theorem] \label{th:4}
+    \begin{theorem}[The Bolzano-Weierstrass Theorem] \label{th:1.2.2}
         If $S$ is a bounded, infinite subset of $\mbb{R}$, then $S$ has a limit point in $\mbb{R}$.
 
         \smallskip
@@ -742,7 +742,7 @@
         Suppose to the contrary that $(N^\prime(x_0; \epsilon))^\mathsf{c}$ contains infinitely many points of $S$.
         That is, $S \cap (N^\prime(x_0; \epsilon))^\mathsf{c}$ is an infinite set.
         Since $S$ is a bounded set, its subset $s \cap (N^\prime(x_0 ; \epsilon))^\mathsf{c}$ is also a bounded set.
-        So by theorem \ref{th:4}, $S \cap (N^\prime(x_0; \epsilon))^\mathsf{c}$ must have a limit point.
+        So by theorem \ref{th:1.2.2}, $S \cap (N^\prime(x_0; \epsilon))^\mathsf{c}$ must have a limit point.
         This is contradiction.
         $\qed$
     \end{block}
@@ -825,7 +825,7 @@
         $\qed$
     \end{theorem}
 
-    \begin{theorem} \label{th:6}
+    \begin{theorem} \label{th:1.3.2}
         If a sequence has two (or more) cluster points, then it must diverge.
 
         \smallskip
@@ -918,7 +918,7 @@
 
 \begin{frame}{.}
     The contrapositive of \ref{th:5} provides us with the following useful fact.
-    \begin{theorem}
+    \begin{theorem} \label{th:1.3.4}
         If a sequence is unbounded, then it must diverge
     \end{theorem}
 
@@ -999,7 +999,7 @@
         Then even $k$, i.e. $k=2j$, $\abs{y_k - c} = \abs{c + x_k - c} = x_k < \epsilon$.
         Also, odd $k$, i.e. $k=2j+1$, $\abs{y_k - (-c)} = \abs{-c -x_k + c} = x_k < \epsilon$.
 
-        Since $\{y_k\}$ has two cluster points, $\{y_k\}$ must diverge by theorem \ref{th:6}.
+        Since $\{y_k\}$ has two cluster points, $\{y_k\}$ must diverge by theorem \ref{th:1.3.2}.
     \end{example}
 \end{frame}
 
@@ -1229,10 +1229,9 @@
         We have to show that $\lim_{j \to \infty} x_{k_j} = c$.
         To this end, first fix any $\epsilon >0$.
         Since $\lim_{j \to \infty} \epsilon_j = 0$, there is a $j_0$ such that for $j \geq j_0$, we have $0 < \epsilon_j < \epsilon$.
-        Therefore, $N(c; \epsilon_j) \subset N(c; \epsilon)$ for all $j \geq j_0$
-        Now $x_{k_j}$ is a convergent subsequence of $\{x_k\}$ with $\lim_{j \to \infty} x_{k_j} = c$.
-        Thus, for all $j \geq j_0$, the point $x_{k_j}$ is in $N(c; \epsilon)$.
-        We conclude that $\{x_{k_j}\}$ converges to $c$ as desired.
+        For $j \geq j_0$, we have $\epsilon_j < \epsilon$, so $N(c; \epsilon_j) \subset N(c; \epsilon)$.
+        Since by construction $x_{k_j} \in N(c  ; \epsilon_j)$, it follows that $x_{k_j} \in N(c; \epsilon)$ for all $j \geq j_0$.
+        Hence $x_{k_j} \to c$.
 
         \smallskip
         ($\impliedby$) Suppose that $\{x_{k_j}\}$ is a convergent subsequence of $\{x_k\}$ with $\lim_{j \to \infty} x_{k_j} = c$.
@@ -1304,28 +1303,120 @@
         This is contradiction since $2 \epsilon \leq \abs{x_0^\prime - x_j} + \abs{x_0 - x_j} < 2 \epsilon$.
 
         \smallskip
-        ($\impliedby$) Let the cluster point as $x_0$.
-        Assume, for contradiction, that $\{x_k\}$ does not converge.
-        Then there exists subsequence $\{x_{k_j}\}$ such that $\forall j, x_{k_j} \notin N(x_0; \epsilon)$.
-        Since $\{x_{k_j}\}$ is bounded sequence, by theorem \ref{th:1.3.11}, there exists cluster point $x_0^\prime$.
+        ($\impliedby$) Let $c$ be the unique cluster point of the bounded sequence $\{x_k\}$.
+        Suppose $\{x_k\}$ does not converge to $c$.
+        Then there exists $\epsilon>0$ such that infinitely many terms of the sequence lie outside $N(c;\epsilon)$.
+        Since $\{x_k\}$ is bounded, those terms form an infinite bounded subset of $\mathbb{R}$.
+        By the Bolzano--Weierstrass theorem, this set has a cluster point $c'$.
+        Because every point in this set lies outside $N(c;\epsilon)$, we must have $c' \notin N(c;\epsilon)$, and hence $c' \ne c$.
+        Thus $\{x_k\}$ has a cluster point different from $c$, a contradiction.
+        Therefore, $\{x_k\}$ converges to $c$.
 
-        Since $\abs{x_{k_j} - x_0} \ge \epsilon$ for all $j$, it follows that $\lim_{j \to \infty} \abs{x_{k_j} - x_0} = \abs{x^\prime_0 - x_0} \geq \epsilon > 0 \implies x_0^\prime \neq x_0$.
-        Thus, the sequence $\{x_k\}$ has at least two distinct cluster points ($x_0$ and $x_0^\prime$), which contradicts the hypothesis.
-        Therefore, $\{x_k\}$ must converge to $x_0$.
-
+        \bigskip
+        (Is there any proof that is more simple and more elegant?)
     \end{theorem}
 \end{frame}
 
 \begin{frame}{.}
-    \begin{theorem}
+    \begin{theorem} \label{th:1.3.15}
         A sequence $\{x_k\}$ diverges if and only if at least one of the following conditions holds:
         \begin{enumerate}
             \item $\{x_k\}$ has at least two cluster points.
             \item $\{x_k\}$ is unbounded.
         \end{enumerate}
 
-        Proof. Suppose first that $\{x_k\}$ is bounded and divergent. 
+        Proof.
+
+        ($\implies$) Suppose $\{x_k\}$ diverges.
+        There exists three options: $\{x_k\}$ has no cluster point, has unique cluster point, or has at least two cluster points.
+        Suppose $\{x_k\}$ has only one cluster point.
+        Then by Theorem \ref{th:1.3.14}, it should be converge.
+        This contradiction implies $\{x_k\}$ has no cluster point or several cluster points.
+        If $\{x_k\}$ has no cluster point, then by Theorem \ref{th:1.3.12}, it is unbounded.
+
+        ($\impliedby$) Suppose $\{x_k\}$ is unbounded. Then by Theorem \ref{th:1.3.4}, $\{x_k\}$ diverges.
+        Suppose next $\{x_k\}$ has at least two cluster points, then by Theorem \ref{th:1.3.14}, $\{x_k\}$ diverges.
     \end{theorem}
+
+    \bigskip
+    There is yet another way to view the question of convergence of a sequence, one that often provides powerful insight.
+    Given a sequence, let $C$ denote the set of all its cluster points.
+    As we have seen, $C$ might be empty of consist of a single point or several points.
+    \underline{If the sequence is bounded, then by Theorem \ref{th:1.3.11}, $C$ is nonempty}.
+    Further, if the sequence is bounded, then the set $C$ of its cluster points is also bounded.
+    You will be challenged to prove this as an exercise.
+    Therefore, if the sequence is bounded, then, by Axiom, $\sup C$ and $\inf C$ exists.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $C$ denote the set of cluster points of a bounded sequence $\{x_k\}$.
+        \begin{enumerate}
+            \item The \ti{limit superior} of $\{x_k\}$ is defined to be $\sup C$ and is denoted $\lim \sup x_k$.
+            \item The \ti{limit inferior} of $\{x_k\}$ is defined to be $\inf C$ and is denoted $\lim \inf x_k$.
+        \end{enumerate}
+
+        \smallskip
+        If $\{x_k\}$ is unbounded above, we set $\lim \sup x_k = \infty$.
+        Likewise, if $\{x_k\}$ is unbounded below, we set $\lim \inf x_k = -\infty$.
+
+        If $\{x_k\}$ is bounded above but unbounded below and if $C$ is empty, we set $\lim \sup x_k = - \infty$.
+        (For example, let $x_k=-k$ for each $k \in \mbb{N}$.)
+        Likewise, if $\{x_k\}$ is bounded below but unbounded above and if $C$ is empty, we set $\lim \inf x_k = \infty$.
+        (For example, let $x_k =k$ for each $k \in \mbb{N}$.)
+    \end{definition}
+
+    % \bigskip
+    % We want to explore the properties of limit superior and limit inferior to discover how these concepts might provide us with insight about sequences.
+    % First, it is evident from the definitions that, in all cases $\lim \inf x_k \le \lim \sup x_k$.
+
+    \begin{theorem}
+        Let $\{x_k\}$ be any sequence.
+        \begin{enumerate}
+            \item If $\mu = \lim \sup x_k$ is finite, then $\mu \in C$.
+            \item If $\nu = \lim \inf x_k$ is finite, then $\nu \in C$.
+        \end{enumerate}
+
+        Proof.
+        We claim that $\mu$ is a cluster point of $\{x_k\}$.
+        To see this, fix any $\epsilon >0$ and $k \in \mbb{N}$.
+        We need to show that there is some $k_1>k$ such that $x_{k_1} \in N(\mu; \epsilon)$.
+        The finiteness of $\mu$ implies that $C$ is nonempty and bounded above and that $\mu=\sup C$.
+        By theorem $\ref{th:1.1.1}$, we can choose a cluster point $c \in C$ such that $\mu - \epsilon <c \le \mu$.
+        If $c = \mu$, then $\mu \in C$ and finished.
+        Otherwise, $\mu-\epsilon < c < \mu$.
+        Choose any $0<\epsilon < \min(c - (\mu- \epsilon), \mu-c)$.
+        Note that $\epsilon_1 < \epsilon$.
+        Because $c$ is a cluster point of $\{x_k\}$, there exists a $k_1>k$ such that $x_{k_1} \in N(c; \epsilon_1)$.
+        But $N(c; \epsilon_1) \subset N(\mu; \epsilon)$.
+        Therefore $x_{k_1} \in N(\mu; \epsilon)$.
+        Thus, $\mu$ is a cluster point of $\{x_k\}$.
+        That is, $\mu \in C$.
+    \end{theorem}
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            \draw (-3,0) -- (3,0);
+
+            \def\cx{0}
+            \def\eps{0.75}
+
+            \draw (\cx, 0.12) -- (\cx, -0.12) node[below=2pt, inner sep=0pt] {$c$};
+            \draw (\cx - 2, 0.1) -- (\cx -2, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+            \draw (\cx + 1.5, 0.1) -- (\cx + 1.5, -0.1) node[below=2pt, inner sep=0pt] {$\mu$};
+
+
+            \node at (\cx-\eps, 0) {{(}};
+            \node at (\cx+\eps, 0) {{)}};
+
+            \draw [decorate, decoration={brace, amplitude=4pt, mirror, raise=10pt}] (\cx-\eps,0) -- (\cx+\eps,0) node [black, midway, below=14pt] {$N(c;\epsilon_1)$};
+        \end{tikzpicture}
+        \caption{Figure 1.13}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+
 \end{frame}
 
 \end{document}
