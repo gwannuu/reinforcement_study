@@ -406,12 +406,12 @@
 
 \begin{frame}{.}
     \begin{exercise}[1.5]
-        Use the Axiom and theorem \ref{th:1} to derive Archimedes' principle.
+        Use the Axiom and theorem \ref{th:1.1.1} to derive Archimedes' principle.
 
         For any $\epsilon > 0$, let $S = \{k\epsilon \mid \forall k \in \mbb{N}\}$.
         Suppose that $S$ is bounded above.
         Then by axiom, $\exists \mu = \sup S$.
-        By theorem \ref{th:1}, there exists a point $k\epsilon$ in the interval $\mu - \epsilon < k \epsilon \leq \mu$.
+        By theorem \ref{th:1.1.1}, there exists a point $k\epsilon$ in the interval $\mu - \epsilon < k \epsilon \leq \mu$.
         In left-hand side, $\mu < (k+1)\epsilon$ and $(k+1) \epsilon \in S$.
         So $\mu$ is not an upper bound for $S$ (contradiction!).
 
@@ -905,7 +905,7 @@
         Proof. Suppose that $\{x_k\}$ converges to $x_0$.
         We must show that there exists some real number $M$ such that $\abs{x_k} \leq M$, for $k=1,2,3,\dots$.
         Let $\epsilon=1$.
-        Since $\{x_k\}$ converges to $x_0$, $\exists k_0 \in \mbb{N}$ such that $\forall k \geq k_0, k_0 \in N(x_0; 1)$.
+        Since $\{x_k\}$ converges to $x_0$, $\exists k_0 \in \mbb{N}$ such that $\forall k \geq k_0, k \in N(x_0; 1)$.
         Then $\abs{x_k} = \abs{x_k - x_0 + x_0} \leq \abs{x_k - x_0} + \abs{x_0} < 1 + \abs{x_0}$.
         This implies $x_k \in N(0; 1+\abs{x_0})$.
 
@@ -1048,7 +1048,7 @@
 \begin{frame}{.}
 
     \begin{theorem}\label{th:1.3.6}
-        If $\{x_k\}$ converges to $x_\infty$ and if $c$ is any constant, then $\{cx_k\}$ converges to $cx_\infty$.
+        If $\{x_k\}$ converges to $x_0$ and if $c$ is any constant, then $\{cx_k\}$ converges to $cx_0$.
     \end{theorem}
 
     \begin{theorem} \label{th:1.3.7}
@@ -1060,7 +1060,7 @@
     Likewise, if $\{x_k\}$ is a bounded, monotone decreasing sequence, then it converges to $\inf \{x_k: k \in \mbb{N}\}$.
 
     \begin{theorem}[The Squeeze Play] \label{th:1.3.8}
-        If $\{x_k\}, \{y_k\}$, and $\{z_k\}$ are three sequences such that $x_k \leq y_k \leq z_k$, for $k \in \mb{N}$, and if $\lim_{k \to \infty} x_k$ and $\lim_{k \to \infty}z_k$ exist and are equal, then $\lim_{k \to \infty} y_k$ also exist and is equal to this common value.
+        If $\{x_k\}, \{y_k\}$, and $\{z_k\}$ are three sequences such that $x_k \leq y_k \leq z_k$, for $k \in \mbb{N}$, and if $\lim_{k \to \infty} x_k$ and $\lim_{k \to \infty}z_k$ exist and are equal, then $\lim_{k \to \infty} y_k$ also exist and is equal to this common value.
 
         Proof. Let $L$ denote the common limit of $\{x_k\}$ and $\{z_k\}$.
         We must show that eventually $y_k$ is arbitrarily near $L$.
@@ -1070,7 +1070,7 @@
 
         Because $\lim_{k \to \infty} x_k = L$, there exists an index $k_1$ such that, for $k \geq k_1$, $x_k$ is in $N(L;\epsilon)$.
         Likewise, there exists an index there exists an index $k_2$ such that, for $k \geq k_2$, $z_k$ is in $N(L;\epsilon)$.
-        If we let $k_0 = \max {k_1, k_2}$, the both conditions hold simultaneously.
+        If we let $k_0 = \max (k_1, k_2)$, the both conditions hold simultaneously.
         For $k \geq k_0$, both $x_k$ and $z_k$ are in $N(L; \epsilon)$.
         Since, for all $k$, the number $y_k$ is trapped between $x_k$ and $z_k$, it must follow that for $k \geq k_0$, $y_k$ is in $N(L; \epsilon)$ also.
         In other words, $\lim_{k \to \infty} y_k = L$.
@@ -1113,7 +1113,7 @@
         Limit is order-preserving on convergent sequences.
         That is, if both $\{x_k\}$ and $\{y_k\}$ converge and if for each $k \in \mbb{N}$ we have $x_k \leq y_k$, then $\lim_{k \to \infty} x_k \leq \lim_{k \to \infty} y_k$.
 
-        Proof. Let $\lim{k \to \infty}_{y_k} = y_0,  \lim_{k \to \infty} x_k = x_0$ and assume $x_0 > y_0$. Let $\epsilon = \frac{x_0 - y_0}{2}$. Then for $k \geq k_1, \in \mbb{N}$, $x_k \in N(x_0; \epsilon)$ and for $k, \geq k_2, y_k \in N(y_0; \epsilon)$. For $k \geq k_0 = \max(k_1, k_2), y_k < y_0 + \epsilon = x_0 - \epsilon < x_k$ holds.
+        Proof. Let $\lim_{k \to \infty} y_k = y_0,  \lim_{k \to \infty} x_k = x_0$ and assume $x_0 > y_0$. Let $\epsilon = \frac{x_0 - y_0}{2}$. Then for $k \geq k_1, \in \mbb{N}$, $x_k \in N(x_0; \epsilon)$ and for $k, \geq k_2, y_k \in N(y_0; \epsilon)$. For $k \geq k_0 = \max(k_1, k_2), y_k < y_0 + \epsilon = x_0 - \epsilon < x_k$ holds.
         This is contradiction for $x_k \leq y_k$.
         This implies $x_0 \leq y_0$.
     \end{theorem}
@@ -1186,13 +1186,13 @@
     Fix any $k \in \mbb{N}$.
     $\forall m > k$, define
     \begin{equation*}
-        z_m = 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{m}\right)
+        z_k^m = 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{m}\right)
     \end{equation*}
-    This choice of $z_m$ is motivated in part by the observation that $\lim_{m \to \infty} z_m = x_k^2$.
+    This choice of $z_k^m$ is motivated in part by the observation that $\lim_{m \to \infty} z_k^m = x_k$.
 
-    Referring again to equation \ref{eq:1}, note that $z_m$ is obtained from $y_m$ by omitting the final $m-k$ positive summands of $y_m$.
-    Thus, $\forall m>k$, we have $z_m< y_m$.
-    Since $\lim_{m \to \infty} z_m = x_k$ and $\lim_{m \to \infty} y_m = y_0$ we deduce by Theorem \ref{th:1.3.9} that $\lim_{m \to \infty} z_m=x_k \leq y_0, \forall k \in \mbb{N}$.
+    Referring again to equation \ref{eq:1}, note that $z_k^m$ is obtained from $y_m$ by omitting the final $m-k$ positive summands of $y_m$.
+    Thus, $\forall m>k$, we have $z_k^m< y_m$.
+    Since $\lim_{m \to \infty} z_k^m = x_k$ and $\lim_{m \to \infty} y_m = y_0$ we deduce by Theorem \ref{th:1.3.9} that $\lim_{m \to \infty} z_k^m=x_k \leq y_0, \forall k \in \mbb{N}$.
     Thus $y_0$ is an upper bound for the sequence $\{x_k\}$.
     Consequently, we know that
     \begin{equation*}
@@ -1370,7 +1370,7 @@
     % We want to explore the properties of limit superior and limit inferior to discover how these concepts might provide us with insight about sequences.
     % First, it is evident from the definitions that, in all cases $\lim \inf x_k \le \lim \sup x_k$.
 
-    \begin{theorem}
+    \begin{theorem} \label{th:1.3.16}
         Let $\{x_k\}$ be any sequence.
         \begin{enumerate}
             \item If $\mu = \lim \sup x_k$ is finite, then $\mu \in C$.
@@ -1416,7 +1416,87 @@
 \end{frame}
 
 \begin{frame}{.}
+    \begin{theorem} \label{th:1.3.17}
+        Let $\{x_k\}$ be any bounded sequence in $\mbb{R}$.
+        Fix any $\epsilon > 0$.
+        \begin{enumerate}
+            \item Let $\mu = \lim \sup x_k$.
+            \begin{enumerate}
+                \item There exists a $k_0$ such that for all $k \geq k_0, x_k < \mu +\epsilon$.
+                \item For any $k$, there exists a $k_1 >k$ such that $x_{k_1} > \mu - \epsilon$.
+            \end{enumerate}
+            \item Let $\nu = \lim \inf x_k$.
+            \begin{enumerate}
+                \item There exists a $k_0$ such that for all $k \ge k_0, x_k > \nu - \epsilon$.
+                \item For any $k$, there exists a $k_1 > k$ such that $x_{k_1} < \nu + \epsilon$.
+            \end{enumerate}
+        \end{enumerate}
+        Proof. There can exist only finitely many terms of the sequence to the right of $\mu + \epsilon$;
+        Otherwise, there would be a cluster point of $\{x_k\}$-that is, a point of $C$-greater than $\sup C$.
+        We deduce that there must exist a $k_0$ such that, for $k \geq k_0$, we have $x_k < \mu + \epsilon$.
+        That is, the terms of the sequence $\{x_k\}$ are eventually less than $\mu + \epsilon$. (Figure 1.14).
 
+        On the other hand, since $\mu = \lim \sup x_k$ is a cluster point of $\{x_k\}$, given any $\epsilon >0$, there must exist infinitely many terms of the sequence to the right of $\mu - \epsilon$.
+        Thus, given any $k$, there exists a $k_1 > k$ such that $x_{k_1} > \mu - \epsilon$.
+        The terms of the sequence $\{x_k\}$ are frequently greater than $\mu - \epsilon$. (Figure 1.15).
+    \end{theorem}
+
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            \draw (-2.5,0) -- (2.5,0);
+
+            \def\cx{0}
+            \def\eps{0.75}
+
+            \draw (\cx, 0.10) -- (\cx, -0.10) node[below=2pt, inner sep=0pt] {$\mu$};
+            \draw (\cx - 2, 0.1) -- (\cx -2, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+            \draw (\cx + 2, 0.1) -- (\cx + 2, -0.1) node[below=2pt, inner sep=0pt] {$\mu+\epsilon$};
+
+            \draw (\cx + 0.5, 0.1) -- (\cx + 0.5, -0.1) node[below=2pt, inner sep=0pt] {$x_{k}$};
+        \end{tikzpicture}
+        \caption{Figure 1.14}
+    \end{figure}
+
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            \draw (-2,0) -- (2,0);
+
+            \def\cx{0}
+
+            \draw (\cx - 1.25, 0.1) -- (\cx -1.25, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+
+            \draw (\cx +1.25, 0.1) -- (\cx +1.25, -0.1) node[below=2pt, inner sep=0pt] {$x_{k_1}$};
+        \end{tikzpicture}
+        \caption{Figure 1.15}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.18}
+        Let $\{x_k\}$ be any sequence in $\mbb{R}$.
+        \begin{enumerate}
+            \item $\{x_k\}$ converges to $x_0$ if and only if $\lim \inf x_k = \lim \sup x_k = x_0$
+            \item $\{x_k\}$ diverges if and only if one of the following conditions holds:
+            \begin{enumerate}
+                \item Either $\lim \inf x_k$ or $\lim \sup x_k$ is infinite.
+                \item Both $\lim \inf x_k$ and $\lim \sup x_k$ are finite and $\lim \inf x_k < \lim \sup x_k$.
+            \end{enumerate}
+        \end{enumerate}
+
+        Proof. (1. $\implies$) If $\{x_k\}$ converges to $x_0$, then $x_0$ is a bounded sequence.
+        By theorem \ref{th:1.3.14}, A bounded sequence $\{x_k\}$ has a unique cluster point, which then leads to $\lim \inf x_k = \lim \sup x_k = x_0$.
+        (1. $\impliedby$) If $\lim \inf x_k = \lim \sup x_k = x_0$, then there is only one cluster point of $\{x_k\}$, which is $x_0$.
+        By theorem \ref{th:1.3.14}, $\{x_k\}$ is a bounded sequence that converges to $x_0$.
+
+        \smallskip
+        (2. $\implies$) If $\{x_k\}$ diverges, then either $\{x_k\}$ is unbounded or $\{x_k\}$ is bounded but does not converge.
+        This implies that $\{x_k\}$ has either no cluster point ($\lim \inf x_k$ and $\lim \sup x_k$ are both infinite) or at least two cluster points exist ($\lim \inf x_k < \lim \sup x_k$).
+
+        (2. $\impliedby$) If either $\lim \inf x_k$ or $\lim \sup x_k$ is infinite, then $\{x_k\}$ is unbounded and hence diverges.
+        If both $\lim \inf x_k$ and $\lim \sup x_k$ are finite and $\lim \inf x_k < \lim \sup x_k$, then $\{x_k\}$ has at least two cluster points and hence diverges.
+    \end{theorem}
 \end{frame}
 
 \end{document}
