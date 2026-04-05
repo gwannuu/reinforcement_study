@@ -898,7 +898,7 @@
         \caption{Figure 1.10}
     \end{figure}
 
-    \begin{theorem} \label{th:5}
+    \begin{theorem} \label{th:1.3.3}
         A convergent sequence is bounded.
 
         \smallskip
@@ -917,7 +917,7 @@
 \end{frame}
 
 \begin{frame}{.}
-    The contrapositive of \ref{th:5} provides us with the following useful fact.
+    The contrapositive of \ref{th:1.3.3} provides us with the following useful fact.
     \begin{theorem} \label{th:1.3.4}
         If a sequence is unbounded, then it must diverge
     \end{theorem}
@@ -1496,6 +1496,248 @@
 
         (2. $\impliedby$) If either $\lim \inf x_k$ or $\lim \sup x_k$ is infinite, then $\{x_k\}$ is unbounded and hence diverges.
         If both $\lim \inf x_k$ and $\lim \sup x_k$ are finite and $\lim \inf x_k < \lim \sup x_k$, then $\{x_k\}$ has at least two cluster points and hence diverges.
+    \end{theorem}
+
+    \bigskip
+    As we know, if $\{x_k\}$ is unbounded, then it must diverge.
+    Two special cases deserve attention.
+    \begin{itemize}
+        \item If, for every $M > 0$, there is a $k_0$ such that $x_k >M$ for all $k \ge k_0$, then we say that $\{x_k\}$ diverges to $\infty$ ($\lim \inf x_k = \lim \sup x_k = \lim_{k \to \infty} x_k = \infty$).
+        \item If, for every $M >0$, there is a $k_0$ such that $x_k < -M$ for all $k \ge k_0$, then we say that $\{x_k\}$ diverges to $-\infty$ ($\lim \inf x_k = \lim \sup x_k = \lim_{k \to \infty} x_k = -\infty$).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = k/ (\sqrt{k} + 3)$.
+        We show that $\{x_k\}$ diverges to $\infty$.
+        Fix $M>0$.
+        Our task is to find a $k_0$ such that, for $k \geq k_0$, $x_k >M$.
+        To this end, notice that, $\forall k>9$, we have $k/(\sqrt{k} + 3) > k / (2\sqrt{k}) =\sqrt{k}/2$.
+        We need merely choose $k_0 \in \mbb{N}$ to be greater than $\max(9, 4M^2)$.
+        For $k > k_0$, we have $x_k = \frac{k}{\sqrt{k} + 3} > \frac{\sqrt{k}}{2} > \frac{\sqrt{k_0}}{2}> M$.
+    \end{example}
+    
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = \sum_{j=1}^k 1/j$.
+        It is evident that $\{x_k\}$ is strictly monotone increasing.
+        Its convergence hinges entirely on whether it is bounded.
+        We show here that this sequence is unbounded above and hence that $\lim_{k \to \infty} \sum_{j=1}^k 1/j = \infty$.
+        Fix $M>0$.
+        Consider indices of the form $k = 2^m$.
+        We will show that, for sufficiently large $m$, $x_{2^m} >M$.
+        Working backward, we group the summands as follows:
+        \[
+            x_{2^m} = 1 + \frac{1}{2} + \left(\frac{1}{3}+\frac{1}{4}\right) + \left(\frac{1}{5} + \cdots + \frac{1}{8}\right) + \cdots + \left(\frac{1}{2^{m-1}+1} + \cdots + \frac{1}{2^m}\right) = 1 + \sum^m_{p=1} \left[\sum_{j=1}^{2^{p-1}}\frac{1}{2^{p-1}+j}\right]
+        \]
+        For each $j=1,2,3,\dots,2^{p-1}$, we have $1/(2^{p-1}+j)>1/2^p$.
+        Therefore
+        \[
+            \sum^{P-1}_{j=1}\frac{1}{2^{p-1}+1} > 2^{p-1}\frac{1}{2^p} = \frac{1}{2}
+        \]
+        So $x_{2^m} >1+ \frac{m}{2}$.
+        Now we can identify the required index $k_0$.
+        The inequality $1+\frac{m}{2} > M \implies m > 2(M-1)$.
+        Choose $m_0$ to be the smallest natural number greater than $2(M-1)$ and let $k_0 = 2^{m_0}$.
+        For any $k > k_0 = 2^{m_0}$,
+        \[
+            x_k = (x_k - x_{k_0}) + x_{k_0} > x_{k_0} > 1+\frac{m_0}{2} > M
+        \]
+        Consequently, $\lim_{k \to \infty} x_k = \infty$.
+    \end{example}
+\end{frame}
+
+\subsection{Cauchy Sequences}
+
+\begin{frame}{.}
+    \begin{definition}[The Cauchy condition]
+        A sequence $\{x_k\} \in \mbb{R}$ is called a \ti{Cauchy sequence} if, for any $\epsilon >0$, there exists a $k_0$ such that, for $k$ and $m$ both greater than or equal to $k_0$, it follows that $\abs{x_k - x_m} < \epsilon$
+    \end{definition}
+
+    \begin{theorem} \label{th:1.4.1}
+        If $\{x_k\}$ is a convergent sequence of real numbers, then $\{x_k\}$ is a Cauchy sequence.
+
+        Proof. for any $\epsilon/2 > 0$, $\exists k_0$ such that $\forall k\ge k_0, k \in N(x_0 ; \epsilon/2)$.
+        Then $\forall k, m \ge k_0$, $x_k \in N(x_0; \epsilon/2), x_m \in N(x_0; \epsilon/2)$.
+        This implies $\abs{x_k -x_0 + x_0- x_m} \leq \abs{x_k -x_0} + \abs{x_0 - x_m} < \epsilon$.
+
+    \end{theorem}
+    Hence if you can prove that $\{x_k\}$ is a Cauchy sequence, then you may conclude that the sequence is convergent without knowing or even referring to its limit.
+    \begin{theorem} \label{th:1.4.2}
+        If a sequence is Cauchy, then it is bounded
+
+        Proof. The proof closely imitates that of Theorem \ref{th:1.3.3};
+
+        Assume that $\{x_k\}$ is a Cauchy sequence.
+        Let $\epsilon = 1$.
+        By the cauchy condition choose a $k_0$ such that, whenever $k,m \ge k_0$, we have $\abs{x_k - x_m} < 1$.
+        Let $m = k_0$ and observe that, for any $k \ge k_0$,
+        \[
+            \abs{x_k} = \abs{x_k - x_{k_0} + x_{k_0}} \le \abs{x_k - x_{k_0}} + \abs{x_{k_0}} < 1 + \abs{x_{k_0}}
+        \]
+        Let $M = \max(\abs{x_1}, \abs{x_2}, \dots, \abs{x_{k_0-1}}, \abs{x_{k_0}}+1)$.
+        Then it is immediate that $\abs{x_k} \leq M$ for all $k \in \mbb{N}$.
+        Therefore $\{x_k\}$ is bounded.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.4.3}
+        A Cauchy sequence in $\mbb{R}$ has exactly one cluster point.
+
+        Proof. For suppose that $c_1$ and $c_2$ are two distinct cluster points of the Cauchy sequence $\{x_k\}$.
+        Choose $\epsilon$ with $0< \epsilon < \abs{c_1 - c_2}/3$.
+        Choose a $k_0 \in \mbb{N}$ such that, if $k,m \geq k_0$, then $\abs{x_k - x_m} < \epsilon$.
+        Since $c_1$ and $c_2$ are cluster points of $\{x_k\}$, there exists $k_1, k_2 > k_0$ such that $x_{k_1} \in N(c_1; \epsilon)$ and $x_{k_2} \in N(c_2; \epsilon)$.
+        Use the inequality $\abs{a+b} \ge \abs{a} + \abs{b}$ twice to obtain the following contradiction:
+        \begin{equation*}
+             \epsilon > \abs{x_{k_1} - x_{k_2}} = \abs{c_1 - c_2 + x_{k_1} - c_1 + x_{k_2}- c_2} \ge \abs{c_1 - c_2} - \abs{x_{k_1} - c_1} - \abs{c_2 - x_{k_2}} > \epsilon
+        \end{equation*}
+    \end{theorem}
+
+    \begin{theorem} \label{th:1.4.4}
+        A sequence in $\mbb{R}$ is convergent if and only if it is a Cauchy sequence.
+
+        Proof.
+        
+        ($\implies$) Refer \ref{th:1.4.1}.
+        
+        ($\impliedby$) By Theorem \ref{th:1.4.2}, $\{x_k\}$ is bounded.
+        By Theorem \ref{th:1.4.3}, $\{x_k\}$ has exactly one cluster point.
+        By Theorem \ref{th:1.3.14}, the sequence $\{x_k\}$ converges.
+    \end{theorem}
+
+    \begin{definition}
+        A set $X$ is saide to be \ti{Cauchy complete} if every Cauchy sequence in $X$ converges to a point of $X$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    % \begin{example}
+    %     Consider the decimal expansion of the irrational number $\sqrt{2}=1.4142136\dots$.
+    %     We can write down the first few terms of a Cauchy sequence that converges to $\sqrt{2}$ 
+    %     \begin{equation*}
+    %         \begin{gathered}
+    %             x_1 = 1.40000000 \quad x_4 =1.41420000 \\
+    %             x_2 = 1.41000000 \quad x_5 =1.41421000 \\
+    %             x_3 = 1.41400000 \quad x_6 =1.41421300 \\
+    %         \end{gathered}
+    %     \end{equation*}
+    
+    %     Then $\{x_k\}$
+    % \end{example}
+
+    \begin{example}
+        Let $x_0 =n_0 . d_2 d_2 d_3 \cdots d_k \cdots$ be the decimal expansion of any positive number, where $n_0$ is the integer part of $x_0$ and, for $k=1,2,3,
+        \cdots,$ the digits $d_k$ are chosen from the set $\{0,1,2,3,4,5,6,7,8,9\}$.
+        Then $x_0$ can be written as an infinite series as follows:
+        \[
+            x_0 = n_0 + \sum_{j=1}^\infty \frac{d_j}{{10}^j}
+        \]
+        For each $k \ge 1$, let $x_k= n_0 + \sum^{k}_{j=1} d_j/{10}^j$
+        We claim that $\{x_k\}$ is a Cauchy sequence that converges to $x_0$.
+        To see this, we work backward.
+        Choose any indices $k, m$ with $m > k$.
+        Then
+        \[
+            \abs{x_m - x_k} = \sum_{j={k+1}}^{m} \frac{d_j}{{10}^j} \le \sum_{j={k=1}}^{m} \frac{9}{10^j} = 9 \left(\frac{1}{10}\right)^{k+1} \left(\frac{10}{9}\right) \left[1 - \left(\frac{1}{10}\right)^{m-k}\right] < 9 \left(\frac{1}{10}\right)^{k+1} \left(\frac{10}{9}\right) = \left(\frac{1}{10}\right)^k
+        \]
+        This last inequality provides the clue for our forward proof.
+        Given any $\epsilon >0$, use Archimedes' principle to choose $k_0 \in \mbb{N}$ so large that $(1/10)^{k_0} < \epsilon$.
+        Then, for $m > k \ge k_0$,
+        \[
+            \abs{x_m - x_k} < \left(\frac{1}{10}\right)^k \le \left(\frac{1}{10}\right)^{k_0} < \epsilon
+        \]
+        Thus $\{x_k\}$ is a Cauchy sequence.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Recursively construct a sequence of real numbers as follows.
+        Let $x_1 = 0, x_2=1, x_3=1/2, x_4=(1+1/2)/2 = 3/4$, and in general, for $k=2,3,4,\dots,$ let next term be the arithmetic average of the previous two: $x_{k+1} = (x_{k-1} + x_k)/2$.
+        Choose any two (large) indices $k$ and $m$.
+        W.L.O.G., $m > k$.
+        \[
+            \abs{x_m - x_k} \le \sum_{j=k}^{m-1} \abs{x_{j+1}-x_j} = \sum_{j=k}^{m-1} \left(\frac{1}{2}\right)^{j-1} = \left(\frac{1}{2}\right)^{k-1} \left[1 + \frac{1}{2}+\frac{1}{2^2} + \cdots + \frac{1}{2^{m-k-1}}\right] < \left(\frac{1}{2}\right)^{k-2}
+        \]
+        Now assign any $\epsilon > 0$.
+        Choose $k_0$ such that $(1/2)^{k_0 -2} < \epsilon$.
+        If $k, m > k_0, m>k$, then
+        \[
+            \abs{x_m - x_k} < \left(\frac{1}{2}\right)^{k-2} \le \left(\frac{1}{2}\right)^{k_0 - 2} < \epsilon
+        \]
+        Consequently, $\{x_k\}$ is a Cauchy sequence and it leads to that $\{x_k\}$ converges.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k =\sum^k_{j=0} (-1)^j /j!$.
+        We claim that $\{x_k\}$ is Cauchy.
+        We begin by working backward.
+        Choose any two indices $m, k$ with $m >k$.
+        Then
+        \[
+            \abs{x_m - x_k} = \abs{\sum_{j=k+1}^m \frac{(-1)^j}{j!}} \le \sum_{j=k+1}^m \frac{1}{j!} \leq \sum_{j=k+1}^m \frac{1}{2^{j-1}} = \frac{1}{2^{k-1}} \left[1 - \left(\frac{1}{2}\right)^{m-k}\right] < \frac{1}{2^{k-1}}
+        \]
+        For any $\epsilon >0$, choose the least natural number $k_0$ such that $1/2^{k_0-1} < \epsilon$.
+        For $k,m \geq k_0$ with $m>k$,
+        \[\abs{x_m - x_k} < \frac{1}{2^{k-1}} \le \frac{1}{2^{k_0 -1}} < \epsilon\]
+        Consequently the sequence $\{x_k\}$ is Cauchy and converges.
+        You can compute an approximation to the limit of this sequence, which is accurate to seven decimal places, by taking $k=10$.
+        We obtain $x_{10} = \sum^{10}_{j=0}(-1)^j/j! \doteq 0.3678794$.
+        Compare this number with the value given by your calculuation for the nubmer $1/e$.
+    \end{example}
+
+    \bigskip
+    \begin{definition}
+        A sequence $\{x_k\}$ is said to be \ti{contractive} if there exists a constant $C$, with $0<C<1$, such that
+        \[
+            \abs{x_{k+1}-x_k} \le C\abs{x_k -x_{k-1}},
+        \]
+        for all $k=2,3,4,\cdots$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Define a sequence recursively as follows.
+        Let $x_1$ be any positive number.
+        For $k \ge 1$, let $x_{k+1} = 1/(4+x_k)$.
+        The resulting sequence is contractive.
+        To prove this, we must exhibit a constant $0<C<1$ such that for $k \ge 2$, $\abs{x_{k+1} - x_{k}} \leq C \abs{x_{k}-x_{k-1}}$.
+        \[
+            \abs{x_{k+1} - x_k} =\abs{\frac{1}{4+x_k} - x_k} = \left(1 - \frac{4}{4+x_k}\right)\abs{x_{k-1} -x_k}
+        \]
+        For $k \ge 2$, $x_k = 1/(4+x_{k-1})< 1/4$.
+        Therefore $4+x_{k} < 17/4$ and $4/(4+x_k) > 16/17$.
+        \[
+            0 < 1- \frac{4}{4+x_k} < \frac{1}{17}
+        \]
+        We take $C = 1/17$.
+        We have proved that, for $k \ge 2$,
+        \[\abs{x_{k+1} - x+k} \leq \frac{1}{17} \abs{x_k} - x_{k-1} \]
+        Consequently, $\{x_k\}$ is contractive.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.4.5}
+        If $\{x_k\}$ is a contractive sequence in $\mbb{R}$, then it is Cauchy.
+
+        Proof. Suppoe that $C$ is a constant with $0<C<1$ such that, for $k\ge 2$.
+        $\abs{x_{k+1}- x_k} \leq C \abs{x_k - x_{k-1}}$.
+        W.L.O.G., $\abs{x_2 - x_1} > 0$.
+        It is straightforward to prove by induction that $\abs{x_{k+1} - x_k}\le C^{k-1}\abs{x_2 - x_1}$ for $k \ge 2$.
+        Now choose any two indices $k$ and $m$ with $m >k$.
+        Using the formula for the sum of a finite geometric series, compute
+        \[
+            \abs{x_m - x_k} \le \sum_{j=k}^{m-1} \abs{x_{j+1} - x_j} \le \sum_{j=k}^{m-1} C^{j-1} \abs{x_2 - x_1} = C^{k-1} \abs{x_2 - x_1} \frac{1 - C^{m-k}}{1 - C} < \frac{C^{k-1}}{1-C} \abs{x_2 - x_1}
+        \]
+        Given any $\epsilon > 0$, we can choose $k_0$ such that if $k \ge k_0$, then $C^{k-1}< \frac{(1-C)\epsilon}{\abs{x_2 - x_1}}$.
+        Choose any $k, m \ge k_0$ with $m >k$.
+        Then $\abs{x_m - x_k} < \frac{C^{k-1}}{1-C} \abs{x_2 -x_1} < \epsilon $. 
     \end{theorem}
 \end{frame}
 
