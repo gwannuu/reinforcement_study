@@ -1,0 +1,1744 @@
+\documentclass[8pt]{beamer}
+\usefonttheme[onlymath]{serif}
+
+
+\setbeamertemplate{frametitle}{%
+  \vskip1ex
+  \usebeamerfont{frametitle}%
+  \insertsubsectionhead\par        %  ← 원하는 대로 변경 가능
+  \vskip1ex
+  \hrule                             % 밑줄(선택)
+}
+
+\setbeamertemplate{blocks}[rounded][shadow=true] % 블록 테두리 둥글게
+
+\setbeamertemplate{itemize item}{\usebeamerfont{itemize item}\textbullet}
+\setbeamertemplate{itemize subitem}{\usebeamerfont{itemize subitem}\textbullet}
+\setbeamertemplate{itemize subsubitem}{\usebeamerfont{itemize subsubitem}\textbullet}
+
+\makeatletter
+\geometry{%
+  papersize={\fpeval{\beamer@paperwidth*1.3}pt,\fpeval{\beamer@paperheight*1.3}pt},
+  hmargin=\fpeval{0.5 * 1.0}cm,% 1cm
+  vmargin=0cm,%
+  head=\fpeval{0.5*1.3}cm,% 0.5cm
+  headsep=0pt,%
+  foot=\fpeval{0.5*1.3}cm% 0.5cm
+}
+\makeatother
+
+% 테마 선택 (선택 사항)
+% \usetheme{Madrid} % 기본 테마, 다른 테마 사용 가능
+% \font{serif}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % To use combination of textbf, textit
+\usepackage[dvipsnames]{xcolor}   % can use more variant colors
+
+% \setcounter{MaxMatrixCols}{20}
+
+% (필요한 패키지들)
+% \usepackage{amsthm}
+\setbeamertemplate{theorems}[numbered]  % 정리, 정의 등에 번호를 달아줌
+
+% \theoremstyle{plain} % insert bellow all blocks you want in italic
+% \newtheorem{theorem}{Theorem}[section] % to number according to section
+% 
+% \theoremstyle{definition} % insert bellow all blocks you want in normal text
+% \newtheorem{definition}{Definition}[section] % to number according to section
+% \newtheorem*{idea}{Proof idea} % no numbered block
+
+% ------------------------------------------------------------
+% Separate counters:
+% - (theorem, proposition) share one counter
+% - definition has its own counter
+% - example has its own counter
+% (Beamer's default theorem-like environments often share a counter.)
+% ------------------------------------------------------------
+\newcounter{thm}
+\newcounter{defn}
+\newcounter{ex}
+\newcounter{exer}
+\renewcommand{\thethm}{\thesection.\thesubsection.\arabic{thm}}
+\renewcommand{\thedefn}{\thesection.\thesubsection.\arabic{defn}}
+\renewcommand{\theex}{\thesection.\thesubsection.\arabic{ex}}
+\renewcommand{\theexer}{\thesection.\thesubsection.\arabic{exer}}
+
+% Reset numbering by section/subsection (useful in beamer where content is organized by \subsection).
+\makeatletter
+\@addtoreset{thm}{section}
+\@addtoreset{defn}{section}
+\@addtoreset{ex}{section}
+\@addtoreset{exer}{section}
+\@addtoreset{thm}{subsection}
+\@addtoreset{defn}{subsection}
+\@addtoreset{ex}{subsection}
+\@addtoreset{exer}{subsection}
+\makeatother
+
+\renewenvironment{theorem}[1][]{%
+    \refstepcounter{thm}%
+    % \begin{block}{Theorem \thethm\if\relax\detokenize{#1}\relax \ condition is true \relax == \relax\else\ (#1)\fi}%
+    \begin{block}{Theorem \thethm\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+    \itshape
+}{%
+    \end{block}%
+}
+
+\newenvironment{proposition}[1][]{%
+    \refstepcounter{thm}%
+    \begin{block}{Proposition \thethm\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+    \itshape
+}{%
+    \end{block}%
+}
+
+\renewenvironment{definition}[1][]{%
+    \refstepcounter{defn}%
+    \begin{block}{Definition \thedefn\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+}{%
+    \end{block}%
+}
+
+\renewenvironment{example}[1][]{%
+    \refstepcounter{ex}%
+    \begin{exampleblock}{Example \theex\if\relax\detokenize{#1}\relax\else\ (#1)\fi}%
+}{%
+    \end{exampleblock}%
+}
+
+% Exercise: increments its own counter for \label/\ref, but you can override
+% the displayed number/name via the optional argument.
+% Examples:
+%   \begin{exercise}[1.19] ... \end{exercise}   -> shows "Exercise 1.19"
+%   \begin{exercise} ... \end{exercise}        -> shows "Exercise <section>.<subsection>.<n>"
+\makeatletter
+\newenvironment{exercise}[1][]{%
+    \refstepcounter{exer}%
+    \def\exercise@display{#1}%
+    % If an optional display label is provided (e.g. [1.19]), make \label/\ref
+    % use that value as well by overriding \@currentlabel.
+    \if\relax\detokenize{#1}\relax
+        \def\exercise@display{\theexer}%
+    \else
+        \protected@edef\@currentlabel{#1}%
+        \@ifundefined{@currentlabelname}{}{\protected@edef\@currentlabelname{#1}}%
+    \fi
+    \begin{block}{Exercise \exercise@display}%
+}{%
+    \end{block}%
+}
+\makeatother
+
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing} % 중괄호(brace)를 그리기 위한 라이브러리
+
+% 필요할 경우 패키지 추가
+\usepackage{graphicx} % 이미지 삽입을 위한 패키지
+\usepackage{amsmath}   % 수식 사용
+\usepackage{hyperref}  % 하이퍼링크 추가
+\usepackage{cleveref}
+\usepackage{multicol}  % 여러 열 나누기
+\usepackage{ulem} % 취소선 및줄 나누기
+\usepackage{mathtools} % dcases
+
+%\usepackage{xparse} % NewDocumentCommand
+
+
+
+% \NewDocumentCommand{\DefThreeOp}{m}{%
+%   % \csname #1\endcsname 라는 이름으로, 3개 인자를 받는 새 매크로를 정의
+%   \expandafter\NewDocumentCommand\csname #1\endcsname{mmm}{%
+%     \operatorname{#1}\!\bigl(##1,\,##2,\,##3\bigr)%
+%   }%
+% }
+
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\tb}[1]{\textbf{#1}}
+\newcommand{\ti}[1]{\textit{#1}}
+\newcommand{\Pois}[1]{\operatorname{Pois}(#1)}
+
+\newcommand{\myber}[1]{\operatorname{Bern}\!\left(#1\right)}
+\newcommand{\Bin}[2]{\operatorname{Bin}\!\left(#1,#2\right)}
+\newcommand{\NBin}[2]{\operatorname{NBin}\!\left(#1,#2\right)}
+\newcommand{\mytoinf}[1]{#1 \rightarrow \infty}
+\newcommand{\myexp}[1]{\exp{\left(#1\right)}}
+\newcommand{\Unif}[2]{\operatorname{Unif}\!\left(#1, #2\right)}
+\newcommand{\mygeom}[1]{\operatorname{Geom}\!\left(#1\right)}
+\newcommand{\Expo}[1]{\operatorname{Expo}\!\left(#1\right)}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\floor}[1]{\left\lfloor #1 \right \rfloor}
+\newcommand{\expec}[1]{\operatorname{E}\left[ #1 \right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\myskew}[1]{\operatorname{Skew}\!\left[#1\right]}
+\newcommand{\mykurt}[1]{\operatorname{Kurt}\!\left[#1\right]}
+\newcommand{\mywei}[2]{\operatorname{Wei}\!\left(#1, #2\right)}
+\newcommand{\Span}{\operatorname{Span}}
+\newcommand{\Cov}[2]{\operatorname{Cov}\!\left(#1, #2\right)}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\Corr}[2]{\operatorname{Corr}\!\left(#1, #2\right)}
+\newcommand{\Mult}[3]{\operatorname{Mult}_{#1}\!\left(#2, #3\right)}
+\newcommand{\Beta}[2]{\operatorname{Beta}\!\left(#1, #2\right)}
+\newcommand{\HGeom}[3]{\operatorname{HGeom}\!\left(#1, #2, #3\right)}
+\newcommand{\NHGeom}[3]{\operatorname{NHGeom}\!\left(#1,#2, #3\right)}
+\newcommand{\GammaDist}[2]{\operatorname{Gamma}\!\left(#1, #2\right)}
+%\DefThreeOp{PHGeom}
+
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\tr}{\operatorname{tr}}
+
+
+% 발표 제목, 저자, 날짜 설정
+\title{Introduction to Mathematical Analysis}
+\author{Gwanwoo Choi}
+% \date{}
+
+\begin{document}
+% 표지 슬라이드
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{The Structure of the Real Numbers: Sequences}
+\subsection{Completeness of the Real Numbers}
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+% % 목차 슬라이드
+
+\begin{frame}{.}
+    \begin{definition}
+        A nonempty set $S$ of real numbers is said to be \tb{bounded above} if there exists some real number $M$ such that $x \leq M$ for every $x$ in $S$.
+        In this case $M$ is said to be an \tb{upper bound} for $S$.
+        Likewise, $S$ is said to be \tb{bounded below} if there exists some number $m$ such that $m \leq x$ for all $x$ in $S$.
+        $m$ is called a \tb{lower bound} for $S$.
+        We call $S$ \tb{bounded} if it is both above and below.
+    \end{definition}
+
+    \begin{definition}
+        Let $S$ be a nonempty set of real numbers that is bounded above.
+        A \tb{supremum} or \tb{least upper bound} of $S$, denoted $\sup S$, is a real number $\mu$ such that
+        \begin{enumerate}
+            \item $x \leq \mu$, for all $x \in S$
+            \item If $M$ is an upper bound for $S$, then $\mu \leq M$
+        \end{enumerate}
+
+        An \tb{infimum} or \tb{greatest lower bound} of $S$, denoted $\inf S$, is a real number $\nu$ such that
+        \begin{enumerate}
+            \item $\nu \leq x$, for all $x \in S$
+            \item If $m$ is any lower bound for $S$, then $\nu \geq m$
+        \end{enumerate}
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Consider the open interval $S = (a,b) = \{x \mid x \in \mbb{R}, a < x < b\}$.
+        Note that for any $a<x<b$, $(x+b)/2 \in S$, so $x$ is not an upper bound of $S$.
+        Also, for any $a<x<b$, $(x+a)/2 \in S$, so $x$ is not a lower bound of $S$.
+        So $\inf S = a$ and $\sup S = b$.
+    \end{example}
+
+
+    \begin{block}{Archimedes' Principle}
+        Let $\epsilon$ and $M$ be any two positive real numbers.
+        There exists a $k$ in $\mbb{N}$ such that $M < k \epsilon$.
+    \end{block}
+
+    \begin{example}
+        Let $S = \{(-1)^k \left(1 - \frac{1}{k}\right) | \forall k \in \mbb{N} \} = \{0, 1/2, -2/3, 3/4, -4/5, \dots\}$.
+        Then $S$ is bounded and upper bound is $1$ and lower bound is $-1$.
+        Note that $10, 100$ also can be upper bound and $-10, -100$ can be lower bound.
+
+        Let assume there exists another upper bound $x$ such that $x < 1$.
+        Then by Archimedes' principle, there exists a $k \in \mbb{N}$ such that $1 < (2k)(1-x)$.
+        Then $x$ satisfies $x < 1 - \frac{1}{2k} = (-1)^{2k} (1 - \frac{1}{2k})$.
+        Note that $(-1)^{2k} (1 - \frac{1}{2k}) \in S$.
+        So $x$ is not an upper bound of $S$ and $1$ becomes to leaset upper bound of $S$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Bernoulli's Inequality (Exercise 1.16)}
+        \begin{itemize}
+            \item  For all $x > -1$ and all $n \in \mbb{N}$, $(1+x)^n \geq 1 + nx$ holds. (\underline{Bernoulli's inequality})
+
+            \ti{Proof.} $n=1$ case is trivial.
+            Let assume the equation holds when $n=k$.
+            Then $(1+x)^k \geq 1+ kx$ holds.
+            Then $(1+x)^{k+1} \geq (1+kx)(1+x) = 1 + (k+1)x + kx^2 \geq 1 + (k+1)x$
+
+            \item For any $\mu > 0, \mu \in \mbb{R}$ and $k \in \mbb{N}$, $1 < \mu k \implies (\mu - \frac{1}{k})^n \geq \mu^n - \frac{n \mu^{n-1}}{k}$ holds.
+            $1 < \mu k \implies 1 > \frac{1}{\mu k}$. So, by Bernoulli's inequality, $(1 - \frac{1}{\mu k})^n \geq  1 + n(-\frac{1}{\mu k}) \implies (\mu - \frac{1}{k})^n \geq \mu^n - \frac{n \mu^{n-1}}{k}$ holds.
+        \end{itemize}
+    \end{block}
+
+    \begin{example} \label{ex:1}
+        Fix $r >1$ and let $S = \{r^k \mid k \in \mc{N}\}$.
+        The claim is $S$ is not bounded above and hence $\sup S$ does not exist in $\mbb{R}$.
+        Let $r = 1+c$ for some $c >0$.
+        Then by Bernoulli's inequality, $r^k = (1+c)^k \geq 1+kc$ holds.
+
+        Let assume $M \in \mbb{R}, M >0$ and $M$ is upper bound of $S$.
+        Then by Archimedes' principle, ther exists a $k$ such that $M - 1 < kc$.
+        Then $M < 1+kc \leq (1+c)^k = r^k$ and $M$ is not an upper bound of $S$.
+    \end{example}
+
+    Example \ref{ex:1} shows that there can exist a nonempty set that is not bounded above.
+\end{frame}
+
+\begin{frame}{.}
+    The all-important question arises: If $S$ is bounded above, does $\sup S$ exist?
+
+    \begin{example}
+        Let $S$ be the closed interval $S = [a,b] = \{x \mid x \in \mbb{R}, -\sqrt{2} \leq x \leq \sqrt{2}\}$.
+        Then it is trivial that $\sup S = \sqrt{2}$ and $\inf S = -\sqrt{2}$.
+        Note that $\sup S, \inf S \in \mbb{R}$.
+
+        Now let $S^\prime = [a,b] = \{x \mid x \in \mbb{Q}, -\sqrt{2} \leq x \leq \sqrt{2}\}$.
+        but in this time $\sup S, \inf S \notin \mbb{Q}$.
+
+        This implies $\mbb{R}$ is more complete than $\mbb{Q}$.
+    \end{example}
+
+
+    \begin{block}{Axiom: The Completeness Axiom for $\mbb{R}$}
+        If $S$ a non-empty set of real numbers that is bounded above, then $\exists \sup S \in \mbb{R}$.
+    \end{block}
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Fix $c>0$ and $n \in \mbb{N}$.
+        Let $S = \{x \mid x \in \mbb{R}, 0 <x^n <c \}$.
+
+        First show that $S$ is non-empty.
+        Since $c >0$, by Archimedes' principle, there exists a $k \in \mbb{N}$ such that $1 < ck$.
+        Then $1 < ck \leq ck^n \implies 1 < ck^n \implies 1/k^n < c$.
+        This implies $1/k \in S$ and $S \neq \emptyset$.
+
+        Is $S$ bounded above?
+        Choose any $M > \max (c,1)$.
+        Then $0 < x^n < c < M < M^n \implies x < M$.
+        So $S$ is upper bound of $S$.
+
+        By axiom, $\exists \sup S \in \mbb{R}$.
+        Let $\mu = \sup S$.
+        Intuitively we now that $\mu^n = c$.
+        So we want to show that $\mu^n < c$ or $\mu^n >c$ are impossible.
+
+        First, let assume $\mu^n < c$.
+        Let $M = \sum_{j=1}^n \binom{n}{j} \mu^{n-j}$.
+        Since $(c - \mu^n) >0, M >0$, by Archimedes' principle, there exists a $k \in \mbb{N}$ such that $M < k (c - \mu^n) \implies M/k < (c - \mu^n)$.
+        Let expand $(\mu + 1/k)^n = \sum_{j=0}^n \binom{n}{j} \mu^{n-j} (1/k)^j = \mu^n + (1/k)\sum_{j=1}^n \binom{n}{j} \mu^{n-j} (1/k)^{j-1} \leq \mu^n + 1/k \sum_{j=1}^n \binom{n}{j} \mu^{n-j} = \mu^n + M/k \leq \mu^n + (c - \mu^n) =c$.
+        This shows that $(\mu + 1/k) \in S$ (contradiction!).
+        
+        Suppose that $\mu^n > c$. Then $\exists k \in \mbb{N}$  such that $1 < \mu k, n \mu^{n-1} < (\mu^n -c) k$. By Bernoulli's inequality, $(mu - \frac{1}{k})^n \geq \mu^n - \frac{n \mu^{n-1}}{k} > \mu^n - (\mu^n - c) = c > x^n$.
+        So $\mu - \frac{1}{k}$ must be an upper bound for $S$ (contradiction!).
+
+        $\therefore \mu = c^{\frac{1}{n}}$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.19]
+        Prove by induction that, for every $j \in \mbb{N}$, $2^{j-1} \leq j!$.
+
+        If $j=1$, $2^0 = 1 \leq 1! = 1$.
+        Suppose for $k \in \mbb{N}$, $2^{k-1} \leq k!$ holds.
+        Then $2^k \leq 2 \cdot k! \leq (k+1)\cdot k! \leq (k+1)!$.
+    \end{exercise}
+
+
+    \begin{example} \label{ex:6}
+        Let $S = \{x_k = \sum_{j=0}^k \frac{1}{j!} \mid \forall k \in \mbb{N}\}$.
+        The claim is that $S$ is bounded above.
+        For any $k$, $x_k = 1 + \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!} \leq 1 + \frac{1}{2^0} + \frac{1}{2^1} + \cdots + \frac{1}{2^{k-1}} = 1 + \frac{1 - \frac{1}{2}^k}{1 - \frac{1}{2}} = 1 + 2\left(1 - \frac{1}{2}^k\right) <3$.
+        So, $S$ is bounded above by $3$.
+        By axiom, $\exists \sup S \in \mbb{R}$ and $\sup S = e$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    We can observe following facts from Several examples
+    \begin{itemize}
+        \item $\mu = \sup S$ may or may not belong to $S$.
+        \item Whenever $\mu$ is in $S$, $\mu$ is the maximum of $S$.
+        \item If $S$ has a largest element $M$, then $M = \sup S$.
+    \end{itemize}
+
+    \begin{theorem} \label{th:1.1.1}
+        Let $S$ be a non-empty set  of real numbers and let $\mu$ and $\nu$ be real numbers.
+        \begin{enumerate}
+            \item Suppose that $S$ is bounded above. Then $\mu = \sup S$ if and only if $\mu$ is an upper bound for $S$ and, for every $\epsilon >0$, there exists an $x \in S$ such that $\mu - \epsilon < x \leq \mu$.
+            \item Suppose that $S$ is bounded below. Then $\nu = \inf S$ if and only if $\nu$ is a lower bound for $S$ and, for every $\epsilon > 0$, there exists an $x \in S$ such that $\nu \leq x < \nu + \epsilon$.
+        \end{enumerate}
+
+        Proof.
+
+        (1. $\implies$) Suppose there were no point of $S$ in the interval $(\mu - \epsilon,\mu]$ for any $\epsilon >0$.
+        Then $\mu-\epsilon$ would be an upper bound for $S$ and this is contradiction.
+        So there exists a point of $S$ in the interval $(\mu - \epsilon, \mu]$.
+
+        (1. $\impliedby$) Suppose there exists an upper bound $M < \mu$.
+        Let $d = \mu - M$.
+        Then for $d >0$, there should exist a point $x \in S$ such that $\mu - d = M < x \leq \mu$.
+        Then $M$ is not an upper bound of $S$ and this is contradiction.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.5]
+        Use the Axiom and theorem \ref{th:1.1.1} to derive Archimedes' principle.
+
+        For any $\epsilon > 0$, let $S = \{k\epsilon \mid \forall k \in \mbb{N}\}$.
+        Suppose that $S$ is bounded above.
+        Then by axiom, $\exists \mu = \sup S$.
+        By theorem \ref{th:1.1.1}, there exists a point $k\epsilon$ in the interval $\mu - \epsilon < k \epsilon \leq \mu$.
+        In left-hand side, $\mu < (k+1)\epsilon$ and $(k+1) \epsilon \in S$.
+        So $\mu$ is not an upper bound for $S$ (contradiction!).
+
+        So the assumption, $S$ is bounded above, is false.
+
+        This means for any large positive constant $M$, $\exists k\epsilon$ such that $M < k \epsilon$.
+    \end{exercise}
+
+    \begin{exercise}[1.6]
+        Show that Archimedes' principle is equivalent to the following statement: For any $c > 0$, there exists a $k \in \mbb{N}$ such that $k-1 \leq c <k$.
+
+        ($\implies$) Let $\epsilon = 1$ and $M = c > 0$.
+        Then $c < k$ holds for some $k \in \mbb{N}$.
+        Note that there exists many $k$s.
+        Let $k_0$ be the smallest one such that $c < k_0$.
+        Then $c < k_0$ holds but $c <k_0 -1$ not holds.
+        Then we can rewrite as $k_0 -1 \leq c <k_0$.
+
+        ($\impliedby$) Let $c = \frac{M}{\epsilon}$.
+        Then there exists a $k$ such that $k-1 \leq \frac{M}{\epsilon} < k$.
+        Then in the right-side, $M < \epsilon k$ holds.
+    \end{exercise}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:3}
+        Between any two real numbers there is a rational number.
+
+        Proof.
+
+        Suppose $c, d \in \mbb{R}$ such that $0 < c< d$.
+        Since $d -c >0$, by Archimedes' principle, $\exists q \in \mbb{N}$ satisfies $1 < (d-c) q$.
+        That is, $cq +1 < dq$.
+        Since $cq > 0$, $\exists p \in \mbb{N}$ such that $p- 1\leq cq < p$.
+        Combining, $p-1 \leq cq < p  \leq cq + 1 < dq$.
+        $\therefore cq < p <dq \implies c < p/q < d$.
+
+        (Exercise 1.7) Let prove for $c < d \leq 0$ case.
+        By Archimedes' principle, $\exists q \in \mbb{N}$ that satisfies $1 < (d-c) q$.
+        Then $1 + cq < dq$ holds.
+        Also, $\exists p \in \mbb{N}$ such that $p-1 \leq - cq < p$.
+        Then $-p < cq \leq 1-p$.
+        Combining, $-p < cq \leq 1 -p < 1+cq < dq \implies cq < 1-p <dq \implies c < \frac{1-p}{q} < d$.
+
+        Let prove for $c \leq 0 < d$ case.
+        By Archimedes' principle, $\exists q \in \mbb{N}$ $1 < dq$.
+        Then $c \leq 0 < \frac{1}{q} < d$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.10]\label{exercise:1.10}
+        Suppose that $c$ is a real number such that, for all $\epsilon >0$, it is true that $\abs{c} < \epsilon$.
+        Prove that $c$ must be $0$.
+    \end{exercise}
+
+    \begin{exercise}[1.17]
+        Prove that if $x$ and $y$ are positive numbers such that $x^n < y^n$ for some $n \in \mbb{N}$, then $x < y$.
+        (We say that the taking of positive $n$th roots \ti{preserves order} on $\mbb{R}^+$.)
+    \end{exercise}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.20]\label{exercise:1.20}
+        \begin{enumerate}
+            \item Use the Binomial Theorem to show that $(1+1/k)^k$ expands to become 
+            \begin{equation*}
+                1 + 1+ \sum^k_{j=2} \frac{1}{j!} \left(1 - \frac{1}{k}\right)\left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+            \end{equation*}
+            \textit{Proof.}
+            \begin{equation*}
+                \begin{aligned}
+                    &\left(\frac{1}{k}\right)^0 + k \left(\frac{1}{k}\right)^{1} + \frac{k (k-1)}{2} \cdot \left(\frac{1}{k}\right)^2 + \frac{k(k-1)(k-2)}{1\cdot 2 \cdot 3} \cdot \left(\frac{1}{k}\right)^{3} + \cdots \\
+                    &= 1+ 1+ \frac{1}{2!} \cdot \left(\frac{k-1}{k}\right) + \frac{1}{3!}\cdot \left(\frac{k-1}{k} \cdot \frac{k-2}{k}\right) + \cdots = 1+ 1+ \sum_{j=2}^k \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+                \end{aligned}
+            \end{equation*}
+            \item Prove that, for each $j=2,3,\dots,k$,
+            \begin{equation*}
+                \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right) \leq \frac{1}{j!}
+            \end{equation*}
+            \textit{Proof.}
+
+            For all $j \leq k$, $\left(1-\frac{j-1}{k}\right) \leq 1$. This implies that the above inequality holds.
+        \end{enumerate}
+    \end{exercise}
+\end{frame}
+
+\subsection{Neighborhoods and Limit Points}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $x$ be any real number.
+        A \tb{neighborhood} of $x$ with positive radius $r$ is the set $N(x;r) = \{y \in \mbb{R} \mid \abs{y-x} < r \}$.
+
+        A \tb{deleted neighborhood} of $x$ in $\mbb{R}$, denoted $N^\prime (x;r)$, is the neighborhood $N(x;r)$ with the point $x$ itself removed.
+    \end{definition}
+    When the magnitude of the radius $r$ is immaterial, we will omit mention of it and merely write $N(x)$ and $N^\prime(x)$ to denote a neighborhood and deleted neighborhood of $x$, respectively, of the point $x$.
+
+    \begin{definition}
+        Given a nonempty set $S \in \mbb{R}$, a point $x \in \mbb{R}$ is said to be a \tb{limit point} of $S$ if, for each $\epsilon > 0$, the deleted neighborhood $N^\prime(x; \epsilon)$ contains at least one point of $S$.
+    \end{definition}
+    A limit point $x$ of $S$ is also called an \ti{accumulation point} of $S$ because points of $S$ accumulate near $x$ or a \ti{cluster point} of $S$ because points of $S$ cluster around $x$.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $S = \{(-1)^k \cdot (1+\frac{1}{k}) \mid \forall k \in \mbb{N}\} = \{-2, \frac{3}{2}, \frac{-4}{3}, \dots\}$.
+        Then $1$ and $-1$ are each limit points of $S$.
+
+        Let's see that 1 is a limit point of $S$.
+        By Archimedes' principle, for any $\epsilon>0$, we can choose $k \in \mbb{N}$ such that $\frac{1}{2k} < \epsilon$.
+        Then $1<1 + \frac{1}{2k} < 1 + \epsilon$.
+        Therefore, $1 + \frac{1}{2k} = (-1)^{2k} (1 + \frac{1}{2k}) \in N^\prime(1; \epsilon) \cap S$ so $N^\prime(1;\epsilon) \cap S$.
+        So, $1$ is limit point of $S$
+
+        By similar way, one can show that $-1$ is limit point of $S$.
+        Note that neither $1$ nor $-1$ is not point of $S$.
+    \end{example}
+
+    \begin{theorem} \label{th:2}
+        Let $S$ be a non-empty set in $\mbb{R}$.
+        Then a point $x$ is a limit point of $S$ if and only if there is an $\epsilon_0 > 0$ such that, for all $\epsilon$ with $0 < \epsilon < \epsilon_0$, the set $N^\prime(x;\epsilon)$ contains at least one point of $S$.
+
+        ($\implies$) Choose any $\epsilon_0 > 0$ such that, for all $\epsilon$ with $0 < \epsilon < \epsilon_0$, the set $N^\prime (x; \epsilon)$ contains at least one point of $S$.
+
+        ($\impliedby$) Let $\epsilon_1$ be any positive number.
+        We have to show that $N^\prime(x; \epsilon_1) \neq \emptyset$.
+        For $\epsilon = \min(\epsilon_0, \epsilon_1)$, by the hypothesis $N^\prime(x; \epsilon) \cap S \neq \emptyset$ and $N^\prime(x; \epsilon) \subset N^\prime(x; \epsilon_1)$ holds.
+        Therefore $N^\prime(x; \epsilon_1) \neq \emptyset$ and $x$ is a limit point of $S$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example} \label{ex:2}
+        Let $a$ and $b$ be real numbers with $a < b$ and let $S=(a,b)$.
+        Every point in $[a,b]$ is a limit point of $S$.
+        It is trivial that if $x$ is any point in $(a,b)$ and $\epsilon$ is any positive number, then $N^\prime(x;\epsilon)$ contains point of $S$ and $x$ is limit point.
+
+        Let's show that $b$ is limit point of $S$.
+        Fix any $\epsilon_0 > 0$ such that $\epsilon_0 < b-a$.
+        Then for any $\epsilon >0$ such that $0 < \epsilon < \epsilon_0$, $N^\prime(b; \epsilon) \cap S = (b-\epsilon, b) \neq \emptyset$.
+        So by theorem \ref{th:2}, $b$ is a limit point of $S$.
+
+        Similarly, $a$ is a limit point of $S$.
+    \end{example}
+
+    \begin{example}
+        As a variant of \ref{ex:2}, let $a$ and $b$ be real numbers with $a<b$.
+
+        Fix any $x$ in $(a,b)$ and any positive $\epsilon_0 < \min(x-a, b-x)$.
+        Choose any $0 < \epsilon < \epsilon_0$.
+        By \ref{th:3}, there is a rational number in the interval $(x-\epsilon, x)$ (and, by the way, also another in $(x, x+\epsilon)$).
+        Hence, $N^\prime(x;\epsilon)$ contains a point of $S$.
+
+        By theorem \ref{th:2}, $x$ is a limit point of $S$.
+
+        The endpoints are treated similarly.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Let $\mbb{Z}$ has no limit points in $\mbb{R}$.
+
+        To prove this, if $k$ is any integer, $0 < \epsilon_0 <1$, and $\epsilon < \epsilon_0$, then $N^\prime(k; \epsilon)$ is contained entirely in $(k-1, k) \cup (k, k+1)$, a set of devoid of integers.
+        Thus $k$ cannot be a limit point of $\mbb{Z}$.
+
+        If $x$ is not an integer, then $x \in (\floor{x}, \floor{x}+1)$.
+        Note that there is no integer in $(\floor{x}, \floor{x}+1)$.
+        If we choose a positive $\epsilon_0 < 
+        min(x - \floor{x}, \floor{x}+1 - x)$ and $\epsilon < \epsilon_0$, then $N^\prime(x;\epsilon)$ has no integer.
+        Thus $x$ cannot be a limit point of $\mbb{Z}$ either.
+
+        That is, no point of $\mbb{R}$ is a limit point of $\mbb{Z}$.
+    \end{example}
+
+    \begin{definition}
+        If a non-empty set $S$ in $\mbb{R}$ has no limit points, then $S$ is said to be \tb{discrete}.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}[The Bolzano-Weierstrass Theorem] \label{th:1.2.2}
+        If $S$ is a bounded, infinite subset of $\mbb{R}$, then $S$ has a limit point in $\mbb{R}$.
+
+        \smallskip
+        \text{}
+        Proof.
+        Since $S$ is bounded, by Axiom $\nu = \inf S, \mu = \sup S$ exist.
+        Clearly, $S \subseteq [\nu, \mu]$.
+        Let $a_0= \nu$, $b_0 = \mu$.
+        Let $c_0 = (a_0 + b_0)/2$.
+        Then either $[a_0, c_0]$ or $[c_0, b_0]$ contains infinitely many points of $S$, for otherwise $S$ would be a finite set.
+        Let $I_1 =[a_1, b_1]$ denote whichever of the intervals $[a_0, c_0]$ or $[c_0, b_0]$ contains infinitely many points of $S$.
+        Note that $I_1 \subset I_0$ and that the length of $I_1$ is $(b_0 - a_0)/2$.
+
+        Let $c_1 = (a_1 + b_1)/2$ and again select $I_2 = [a_2, b_2]$ by similar way.
+        Continue this procecure, repeatedly bisecting each interval $[a_k, b_k]$ and choosing $I_{k+1} = [a_{k+1}, b_{k+1}]$ to be the half of $[a_k, b_k]$ that contains infinitely many points of $S$.
+
+        In this way, we can obtain $T = \{I_k \mid \forall k \in \mbb{N}\}$ of closed intervals with the following properties:
+        \begin{block}{}
+            For each $k \in \mbb{N}$,
+            
+            (1.) $S \cap I_k$ is infinite.
+            
+            (2.) $I_{k+1} \subset I_k$.
+            
+            (3.) The length of $I_k$ is $b_k - a_k = (b_0 - a_0)/ 2^k$.
+        \end{block}
+
+        From this fact, for any $k \in \mbb{N}$ and $m \geq k, m \in \mbb{N}$, $a_0 \leq a_k \leq a_m \leq b_m \leq b_k \leq b_0$ holds (the reason why this equation is exercise!).
+        Let $A = \{a_k \mid \forall k \in \mbb{N}\}$ be the set of all left endpoints of the intervals $I_k$ and $B = \{b_k \mid \forall k \in \mbb{N}\}$.
+
+        Since neither $A$ nor $B$ is empty and $A$ is bounded above by $b_0$ and $B$ is bounded below by $a_0$, by Completeness Axiom for $\mbb{R}$, $\exists \alpha = \sup A \in \mbb{R}, \exists \beta = \inf B \in \mbb{R}$.
+
+        \underline{The claim is $\alpha = \beta$ and this common value is a limit point of $S$}.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Con't}
+        Let first see that $\alpha \leq \beta$ and after see that $\alpha = \beta$.
+        For every $k=0, 1, \dots,$, $a_k$ is a lower bound for $B$ since $a_k \leq a_m \leq b_m$.
+        Therefore, $a_k \leq \beta = \inf B$, $\forall k$.
+        Since for all $k$, $a_k \leq \beta$, $\beta$ is also upper bound of $A$. Thus, $\alpha \leq \beta$.
+
+        Let's see that $\alpha = \beta$.
+        Now we know that $\forall k, a_k \leq \alpha \leq \beta \leq b_k$.
+        Thus $\beta - \alpha \leq b_k - a_k = (b_0 - a_0)/2^{k}$, for all $k$.
+
+        For arbitrary $\epsilon > 0$, we can use Archimedes' principle and an inductive proof to choose a $k \in \mbb{N}$
+        such that $ \frac{b_0- a_0}{2^k} \leq \frac{b_0 - a_0}{k} <\epsilon$.
+        So, $0 < \beta - \alpha \leq \frac{b_0-a_0}{2^k} < \epsilon$ holds.
+        By exercise 1.10, $\beta - \alpha$ should be $0$ and $\alpha = \beta$.
+
+        Let $x_0 = \alpha = \beta$.
+        Now we see that $x_0$ is limit point.
+        Assign any positive value to $\epsilon$.
+        By Archimedes' principle, choose a $k$ in $\mbb{N}$ such that $ b_k - a_k = (b_0 - a_0)/2^k <\epsilon$.
+        Then combining with $a_k \leq x_0 \leq b_k$, $x_0 + \epsilon > x_0 + (b_k - a_k) = b_k + (x_0 - a_k) \geq b_k$ holds.
+        Also, $x_0 - \epsilon < x_0 - (b_k - a_k) = a_k - (b_k - x_0) \leq a_k$ holds.
+        So, $a_k, b_k \in N^\prime(x_0; \epsilon)$. and there exists infinitely many points of $S$ between $a_k$ and $b_k$.
+
+        $\therefore x_0$ is the limit point of $S$ and there always exists a limit point of bounded non-empty set $S$.
+    \end{block}
+
+    \begin{definition}
+        We say that a nonempty set $X$ has the \tb{Bolzano-Weierstrass property} if every bounded infinite subset $S$ of $X$ has a limit point in $X$. 
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.23]
+        Suppose that $S$ is a bounded, infinite subset of $\mbb{R}$.
+        Let $\mu = \sup S$.
+        Is $\mu$ necessarily a limit point of $S$?
+        If so, show that, for every $k \in \mbb{N}$ there exists a point $x \in S$ such that $\mu - \frac{1}{k} < x \leq \mu$.
+        If not, exhibit a bounded, infinite set $S \in \mbb{R}$ whose supremum is not a limit point of $S$.
+
+        Let $S = \{1/2^k \mid \forall k \in \mbb{N}\}$.
+        Then $\mu = 1/2$.
+        Let $\epsilon = \frac{1}{8}$.
+        Then there is no element of $S$ in $N^\prime(1/2; 1/8)$.
+
+        Therefore there is no guarantee that $\mu$ is a limit point.
+    \end{exercise}
+
+    \begin{exercise}[1.25]
+        If $x$ is any nonzero number and if $0 < \epsilon < \abs{x}$, prove that only finitely many numbers of the form $(-1)^k/2^k$ are in $N(x;\epsilon)$.
+
+        If $x>0$, then for any $\epsilon > 0$, there exists $k \in \mbb{N}$ such that $1 < k (x - \epsilon) < 4^k (x - \epsilon)$.
+        This implies $1\ 2^{2m} < x - \epsilon$ for $m \geq k, m \in \mbb{N}$.
+        Else if $x < 0$, for any $\epsilon$ s.t. $ 0 < \epsilon < \abs{x}$, $-(x+\epsilon) >0$ and by Archimedes' principle, there exists $k$ such that $1 < -(x+\epsilon) k  < -(x+\epsilon) 2^{2k+1}$.
+        Then $x + \epsilon < -1/2^{2k+1}$.
+        Then $\forall m \in \mbb{N}, m > k$, $x + \epsilon < -1/2^{2m+1} <0$ holds.
+
+        $\therefore N(x; \epsilon)$ only contains finite points.
+    \end{exercise}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{exercise}[1.26]
+        Prove that a nonempty finite set has no limit points.
+
+        Let order the element of any nonempty finite set $S$, and denote $i$-th element as $x_i$
+        Then for $k \in \mbb{N}$, $x_k < x_{k+1}$ holds.
+
+        First, let's see that each $x_i$ is not a limit point.
+
+        Let $d_i = \min(\abs{x_i - x_{i-1}}, \abs{x_i - x_{i+1}})$ if both $x_{i-1}$ and $x_{i+1}$ exist else assign distance with nearest element to $d_i$.
+        If we choose $\epsilon> 0$ such that $\epsilon<d_i$, then there is no element in $N^\prime(x_I; \epsilon)$.
+
+        Let me prove that $x$ such that $x_i < x < x_{i+1}$ is not a limit point.
+        $d_i = \min(x-x_{i}, x_{i+1} - x)$ and for $0 < \epsilon <d_i$, there is no element in $N^\prime(x; \epsilon)$.
+
+        So there is no limit point for nonempty finite set.s
+    \end{exercise}
+
+    \begin{exercise}[1.29]
+        Suppose that $S$ is an unbounded, infinite set in $\mbb{R}$.
+        Does $S$ necessarily have a limit point?
+        If so, prove it.
+        If not, prove an example of an unbounded, infinite set having no limit points.
+
+        $\mbb{Z}$ is good example of an unbounded, infinite set who has no limit points.
+    \end{exercise}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{block}{Example 1.30}
+        Suppose that $S$ is a bounded, infinite subset of $\mbb{R}$ having exactly one limit point $x_0$.
+        Prove that, for any $\epsilon >0$, the neighborhood $N^\prime(x_0; \epsilon)$ contains all but finitely many of the points of $S$.
+
+        Suppose to the contrary that $(N^\prime(x_0; \epsilon))^\mathsf{c}$ contains infinitely many points of $S$.
+        That is, $S \cap (N^\prime(x_0; \epsilon))^\mathsf{c}$ is an infinite set.
+        Since $S$ is a bounded set, its subset $s \cap (N^\prime(x_0 ; \epsilon))^\mathsf{c}$ is also a bounded set.
+        So by theorem \ref{th:1.2.2}, $S \cap (N^\prime(x_0; \epsilon))^\mathsf{c}$ must have a limit point.
+        This is contradiction.
+        $\qed$
+    \end{block}
+\end{frame}
+
+\subsection{The Limit of a Sequence}
+
+\begingroup
+    \setbeamertemplate{frametitle}{%
+    \vskip1ex
+    \usebeamerfont{frametitle}%
+    \insertframetitle\par        %  ← 원하는 대로 변경 가능
+    \vskip1ex
+    \hrule                             % 밑줄(선택)
+    }
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[currentsubsection]
+    \end{frame}
+\endgroup
+
+\begin{frame}{.}
+    The english world \tb{eventually} means "beyond some point in time".
+    If you think of the indices $1,2,3,\dots$ as a premitive model for time, then \ti{eventually} translates into the following mathematical phrase: \underline{There exists an index $k_0 \in \mbb{N}$ such that, if $k \geq k_0$...}
+    Some state $P(k)$ that depends on $k$ is \ti{eventually} valid if there exists a $k_0$ such that, for $k \geq k_0$, $P(k)$ holds true.
+
+    \smallskip
+    Similarly, the english world \tb{frequently} will be translated into the phrase: \underline{For every index $k\in\mbb{N}$, there is at least one $k_1 > k$ such that...}
+    We will say that $P(k)$ is \ti{frequently} valid if, for every $k \in \mbb{N}$, there exists at least one $k_1 > k$ such that $P(k_1)$ holds true.
+
+    \smallskip
+    Clearly, if a statement $P(k)$ is eventually valid, then it is frequently valid.
+
+    \begin{definition}
+        We say that $c$ is a \tb{cluster point} of the sequence $\{x_k\}$ if, for every $\epsilon> 0$ and every $k \in \mbb{N}$, there is a $k_1 > k$ such that $x_{k_1} \in N(c; \epsilon)$.
+    \end{definition}
+
+    Put briefly, $c$ is a cluster point of $\{x_k\}$ if terms of the sequence are frequently arbitrary near $c$.
+    Note that a limit point of the set $S = \{x_1, x_2, \dots\}$ is automatically a cluster point of the sequence $\{x_k\}$.
+
+    \underline{Note that in definition of cluster point, neighborhood is used instead of deleted neighborhood}.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example} \label{ex:3}
+        Let $x_k = (-1)^k, \forall k \in \mbb{N}$.
+        Then the set $S$ is simply $\{-1, 1\}$, consisting of two points and having no limit points.
+        But both $-1$ and $1$ are cluster points of the sequence $\{x_k\}$.
+    \end{example}
+
+    \begin{definition}
+        The sequence $\{x_k\}$ \tb{converges} to $x_0$ and we say that $x_0$ is the \tb{limit} of $
+        \{x_k\}$ if, for each neighborhood $N(x_0; \epsilon)$, there exists an index $k_0$ such that, whenever $k \geq k_0$, $x_k$ is in $N(x_0; \epsilon)$.
+        We write $\lim_{k \to \infty} x_k = x_0$.
+        If a sequence $\{x_k\}$ fails to converge, for whatever reason, then we say that it \tb{diverges}.
+    \end{definition}
+
+    Note that
+    \begin{itemize}
+        \item In definition of convergence of sequence, \ti{neighborhood} is used and contrastly, in definition of limit of set, \ti{deleted neighborhood} is used.
+        \item Also, convergence of sequences requires all $x_k$, where $k \geq k_0$, should satisfies $x_k \in N(x_0; \epsilon)$. Instead, in limit point of set, for any $\epsilon > 0$, it accept only one point of $S$ in $N(x_0; \epsilon)$.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem}
+        The limit of a convergent sequence in $\mbb{R}$ is unique.
+
+        proof. we have to prove that $\{x_k\}$ converges to both $x_0$ and $x_0^\prime \implies x_0 = x_0^\prime$.
+        Let assume $x_0 \neq x_0^\prime$.
+        Then by choosing $0 < \epsilon < \abs{x_0 - x_0^\prime}/2$, we will obtain a contradiction.
+        Since $\lim_{k \to \infty} x_k = x_0$, we can choose $k_1 \in \mbb{N}$ such that $\forall k \geq k_1, x_k \in N(x_0; \epsilon)$.
+        Similarly, we can choose $k_2 \in \mbb{N}$ such that, $\forall k \geq k_2, x_k \in N(x_0^\prime; \epsilon)$.
+
+        Let $k_0 = \max(k_1, k_2)$.
+        Then $k_0 \in N(x_0; \epsilon)$ and $k_0 \in N(x_0^\prime; \epsilon)$.
+        So for any $k \geq k_0$, $\abs{x_0 - x_0^\prime} = \abs{x_0 - x_k + x_k - x_0^\prime} \leq \abs{x_0 - x_k} + \abs{x_k - x_0^\prime} < \epsilon + \epsilon = 2\epsilon$.
+        But by assumption, $2\epsilon < \abs{x_0 - x_0^\prime}$ and this is contradiction.
+        $\qed$
+    \end{theorem}
+
+    \begin{theorem} \label{th:1.3.2}
+        If a sequence has two (or more) cluster points, then it must diverge.
+
+        \smallskip
+        proof. skip
+    \end{theorem}
+    Recall that \ref{ex:3} has \underline{two cluster points} and therefore \underline{diverges}.
+\end{frame}
+
+\begin{frame}{.}
+    Our next result provides a logical fulcrum on which many of our subsequent arguments will hinge.
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            % -------------------------------------------------------
+            % 1. 좌표 설정 (사용자 요청에 맞춰 정렬)
+            % x_0 = -2 로 가정
+            % x_0의 반경 1 Neighborhood: (-3 ~ -1)
+            % 0을 중심으로 한 큰 Neighborhood: (-3 ~ 3) -> 반지름이 3 (|x_0|+1)
+            % -------------------------------------------------------
+
+            % 수직선 그리기
+            \draw[latex-latex] (-6,0) -- (6,0);
+
+            % -------------------------------------------------------
+            % 2. 틱(Tick)과 라벨(Label) 그리기
+            % -------------------------------------------------------
+            
+            % -M (맨 왼쪽)
+            \draw (-5, 0.1) -- (-5, -0.1) node[below=8pt] {$-M$};
+            
+            % x_0 (Top Neighborhood의 중심)
+            \draw (-2, 0.1) -- (-2, -0.1) node[below=8pt] {$x_0$};
+            
+            % 0 (원점)
+            \draw (0, 0.1) -- (0, -0.1) node[below=8pt] {$0$};
+            
+            % |x_0| (대칭점)
+            \draw (2, 0.1) -- (2, -0.1) node[below=6pt] {$|x_0|$};
+            
+            % |x_0| + 1 (요청하신 대로 수직선 '위쪽'에 표시)
+            \draw (3, 0.1) -- (3, -0.1) node[above=8pt] {$|x_0|+1$};
+            
+            % M (맨 오른쪽)
+            \draw (5, 0.1) -- (5, -0.1) node[below=8pt] {$M$};
+
+            % -------------------------------------------------------
+            % 3. 수직선 위의 괄호 ( ) 표시
+            % N(x_0; 1) 구간인 -3과 -1 위치에 괄호 표시
+            % -------------------------------------------------------
+            \node at (-3, 0) {{(}}; % 왼쪽 괄호 (Bottom Brace의 시작점과 일치)
+            \node at (-1, 0) {{)}}; % 오른쪽 괄호
+
+            % -------------------------------------------------------
+            % 4. 위쪽 중괄호: N(x_0; 1)
+            % 범위: -3 ~ -1
+            % -------------------------------------------------------
+            \draw [decorate, decoration={brace, amplitude=5pt, raise=10pt}] 
+            (-3,0) -- (-1,0) node [black, midway, above=18pt] {$N(x_0; 1)$};
+
+            % -------------------------------------------------------
+            % 5. 아래쪽 중괄호: N(0; |x_0|+1)
+            % 요청사항: 위쪽 중괄호의 시작점(-3)부터 |x_0|+1 지점(3)까지
+            % 범위: -3 ~ 3
+            % -------------------------------------------------------
+            \draw [decorate, decoration={brace, amplitude=5pt, mirror, raise=25pt}] 
+            (-3,0) -- (3,0) node [black, midway, below=33pt] {$N(0; |x_0|+1)$};
+
+        \end{tikzpicture}
+        \caption{Figure 1.10}
+    \end{figure}
+
+    \begin{theorem} \label{th:1.3.3}
+        A convergent sequence is bounded.
+
+        \smallskip
+        Proof. Suppose that $\{x_k\}$ converges to $x_0$.
+        We must show that there exists some real number $M$ such that $\abs{x_k} \leq M$, for $k=1,2,3,\dots$.
+        Let $\epsilon=1$.
+        Since $\{x_k\}$ converges to $x_0$, $\exists k_0 \in \mbb{N}$ such that $\forall k \geq k_0, k \in N(x_0; 1)$.
+        Then $\abs{x_k} = \abs{x_k - x_0 + x_0} \leq \abs{x_k - x_0} + \abs{x_0} < 1 + \abs{x_0}$.
+        This implies $x_k \in N(0; 1+\abs{x_0})$.
+
+        Consider the $k_0$ numbers: $\abs{x_1}, \abs{x_2}, \dots, \abs{x_{k_0 - 1}}$ and $\abs{x_0} + 1$.
+        We let $M$ be any real number greater than the maximum of these $k_0$ numbers.
+        It is easy to see that $\{x_k\}$ must be contained in $N(0;M)$ and is therefore bounded.
+        $\qed$
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    The contrapositive of \ref{th:1.3.3} provides us with the following useful fact.
+    \begin{theorem} \label{th:1.3.4}
+        If a sequence is unbounded, then it must diverge
+    \end{theorem}
+
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = \frac{1}{k}$.
+        Intuitively, it is evident that $\lim_{k \to \infty} x_k = 0$.
+
+        By fixing any $\epsilon > 0$ and choosing the smallest positive integer $k_0$ such that $1 < k_0 \epsilon$, $0 < \frac{1}{k_0} < \epsilon$ holds.
+        For any $k \geq k_0$ such that $\abs{x_k - 0} = \frac{1}{k} \leq \frac{1}{k_0} < \epsilon$ holds.
+        So, $x_k \in N(0; \epsilon)$.
+
+        Thus, $\lim_{k \to \infty} x_k = 0$.
+    \end{example}
+
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = 1 - \frac{1}{2^k}$.
+        We claim that $\lim_{k \to \infty} x_k = 1$.
+
+        Fix $\epsilon > 0$.
+        Then $\exists k_0 \in \mbb{N}$ such that $1 < k_0\epsilon < k \epsilon$ where $k \geq k_0$.
+        This implies $1 < k\epsilon < 2^k \epsilon \implies \frac{1}{2^k} < \epsilon$.
+        Then $\abs{x_k - 1} = \abs{1 - \frac{1}{2^k} -1} = \frac{1}{2^k} < \epsilon$ holds.
+        In other words, $x_k \in N(1;\epsilon)$.
+
+        This proves $\lim_{k \to \infty} (1 - \frac{1}{2^k}) = 1$.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            % 수직선
+            \draw[latex-latex] (-4,0) -- (4,0);
+
+            \def\cx{2}
+            \def\dotxpos{0.5}
+            \def\parxpos{0.75}
+
+            % 눈금 및 텍스트 (수정된 부분)
+            % inner sep을 줄여서 눈금에 더 가깝게 붙임
+            \draw (-\cx, 0.1) -- (-\cx, -0.1) node[below, inner sep=0pt] {$-c$}; 
+            \draw (\cx, 0.1) -- (\cx, -0.1) node[below=1.5pt, inner sep=0pt] {$c$};
+            \draw (0, 0.1) -- (0, -0.1) node[below=0.5pt, inner sep=0pt] {$0$};
+
+            % 점들
+            \fill (-\cx + \dotxpos, 0) circle (2pt);
+            \node[above=8pt] at (-\cx + \dotxpos, 0) {$y_{2j+1}$};
+
+            \fill(\cx + \dotxpos, 0) circle (2pt);
+            \node[above=8pt] at (\cx + \dotxpos, 0) {$y_{2j}$};
+
+            % 괄호
+            \node at (-\cx - \parxpos, 0) {{(}};
+            \node at (-\cx + \parxpos, 0) {{)}};
+
+            \node at (\cx - \parxpos, 0) {{(}};
+            \node at (\cx + \parxpos, 0) {{)}};
+
+            % 아래쪽 중괄호 (Brace)
+            % raise 값을 조금 줄여서 전체적으로 위로 올릴 수도 있습니다 (필요하다면)
+            \draw [decorate, decoration={brace, amplitude=3pt, mirror, raise=12pt}] 
+            (-\cx - \parxpos,0) -- (-\cx + \parxpos,0) node [black, midway, below=15pt] {$N(-c; \epsilon)$};
+            \draw [decorate, decoration={brace, amplitude=3pt, mirror, raise=12pt}] 
+            (\cx - \parxpos,0) -- (\cx + \parxpos,0) node [black, midway, below=15pt] {$N(c; \epsilon)$};
+        \end{tikzpicture}
+        \caption{Figure 1.11}
+    \end{figure}
+
+    \begin{example}
+        Let $\{x_k\}$ be any sequence that converges to $0$ and let $c$ be any positive number.
+        Let $y_k = (-1)^k(c+x_k)$.
+        We claim that both $c$ and $-c$ are cluster points of $\{x_k\}$ and that the sequence must diverge.
+
+        \underline{Claim: both $-c$ and $c$ are cluster points of $\{y_k\}$ and these sequence must divergence}.
+
+        Let fix $0< \epsilon < c$. Then $\exists k_0$ such that $\forall k \geq k_0, \abs{x_k} < \epsilon$.
+        Then even $k$, i.e. $k=2j$, $\abs{y_k - c} = \abs{c + x_k - c} = x_k < \epsilon$.
+        Also, odd $k$, i.e. $k=2j+1$, $\abs{y_k - (-c)} = \abs{-c -x_k + c} = x_k < \epsilon$.
+
+        Since $\{y_k\}$ has two cluster points, $\{y_k\}$ must diverge by theorem \ref{th:1.3.2}.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, define $x_k = \frac{k}{k+1}$.
+        Evidently, $\lim_{k \to \infty} x_k = 1$.
+
+        Fix $\epsilon > 0$. We want to show that, eventually, $\abs{x_k -1} = \abs{\frac{k}{k+1} - 1} < \epsilon$ or, equivalently, that $1 - \epsilon < \frac{k}{k+1} < 1 + \epsilon$.
+        Since $\frac{k}{k+1} < 1+\epsilon$ is trivial, we only need to show that $1 - \epsilon < \frac{k}{k-1} \implies 1 - \epsilon < k\epsilon$.
+        So, we set $k_0 \in \mbb{N}$ as smallest number which satisfies $\frac{1-\epsilon}{\epsilon} < k_0$.
+        We want to confirm that, for any $k \geq k_0, x_k \in N(1;\epsilon)$.
+        Then $k\epsilon > 1 - \epsilon \implies k - k(1 - \epsilon) > 1-\epsilon \implies k > (k+1)(1-\epsilon) \implies \frac{k}{k+1} > 1- \epsilon$.
+
+        $\therefore x_k \in N(1;\epsilon)$ and $\lim_{k \to \infty} x_k = 1$.
+    \end{example}
+
+    \begin{example} \label{ex:18}
+        Fix any $r$ such that $-1 < r < 1$.
+        Clam that $\lim_{k \to \infty} r^k = 0$.
+        We only proof for $0< r< 1$.
+        We need to exhibit an index $k_0$ with the property that, if $k \geq k_0$, then $r^k \in N(0; \epsilon)$.
+
+        Let $c = \frac{1}{r} -1$.
+        Then $r = \frac{1}{1+c}$.
+        Note that $r^k = \frac{1}{(1+c)^k} \leq \frac{1}{1 + ck} < \frac{1}{ck}$.
+
+        Fix $\epsilon >0$.
+        Then there exists smallest $k_0 \in \mbb{N}$ such that $\frac{1}{c k_0} < \epsilon$.
+        For $k \geq k_0$, $r^k < \frac{1}{ck} \leq \frac{1}{c k_0} < \epsilon$.
+        This implies $r^k \in N(0;\epsilon)$.
+    \end{example}
+    
+    By following theorem, $-1<r<0$ case is also holded.
+
+    \begin{theorem} \label{th:1.3.5}
+        A sequence $\{x_k\}$ converges to $0$ iff $\{\abs{x_k}\}$ converges to $0$ also
+
+        ($\implies$): trivial
+
+        ($\impliedby$): Fix $\epsilon >0$ and $k_0 \in N$ such that for $k \geq k_0$, $\abs{x_k} \in N(0; \epsilon)$.
+        This implies $-\epsilon < x_k < \epsilon$ and $x_k \in N(0; \epsilon)$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+
+    \begin{theorem}\label{th:1.3.6}
+        If $\{x_k\}$ converges to $x_0$ and if $c$ is any constant, then $\{cx_k\}$ converges to $cx_0$.
+    \end{theorem}
+
+    \begin{theorem} \label{th:1.3.7}
+        A bounded, monotone sequence of real numbers converges.
+    \end{theorem}
+
+    Above theorem is an alternative form of Completeness Axiom for $\mbb{R}$.
+    The stragety for its proof follows from basic principles, for if ${x_k}$ is a bounded, monotone increasing sequence, then it must converge to $\sup \{x_k: k \in \mbb{N}\}$.
+    Likewise, if $\{x_k\}$ is a bounded, monotone decreasing sequence, then it converges to $\inf \{x_k: k \in \mbb{N}\}$.
+
+    \begin{theorem}[The Squeeze Play] \label{th:1.3.8}
+        If $\{x_k\}, \{y_k\}$, and $\{z_k\}$ are three sequences such that $x_k \leq y_k \leq z_k$, for $k \in \mbb{N}$, and if $\lim_{k \to \infty} x_k$ and $\lim_{k \to \infty}z_k$ exist and are equal, then $\lim_{k \to \infty} y_k$ also exist and is equal to this common value.
+
+        Proof. Let $L$ denote the common limit of $\{x_k\}$ and $\{z_k\}$.
+        We must show that eventually $y_k$ is arbitrarily near $L$.
+        How do we proceed?
+        First, we assign an arbirarily small, positive value to $\epsilon$.
+        We need to confirm the existence of an index $k_0$ such that, for $k \geq k_0$, the number $y_k$ is in $N(L;\epsilon)$.
+
+        Because $\lim_{k \to \infty} x_k = L$, there exists an index $k_1$ such that, for $k \geq k_1$, $x_k$ is in $N(L;\epsilon)$.
+        Likewise, there exists an index there exists an index $k_2$ such that, for $k \geq k_2$, $z_k$ is in $N(L;\epsilon)$.
+        If we let $k_0 = \max (k_1, k_2)$, the both conditions hold simultaneously.
+        For $k \geq k_0$, both $x_k$ and $z_k$ are in $N(L; \epsilon)$.
+        Since, for all $k$, the number $y_k$ is trapped between $x_k$ and $z_k$, it must follow that for $k \geq k_0$, $y_k$ is in $N(L; \epsilon)$ also.
+        In other words, $\lim_{k \to \infty} y_k = L$.
+    \end{theorem}
+
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            \draw[latex-latex] (-4,0) -- (4,0);
+
+            \def\lx{0}
+            \def\eps{3}
+
+            \fill (\lx, 0) circle (2pt);
+            \node[below=4pt] at (\lx, 0) {$L$};
+
+            \fill (\lx-\eps, 0) circle (2pt);
+            \node[below=4pt] at (\lx-\eps, 0) {$L - \epsilon$};
+
+            \fill (\lx + \eps, 0) circle (2pt);
+            \node[below=4pt] at (\lx + \eps, 0) {$L + \epsilon$};
+
+            \fill (-1.5, 0) circle (2pt);
+            \node[below=4pt] at (-1.5, 0) {$x_k$};
+
+            \fill (-0.5, 0) circle (2pt);
+            \node[below=4pt] at (-0.5, 0) {$y_k$};
+
+            \fill (1.0, 0) circle (2pt);
+            \node[below=4pt] at (1.0, 0) {$z_k$};
+
+        \end{tikzpicture}
+        \caption{Figure 1.12}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{theorem}
+    In a similar vein we have the following theorem whose proof is left as an exercise.
+    \begin{theorem} \label{th:1.3.9}
+        Limit is order-preserving on convergent sequences.
+        That is, if both $\{x_k\}$ and $\{y_k\}$ converge and if for each $k \in \mbb{N}$ we have $x_k \leq y_k$, then $\lim_{k \to \infty} x_k \leq \lim_{k \to \infty} y_k$.
+
+        Proof. Let $\lim_{k \to \infty} y_k = y_0,  \lim_{k \to \infty} x_k = x_0$ and assume $x_0 > y_0$. Let $\epsilon = \frac{x_0 - y_0}{2}$. Then for $k \geq k_1, \in \mbb{N}$, $x_k \in N(x_0; \epsilon)$ and for $k, \geq k_2, y_k \in N(y_0; \epsilon)$. For $k \geq k_0 = \max(k_1, k_2), y_k < y_0 + \epsilon = x_0 - \epsilon < x_k$ holds.
+        This is contradiction for $x_k \leq y_k$.
+        This implies $x_0 \leq y_0$.
+    \end{theorem}
+
+    \begin{example}
+        Fix $r \neq 0 \in \mbb{R}$.
+        We claim that $\lim_{k \to \infty} r^k /k! = 0$.
+        To verify our claim, choose $k_0$ to be the smallest natural number greater than $\floor{\abs{r}}$, the integer part of $\abs{r}$.
+        Let $R = \abs{r}/(k_0 + 1)$ and note that $0 < R< 1$.
+        Let $c$ denote the constant $(k_0 + 1)^{k_0} / k_0!$.
+        Fix any $k \geq k_0$.
+        Notice that, for any $j=1,2,\dots, k-k_0, 1/(k_0 + j) \leq 1 / (k_0 +1)$.
+        Thus we obtain
+        \begin{equation*}
+            0 < \frac{\abs{r}^k}{k!} = \abs{r}^k \frac{1}{k_0!} \cdot \frac{1}{(k_0 + 1)(k_0 + 2)\cdots (k-1) k} \leq \abs{r}^k \frac{1}{k_0!} \cdot \frac{1}{(k_0 +1)^{k-k_0}} = \frac{(k_0+1)^{k_0}}{k_0!}\cdot \left[\frac{\abs{r}}{k_0+1}\right]^k = c R^{k - k_0}.
+        \end{equation*}
+        By example \ref{ex:18} and thereom \ref{th:1.3.6}, we know that $\lim_{k \to \infty} cR^k = 0$.
+        Therefore we have $0 \leq \lim_{k \to \infty} \abs{r}^k / k! \leq \lim_{k \to \infty} cR^k =0$.
+        By the Squeeze Play, (theorem $\ref{th:1.3.8}$), we conclude that $\lim_{k \to \infty} r^k / k! = 0$ and our initial claim is proved.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example} \label{ex:1.3.8}
+        For $k \in \mbb{N}$, let
+        \begin{equation*}
+            x_k = 1+ \frac{1}{1!} + \frac{1}{2!} + \cdots + \frac{1}{k!}= 1 + 1 + \sum_{j=2}^{k}\frac{1}{j!},\quad y_k = \left(1+\frac{1}{k}\right)^k
+        \end{equation*}
+        We will show that $\lim_{k \to \infty} x_k = \lim_{k \to \infty} y_k$.
+        The common limit is the irrational number $e$ discussed in examples \ref{ex:6}.
+
+        It is easy to see that $\{x_k\}$ is strictly monotone increasing.
+        We saw in example \ref{ex:6} that $\{x_k\}$ is bounded above by $3$.
+        Consequently, by theorem \ref{th:1.3.7}, $\{x_k\}$ converges to $\sup \{x_k: k \in \mbb{N}\}$.
+        We denote this limit by $e$.
+
+        Consider next the sequence $\{y_k\}$. In exercise \ref{exercise:1.20}, we showed that 
+        \begin{equation} \label{eq:1}
+            y_k = 1 + 1 + \sum^k_{j=2} \frac{1}{j!} \left(1 - \frac{1}{k}\right) \left(1 - \frac{2}{k}\right) \cdots \left(1 - \frac{j-1}{k}\right)
+        \end{equation}
+        and that, for every $k \in \mbb{N}$, $y_k \leq x_k \leq e$.
+        Thus $\{y_k\}$ is bounded above.
+
+        Notice that $1 - i/k < 1- i/{k+1}, \forall i=1,2,\dots,j-1$.
+        From this it follows that, $\forall j=2,3,\dots, k$,
+        \begin{equation*}
+            \frac{1}{j!}\prod^{j-1}_{i=1} \left(1 - \frac{i}{k}\right) < \frac{1}{j!} \prod^{j-1}_{i=1}\left(1 - \frac{i}{k+1}\right)
+        \end{equation*}
+        Observe that, $y_k < y_{k+1}$,
+        \begin{equation*}
+            \begin{aligned}
+                y_k &= 1+ 1+ \sum^k_{j=2}\frac{1}{j!} \prod_{i=1}^{j-1}\left(1 - \frac{i}{k}\right) < 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1}  \left(1 - \frac{i}{k+1}\right) \\
+                &< 1+ 1+ \sum_{j=2}^k \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{k+1}\right) + \frac{1}{(k+1)!}\prod_{i=1}^{k} \left(1 - \frac{i}{k+1}\right) = y_{k+1}
+            \end{aligned}
+        \end{equation*}
+        This implies $\{y_k\}$ is strictly monotonic increasing.
+        Since the sequence $\{y_k\}$ is bounded above by $e$, we are guaranteed by Theorem \ref{th:1.3.7}.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+\begin{exampleblock}{Example 1.3.8 (con't)}
+    Denote the limit of $\{y_k\}$ by $y_0$.
+    Since $y_k \leq x_k$ for all $k$, we can immediately deduce by Theorem \ref{th:1.3.9} that
+    \begin{equation*}
+        y_0 \leq \lim_{k \to \infty} x_k = e
+    \end{equation*}
+
+    To obtain the reverse inequality, we create a third sequence from the fragments of information at hand.
+    Fix any $k \in \mbb{N}$.
+    $\forall m > k$, define
+    \begin{equation*}
+        z_k^m = 1+ 1+ \sum_{j=2}^{k} \frac{1}{j!} \prod_{i=1}^{j-1} \left(1 - \frac{i}{m}\right)
+    \end{equation*}
+    This choice of $z_k^m$ is motivated in part by the observation that $\lim_{m \to \infty} z_k^m = x_k$.
+
+    Referring again to equation \ref{eq:1}, note that $z_k^m$ is obtained from $y_m$ by omitting the final $m-k$ positive summands of $y_m$.
+    Thus, $\forall m>k$, we have $z_k^m< y_m$.
+    Since $\lim_{m \to \infty} z_k^m = x_k$ and $\lim_{m \to \infty} y_m = y_0$ we deduce by Theorem \ref{th:1.3.9} that $\lim_{m \to \infty} z_k^m=x_k \leq y_0, \forall k \in \mbb{N}$.
+    Thus $y_0$ is an upper bound for the sequence $\{x_k\}$.
+    Consequently, we know that
+    \begin{equation*}
+        e = \lim_{k \to \infty} x_k = \sup \{x_k:k \in \mbb{N}\} \leq y_0
+    \end{equation*}
+
+    Since we already know that $y_0 \leq e$, we conclude that $y_0 = e$.
+    We have proved that $\lim_{k \to \infty} (1+\frac{1}{k})^k = \lim_{k \to \infty} \sum_{j=0}^{k}\frac{1}{j!} = e$.
+
+    To approximate $e$ to seven-place accuracy, take $k=10$ and use your calculator to compute $x_{10} = \sum_{j=0}^{k} 1/{j!} \doteq 2.7182818$.
+    By contrast, $y_{10} = (1+\frac{1}{10})^10 = 2.5937425$. This contrast exhibits the fact that $\{x_k\}$ converges to $e$ more rapidly than does $\{y_k\}$.
+\end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $\{x_k\}$ be any sequence. Choose any strictly monotone increasing sequence $k_1 < k_2 < k_3 < \cdots$ of natural numbers.
+        For each $j \in \mbb{N}$, let $y_j = x_{k_j}$.
+        The sequence $\{y_j\} = \{x_{k_j}\}$ is called a \textit{subsequence} of $\{x_k\}$.
+    \end{definition}
+
+    \begin{theorem} \label{th:1.3.10}
+        The point $c$ is a cluster point of $\{x_k\}$ if and only if there exists a subsequence $\{x_{k_j}\}$ that converges to $c$.
+
+        Proof.
+        
+        ($\implies$) Let $\{\epsilon_k\}$ be any sequence of positive numbers that decreases strictly monotonically to $0$.
+        Choose $k_1 \in \mbb{N}$ s.t. $x_{k_1}$ is in $N(c; \epsilon_1)$.
+        By the definition of cluster point, having chosen $k_1$, we can choose $k_2 > k_1$ such that $x_{k_2}$ is in $N(c; \epsilon_2)$. In general, supppose that we have chosen $k_1 < k_2 < \cdots < k_{j}$ such that, for $i=1, 2, \dots, j$, the point $x_{k_j}$ is in $N(c; \epsilon_i)$.
+        By the definition of a cluster point, choose an index $k_{j+1} > k_j$ such that $x_{k_{j+1}}$ is in $N(c; \epsilon_{j+1})$.
+        By this procedure, we recursively extract a subsequence $\{x_{k_j}\}$ of $\{x_k\}$.
+
+        We have to show that $\lim_{j \to \infty} x_{k_j} = c$.
+        To this end, first fix any $\epsilon >0$.
+        Since $\lim_{j \to \infty} \epsilon_j = 0$, there is a $j_0$ such that for $j \geq j_0$, we have $0 < \epsilon_j < \epsilon$.
+        For $j \geq j_0$, we have $\epsilon_j < \epsilon$, so $N(c; \epsilon_j) \subset N(c; \epsilon)$.
+        Since by construction $x_{k_j} \in N(c  ; \epsilon_j)$, it follows that $x_{k_j} \in N(c; \epsilon)$ for all $j \geq j_0$.
+        Hence $x_{k_j} \to c$.
+
+        \smallskip
+        ($\impliedby$) Suppose that $\{x_{k_j}\}$ is a convergent subsequence of $\{x_k\}$ with $\lim_{j \to \infty} x_{k_j} = c$.
+        We must show that $c$ is a cluster point of $\{x_k\}$.
+        Fix $\epsilon > 0$ and choose a $j_0$ such that, if $j \geq j_0$, then $x_{k_j}$ is in $N(c; \epsilon)$.
+        Choose any $k \in \mbb{N}$ and choose any $j \geq j_0$ such that $k_j > k$.
+        Then $x_{k_j}$ is in $N(c; \epsilon)$.
+        Therefore $c$ is a cluster point of $\{x_k\}$.
+
+    \end{theorem}
+
+    Theorem \ref{th:1.3.10} enables us to prove the following theorem; it is a key link in our overall program and deserves your close attention.
+
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.11}
+        Any bounded sequence has a cluster point.
+
+        Proof. Let $S = \{x_1, x_2, \dots\}$ denote the set of all numerical values of the sequence.
+        $S$ is a bounded set $\subset \mbb{R}$.
+        If $S$ is infinite, then the Bolzano-Weierstrass theorem guarantees the existence of a limit point of $S$.
+        Any limit point of $S$ is a cluster point of $\{x_k\}$ and the result follows.
+
+        If $S$ is finite, then at least one of the values of the sequence must be repeated infinitely often.
+        Choosing the subsequence of all terms having that value produces a constant, convergent subsequence whose limit is a cluster point of $\{x_k\}$.
+        This proves the theorem. $\qedhere$
+    \end{theorem}
+
+    By recasting Theorem \ref{th:1.3.11} as a contrapositive, we have the following theorem.
+
+    \begin{theorem} \label{th:1.3.12}
+        If a sequence has no cluster points, then it is unbounded.
+    \end{theorem}
+
+    Elegant characterizations of convergence are provided by the next two theorems.
+    The proofs are straightforward and are left as exercises.
+
+    \begin{theorem} \label{th:1.3.13}
+        A sequence $\{x_k\}$ converges to $x_0$ if and only if every subsequence of $\{x_k\}$ converges to $x_0$.
+
+        Proof.
+        
+        ($\implies$) For every $\epsilon > 0$ we can find an index $k_0$ such that $\forall k > k_0$, $x_k \in N(x_0; \epsilon)$.
+        Consider any strictly monotone increasing sequence $\{k_j\}$.
+        Then exists $j_0 \geq k_0$ such that $\forall j > j_0, x_{k_j} \in N(x_0; \epsilon)$.
+        This proves that every subsequence of $\{x_k\}$ converges to $x_0$.
+
+        \smallskip
+        ($\impliedby$) Choose strictly monotone increasing sequcne $\{k_j\} = k_1 = 1 < k_2 =2 < k_3= 3 < \cdots$.
+        Then $\{x_{k_j}\} = \{x_1, x_2, x_3, \dots\} = \{x_k\}$ converges to $x_0$.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.14}
+        A bounded sequence converges if and only if it has exactly one cluster point.
+
+        Proof.
+
+        ($\implies$) Sequence $\{x_k\}$ converges to $x_0$.
+        There exists a  cluster point $x_0$ of $\{x_k\}$.
+        Suppose that $\{x_k\}$ has another cluster point $x_0^\prime$.
+        Let $\epsilon = \abs{x_0 - x_0^\prime}/2$.
+        There exists $k_0$ such that $\forall k >k_0$, $x_k \in N(x_0; \epsilon)$.
+        Since $x^\prime_0$ is a cluster point, there exists at least one index $j > k_0$ such that $x_j \in N(x_0^\prime; \epsilon)$.
+        This $x_j$ also in $N(x_0, \epsilon)$. So by triangle inequality, $2 \epsilon = \abs{x_0^\prime - x_0} \leq \abs{x_0^\prime - x_j} + \abs{x_0 - x_j}$ holds.
+        On the other hand, $\abs{x_0^\prime - x_j} < \epsilon, \abs{x_0 - x_j} < \epsilon$ implies $\abs{x_0^\prime - x_j} + \abs{x_0 - x_j} < 2 \epsilon$.
+        This is contradiction since $2 \epsilon \leq \abs{x_0^\prime - x_j} + \abs{x_0 - x_j} < 2 \epsilon$.
+
+        \smallskip
+        ($\impliedby$) Let $c$ be the unique cluster point of the bounded sequence $\{x_k\}$.
+        Suppose $\{x_k\}$ does not converge to $c$.
+        Then there exists $\epsilon>0$ such that infinitely many terms of the sequence lie outside $N(c;\epsilon)$.
+        Since $\{x_k\}$ is bounded, those terms form an infinite bounded subset of $\mathbb{R}$.
+        By the Bolzano--Weierstrass theorem, this set has a cluster point $c'$.
+        Because every point in this set lies outside $N(c;\epsilon)$, we must have $c' \notin N(c;\epsilon)$, and hence $c' \ne c$.
+        Thus $\{x_k\}$ has a cluster point different from $c$, a contradiction.
+        Therefore, $\{x_k\}$ converges to $c$.
+
+        \bigskip
+        (Is there any proof that is more simple and more elegant?)
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.15}
+        A sequence $\{x_k\}$ diverges if and only if at least one of the following conditions holds:
+        \begin{enumerate}
+            \item $\{x_k\}$ has at least two cluster points.
+            \item $\{x_k\}$ is unbounded.
+        \end{enumerate}
+
+        Proof.
+
+        ($\implies$) Suppose $\{x_k\}$ diverges.
+        There exists three options: $\{x_k\}$ has no cluster point, has unique cluster point, or has at least two cluster points.
+        Suppose $\{x_k\}$ has only one cluster point.
+        Then by Theorem \ref{th:1.3.14}, it should be converge.
+        This contradiction implies $\{x_k\}$ has no cluster point or several cluster points.
+        If $\{x_k\}$ has no cluster point, then by Theorem \ref{th:1.3.12}, it is unbounded.
+
+        ($\impliedby$) Suppose $\{x_k\}$ is unbounded. Then by Theorem \ref{th:1.3.4}, $\{x_k\}$ diverges.
+        Suppose next $\{x_k\}$ has at least two cluster points, then by Theorem \ref{th:1.3.14}, $\{x_k\}$ diverges.
+    \end{theorem}
+
+    \bigskip
+    There is yet another way to view the question of convergence of a sequence, one that often provides powerful insight.
+    Given a sequence, let $C$ denote the set of all its cluster points.
+    As we have seen, $C$ might be empty of consist of a single point or several points.
+    \underline{If the sequence is bounded, then by Theorem \ref{th:1.3.11}, $C$ is nonempty}.
+    Further, if the sequence is bounded, then the set $C$ of its cluster points is also bounded.
+    You will be challenged to prove this as an exercise.
+    Therefore, if the sequence is bounded, then, by Axiom, $\sup C$ and $\inf C$ exists.
+\end{frame}
+
+\begin{frame}{.}
+    \begin{definition}
+        Let $C$ denote the set of cluster points of a bounded sequence $\{x_k\}$.
+        \begin{enumerate}
+            \item The \ti{limit superior} of $\{x_k\}$ is defined to be $\sup C$ and is denoted $\lim \sup x_k$.
+            \item The \ti{limit inferior} of $\{x_k\}$ is defined to be $\inf C$ and is denoted $\lim \inf x_k$.
+        \end{enumerate}
+
+        \smallskip
+        If $\{x_k\}$ is unbounded above, we set $\lim \sup x_k = \infty$.
+        Likewise, if $\{x_k\}$ is unbounded below, we set $\lim \inf x_k = -\infty$.
+
+        If $\{x_k\}$ is bounded above but unbounded below and if $C$ is empty, we set $\lim \sup x_k = - \infty$.
+        (For example, let $x_k=-k$ for each $k \in \mbb{N}$.)
+        Likewise, if $\{x_k\}$ is bounded below but unbounded above and if $C$ is empty, we set $\lim \inf x_k = \infty$.
+        (For example, let $x_k =k$ for each $k \in \mbb{N}$.)
+    \end{definition}
+
+    % \bigskip
+    % We want to explore the properties of limit superior and limit inferior to discover how these concepts might provide us with insight about sequences.
+    % First, it is evident from the definitions that, in all cases $\lim \inf x_k \le \lim \sup x_k$.
+
+    \begin{theorem} \label{th:1.3.16}
+        Let $\{x_k\}$ be any sequence.
+        \begin{enumerate}
+            \item If $\mu = \lim \sup x_k$ is finite, then $\mu \in C$.
+            \item If $\nu = \lim \inf x_k$ is finite, then $\nu \in C$.
+        \end{enumerate}
+
+        Proof.
+        We claim that $\mu$ is a cluster point of $\{x_k\}$.
+        To see this, fix any $\epsilon >0$ and $k \in \mbb{N}$.
+        We need to show that there is some $k_1>k$ such that $x_{k_1} \in N(\mu; \epsilon)$.
+        The finiteness of $\mu$ implies that $C$ is nonempty and bounded above and that $\mu=\sup C$.
+        By theorem $\ref{th:1.1.1}$, we can choose a cluster point $c \in C$ such that $\mu - \epsilon <c \le \mu$.
+        If $c = \mu$, then $\mu \in C$ and finished.
+        Otherwise, $\mu-\epsilon < c < \mu$.
+        Choose any $0<\epsilon < \min(c - (\mu- \epsilon), \mu-c)$.
+        Note that $\epsilon_1 < \epsilon$.
+        Because $c$ is a cluster point of $\{x_k\}$, there exists a $k_1>k$ such that $x_{k_1} \in N(c; \epsilon_1)$.
+        But $N(c; \epsilon_1) \subset N(\mu; \epsilon)$.
+        Therefore $x_{k_1} \in N(\mu; \epsilon)$.
+        Thus, $\mu$ is a cluster point of $\{x_k\}$.
+        That is, $\mu \in C$.
+    \end{theorem}
+    \begin{figure}[h]
+        \centering
+        \begin{tikzpicture}
+            \draw (-3,0) -- (3,0);
+
+            \def\cx{0}
+            \def\eps{0.75}
+
+            \draw (\cx, 0.12) -- (\cx, -0.12) node[below=2pt, inner sep=0pt] {$c$};
+            \draw (\cx - 2, 0.1) -- (\cx -2, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+            \draw (\cx + 1.5, 0.1) -- (\cx + 1.5, -0.1) node[below=2pt, inner sep=0pt] {$\mu$};
+
+
+            \node at (\cx-\eps, 0) {{(}};
+            \node at (\cx+\eps, 0) {{)}};
+
+            \draw [decorate, decoration={brace, amplitude=4pt, mirror, raise=10pt}] (\cx-\eps,0) -- (\cx+\eps,0) node [black, midway, below=14pt] {$N(c;\epsilon_1)$};
+        \end{tikzpicture}
+        \caption{Figure 1.13}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.17}
+        Let $\{x_k\}$ be any bounded sequence in $\mbb{R}$.
+        Fix any $\epsilon > 0$.
+        \begin{enumerate}
+            \item Let $\mu = \lim \sup x_k$.
+            \begin{enumerate}
+                \item There exists a $k_0$ such that for all $k \geq k_0, x_k < \mu +\epsilon$.
+                \item For any $k$, there exists a $k_1 >k$ such that $x_{k_1} > \mu - \epsilon$.
+            \end{enumerate}
+            \item Let $\nu = \lim \inf x_k$.
+            \begin{enumerate}
+                \item There exists a $k_0$ such that for all $k \ge k_0, x_k > \nu - \epsilon$.
+                \item For any $k$, there exists a $k_1 > k$ such that $x_{k_1} < \nu + \epsilon$.
+            \end{enumerate}
+        \end{enumerate}
+        Proof. There can exist only finitely many terms of the sequence to the right of $\mu + \epsilon$;
+        Otherwise, there would be a cluster point of $\{x_k\}$-that is, a point of $C$-greater than $\sup C$.
+        We deduce that there must exist a $k_0$ such that, for $k \geq k_0$, we have $x_k < \mu + \epsilon$.
+        That is, the terms of the sequence $\{x_k\}$ are eventually less than $\mu + \epsilon$. (Figure 1.14).
+
+        On the other hand, since $\mu = \lim \sup x_k$ is a cluster point of $\{x_k\}$, given any $\epsilon >0$, there must exist infinitely many terms of the sequence to the right of $\mu - \epsilon$.
+        Thus, given any $k$, there exists a $k_1 > k$ such that $x_{k_1} > \mu - \epsilon$.
+        The terms of the sequence $\{x_k\}$ are frequently greater than $\mu - \epsilon$. (Figure 1.15).
+    \end{theorem}
+
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            \draw (-2.5,0) -- (2.5,0);
+
+            \def\cx{0}
+            \def\eps{0.75}
+
+            \draw (\cx, 0.10) -- (\cx, -0.10) node[below=2pt, inner sep=0pt] {$\mu$};
+            \draw (\cx - 2, 0.1) -- (\cx -2, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+            \draw (\cx + 2, 0.1) -- (\cx + 2, -0.1) node[below=2pt, inner sep=0pt] {$\mu+\epsilon$};
+
+            \draw (\cx + 0.5, 0.1) -- (\cx + 0.5, -0.1) node[below=2pt, inner sep=0pt] {$x_{k}$};
+        \end{tikzpicture}
+        \caption{Figure 1.14}
+    \end{figure}
+
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            \draw (-2,0) -- (2,0);
+
+            \def\cx{0}
+
+            \draw (\cx - 1.25, 0.1) -- (\cx -1.25, -0.1) node[below=2pt, inner sep=0pt] {$\mu-\epsilon$};
+
+            \draw (\cx +1.25, 0.1) -- (\cx +1.25, -0.1) node[below=2pt, inner sep=0pt] {$x_{k_1}$};
+        \end{tikzpicture}
+        \caption{Figure 1.15}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.3.18}
+        Let $\{x_k\}$ be any sequence in $\mbb{R}$.
+        \begin{enumerate}
+            \item $\{x_k\}$ converges to $x_0$ if and only if $\lim \inf x_k = \lim \sup x_k = x_0$
+            \item $\{x_k\}$ diverges if and only if one of the following conditions holds:
+            \begin{enumerate}
+                \item Either $\lim \inf x_k$ or $\lim \sup x_k$ is infinite.
+                \item Both $\lim \inf x_k$ and $\lim \sup x_k$ are finite and $\lim \inf x_k < \lim \sup x_k$.
+            \end{enumerate}
+        \end{enumerate}
+
+        Proof. (1. $\implies$) If $\{x_k\}$ converges to $x_0$, then $x_0$ is a bounded sequence.
+        By theorem \ref{th:1.3.14}, A bounded sequence $\{x_k\}$ has a unique cluster point, which then leads to $\lim \inf x_k = \lim \sup x_k = x_0$.
+        (1. $\impliedby$) If $\lim \inf x_k = \lim \sup x_k = x_0$, then there is only one cluster point of $\{x_k\}$, which is $x_0$.
+        By theorem \ref{th:1.3.14}, $\{x_k\}$ is a bounded sequence that converges to $x_0$.
+
+        \smallskip
+        (2. $\implies$) If $\{x_k\}$ diverges, then either $\{x_k\}$ is unbounded or $\{x_k\}$ is bounded but does not converge.
+        This implies that $\{x_k\}$ has either no cluster point ($\lim \inf x_k$ and $\lim \sup x_k$ are both infinite) or at least two cluster points exist ($\lim \inf x_k < \lim \sup x_k$).
+
+        (2. $\impliedby$) If either $\lim \inf x_k$ or $\lim \sup x_k$ is infinite, then $\{x_k\}$ is unbounded and hence diverges.
+        If both $\lim \inf x_k$ and $\lim \sup x_k$ are finite and $\lim \inf x_k < \lim \sup x_k$, then $\{x_k\}$ has at least two cluster points and hence diverges.
+    \end{theorem}
+
+    \bigskip
+    As we know, if $\{x_k\}$ is unbounded, then it must diverge.
+    Two special cases deserve attention.
+    \begin{itemize}
+        \item If, for every $M > 0$, there is a $k_0$ such that $x_k >M$ for all $k \ge k_0$, then we say that $\{x_k\}$ diverges to $\infty$ ($\lim \inf x_k = \lim \sup x_k = \lim_{k \to \infty} x_k = \infty$).
+        \item If, for every $M >0$, there is a $k_0$ such that $x_k < -M$ for all $k \ge k_0$, then we say that $\{x_k\}$ diverges to $-\infty$ ($\lim \inf x_k = \lim \sup x_k = \lim_{k \to \infty} x_k = -\infty$).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = k/ (\sqrt{k} + 3)$.
+        We show that $\{x_k\}$ diverges to $\infty$.
+        Fix $M>0$.
+        Our task is to find a $k_0$ such that, for $k \geq k_0$, $x_k >M$.
+        To this end, notice that, $\forall k>9$, we have $k/(\sqrt{k} + 3) > k / (2\sqrt{k}) =\sqrt{k}/2$.
+        We need merely choose $k_0 \in \mbb{N}$ to be greater than $\max(9, 4M^2)$.
+        For $k > k_0$, we have $x_k = \frac{k}{\sqrt{k} + 3} > \frac{\sqrt{k}}{2} > \frac{\sqrt{k_0}}{2}> M$.
+    \end{example}
+    
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k = \sum_{j=1}^k 1/j$.
+        It is evident that $\{x_k\}$ is strictly monotone increasing.
+        Its convergence hinges entirely on whether it is bounded.
+        We show here that this sequence is unbounded above and hence that $\lim_{k \to \infty} \sum_{j=1}^k 1/j = \infty$.
+        Fix $M>0$.
+        Consider indices of the form $k = 2^m$.
+        We will show that, for sufficiently large $m$, $x_{2^m} >M$.
+        Working backward, we group the summands as follows:
+        \[
+            x_{2^m} = 1 + \frac{1}{2} + \left(\frac{1}{3}+\frac{1}{4}\right) + \left(\frac{1}{5} + \cdots + \frac{1}{8}\right) + \cdots + \left(\frac{1}{2^{m-1}+1} + \cdots + \frac{1}{2^m}\right) = 1 + \sum^m_{p=1} \left[\sum_{j=1}^{2^{p-1}}\frac{1}{2^{p-1}+j}\right]
+        \]
+        For each $j=1,2,3,\dots,2^{p-1}$, we have $1/(2^{p-1}+j)>1/2^p$.
+        Therefore
+        \[
+            \sum^{P-1}_{j=1}\frac{1}{2^{p-1}+1} > 2^{p-1}\frac{1}{2^p} = \frac{1}{2}
+        \]
+        So $x_{2^m} >1+ \frac{m}{2}$.
+        Now we can identify the required index $k_0$.
+        The inequality $1+\frac{m}{2} > M \implies m > 2(M-1)$.
+        Choose $m_0$ to be the smallest natural number greater than $2(M-1)$ and let $k_0 = 2^{m_0}$.
+        For any $k > k_0 = 2^{m_0}$,
+        \[
+            x_k = (x_k - x_{k_0}) + x_{k_0} > x_{k_0} > 1+\frac{m_0}{2} > M
+        \]
+        Consequently, $\lim_{k \to \infty} x_k = \infty$.
+    \end{example}
+\end{frame}
+
+\subsection{Cauchy Sequences}
+
+\begin{frame}{.}
+    \begin{definition}[The Cauchy condition]
+        A sequence $\{x_k\} \in \mbb{R}$ is called a \ti{Cauchy sequence} if, for any $\epsilon >0$, there exists a $k_0$ such that, for $k$ and $m$ both greater than or equal to $k_0$, it follows that $\abs{x_k - x_m} < \epsilon$
+    \end{definition}
+
+    \begin{theorem} \label{th:1.4.1}
+        If $\{x_k\}$ is a convergent sequence of real numbers, then $\{x_k\}$ is a Cauchy sequence.
+
+        Proof. for any $\epsilon/2 > 0$, $\exists k_0$ such that $\forall k\ge k_0, k \in N(x_0 ; \epsilon/2)$.
+        Then $\forall k, m \ge k_0$, $x_k \in N(x_0; \epsilon/2), x_m \in N(x_0; \epsilon/2)$.
+        This implies $\abs{x_k -x_0 + x_0- x_m} \leq \abs{x_k -x_0} + \abs{x_0 - x_m} < \epsilon$.
+
+    \end{theorem}
+    Hence if you can prove that $\{x_k\}$ is a Cauchy sequence, then you may conclude that the sequence is convergent without knowing or even referring to its limit.
+    \begin{theorem} \label{th:1.4.2}
+        If a sequence is Cauchy, then it is bounded
+
+        Proof. The proof closely imitates that of Theorem \ref{th:1.3.3};
+
+        Assume that $\{x_k\}$ is a Cauchy sequence.
+        Let $\epsilon = 1$.
+        By the cauchy condition choose a $k_0$ such that, whenever $k,m \ge k_0$, we have $\abs{x_k - x_m} < 1$.
+        Let $m = k_0$ and observe that, for any $k \ge k_0$,
+        \[
+            \abs{x_k} = \abs{x_k - x_{k_0} + x_{k_0}} \le \abs{x_k - x_{k_0}} + \abs{x_{k_0}} < 1 + \abs{x_{k_0}}
+        \]
+        Let $M = \max(\abs{x_1}, \abs{x_2}, \dots, \abs{x_{k_0-1}}, \abs{x_{k_0}}+1)$.
+        Then it is immediate that $\abs{x_k} \leq M$ for all $k \in \mbb{N}$.
+        Therefore $\{x_k\}$ is bounded.
+    \end{theorem}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.4.3}
+        A Cauchy sequence in $\mbb{R}$ has exactly one cluster point.
+
+        Proof. For suppose that $c_1$ and $c_2$ are two distinct cluster points of the Cauchy sequence $\{x_k\}$.
+        Choose $\epsilon$ with $0< \epsilon < \abs{c_1 - c_2}/3$.
+        Choose a $k_0 \in \mbb{N}$ such that, if $k,m \geq k_0$, then $\abs{x_k - x_m} < \epsilon$.
+        Since $c_1$ and $c_2$ are cluster points of $\{x_k\}$, there exists $k_1, k_2 > k_0$ such that $x_{k_1} \in N(c_1; \epsilon)$ and $x_{k_2} \in N(c_2; \epsilon)$.
+        Use the inequality $\abs{a+b} \ge \abs{a} + \abs{b}$ twice to obtain the following contradiction:
+        \begin{equation*}
+             \epsilon > \abs{x_{k_1} - x_{k_2}} = \abs{c_1 - c_2 + x_{k_1} - c_1 + x_{k_2}- c_2} \ge \abs{c_1 - c_2} - \abs{x_{k_1} - c_1} - \abs{c_2 - x_{k_2}} > \epsilon
+        \end{equation*}
+    \end{theorem}
+
+    \begin{theorem} \label{th:1.4.4}
+        A sequence in $\mbb{R}$ is convergent if and only if it is a Cauchy sequence.
+
+        Proof.
+        
+        ($\implies$) Refer \ref{th:1.4.1}.
+        
+        ($\impliedby$) By Theorem \ref{th:1.4.2}, $\{x_k\}$ is bounded.
+        By Theorem \ref{th:1.4.3}, $\{x_k\}$ has exactly one cluster point.
+        By Theorem \ref{th:1.3.14}, the sequence $\{x_k\}$ converges.
+    \end{theorem}
+
+    \begin{definition}
+        A set $X$ is saide to be \ti{Cauchy complete} if every Cauchy sequence in $X$ converges to a point of $X$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    % \begin{example}
+    %     Consider the decimal expansion of the irrational number $\sqrt{2}=1.4142136\dots$.
+    %     We can write down the first few terms of a Cauchy sequence that converges to $\sqrt{2}$ 
+    %     \begin{equation*}
+    %         \begin{gathered}
+    %             x_1 = 1.40000000 \quad x_4 =1.41420000 \\
+    %             x_2 = 1.41000000 \quad x_5 =1.41421000 \\
+    %             x_3 = 1.41400000 \quad x_6 =1.41421300 \\
+    %         \end{gathered}
+    %     \end{equation*}
+    
+    %     Then $\{x_k\}$
+    % \end{example}
+
+    \begin{example}
+        Let $x_0 =n_0 . d_2 d_2 d_3 \cdots d_k \cdots$ be the decimal expansion of any positive number, where $n_0$ is the integer part of $x_0$ and, for $k=1,2,3,
+        \cdots,$ the digits $d_k$ are chosen from the set $\{0,1,2,3,4,5,6,7,8,9\}$.
+        Then $x_0$ can be written as an infinite series as follows:
+        \[
+            x_0 = n_0 + \sum_{j=1}^\infty \frac{d_j}{{10}^j}
+        \]
+        For each $k \ge 1$, let $x_k= n_0 + \sum^{k}_{j=1} d_j/{10}^j$
+        We claim that $\{x_k\}$ is a Cauchy sequence that converges to $x_0$.
+        To see this, we work backward.
+        Choose any indices $k, m$ with $m > k$.
+        Then
+        \[
+            \abs{x_m - x_k} = \sum_{j={k+1}}^{m} \frac{d_j}{{10}^j} \le \sum_{j={k=1}}^{m} \frac{9}{10^j} = 9 \left(\frac{1}{10}\right)^{k+1} \left(\frac{10}{9}\right) \left[1 - \left(\frac{1}{10}\right)^{m-k}\right] < 9 \left(\frac{1}{10}\right)^{k+1} \left(\frac{10}{9}\right) = \left(\frac{1}{10}\right)^k
+        \]
+        This last inequality provides the clue for our forward proof.
+        Given any $\epsilon >0$, use Archimedes' principle to choose $k_0 \in \mbb{N}$ so large that $(1/10)^{k_0} < \epsilon$.
+        Then, for $m > k \ge k_0$,
+        \[
+            \abs{x_m - x_k} < \left(\frac{1}{10}\right)^k \le \left(\frac{1}{10}\right)^{k_0} < \epsilon
+        \]
+        Thus $\{x_k\}$ is a Cauchy sequence.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Recursively construct a sequence of real numbers as follows.
+        Let $x_1 = 0, x_2=1, x_3=1/2, x_4=(1+1/2)/2 = 3/4$, and in general, for $k=2,3,4,\dots,$ let next term be the arithmetic average of the previous two: $x_{k+1} = (x_{k-1} + x_k)/2$.
+        Choose any two (large) indices $k$ and $m$.
+        W.L.O.G., $m > k$.
+        \[
+            \abs{x_m - x_k} \le \sum_{j=k}^{m-1} \abs{x_{j+1}-x_j} = \sum_{j=k}^{m-1} \left(\frac{1}{2}\right)^{j-1} = \left(\frac{1}{2}\right)^{k-1} \left[1 + \frac{1}{2}+\frac{1}{2^2} + \cdots + \frac{1}{2^{m-k-1}}\right] < \left(\frac{1}{2}\right)^{k-2}
+        \]
+        Now assign any $\epsilon > 0$.
+        Choose $k_0$ such that $(1/2)^{k_0 -2} < \epsilon$.
+        If $k, m > k_0, m>k$, then
+        \[
+            \abs{x_m - x_k} < \left(\frac{1}{2}\right)^{k-2} \le \left(\frac{1}{2}\right)^{k_0 - 2} < \epsilon
+        \]
+        Consequently, $\{x_k\}$ is a Cauchy sequence and it leads to that $\{x_k\}$ converges.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        For each $k \in \mbb{N}$, let $x_k =\sum^k_{j=0} (-1)^j /j!$.
+        We claim that $\{x_k\}$ is Cauchy.
+        We begin by working backward.
+        Choose any two indices $m, k$ with $m >k$.
+        Then
+        \[
+            \abs{x_m - x_k} = \abs{\sum_{j=k+1}^m \frac{(-1)^j}{j!}} \le \sum_{j=k+1}^m \frac{1}{j!} \leq \sum_{j=k+1}^m \frac{1}{2^{j-1}} = \frac{1}{2^{k-1}} \left[1 - \left(\frac{1}{2}\right)^{m-k}\right] < \frac{1}{2^{k-1}}
+        \]
+        For any $\epsilon >0$, choose the least natural number $k_0$ such that $1/2^{k_0-1} < \epsilon$.
+        For $k,m \geq k_0$ with $m>k$,
+        \[\abs{x_m - x_k} < \frac{1}{2^{k-1}} \le \frac{1}{2^{k_0 -1}} < \epsilon\]
+        Consequently the sequence $\{x_k\}$ is Cauchy and converges.
+        You can compute an approximation to the limit of this sequence, which is accurate to seven decimal places, by taking $k=10$.
+        We obtain $x_{10} = \sum^{10}_{j=0}(-1)^j/j! \doteq 0.3678794$.
+        Compare this number with the value given by your calculuation for the nubmer $1/e$.
+    \end{example}
+
+    \bigskip
+    \begin{definition}
+        A sequence $\{x_k\}$ is said to be \ti{contractive} if there exists a constant $C$, with $0<C<1$, such that
+        \[
+            \abs{x_{k+1}-x_k} \le C\abs{x_k -x_{k-1}},
+        \]
+        for all $k=2,3,4,\cdots$.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{example}
+        Define a sequence recursively as follows.
+        Let $x_1$ be any positive number.
+        For $k \ge 1$, let $x_{k+1} = 1/(4+x_k)$.
+        The resulting sequence is contractive.
+        To prove this, we must exhibit a constant $0<C<1$ such that for $k \ge 2$, $\abs{x_{k+1} - x_{k}} \leq C \abs{x_{k}-x_{k-1}}$.
+        \[
+            \abs{x_{k+1} - x_k} =\abs{\frac{1}{4+x_k} - x_k} = \left(1 - \frac{4}{4+x_k}\right)\abs{x_{k-1} -x_k}
+        \]
+        For $k \ge 2$, $x_k = 1/(4+x_{k-1})< 1/4$.
+        Therefore $4+x_{k} < 17/4$ and $4/(4+x_k) > 16/17$.
+        \[
+            0 < 1- \frac{4}{4+x_k} < \frac{1}{17}
+        \]
+        We take $C = 1/17$.
+        We have proved that, for $k \ge 2$,
+        \[\abs{x_{k+1} - x+k} \leq \frac{1}{17} \abs{x_k} - x_{k-1} \]
+        Consequently, $\{x_k\}$ is contractive.
+    \end{example}
+\end{frame}
+
+\begin{frame}{.}
+    \begin{theorem} \label{th:1.4.5}
+        If $\{x_k\}$ is a contractive sequence in $\mbb{R}$, then it is Cauchy.
+
+        Proof. Suppoe that $C$ is a constant with $0<C<1$ such that, for $k\ge 2$.
+        $\abs{x_{k+1}- x_k} \leq C \abs{x_k - x_{k-1}}$.
+        W.L.O.G., $\abs{x_2 - x_1} > 0$.
+        It is straightforward to prove by induction that $\abs{x_{k+1} - x_k}\le C^{k-1}\abs{x_2 - x_1}$ for $k \ge 2$.
+        Now choose any two indices $k$ and $m$ with $m >k$.
+        Using the formula for the sum of a finite geometric series, compute
+        \[
+            \abs{x_m - x_k} \le \sum_{j=k}^{m-1} \abs{x_{j+1} - x_j} \le \sum_{j=k}^{m-1} C^{j-1} \abs{x_2 - x_1} = C^{k-1} \abs{x_2 - x_1} \frac{1 - C^{m-k}}{1 - C} < \frac{C^{k-1}}{1-C} \abs{x_2 - x_1}
+        \]
+        Given any $\epsilon > 0$, we can choose $k_0$ such that if $k \ge k_0$, then $C^{k-1}< \frac{(1-C)\epsilon}{\abs{x_2 - x_1}}$.
+        Choose any $k, m \ge k_0$ with $m >k$.
+        Then $\abs{x_m - x_k} < \frac{C^{k-1}}{1-C} \abs{x_2 -x_1} < \epsilon $. 
+    \end{theorem}
+\end{frame}
+
+\end{document}
